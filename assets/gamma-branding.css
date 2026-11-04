@@ -1,0 +1,4 @@
+.product-details .text-block:not(.custom-typography) > h1 {
+  text-wrap: wrap;
+  overflow-wrap: anywhere;
+}
