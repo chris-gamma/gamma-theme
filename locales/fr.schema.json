@@ -1,4 +1,9 @@
 {
+  "gamma": {
+    "menu_en": "Menu de remplacement en anglais",
+    "menu_fr": "Menu de remplacement en français",
+    "menu_override_info": "Facultatif. Si le menu de remplacement est vide ou non sélectionné, le menu par défaut ci-dessus est utilisé. Modifiez les liens et leurs destinations dans Contenu > Menus."
+  },
   "names": {
     "404": "404",
     "custom_section": "Section personnalisée",

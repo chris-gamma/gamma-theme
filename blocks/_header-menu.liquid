@@ -10,6 +10,16 @@
   assign effective_submenu_color = block_settings.background_color | default: settings.page_background_color
 %}
 
+{%- capture menu_handle -%}
+  {%- render 'gamma-menu-handle',
+    menu: block_settings.menu,
+    menu_en: block_settings.menu_en,
+    menu_fr: block_settings.menu_fr,
+    locale_code: request.locale.iso_code
+  -%}
+{%- endcapture -%}
+{% assign menu = linklists[menu_handle] %}
+
 {% case variant %}
   {% when 'mobile' %}
     <div
@@ -19,7 +29,7 @@
       {{ block.shopify_attributes }}
     >
       {% render 'header-drawer',
-        linklist: block_settings.menu,
+        linklist: menu,
         data_header_drawer_type: 'mobile-drawer',
         block: block,
         section: section
@@ -44,7 +54,7 @@
             class="menu-list__list list-unstyled"
             role="list"
           >
-            {% for link in block_settings.menu.links %}
+            {% for link in menu.links %}
               <li>
                 <a
                   href="{{ link.url }}"
@@ -92,7 +102,7 @@
     %}
 
     {% capture children %}
-      {% for link in block_settings.menu.links %}
+      {% for link in menu.links %}
         <li
           class="menu-list__list-item"
           on:blur="/deactivate"
@@ -824,6 +834,18 @@
       "id": "menu",
       "label": "t:settings.menu",
       "default": "main-menu"
+    },
+    {
+      "type": "link_list",
+      "id": "menu_en",
+      "label": "t:gamma.menu_en",
+      "info": "t:gamma.menu_override_info"
+    },
+    {
+      "type": "link_list",
+      "id": "menu_fr",
+      "label": "t:gamma.menu_fr",
+      "info": "t:gamma.menu_override_info"
     },
     {
       "type": "header",

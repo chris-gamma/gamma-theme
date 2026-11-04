@@ -1,0 +1,26 @@
+{%- doc -%}
+  Selects a merchant-configured language menu and outputs its handle.
+
+  @param {linklist} menu - The default menu.
+  @param {linklist} [menu_en] - Optional English menu override.
+  @param {linklist} [menu_fr] - Optional French menu override.
+  @param {string} locale_code - The published storefront language code.
+{%- enddoc -%}
+
+{%- liquid
+  assign selected_menu = menu
+  assign language_family = locale_code | downcase | split: '-' | first
+
+  case language_family
+    when 'en'
+      assign localized_menu = menu_en
+    when 'fr'
+      assign localized_menu = menu_fr
+  endcase
+
+  if localized_menu != blank and localized_menu.links != blank
+    assign selected_menu = localized_menu
+  endif
+
+  echo selected_menu.handle
+-%}

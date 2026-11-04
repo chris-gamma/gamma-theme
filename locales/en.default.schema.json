@@ -8,6 +8,11 @@
  * ------------------------------------------------------------
  */
 {
+  "gamma": {
+    "menu_en": "English menu override",
+    "menu_fr": "French menu override",
+    "menu_override_info": "Optional. An unset or empty override uses the default menu above. Edit links and destinations in Content > Menus."
+  },
   "categories": {
     "banners": "Banners",
     // Category for fundamental content blocks (text, images, buttons)
