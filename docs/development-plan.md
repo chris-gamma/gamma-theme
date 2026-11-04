@@ -87,15 +87,15 @@ Useful starting points are Shopify's [theme architecture](https://shopify.dev/do
 
 ## Roadmap and feature index
 
-Priorities are P0 for shared prerequisites, P1 for purchasing/browsing/discovery and P2 for complete business-information and promotional workflows. G24 is a required final gate. G01's foundation is established; its compatibility requirements continue throughout development. All other features are planned and have not received feature acceptance.
+Priorities are P0 for shared prerequisites, P1 for purchasing/browsing/discovery and P2 for complete business-information and promotional workflows. G24 is a required final gate. G01's foundation is established; its compatibility requirements continue throughout development. An **Implemented** status records local code; feature acceptance remains pending until its criteria are verified.
 
 | Phase | ID | Feature | Priority | Dependencies | Status |
 | --- | --- | --- | --- | --- | --- |
 | 1. Foundation and data | G01 | Horizon foundation and development compatibility | P0 | Current `dev` | Established |
 | 1. Foundation and data | G02 | Content, data and merchant configuration | P0 | G01 | Planned |
-| 2. Shared storefront presentation | G03 | French and English navigation | P1 | G01; G02 for content | Planned |
-| 2. Shared storefront presentation | G04 | Gamma branding | P1 | G02, G03 | Planned |
-| 2. Shared storefront presentation | G05 | Native privacy presentation | P1 | G03, G04 | Planned |
+| 2. Shared storefront presentation | G03 | French and English navigation | P1 | G01; G02 for content | Implemented |
+| 2. Shared storefront presentation | G04 | Gamma branding | P1 | G02, G03 | Implemented |
+| 2. Shared storefront presentation | G05 | Native privacy presentation | P1 | G03, G04 | Implemented |
 | 2. Shared storefront presentation | G06 | Bilingual CAD presentation | P1 | G02, G03 | Planned |
 | 3. Products and purchasing | G07 | Product information and scoped updates | P1 | G02, G03 | Planned |
 | 3. Products and purchasing | G08 | Availability and fulfillment information | P1 | G02, G03, G07 | Planned |
@@ -198,7 +198,7 @@ Definitions are recorded under `docs/metaobjects/`; the eight information famili
 
 ### G03 — French and English navigation
 
-**Priority:** P1. **Status:** Planned. **Dependencies:** G01; G02 for menus, destinations and translations.
+**Priority:** P1. **Status:** Implemented. **Dependencies:** G01; G02 for menus, destinations and translations.
 
 #### Purpose
 
@@ -234,13 +234,15 @@ Missing/empty counterparts, unrelated configured menus, external links, long Fre
 - [ ] Language changes preserve supported resource/query/cart context.
 - [ ] Keyboard, no-JS and editor-selection checks pass without affecting native account/country controls.
 
+Local implementation (`5afa306`, `ff78b4f`): shared bilingual menu selection, merchant overrides/fallback and shell menu configuration are present. Approved destinations, live localized routing and desktop/mobile/editor acceptance remain pending.
+
 #### Prototype reference
 
 `blocks/_header-menu.liquid` selected `main-menu-fr`; `blocks/menu.liquid` mapped terminal `-en`/`_en` handles to French counterparts. Header and generic-menu handling differed for `fr-CA`, and a global header override could disregard another configured menu. The counterpart/fallback concept is useful; a shared resolver and native translated menus should be evaluated for the final design.
 
 ### G04 — Gamma branding
 
-**Priority:** P1. **Status:** Planned. **Dependencies:** G02, G03.
+**Priority:** P1. **Status:** Implemented. **Dependencies:** G02, G03.
 
 #### Purpose
 
@@ -272,13 +274,15 @@ Test logo/tagline readability, transparent/inverse backgrounds, French accents/e
 - [ ] Text, controls and focus states meet the agreed accessibility requirements.
 - [ ] Merchant settings/presets and native font delivery continue to work.
 
+Local implementation (`42b9649`, `39f6d86`): Gamma artwork references, native font/palette settings, header/footer configuration and scoped title wrapping are present. Artwork availability and rendered accessibility/editor acceptance remain pending.
+
 #### Prototype reference
 
 `config/settings_data.json` configured Gamma logos, 60px header logos, fonts, colors and component preferences. `assets/custom.css`, `sections/header.liquid` and `_header-menu.liquid` added spacing, a 5.55px centering offset, text wrapping and menu emphasis. These locations explain the visual intent; positional patches and low-contrast color pairings need reconsideration rather than direct adoption.
 
 ### G05 — Native privacy presentation
 
-**Priority:** P1. **Status:** Planned. **Dependencies:** G03, G04.
+**Priority:** P1. **Status:** Implemented. **Dependencies:** G03, G04.
 
 #### Purpose
 
@@ -310,6 +314,8 @@ Cover first visit, previously recorded choices, denied permission, withdrawal, u
 - [ ] Layout, contrast and focus remain usable on narrow screens and at zoom.
 - [ ] Dependent integrations respect the approved permission and revocation behavior.
 
+Local implementation (`505b754`): scoped native privacy typography, control shape, wrapping and focus styling is loaded. The interface handoff is documented below; live choices, persistence, reopening, withdrawal and responsive/keyboard acceptance remain pending.
+
 #### Prototype reference
 
 `assets/custom.css` styled Shopify privacy controls but hid the banner decline button. Historical `f80ccf12:layout/theme.liquid` loaded Clarity after privacy permission; that injection was absent from the active prototype layout. The useful reference is branded native presentation, not hidden choices or an assumed analytics requirement.
@@ -320,7 +326,7 @@ Shopify remains the consent authority. Banner copy, translations, regions, color
 
 Consumers use the [Customer Privacy API](https://shopify.dev/docs/api/customer-privacy) directly: reuse an available API or load `consent-tracking-api` version `0.2` through `Shopify.loadFeatures`, then read `preferencesProcessingAllowed()`, `analyticsProcessingAllowed()`, `marketingAllowed()` and `saleOfDataAllowed()`. Read initial state after readiness and re-read on `visitorConsentCollected`; subscribing alone does not supply initial state. Missing methods/APIs or failed loads are unavailable permission, never a grant. Do not inspect or modify Shopify consent cookies, infer permission from banner visibility, or add another consent store.
 
-G05 owns native presentation, choices, persistence, reopening and this interface handoff. Inspect the actual supplied banner/preferences and persistent reopening entry on an authorized candidate preview before finalizing CSS hooks or deciding whether a footer utility is needed. Preserve native behavior when hooks/API are unavailable; no map, attribution or additional analytics implementation belongs to this branch.
+G05 owns native presentation, choices, persistence, reopening and this interface handoff. `assets/gamma-privacy.css` scopes theme typography, control shape, wrapping and focus to the inspected native `#shopify-pc__banner` and `#shopify-pc__prefs__dialog` roots. Shopify retains colors, placement, markup and handlers. The supplied native interface injects a `#shopifyReshowConsentBanner` link into the policy list, so no custom reopening control or JavaScript is needed. Recheck these hooks after platform changes; unmatched CSS must leave native presentation functional. No map, attribution or additional analytics implementation belongs to this branch.
 
 Operation-specific permission mapping, persistence, withdrawal cleanup and request verification belong to G17/G23. Earlier map answers remain G17 planning preferences: explicit activation may load one map without preferences permission; remembering activation requires preferences permission and applies across maps for the session; withdrawal unloads active maps and clears memory, with fresh explicit activation still available. Shopify classifies attribution under marketing; G23 must verify the selected app's actual permission and revocation behavior. Those future integration decisions and tests do not gate G05's native presentation acceptance.
 

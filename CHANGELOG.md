@@ -9,6 +9,7 @@ This changelog records Location Gamma changes. Shopify's Horizon development his
 - Admin-managed English/French menu overrides with language-family fallback, three-level footer links and configured shell menus.
 - Gamma logos, Inter/Oswald typography and accessible native palette roles, with centered desktop navigation and an inverse footer logo.
 - Native privacy API handoff, with map and attribution implementation reserved for G17/G23.
+- Native Shopify privacy typography, control corners, wrapping and keyboard focus, retaining all consent choices and native preference reopening.
 - Location Gamma project setup.
 - Added project setup and maintenance documentation in `README.md`.
 - Added project licence in `LICENSE.md`.
