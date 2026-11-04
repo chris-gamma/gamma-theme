@@ -9,6 +9,7 @@ Location Gamma changes only; Horizon's history stays in Git. The foundation is H
 - Admin-managed English/French menu overrides with language-family fallback, three-level footer links and configured shell menus.
 - Gamma logos, Inter/Oswald typography and accessible native palette roles, with centred desktop navigation and an inverse footer logo.
 - Native privacy API handoff.
+- Native Shopify privacy typography, control corners, wrapping and keyboard focus, keeping all consent choices and preference reopening.
 - Location Gamma project setup.
 - Project setup and maintenance documentation in `README.md`.
 - Project licence in `LICENSE.md`.
