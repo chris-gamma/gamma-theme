@@ -141,10 +141,10 @@
         "menu_footer": {
           "type": "menu",
           "settings": {
-            "menu": "footer",
+            "menu": "footer-company-en",
             "heading": "",
             "menu_spacing": 12,
-            "show_as_accordion": false,
+            "show_as_accordion": true,
             "accordion_icon": "plus",
             "accordion_dividers": false,
             "heading_preset": "paragraph",
@@ -158,10 +158,45 @@
         "menu_main": {
           "type": "menu",
           "settings": {
-            "menu": "main-menu",
+            "menu": "footer-shop-en",
             "heading": "",
             "menu_spacing": 12,
-            "show_as_accordion": false,
+            "show_as_accordion": true,
+            "accordion_icon": "plus",
+            "accordion_dividers": false,
+            "heading_preset": "paragraph",
+            "link_preset": "paragraph",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0,
+            "menu_fr": "footer-shop-fr"
+          }
+        },
+        "menu_legal": {
+          "type": "menu",
+          "settings": {
+            "menu": "footer-legal-en",
+            "heading": "",
+            "menu_spacing": 12,
+            "show_as_accordion": true,
+            "accordion_icon": "plus",
+            "accordion_dividers": false,
+            "heading_preset": "paragraph",
+            "link_preset": "paragraph",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          }
+        },
+        "menu_account": {
+          "type": "menu",
+          "settings": {
+            "menu": "footer-account-en",
+            "heading": "",
+            "menu_spacing": 12,
+            "show_as_accordion": true,
             "accordion_icon": "plus",
             "accordion_dividers": false,
             "heading_preset": "paragraph",
@@ -175,8 +210,10 @@
       },
       "block_order": [
         "group_wErUQf",
+        "menu_main",
         "menu_footer",
-        "menu_main"
+        "menu_legal",
+        "menu_account"
       ],
       "name": "t:names.footer",
       "settings": {

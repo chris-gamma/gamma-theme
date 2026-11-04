@@ -78,12 +78,43 @@
         {% endif %}
       >
         {% if menu %}
-          <ul class="list-unstyled">
+          <ul class="list-unstyled" role="list">
             {% for link in menu.links %}
               <li class="menu__item {{ block_settings.link_preset }}">
-                <a href="{{ link.url }}">
-                  {{ link.title }}{% if link.data_sharing_opt_out_icon %}{{ link.data_sharing_opt_out_icon }}{% endif %}
+                <a
+                  href="{{ link.url }}"
+                  {% if link.current %}aria-current="page"{% endif %}
+                >
+                  {{ link.title | escape }}{% if link.data_sharing_opt_out_icon %}{{ link.data_sharing_opt_out_icon }}{% endif %}
                 </a>
+                {% if link.links != blank %}
+                  <ul class="list-unstyled" role="list">
+                    {% for child_link in link.links %}
+                      <li class="menu__item {{ block_settings.link_preset }}">
+                        <a
+                          href="{{ child_link.url }}"
+                          {% if child_link.current %}aria-current="page"{% endif %}
+                        >
+                          {{ child_link.title | escape }}{% if child_link.data_sharing_opt_out_icon %}{{ child_link.data_sharing_opt_out_icon }}{% endif %}
+                        </a>
+                        {% if child_link.links != blank %}
+                          <ul class="list-unstyled" role="list">
+                            {% for grandchild_link in child_link.links %}
+                              <li class="menu__item {{ block_settings.link_preset }}">
+                                <a
+                                  href="{{ grandchild_link.url }}"
+                                  {% if grandchild_link.current %}aria-current="page"{% endif %}
+                                >
+                                  {{ grandchild_link.title | escape }}{% if grandchild_link.data_sharing_opt_out_icon %}{{ grandchild_link.data_sharing_opt_out_icon }}{% endif %}
+                                </a>
+                              </li>
+                            {% endfor %}
+                          </ul>
+                        {% endif %}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
               </li>
             {% endfor %}
           </ul>
@@ -112,6 +143,11 @@
 
   .menu__item + .menu__item {
     margin-block-start: var(--spacing--size);
+  }
+
+  .menu__item > ul {
+    margin-block-start: var(--spacing--size);
+    padding-inline-start: var(--padding-md);
   }
 
   .menu .menu__heading--empty {
