@@ -38,10 +38,8 @@ declare global {
   }
 
   /**
-   * Minimal Navigation API surface, limited to what view-transitions.js reads. TypeScript's
-   * DOM lib does not describe it yet, and only `activation` is needed here: it identifies the
-   * cross-document navigation that activated this document, so `from === null` means there is
-   * no outgoing same-origin document for a transition to snapshot.
+   * Minimal Navigation API surface: only `activation`, which view-transitions.js reads. `from === null`
+   * means no outgoing same-origin document to snapshot.
    */
   interface NavigationActivation {
     from: NavigationHistoryEntry | null;
@@ -65,14 +63,12 @@ declare global {
 
   type LoadCallback = (error: Error | undefined) => void;
 
-  // Refer to https://github.com/Shopify/shopify/blob/main/areas/core/shopify/app/assets/javascripts/storefront/load_feature/load_features.js
   interface ShopifyFeature {
     name: string;
     version: string;
     onLoad?: LoadCallback;
   }
 
-  // Refer to https://github.com/Shopify/model-viewer-ui/blob/main/src/js/model-viewer-ui.js
   interface ModelViewer {
     new (
       element: Element,
@@ -87,19 +83,16 @@ declare global {
     destroy(): void;
   }
 
-  // Device Memory API - https://developer.mozilla.org/en-US/docs/Web/API/Navigator/deviceMemory
   interface Navigator {
     readonly deviceMemory?: number;
   }
 }
 
-/** Augment ProductSelectEvent detail with Horizon-specific fields */
 declare module '@shopify/events' {
   interface ProductSelectPayloadDetail {
     optionValueId?: string;
-    /** Synchronous selected variant ID; '' means no variant. Await the promise for full variant data. */
+    /** Synchronous variant ID; '' means none. Await the promise for full variant data. */
     variantId?: string;
-    /** Connected product URL for combined-listing selections. */
     connectedProductUrl?: string;
   }
   interface ProductSelectResultDetail {
@@ -123,21 +116,18 @@ declare module '@shopify/events' {
   }
 }
 
-/** Augment CartErrorEvent detail with Horizon-specific fields */
 declare module '@shopify/events' {
   interface CartErrorPayloadDetail {
     errors?: Record<string, string[]>;
   }
 }
 
-/** Augment CartDiscountUpdateEvent result detail with Horizon-specific fields */
 declare module '@shopify/events' {
   interface CartDiscountUpdateResultDetail {
     sections?: Record<string, string>;
   }
 }
 
-/** Augment CartLinesUpdateEvent result detail with Horizon-specific fields */
 declare module '@shopify/events' {
   interface CartLinesUpdateResultDetail {
     sections?: Record<string, string>;
