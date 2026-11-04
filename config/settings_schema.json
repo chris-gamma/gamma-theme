@@ -64,7 +64,12 @@
         "id": "color_palette",
         "default": {
           "background": "#ffffff",
-          "foreground": "#000000"
+          "foreground": "#000000",
+          "color1": "#333333",
+          "color2": "#f5f5f6",
+          "color3": "#DFDFDF",
+          "brand": "#ee2622",
+          "brand_accessible": "#c41f1c"
         }
       }
     ]
@@ -94,25 +99,25 @@
       {
         "type": "font_picker",
         "id": "type_body_font",
-        "default": "work_sans_n4",
+        "default": "inter_n4",
         "label": "t:options.body"
       },
       {
         "type": "font_picker",
         "id": "type_subheading_font",
-        "default": "work_sans_n5",
+        "default": "oswald_n5",
         "label": "t:options.subheading"
       },
       {
         "type": "font_picker",
         "id": "type_heading_font",
-        "default": "anonymous_pro_n4",
+        "default": "oswald_n5",
         "label": "t:options.heading"
       },
       {
         "type": "font_picker",
         "id": "type_accent_font",
-        "default": "anonymous_pro_n4",
+        "default": "inter_n7",
         "label": "t:options.accent"
       },
       {
