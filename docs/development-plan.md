@@ -314,6 +314,16 @@ Cover first visit, previously recorded choices, denied permission, withdrawal, u
 
 `assets/custom.css` styled Shopify privacy controls but hid the banner decline button. Historical `f80ccf12:layout/theme.liquid` loaded Clarity after privacy permission; that injection was absent from the active prototype layout. The useful reference is branded native presentation, not hidden choices or an assumed analytics requirement.
 
+#### Native interface handoff and implementation boundary
+
+Shopify remains the consent authority. Banner copy, translations, regions, colors and placement are managed through Customer privacy settings and supported translation tools; theme styling does not establish permission or policy approval.
+
+Consumers use the [Customer Privacy API](https://shopify.dev/docs/api/customer-privacy) directly: reuse an available API or load `consent-tracking-api` version `0.2` through `Shopify.loadFeatures`, then read `preferencesProcessingAllowed()`, `analyticsProcessingAllowed()`, `marketingAllowed()` and `saleOfDataAllowed()`. Read initial state after readiness and re-read on `visitorConsentCollected`; subscribing alone does not supply initial state. Missing methods/APIs or failed loads are unavailable permission, never a grant. Do not inspect or modify Shopify consent cookies, infer permission from banner visibility, or add another consent store.
+
+G05 owns native presentation, choices, persistence, reopening and this interface handoff. Inspect the actual supplied banner/preferences and persistent reopening entry on an authorized candidate preview before finalizing CSS hooks or deciding whether a footer utility is needed. Preserve native behavior when hooks/API are unavailable; no map, attribution or additional analytics implementation belongs to this branch.
+
+Operation-specific permission mapping, persistence, withdrawal cleanup and request verification belong to G17/G23. Earlier map answers remain G17 planning preferences: explicit activation may load one map without preferences permission; remembering activation requires preferences permission and applies across maps for the session; withdrawal unloads active maps and clears memory, with fresh explicit activation still available. Shopify classifies attribution under marketing; G23 must verify the selected app's actual permission and revocation behavior. Those future integration decisions and tests do not gate G05's native presentation acceptance.
+
 ### G06 — Bilingual CAD presentation
 
 **Priority:** P1. **Status:** Planned. **Dependencies:** G02, G03.
