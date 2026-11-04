@@ -1,0 +1,46 @@
+/* Shopify supplies privacy colors and layout; theme settings supply typography and control shape. */
+#shopify-pc__banner,
+#shopify-pc__prefs__dialog {
+  font-family: var(--font-body--family);
+  font-style: var(--font-body--style);
+  font-weight: var(--font-body--weight);
+}
+
+#shopify-pc__banner h2,
+#shopify-pc__prefs__dialog :is(h2, h3) {
+  font-family: var(--font-heading--family);
+  font-style: var(--font-heading--style);
+  font-weight: var(--font-heading--weight);
+}
+
+#shopify-pc__prefs__dialog .shopify-pc__prefs__header-actions {
+  flex-shrink: 0;
+}
+
+#shopify-pc__banner button,
+#shopify-pc__prefs__dialog .shopify-pc__prefs__header-actions button {
+  font-family: var(--button-font-family-secondary);
+  border-radius: var(--style-border-radius-buttons-secondary);
+  min-block-size: var(--minimum-touch-target);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+#shopify-pc__prefs__dialog .shopify-pc__prefs__header-actions button.primary {
+  font-family: var(--button-font-family-primary);
+  border-radius: var(--style-border-radius-buttons-primary);
+}
+
+#shopify-pc__banner :is(a, button):focus-visible,
+#shopify-pc__prefs__dialog :is(a, button):focus-visible,
+#shopify-pc__prefs__dialog input:focus-visible + span {
+  outline: 2px solid var(--color-primary-button-focus-outline, currentcolor);
+  outline-offset: 3px;
+  box-shadow: none;
+}
+
+#shopify-pc__banner button:focus-visible span,
+#shopify-pc__prefs__dialog input:focus-visible + span svg {
+  outline: none;
+  box-shadow: none;
+}
