@@ -70,7 +70,8 @@
             "navigation_bar": false,
             "drawer_accordion": false,
             "drawer_accordion_expand_first": false,
-            "drawer_dividers": false
+            "drawer_dividers": false,
+            "menu_fr": "main-menu-fr"
           },
           "blocks": {}
         }
