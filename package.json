@@ -1,0 +1,22 @@
+{
+  "name": "gamma-theme",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Customized Location Gamma Shopify theme based on Horizon.",
+  "packageManager": "npm@11.19.1",
+  "engines": {
+    "node": ">=22.12.0",
+    "npm": ">=10"
+  },
+  "scripts": {
+    "check": "shopify theme check --no-input",
+    "check:json": "shopify theme check --no-input --output json",
+    "check:js": "tsc --project assets/jsconfig.json",
+    "check:js:watch": "npm run check:js -- --watch --preserveWatchOutput",
+    "check:all": "npm run check && npm run check:js && git diff --check && git diff --cached --check"
+  },
+  "devDependencies": {
+    "@shopify/cli": "5.0.0",
+    "typescript": "6.0.3"
+  }
+}

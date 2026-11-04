@@ -1,0 +1,21 @@
+# Local dependencies and state
+node_modules/
+.shopify/
+.env
+.env.*
+!.env.example
+shopify.theme.toml
+shopify.theme.*.toml
+*.pem
+*.key
+# Generated diagnostics and theme archives
+reports/
+*.log
+*.zip
+# Editor and operating system state
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.DS_Store
+Thumbs.db

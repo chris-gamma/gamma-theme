@@ -1,13 +1,29 @@
-Copyright (c) 2025-present Shopify Inc.
+# Proprietary License
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, sell and/or create derivative works of the Software or any part thereof, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+Copyright © 2026 Location Gamma Inc.
 
-The rights granted above may only be exercised to develop themes that integrate or interoperate with Shopify software or services. All other uses of the Software are strictly prohibited.
+All rights reserved.
 
-For the avoidance of doubt, you may not submit, list, market, sell, distribute, or otherwise make available any theme that is based on, derived from, or incorporates any portion of the Software (a “Derived Theme”) via the Shopify Theme Store, any other Shopify-operated channel, or any off-platform channel (including your own website or third-party marketplaces). Shopify may determine, in its sole discretion, whether a theme is a Derived Theme for purposes of this restriction. You may not circumvent this restriction by making insubstantial changes, reformatting or reorganizing code, or by otherwise claiming independent creation.
+## Ownership and Restrictions
 
-Notwithstanding the foregoing, you may deliver a Derived Theme directly to merchants as part of services engagements, solely for those merchants’ own use in their Shopify stores. Any such delivery may not be marketed or offered as a general-purpose product, and the Derived Theme may not be resold, relicensed, or redistributed by you or the merchant.
+Gamma Theme (`gamma-theme`) is a proprietary Shopify storefront theme developed for Location Gamma Inc.
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+All original source code, modifications, custom features, designs, assets, documentation, and other copyrightable materials developed specifically for this project are proprietary to Location Gamma Inc., to the extent that the company owns the copyright in those materials.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+No permission is granted to reproduce, modify, distribute, sublicense, sell, or otherwise exploit these proprietary materials without prior written authorization from Location Gamma Inc.
+
+Access to this repository does not constitute a transfer of ownership or grant any rights beyond those expressly authorized.
+
+## Third-Party Software
+
+Gamma Theme is based on Shopify Horizon, copyright Shopify Inc.
+
+Shopify Horizon and all other incorporated third-party materials remain subject to their respective licenses and copyright notices.
+
+The original Shopify Horizon license is preserved in [LICENSE-horizon.md](LICENSE-horizon.md).
+
+This proprietary notice applies only to materials owned by Location Gamma Inc. and does not supersede or modify any applicable third-party license.
+
+## Permissions
+
+Any use, modification, or distribution of Location Gamma Inc.'s proprietary materials outside the scope of previously granted authorization requires written permission from Location Gamma Inc.

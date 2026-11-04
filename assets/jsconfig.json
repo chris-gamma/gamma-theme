@@ -1,15 +1,22 @@
 {
   "compilerOptions": {
-    "baseUrl": "./",
+    "allowJs": true,
     "checkJs": true,
+    "noEmit": true,
     "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": false,
     "noImplicitAny": true,
     "noUncheckedIndexedAccess": true,
     "strictNullChecks": true,
     "types": ["./global.d.ts", "./standard-events.d.ts"],
     "paths": {
       "@theme/*": ["./*"],
-      "@shopify/events": ["./standard-events"]
+      "@shopify/events": ["./standard-events"],
+      "slideshow": ["./slideshow.js"],
+      "quick-add": ["./quick-add.js"],
+      "product-card": ["./product-card.js"]
     }
   }
 }
