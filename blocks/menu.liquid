@@ -1,12 +1,21 @@
 {% liquid
   assign block_settings = block.settings
-  assign menu = block_settings.menu
   assign heading = block_settings.heading
   assign show_as_accordion = block_settings.show_as_accordion
   if show_as_accordion == true and block_settings.accordion_dividers == true
     assign dividers_enabled = true
   endif
 %}
+
+{%- capture menu_handle -%}
+  {%- render 'gamma-menu-handle',
+    menu: block_settings.menu,
+    menu_en: block_settings.menu_en,
+    menu_fr: block_settings.menu_fr,
+    locale_code: request.locale.iso_code
+  -%}
+{%- endcapture -%}
+{% assign menu = linklists[menu_handle] %}
 
 {% if menu != blank or heading != blank %}
   {% render 'contrast-override',
@@ -159,6 +168,18 @@
       "id": "menu",
       "label": "t:settings.menu",
       "default": "main-menu"
+    },
+    {
+      "type": "link_list",
+      "id": "menu_en",
+      "label": "t:gamma.menu_en",
+      "info": "t:gamma.menu_override_info"
+    },
+    {
+      "type": "link_list",
+      "id": "menu_fr",
+      "label": "t:gamma.menu_fr",
+      "info": "t:gamma.menu_override_info"
     },
     {
       "type": "text",
