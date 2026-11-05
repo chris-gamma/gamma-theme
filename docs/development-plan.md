@@ -47,7 +47,7 @@ At the planning baseline, `assets/product-price.js` and `assets/product-inventor
 
 ### Accessibility, responsiveness and performance
 
-Each feature must support keyboard use, visible focus, semantic structure, accessible names and appropriate announcements. Validate contrast and readable states, including long French labels. Use responsive layouts, support zoom and reduced motion, and avoid conveying information through color alone.
+Each feature must support keyboard use, visible focus, semantic structure, accessible names and appropriate announcements. Validate contrast and readable states, including long French labels. Primary Gamma Red is an approved brand exception to contrast-ratio targets except for fine print smaller than 10 CSS pixels; keep normal contrast requirements below that threshold and record shortfalls accurately. Dark Gamma Red is permitted for button hover/pressed states or fine print where needed; avoid replacing the primary brand colour elsewhere solely for contrast. Use native theme colour settings for primary buttons and retain Horizon's automatic interaction colours. Use responsive layouts, support zoom and reduced motion, and avoid conveying information through color alone.
 
 Feature appearance requirements define the intended placement, content hierarchy and visual treatment. Use native editor controls for supported layout choices and let merchants reorder configurable blocks. Exact dimensions, spacing and breakpoints remain design choices where no value is established; validate them with real content in both languages rather than treating an illustrative size as a fixed requirement.
 
