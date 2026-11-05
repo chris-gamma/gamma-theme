@@ -42,6 +42,14 @@
       "return_exchange_policy": "Returns & exchanges"
     }
   },
+  "gamma_search": {
+    "name": "Search field",
+    "placeholder": "Placeholder",
+    "placeholder_info": "Leave blank to use “Search”. Keep it short so it fits on small screens.",
+    "width_info": "Mobile always uses the full width.",
+    "background_opacity": "Background opacity",
+    "colors_info": "Applies to the field and its instruction. A more transparent background or other colors can make them hard to read over an image, so check the contrast with your image."
+  },
   "gamma": {
     "menu_en": "English menu override",
     "menu_fr": "French menu override",

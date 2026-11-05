@@ -45,6 +45,9 @@
     "reload": "Recharger les détails du produit",
     "empty": "Ajoutez du contenu au produit ou à sa variante pour cette rubrique."
   },
+  "gamma_search": {
+    "instruction": "Des suggestions de recherche peuvent s’ouvrir pendant la saisie."
+  },
   "blocks": {
     "load_video": "Charger la vidéo : {{ description }}",
     "sold_out": "Épuisé",
