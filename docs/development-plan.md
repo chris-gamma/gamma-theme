@@ -100,7 +100,7 @@ Priorities are P0 for shared prerequisites, P1 for purchasing/browsing/discovery
 | 3. Products and purchasing | G07 | Product information and scoped updates | P1 | G02, G03 | Implemented |
 | 3. Products and purchasing | G08 | Availability and fulfillment information | P1 | G02, G03, G07 | Implemented |
 | 3. Products and purchasing | G09 | Battery systems and recommendations | P1 | G02, G03, G07 | Implemented |
-| 3. Products and purchasing | G10 | Localized media and product video | P1 | G03; G02 for content | Planned |
+| 3. Products and purchasing | G10 | Localized media and product video | P1 | G03; G02 for content | Implemented |
 | 3. Products and purchasing | G11 | Cart experience | P1 | G04, G06, G08 | Planned |
 | 3. Products and purchasing | G12 | Collection layouts and filters | P1 | G03, G04, G06, G08, G09, G10 | Planned |
 | 4. Search and rental discovery | G13 | Home search entry | P1 | G03, G06 | Planned |
@@ -525,7 +525,7 @@ Local implementation (`feature/battery-systems`, based on `e255bbe`): a public `
 
 ### G10 — Localized media and product video
 
-**Priority:** P1. **Status:** Planned. **Dependencies:** G03; G02 for approved catalog media.
+**Priority:** P1. **Status:** Implemented. **Dependencies:** G03; G02 for approved catalog media.
 
 #### Purpose
 
@@ -558,6 +558,8 @@ Cover an excluded selected image, only one eligible item, no eligible media, hid
 - [ ] Full product-video controls, contain/crop behavior and applicable provider settings work.
 - [ ] Single/empty/high-count cases, both languages, no-JS initial output and editor settings pass.
 - [ ] Native card transitions, playback, image loading and XR capabilities remain functional.
+
+Local implementation (`feature/localized-media`, based on `c0f8666`): `snippets/gamma-media-exclusions.liquid` classifies each media item by its preview filename (query/fragment removed, decoded, lowercased, one extension removed) and excludes only a terminal `-en`/`_en`/`-fr`/`_fr` marker of the other language family; regional codes normalize to `en`/`fr`, other languages are unfiltered, and a product with no neutral or matching media shows all its media. Regional filename aliases and Shopify's duplicate-name UUID suffix are not recognized. Native product-media order is kept; galleries, zoom, thumbnails, counts and model selection, cards and swatches, transitions, predictive-search cards, sticky/fly-to-cart images and cart thumbnails derive from the eligible list, and an excluded variant image follows the native no-image path. Product videos use native controls with the player API retained for pausing, video slides no longer open zoom on click, carousel dragging ignores native video controls, gallery videos and posters are contained, and embeds use `youtube-nocookie.com` and Vimeo `dnt=1`; product videos still start muted after the click. Quick-order list, hotspot, `_image` product fallback, collection thumbnails built from product images, the featured-product section ratio and Open Graph/structured-data images are not filtered. Theme Check retains only the six known Horizon warnings and JavaScript checking passes; scratch Chromium/Firefox checks with the actual slideshow and deferred-media modules confirm the drag exemption, containment and pause behaviour. Liquid output, `external_video_tag` with the privacy-enhanced URL, high-count lists, real catalog filenames, provider behaviour, mobile seeking, editor and performance acceptance require an authorized Shopify-rendered environment. Suspected upstream issues: the gallery never passes `first_3d_model`/`selected_product` to `product-media`, so XR model data is not emitted; single-media and dots thresholds ignore hidden variant media; URL-based video iframes cannot be paused programmatically.
 
 #### Prototype reference
 
@@ -1191,6 +1193,7 @@ Independent local work can proceed while these are resolved. Resolve each before
 | Date | Features | Decision | Reason and acceptance impact |
 | --- | --- | --- | --- |
 | 2026-11-04 | All | Development uses the current modified Horizon 4.3.0 fork on `dev`; feature scope and status are tracked here | Native capabilities and the receiving branch remain the implementation foundation; G24 establishes complete storefront acceptance |
+| 2026-11-05 | G10 | A product with no neutral or matching-language media shows all of its media; languages other than English/French are unfiltered | Avoids empty galleries and cards when localized artwork is incomplete; matches the G09 other-language icon fallback |
 
 ## Optional extensions
 
