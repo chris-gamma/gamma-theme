@@ -33,6 +33,14 @@
       "return_exchange_policy": "Retours et échanges"
     }
   },
+  "gamma_search": {
+    "name": "Champ de recherche",
+    "placeholder": "Texte indicatif",
+    "placeholder_info": "Laissez vide pour afficher « Rechercher ». Gardez un texte court pour qu’il s’affiche au complet sur les petits écrans.",
+    "width_info": "Sur mobile, le champ occupe toujours toute la largeur.",
+    "background_opacity": "Opacité de l’arrière-plan",
+    "colors_info": "S’applique au champ et à son instruction. Un arrière-plan plus transparent ou d’autres couleurs peuvent rendre le texte difficile à lire sur une image; vérifiez le contraste avec votre image."
+  },
   "gamma": {
     "menu_en": "Menu de remplacement en anglais",
     "menu_fr": "Menu de remplacement en français",
