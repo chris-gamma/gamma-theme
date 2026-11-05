@@ -3,6 +3,12 @@
     "badges": "Afficher les badges de rupture et de commande spéciale",
     "badges_info": "Les cartes produit vérifient jusqu’à 250 variantes. Les options mixtes ou incomplètes affichent un badge neutre."
   },
+  "gamma_battery": {
+    "name": "Système de batterie",
+    "info": "Affiche le système de batterie du produit (custom.battery_system). Modifiez les systèmes dans Contenu > Métaobjets.",
+    "icon_height": "Hauteur de l’icône",
+    "text_style": "Style du texte"
+  },
   "gamma_information": {
     "name": "Renseignements produit",
     "row": "Rubrique produit",
