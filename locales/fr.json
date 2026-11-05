@@ -1,4 +1,19 @@
 {
+  "gamma_availability": {
+    "backorder": {
+      "label": "Épuisé",
+      "message": "Cet article est en rupture de stock, mais vous pouvez quand même le commander."
+    },
+    "partial_backorder": {
+      "label": "Partiellement épuisé",
+      "message": "Cette quantité n’est pas entièrement en stock, mais vous pouvez quand même la commander."
+    },
+    "special_order": {
+      "label": "Commande spéciale",
+      "message": "Cet article est commandé spécialement pour vous."
+    },
+    "varies": "Variable"
+  },
   "gamma_information": {
     "headings": {
       "included_in_the_set": "Articles inclus",
