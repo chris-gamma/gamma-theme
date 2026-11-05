@@ -15,9 +15,16 @@ Location Gamma's storefront theme is based on Shopify Horizon 4.4.0.
 - Language-specific product media: images whose filenames end in -en/_en or -fr/_fr appear only in the matching language across galleries, zoom, cards, swatches, search, sticky and cart images, falling back to all media when a product has none for the current language.
 - Full native controls for product videos, contained video presentation in the product gallery, and privacy-enhanced YouTube and Vimeo do-not-track embeds.
 - Backorder and special-order notices before purchase controls, per-line cart availability text and evidence-based product-card badges, with native per-location pickup enabled.
+- Open order notes in the cart, Shopify cart-line status messages, and a cart notice explaining supplier-dependent shipping for backordered or special-order items and how orders mixing in-stock items ship together; Shop Pay payment options are hidden in the cart and mobile Quick Add is enabled.
 - Bilingual CAD formatting across product, quantity/volume, quick-order, cart, filter and gift-card displays, retaining native formatting for other currencies.
 - Native Shopify privacy controls styled with the theme's typography, corners, wrapping and keyboard focus, retaining all consent choices and preference reopening.
 
 ### Changed
 
+- French backorders read “En rupture de stock” (“En rupture” on product-card badges) instead of “Épuisé”, which is reserved for sold-out items.
+
 - Updated the Horizon foundation from 4.3.0 to 4.4.0, retaining Gamma's customizations and English/French locales. Primary buttons now use the Accent font's weight, as configured.
+
+### Fixed
+
+- Adding to cart, Quick Add and discount changes keep the cart in the shopper's language instead of re-rendering English carts in French.
