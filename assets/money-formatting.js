@@ -12,6 +12,26 @@
 const DEFAULT_CURRENCY_DECIMALS = 2;
 
 /**
+ * Formats Shopify CAD cents using the same notation as the gamma-money snippet.
+ * @param {number} cents - The numeric CAD amount in cents.
+ * @param {string} locale - The current English/French locale, including regional codes.
+ * @param {boolean} [withCurrency=false] - Include the CAD currency code.
+ * @returns {string} The formatted amount, or an empty string for unsupported input.
+ */
+export function formatCadMoney(cents, locale, withCurrency = false) {
+  const language = locale.toLowerCase().split('-')[0];
+  if (!Number.isFinite(cents) || (language !== 'en' && language !== 'fr')) return '';
+
+  const absoluteCents = Math.round(Math.abs(cents));
+  const whole = Math.floor(absoluteCents / 100).toString();
+  const fraction = (absoluteCents % 100).toString().padStart(2, '0');
+  const groupedWhole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, language === 'fr' ? '\u00a0' : ',');
+  const amount = language === 'fr' ? `${groupedWhole},${fraction}\u00a0$` : `$${groupedWhole}.${fraction}`;
+
+  return `${cents < 0 ? '-' : ''}${amount}${withCurrency ? '\u00a0CAD' : ''}`;
+}
+
+/**
  * Decimal precision for currencies that have a non-default precision
  * @type {Record<string, number>}
  */

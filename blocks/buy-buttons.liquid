@@ -149,11 +149,10 @@
                   <span>{{ variant.quantity_rule.min }}+</span>
                   <span>
                     <bdi>
-                      {%- if use_currency -%}
-                        {{- variant.price | money_with_currency | strip -}}
-                      {%- else -%}
-                        {{- variant.price | money | strip -}}
-                      {%- endif -%}</bdi
+                      {%- capture formatted_price -%}
+                        {%- render 'gamma-money', price: variant.price, with_currency: use_currency -%}
+                      {%- endcapture -%}
+                      {{- formatted_price | strip -}}</bdi
                     >/{{ 'content.each_abbreviation' | t -}}
                   </span>
                 </div>
@@ -170,11 +169,10 @@
                     <span>{{ price_break.minimum_quantity }}+</span>
                     <span>
                       <bdi>
-                        {%- if use_currency -%}
-                          {{- price_break.price | money_with_currency | strip -}}
-                        {%- else -%}
-                          {{- price_break.price | money | strip -}}
-                        {%- endif -%}</bdi
+                        {%- capture formatted_price -%}
+                          {%- render 'gamma-money', price: price_break.price, with_currency: use_currency -%}
+                        {%- endcapture -%}
+                        {{- formatted_price | strip -}}</bdi
                       >/{{ 'content.each_abbreviation' | t -}}
                     </span>
                   </div>
@@ -197,11 +195,10 @@
                         <span>{{ price_break.minimum_quantity }}+</span>
                         <span>
                           <bdi>
-                            {%- if use_currency -%}
-                              {{- price_break.price | money_with_currency | strip -}}
-                            {%- else -%}
-                              {{- price_break.price | money | strip -}}
-                            {%- endif -%}</bdi
+                            {%- capture formatted_price -%}
+                              {%- render 'gamma-money', price: price_break.price, with_currency: use_currency -%}
+                            {%- endcapture -%}
+                            {{- formatted_price | strip -}}</bdi
                           >/{{ 'content.each_abbreviation' | t -}}
                         </span>
                       </div>

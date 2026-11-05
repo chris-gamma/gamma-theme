@@ -114,9 +114,20 @@
       {%- liquid
         # Determine if currency code should be shown on product pages
         assign use_currency = settings.currency_code_enabled_product_pages
+        capture formatted_variant_price
+          render 'gamma-money', price: variant.price, with_currency: use_currency
+        endcapture
       -%}
       {%- capture price_breaks_json -%}
-        [{%- for price_break in variant.quantity_price_breaks -%}{%- unless forloop.first -%},{%- endunless -%}{%- if use_currency -%}{"quantity":{{ price_break.minimum_quantity }},"price":{{ price_break.price | money_with_currency | json }}}{%- else -%}{"quantity":{{ price_break.minimum_quantity }},"price":{{ price_break.price | money | json }}}{%- endif -%}{%- endfor -%}]
+        [
+          {%- for price_break in variant.quantity_price_breaks -%}
+            {%- capture formatted_price_break -%}
+              {%- render 'gamma-money', price: price_break.price, with_currency: use_currency -%}
+            {%- endcapture -%}
+            {%- unless forloop.first -%},{%- endunless -%}
+            {"quantity":{{ price_break.minimum_quantity }},"price":{{ formatted_price_break | json }}}
+          {%- endfor -%}
+        ]
       {%- endcapture -%}
 
       {%- liquid
@@ -134,12 +145,15 @@
             break
           endif
         endfor
+        capture formatted_display_price
+          render 'gamma-money', price: display_price, with_currency: use_currency
+        endcapture
       -%}
 
       <price-per-item
         class="price-per-item"
         data-variant-id="{{ variant.id }}"
-        data-variant-price="{%- if use_currency -%}{{ variant.price | money_with_currency | escape }}{%- else -%}{{ variant.price | money | escape }}{%- endif -%}"
+        data-variant-price="{{ formatted_variant_price | escape }}"
         data-min-quantity="{{ variant.quantity_rule.min | default: 1 }}"
         data-price-breaks="{{ price_breaks_json | strip | escape }}"
         data-at-text="{{ 'content.price_at' | t | escape }}"
@@ -152,11 +166,7 @@
         >
           {{- 'content.price_at' | t -}}
           <bdi>
-            {%- if use_currency -%}
-              {{- display_price | money_with_currency -}}
-            {%- else -%}
-              {{- display_price | money -}}
-            {%- endif -%}</bdi
+            {{- formatted_display_price -}}</bdi
           >/
           {{- 'content.each_abbreviation' | t }}
         </span>
