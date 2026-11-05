@@ -21,7 +21,12 @@
       "label": "Special order",
       "message": "This item is ordered specially for you."
     },
-    "varies": "Varies"
+    "varies": "Varies",
+    "cart_notice": {
+      "delay": "Your cart includes backordered or special-order items. Their shipping time depends on supplier availability.",
+      "ship_together_with_note": "Your cart includes backordered or special-order items. Their shipping time depends on supplier availability, and we’ll ship your order together once everything has arrived. If you’d like in-stock items shipped separately, let us know under {{ note_label }}. Additional shipping charges apply.",
+      "ship_together_without_note": "Your cart includes backordered or special-order items. Their shipping time depends on supplier availability, and we’ll ship your order together once everything has arrived. If you’d like in-stock items shipped separately, please contact us. Additional shipping charges apply."
+    }
   },
   "gamma_battery": {
     "types": {
