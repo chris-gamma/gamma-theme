@@ -8,6 +8,10 @@
  * ------------------------------------------------------------
  */
 {
+  "gamma_availability": {
+    "badges": "Show backorder and special-order badges",
+    "badges_info": "Product cards check up to 250 variants. Mixed or incomplete options show a neutral badge."
+  },
   "gamma_information": {
     "name": "Product information",
     "row": "Product information row",
