@@ -140,8 +140,21 @@
 
                     # If the variant has no featured media, and we have a combined listing product, then fall back to
                     # using the featured media of the child product that is linked to this option value.
+                    assign gamma_media_product = product_resource
                     if featured_media == blank and product_option_value.product_url
                       assign featured_media = product_option_value.variant.product.featured_media
+                      assign gamma_media_product = product_option_value.variant.product
+                    endif
+
+                    # Gamma: variant-image swatches omit media marked for the other storefront language.
+                    if settings.show_variant_image and featured_media
+                      capture gamma_excluded_media_ids
+                        render 'gamma-media-exclusions', media: gamma_media_product.media
+                      endcapture
+                      assign gamma_token = featured_media.id | prepend: ',' | append: ','
+                      if gamma_excluded_media_ids contains gamma_token
+                        assign featured_media = nil
+                      endif
                     endif
                   %}
 

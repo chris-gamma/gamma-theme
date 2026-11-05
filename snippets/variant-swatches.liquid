@@ -112,6 +112,11 @@
         # Use product_option.position which is the actual position among ALL options
         assign swatch_option_position = product_option.position
         assign swatch_option_key = 'option' | append: swatch_option_position
+
+        # Gamma: swatch media must also be shown in the card gallery for the current storefront language.
+        capture gamma_excluded_media_ids
+          render 'gamma-media-exclusions', media: product_resource.media
+        endcapture
       -%}
 
       <fieldset class="variant-option variant-option--buttons variant-option--swatches">
@@ -130,6 +135,12 @@
 
               assign option_value_variant = product_option_value.variant
               assign featured_media = option_value_variant.featured_media
+              if featured_media and gamma_excluded_media_ids != blank
+                assign gamma_token = featured_media.id | prepend: ',' | append: ','
+                if gamma_excluded_media_ids contains gamma_token
+                  assign featured_media = nil
+                endif
+              endif
               assign child_product = nil
               assign first_available_variant = nil
               assign fallback_featured_media = nil
@@ -145,6 +156,22 @@
 
                 if child_product
                   assign featured_media = child_product.featured_media
+
+                  if featured_media
+                    capture gamma_child_excluded_media_ids
+                      render 'gamma-media-exclusions', media: child_product.media
+                    endcapture
+                    assign gamma_token = featured_media.id | prepend: ',' | append: ','
+                    if gamma_child_excluded_media_ids contains gamma_token
+                      for gamma_item in child_product.media
+                        assign gamma_token = gamma_item.id | prepend: ',' | append: ','
+                        unless gamma_child_excluded_media_ids contains gamma_token
+                          assign featured_media = gamma_item
+                          break
+                        endunless
+                      endfor
+                    endif
+                  endif
                 endif
               endif
 
@@ -157,7 +184,10 @@
                     endif
 
                     if featured_media == blank and fallback_featured_media == blank and variant.featured_media
-                      assign fallback_featured_media = variant.featured_media
+                      assign gamma_token = variant.featured_media.id | prepend: ',' | append: ','
+                      unless gamma_excluded_media_ids contains gamma_token
+                        assign fallback_featured_media = variant.featured_media
+                      endunless
                     endif
 
                     if first_available_variant != blank
