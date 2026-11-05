@@ -99,7 +99,7 @@ Priorities are P0 for shared prerequisites, P1 for purchasing/browsing/discovery
 | 2. Shared storefront presentation | G06 | Bilingual CAD presentation | P1 | G02, G03 | Implemented |
 | 3. Products and purchasing | G07 | Product information and scoped updates | P1 | G02, G03 | Implemented |
 | 3. Products and purchasing | G08 | Availability and fulfillment information | P1 | G02, G03, G07 | Implemented |
-| 3. Products and purchasing | G09 | Battery systems and recommendations | P1 | G02, G03, G07 | Planned |
+| 3. Products and purchasing | G09 | Battery systems and recommendations | P1 | G02, G03, G07 | Implemented |
 | 3. Products and purchasing | G10 | Localized media and product video | P1 | G03; G02 for content | Planned |
 | 3. Products and purchasing | G11 | Cart experience | P1 | G04, G06, G08 | Planned |
 | 3. Products and purchasing | G12 | Collection layouts and filters | P1 | G03, G04, G06, G08, G09, G10 | Planned |
@@ -480,7 +480,7 @@ Local implementation (`feature/availability`, based on `2da2f90`): a shared reso
 
 ### G09 — Battery systems and recommendations
 
-**Priority:** P1. **Status:** Planned. **Dependencies:** G02, G03, G07.
+**Priority:** P1. **Status:** Implemented. **Dependencies:** G02, G03, G07.
 
 #### Purpose
 
@@ -516,6 +516,8 @@ Handle missing/draft/wrong-type objects, unusable image references, missing alt 
 - [ ] Product ownership, Quick Add isolation, accessible links and responsive presentation pass.
 - [ ] The product composition shows the battery icon beside its translated type below the price; configured height, proportional scaling, text fallback and narrow-screen wrapping work without displacing purchase controls.
 - [ ] Any optional set link has separate approved scope and does not imply inventory relationships.
+
+Local implementation (`feature/battery-systems`, based on `e255bbe`): a public `product-battery-system` block sits after the price in the product header group. It renders only an active `battery_system` metaobject from a typed `custom.battery_system` reference, selects the language-family icon with the other-language icon as fallback, maps the two approved `system_type` choices to EN/FR theme strings (other values display as returned) and shows the name beside the type when no image is usable. It links to the referenced collection only when it is published and nonempty, with hidden “View the range” link text; otherwise the content is nonlinked. The icon-height range (16–64px, default 30) scales artwork proportionally within the column. No JavaScript is added: combined-product changes use the native `<main>` morph, variant-only changes leave the block untouched, and native Quick Add hides it. A native complementary section (“Optional accessories”) precedes the existing related section; Horizon hides empty or failed complementary results, and its related-results catalog fallback is unchanged upstream behavior. `item_set_link` remains unimplemented. Theme Check retains only the six known Horizon warnings, JavaScript checking passes, EN/FR keys match, and a static Chromium layout harness confirmed wrapping, wide-logo clamping and no overflow at 288/343/768/1440px content widths. Store definition/content checks, French heading and metaobject translations, Search & Discovery complementary setup, rendered Liquid output, combined-listing, Quick Add, editor and screen-reader acceptance require an authorized Shopify-rendered environment; wording remains subject to Q08.
 
 #### Prototype reference
 

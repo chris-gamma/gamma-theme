@@ -1,0 +1,219 @@
+{%- liquid
+  assign block_settings = block.settings
+  assign product_resource = closest.product
+  assign battery = nil
+  assign battery_field = product_resource.metafields.custom.battery_system
+
+  if battery_field.type == 'metaobject_reference' and battery_field.value.system.type == 'battery_system'
+    assign battery = battery_field.value
+  endif
+
+  assign name = ''
+  assign type_text = ''
+  assign icon = nil
+  assign collection = nil
+
+  if battery
+    if battery.name.type == 'single_line_text_field'
+      assign name = battery.name.value | strip
+    endif
+
+    if battery.system_type.type == 'single_line_text_field'
+      assign raw_type = battery.system_type.value | strip
+      assign type_key = raw_type | downcase
+      case type_key
+        when 'interchangeable battery'
+          assign type_text = 'gamma_battery.types.interchangeable' | t
+        when 'integrated battery'
+          assign type_text = 'gamma_battery.types.integrated' | t
+        else
+          assign type_text = raw_type | escape
+      endcase
+    endif
+
+    # Prefer the storefront language's artwork; the other language keeps the system identifiable beside translated text.
+    assign language = request.locale.iso_code | downcase | split: '-' | first
+    if language == 'fr'
+      assign primary_icon = battery.icon_fr
+      assign secondary_icon = battery.icon_en
+    else
+      assign primary_icon = battery.icon_en
+      assign secondary_icon = battery.icon_fr
+    endif
+    if primary_icon.type == 'file_reference' and primary_icon.value.media_type == 'image'
+      assign icon = primary_icon.value
+    elsif secondary_icon.type == 'file_reference' and secondary_icon.value.media_type == 'image'
+      assign icon = secondary_icon.value
+    endif
+
+    if battery.collection.type == 'collection_reference' and battery.collection.value.all_products_count > 0
+      assign collection = battery.collection.value
+    endif
+  endif
+
+  assign escaped_name = name | escape
+  if icon
+    assign visible_text = type_text | default: escaped_name
+  elsif name != blank and type_text != blank
+    assign visible_text = escaped_name | append: ' · ' | append: type_text
+  elsif name != blank
+    assign visible_text = escaped_name
+  else
+    assign visible_text = type_text
+  endif
+
+  # An icon needs an accessible name when it is the only content.
+  if icon and visible_text == blank and name == blank and icon.alt == blank
+    assign icon = nil
+  endif
+-%}
+
+{%- if icon or visible_text != blank -%}
+  <div
+    class="battery-system spacing-style"
+    style="--battery-system-icon-height: {{ block_settings.icon_height }}px; {% render 'spacing-style', settings: block_settings %}"
+    {{ block.shopify_attributes }}
+  >
+    {%- if collection -%}
+      <a class="battery-system__content battery-system__content--link" href="{{ collection.url }}">
+    {%- else -%}
+      <div class="battery-system__content">
+    {%- endif -%}
+    {%- if icon -%}
+      {%- render 'image',
+        image: icon,
+        height: block_settings.icon_height,
+        class: 'battery-system__icon',
+        alt_text_fallback: name
+      -%}
+    {%- endif -%}
+    {%- if visible_text != blank -%}
+      <span class="battery-system__text {{ block_settings.type_preset }}">{{ visible_text }}</span>
+    {%- endif -%}
+    {%- if collection -%}
+      <span class="visually-hidden">{{ 'gamma_battery.view_range' | t }}</span>
+      </a>
+    {%- else -%}
+      </div>
+    {%- endif -%}
+  </div>
+{%- elsif request.design_mode -%}
+  <p class="battery-system battery-system--empty" {{ block.shopify_attributes }}>
+    {{- 'gamma_battery.empty' | t -}}
+  </p>
+{%- endif -%}
+
+{% stylesheet %}
+  .battery-system {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .battery-system__content {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--gap-xs);
+    min-width: 0;
+    color: inherit;
+  }
+
+  .battery-system__icon {
+    display: block;
+    flex: none;
+    height: var(--battery-system-icon-height);
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+  }
+
+  .battery-system__text {
+    flex: 1 1 12ch;
+    min-width: 0;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  /* Match Horizon's standard link: current colour, softened on hover. */
+  .battery-system__content--link:hover {
+    color: rgb(var(--color-rgb, var(--color-foreground-rgb)) / 0.7);
+  }
+
+  .battery-system--empty {
+    margin: 0;
+    opacity: 0.7;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:gamma_battery.name",
+  "tag": null,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:gamma_battery.info"
+    },
+    {
+      "type": "range",
+      "id": "icon_height",
+      "label": "t:gamma_battery.icon_height",
+      "min": 16,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 30
+    },
+    {
+      "type": "select",
+      "id": "type_preset",
+      "label": "t:gamma_battery.text_style",
+      "options": [
+        {
+          "value": "paragraph",
+          "label": "t:options.paragraph"
+        },
+        {
+          "value": "h5",
+          "label": "t:options.h5"
+        },
+        {
+          "value": "h6",
+          "label": "t:options.h6"
+        }
+      ],
+      "default": "h6"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:gamma_battery.name",
+      "category": "t:categories.product"
+    }
+  ]
+}
+{% endschema %}

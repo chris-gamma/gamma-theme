@@ -14,6 +14,14 @@
     },
     "varies": "Variable"
   },
+  "gamma_battery": {
+    "types": {
+      "interchangeable": "Batterie interchangeable",
+      "integrated": "Batterie intégrée"
+    },
+    "view_range": "Voir la gamme",
+    "empty": "Ce produit n’a aucun système de batterie publié."
+  },
   "gamma_information": {
     "headings": {
       "included_in_the_set": "Articles inclus",
