@@ -48,7 +48,7 @@
     {%- if rows != blank -%}
       <div class="gamma-specifications">
         <table class="gamma-specifications__table">
-          <caption class="visually-hidden">{{ heading | escape }}</caption>
+          <caption class="visually-hidden">{{ heading | escape_once }}</caption>
           <colgroup><col class="gamma-specifications__label-column"><col class="gamma-specifications__value-column"></colgroup>
           <tbody>{{ rows }}</tbody>
         </table>

@@ -19,7 +19,7 @@
     <details class="details" data-information-row="{{ block.id }}" {% if block.settings.open_by_default %}open{% endif %} {{ block.shopify_attributes }}>
       <summary class="details__header">
         {% render 'icon-or-image', icon: block.settings.icon, image_upload: block.settings.image_upload, width: block.settings.width, class_name: 'details__icon' %}
-        {{ heading | escape }}
+        <span class="gamma-information-heading">{{ heading | escape_once }}</span>
         <span class="svg-wrapper icon-caret icon-animated">{{ 'icon-caret.svg' | inline_asset_content }}</span>
         <span class="svg-wrapper icon-plus">{{ 'icon-plus.svg' | inline_asset_content }}</span>
       </summary>

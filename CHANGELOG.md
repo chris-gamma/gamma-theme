@@ -21,5 +21,6 @@ This changelog records Location Gamma changes. Shopify's Horizon development his
 
 ### Changed
 
+- Product-information headings and captions escape translated text once; default dividers use Gamma Red while titles retain their native colours.
 - Product-page titles wrap naturally without overriding custom typography settings.
 - Retain English and French storefront and theme-editor translations, with a required locale review for future Horizon updates.
