@@ -102,7 +102,7 @@ Priorities are P0 for shared prerequisites, P1 for purchasing/browsing/discovery
 | 3. Products and purchasing | G09 | Battery systems and recommendations | P1 | G02, G03, G07 | Implemented |
 | 3. Products and purchasing | G10 | Localized media and product video | P1 | G03; G02 for content | Implemented |
 | 3. Products and purchasing | G11 | Cart experience | P1 | G04, G06, G08 | Implemented |
-| 3. Products and purchasing | G12 | Collection layouts and filters | P1 | G03, G04, G06, G08, G09, G10 | Planned |
+| 3. Products and purchasing | G12 | Collection layouts and filters | P1 | G03, G04, G06, G08, G09, G10 | Implemented |
 | 4. Search and rental discovery | G13 | Home search entry | P1 | G03, G06 | Planned |
 | 4. Search and rental discovery | G14 | Rental search integration | P1 | G02, G05, G13 | Planned |
 | 5. Business content and location | G15 | Home, footer and information pages | P2 | G02, G03, G04, G07, G09, G10, G13 | Planned |
@@ -610,7 +610,7 @@ Local implementation (`feature/cart`, based on `26b72a6`): theme settings keep t
 
 ### G12 — Collection layouts and filters
 
-**Priority:** P1. **Status:** Planned. **Dependencies:** G03, G04, G06, G08, G09, G10.
+**Priority:** P1. **Status:** Implemented. **Dependencies:** G03, G04, G06, G08, G09, G10.
 
 #### Purpose
 
@@ -643,6 +643,8 @@ Cover empty collections/results, active hidden parameters, clear-all, later page
 - [ ] Direct filtered URLs, removal, sorting and later-page navigation remain usable.
 - [ ] Desktop/drawer behavior, counts and state remain consistent after asynchronous updates.
 - [ ] Native product cards, language URLs, keyboard and responsive behavior pass.
+
+Local implementation (`feature/collections`, based on `88939f7`): three Filters block settings (hide brand/vendor, product type and power source) remove `filter.p.vendor`, `filter.p.product_type` and `filter.v.t.shopify.power-source` by `param_name` from the single filter list that the counts, horizontal bar, overflow/mobile drawer and removal pills share, but only while the filter has no active value, so a URL-applied fixed attribute stays visible, removable and preserved by later submissions. `collection.json` is unchanged; `collection.brand-collection`, `type-collection`, `power-source-collection`, `brand-type-collection` and `brand-pwrsrc-collection` copy it and differ only in those settings. These names and parameters match the published Primary theme's templates; a read-only Primary check found no collection assigned to an alternate template yet, and its storefront exposes exactly these vendor, product-type and power-source parameters with French labels, plus `filter.p.m.custom.battery_system` (not hidden by any context) and product-type values that differ between English and French. No card, section, snippet or CSS changes were needed: G06 filter/price output, G08 badges, G10 media, swatches and Quick Add render inside the same section request for filtering, sorting and later pages. `assets/gamma-facets-history.js` re-renders the facets section on Back/Forward when filter or sort state differs from the rendered state (page-only changes are left alone); Horizon 4.4.0 pushes history entries but only restores scroll, which a harness using Horizon's actual facets, section-renderer and scroll-container modules confirmed. Theme Check retains only the seven known Horizon warnings, JavaScript checking passes, EN/FR schema keys match, and an unpublished Gamma-Dev theme upload accepted the settings and templates. The authorized Gamma-Dev development preview (Chromium) rendered all six templates via `?view=` in English and French without Liquid errors. Gamma-Dev exposes only availability and price filters, so the omission rule was exercised by temporarily pointing one setting at `filter.v.availability` (reverted, uncommitted): at 1440px and 375px the inactive filter was absent from the bar and drawer, a URL-applied value showed its filter, pill, count bubble and active Clear all, survived sorting, disappeared when unchecked, and Back/Forward restored the matching results. Infinite scroll loaded all 51 products of a specialized template across three pages with localized links, prices and G08 badges; filtering after scrolling, exact EN/FR price-filter bounds, empty and zero-result states, the search page, 320/375/768/1440px reflow without horizontal scrolling and keyboard open/Escape/focus return for panels and the drawer passed; specialized and default response times were comparable. Testing via `?view=` loses the parameter after the first filter change because Horizon rebuilds the URL from the form; assigned templates are unaffected. Pending: real vendor, product-type and power-source filters on a store where they are enabled, editor persistence and collection assignment, screen readers, swatch and hover-image cards (no Gamma-Dev fixtures), other browsers and French collection content.
 
 #### Prototype reference
 
@@ -1197,6 +1199,7 @@ Independent local work can proceed while these are resolved. Resolve each before
 | 2026-11-04 | All | Development uses the current modified Horizon 4.3.0 fork on `dev`; feature scope and status are tracked here | Native capabilities and the receiving branch remain the implementation foundation; G24 establishes complete storefront acceptance |
 | 2026-11-05 | G10 | A product with no neutral or matching-language media shows all of its media; languages other than English/French are unfiltered | Avoids empty galleries and cards when localized artwork is incomplete; matches the G09 other-language icon fallback |
 | 2026-11-05 | G11 | The cart drawer stays the default and mobile Quick Add stays enabled; any backordered or special-order line shows a supplier-availability notice, replaced by a ship-together notice when the cart also has in-stock lines, without the prototype's pickup claim | Approved cart preferences and operational wording |
+| 2026-11-05 | G12 | Collection contexts use the five prototype template suffixes plus the default template; Filters block settings name the fixed attributes, whose filters are omitted only while inactive; Back/Forward re-renders filtered results until Horizon does | Preserves existing template assignments, keeps URL-applied filters removable instead of stranded, and makes browser history usable; the history workaround is removable on an upstream fix |
 
 ## Optional extensions
 
