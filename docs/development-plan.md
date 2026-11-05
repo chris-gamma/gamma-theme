@@ -98,7 +98,7 @@ Priorities are P0 for shared prerequisites, P1 for purchasing/browsing/discovery
 | 2. Shared storefront presentation | G05 | Native privacy presentation | P1 | G03, G04 | Implemented |
 | 2. Shared storefront presentation | G06 | Bilingual CAD presentation | P1 | G02, G03 | Implemented |
 | 3. Products and purchasing | G07 | Product information and scoped updates | P1 | G02, G03 | Implemented |
-| 3. Products and purchasing | G08 | Availability and fulfillment information | P1 | G02, G03, G07 | Planned |
+| 3. Products and purchasing | G08 | Availability and fulfillment information | P1 | G02, G03, G07 | Implemented |
 | 3. Products and purchasing | G09 | Battery systems and recommendations | P1 | G02, G03, G07 | Planned |
 | 3. Products and purchasing | G10 | Localized media and product video | P1 | G03; G02 for content | Planned |
 | 3. Products and purchasing | G11 | Cart experience | P1 | G04, G06, G08 | Planned |
@@ -436,7 +436,7 @@ The heading/divider follow-up verifies actual English/French Liquid output throu
 
 ### G08 — Availability and fulfillment information
 
-**Priority:** P1. **Status:** Planned. **Dependencies:** G02, G03, G07.
+**Priority:** P1. **Status:** Implemented. **Dependencies:** G02, G03, G07.
 
 #### Purpose
 
@@ -471,6 +471,8 @@ Cover negative/zero/positive stock, tracked/untracked/service-managed variants, 
 - [ ] Multiple pickup locations and native quantity/purchase validation remain correct.
 - [ ] Approved wording is accessible in both languages and adds no invented stock or delivery promise.
 - [ ] Notices appear at the purchase decision point, card labels remain compact and each cart message is visibly associated with the correct line.
+
+Local implementation (`feature/availability`, based on `2da2f90`): a shared resolver applies the precedence unavailable → quantity-limited → tracked stock covering the required quantity → exact `special order` tag → continue-selling backorder/partial backorder → untracked/service-managed (no claim). Only `inventory_management == 'shopify'` supplies stock evidence; tagged items with sufficient tracked stock show no delay. Notices render inside buy-buttons before purchase controls (visible in desktop/mobile Quick Add), clear while a selection loads and update only from responses matching section, block, product and variant. Cart lines use all cart units of the variant. Cards show Backorder/Special order only from complete variant data (≤250) and a neutral Varies badge otherwise, beside native Sale; a Badges theme setting can disable them. Native per-location pickup is enabled on the product template. French backorder wording uses “Épuisé”, which matches the native sold-out label. Theme Check retains only the six known Horizon warnings and JavaScript checking passes; isolated Chromium/Firefox checks with simulated selection responses cover updates, races, aborts, restoration, failures, mismatches, isolation and owner moves. Liquid rendering, fixtures, pickup locations, responsive/screen-reader, editor and card-performance acceptance require an authorized Shopify-rendered environment, and approved Q02 wording remains pending.
 
 #### Prototype reference
 
