@@ -85,11 +85,11 @@
       "brand": "#ee2622",
       "brand_accessible": "#c41f1c"
     },
-    "palette_primary_button_background": "{{ settings.color_palette.brand_accessible }}",
+    "palette_primary_button_background": "{{ settings.color_palette.brand }}",
     "palette_primary_button_text": "{{ settings.color_palette.background }}",
-    "palette_primary_button_border": "{{ settings.color_palette.brand_accessible }}",
+    "palette_primary_button_border": "{{ settings.color_palette.brand }}",
     "type_font_button_primary": "accent",
-    "badge_sale_background_color": "{{ settings.color_palette.brand_accessible }}",
+    "badge_sale_background_color": "{{ settings.color_palette.brand }}",
     "badge_sale_text_color": "{{ settings.color_palette.background }}",
     "logo": "shopify://shop_images/logo-gamma-primary.svg",
     "logo_inverse": "shopify://shop_images/logo-gamma-inverted.svg",
@@ -172,11 +172,11 @@
         "brand": "#ee2622",
         "brand_accessible": "#c41f1c"
       },
-      "palette_primary_button_background": "{{ settings.color_palette.brand_accessible }}",
+      "palette_primary_button_background": "{{ settings.color_palette.brand }}",
       "palette_primary_button_text": "{{ settings.color_palette.background }}",
-      "palette_primary_button_border": "{{ settings.color_palette.brand_accessible }}",
+      "palette_primary_button_border": "{{ settings.color_palette.brand }}",
       "type_font_button_primary": "accent",
-      "badge_sale_background_color": "{{ settings.color_palette.brand_accessible }}",
+      "badge_sale_background_color": "{{ settings.color_palette.brand }}",
       "badge_sale_text_color": "{{ settings.color_palette.background }}"
     }
   }
