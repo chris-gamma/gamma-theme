@@ -27,6 +27,27 @@
   assign products_count = results_size
   assign sort_by = results.sort_by | default: results.default_sort_by
   assign filters = filters | default: results.filters
+
+  # Gamma: omit filters for attributes this template fixes, unless the URL applies them,
+  # so an applied value stays visible, removable and kept by later form submissions.
+  assign gamma_fixed_params = ''
+  if block_settings.gamma_hide_vendor_filter
+    assign gamma_fixed_params = gamma_fixed_params | append: 'filter.p.vendor,'
+  endif
+  if block_settings.gamma_hide_product_type_filter
+    assign gamma_fixed_params = gamma_fixed_params | append: 'filter.p.product_type,'
+  endif
+  if block_settings.gamma_hide_power_source_filter
+    assign gamma_fixed_params = gamma_fixed_params | append: 'filter.v.t.shopify.power-source,'
+  endif
+  assign gamma_fixed_params = gamma_fixed_params | split: ','
+  for gamma_param in gamma_fixed_params
+    assign gamma_fixed_filter = filters | find: 'param_name', gamma_param
+    if gamma_fixed_filter and gamma_fixed_filter.active_values.size == 0
+      assign filters = filters | reject: 'param_name', gamma_param
+    endif
+  endfor
+
   assign total_active_values = 0
 
   # Calculate facets margin style
@@ -1388,6 +1409,33 @@
       "id": "enable_grid_density",
       "label": "t:settings.enable_grid_density",
       "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:gamma_filters.fixed_attributes",
+      "info": "t:gamma_filters.fixed_attributes_info",
+      "visible_if": "{{ block.settings.enable_filtering == true }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "gamma_hide_vendor_filter",
+      "label": "t:gamma_filters.hide_vendor",
+      "default": false,
+      "visible_if": "{{ block.settings.enable_filtering == true }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "gamma_hide_product_type_filter",
+      "label": "t:gamma_filters.hide_product_type",
+      "default": false,
+      "visible_if": "{{ block.settings.enable_filtering == true }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "gamma_hide_power_source_filter",
+      "label": "t:gamma_filters.hide_power_source",
+      "default": false,
+      "visible_if": "{{ block.settings.enable_filtering == true }}"
     },
     {
       "type": "header",

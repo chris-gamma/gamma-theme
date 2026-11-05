@@ -1,4 +1,11 @@
 {
+  "gamma_filters": {
+    "fixed_attributes": "Attributs fixes de la collection",
+    "fixed_attributes_info": "Masque les filtres communs à tous les produits des collections qui utilisent ce modèle. Un filtre masqué réapparaît lorsqu’un lien l’applique, afin que le client puisse le retirer.",
+    "hide_vendor": "Masquer le filtre de marque (fournisseur)",
+    "hide_product_type": "Masquer le filtre de type de produit",
+    "hide_power_source": "Masquer le filtre de source d’alimentation"
+  },
   "gamma_availability": {
     "badges": "Afficher les badges de rupture et de commande spéciale",
     "badges_info": "Les cartes produit vérifient jusqu’à 250 variantes. Les options mixtes ou incomplètes affichent un badge neutre.",

@@ -8,6 +8,13 @@
  * ------------------------------------------------------------
  */
 {
+  "gamma_filters": {
+    "fixed_attributes": "Fixed collection attributes",
+    "fixed_attributes_info": "Hides filters shared by every product in collections using this template. A hidden filter reappears while a link applies it, so customers can remove it.",
+    "hide_vendor": "Hide brand (vendor) filter",
+    "hide_product_type": "Hide product type filter",
+    "hide_power_source": "Hide power source filter"
+  },
   "gamma_availability": {
     "badges": "Show backorder and special-order badges",
     "badges_info": "Product cards check up to 250 variants. Mixed or incomplete options show a neutral badge.",
