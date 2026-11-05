@@ -42,20 +42,20 @@
       endif
     endfor
 
-    if selected_variant_media
-      assign gamma_token = selected_variant_media.id | prepend: ',' | append: ','
-      if gamma_excluded_media_ids contains gamma_token
-        assign selected_variant_media = nil
-      endif
+    # A missing media ID becomes ',,', which never matches an exclusion.
+    assign gamma_token = selected_variant_media.id | prepend: ',' | append: ','
+    if gamma_excluded_media_ids contains gamma_token
+      assign selected_variant_media = nil
     endif
 
-    if gamma_featured_media
-      assign gamma_token = gamma_featured_media.id | prepend: ',' | append: ','
-      if gamma_excluded_media_ids contains gamma_token
-        assign gamma_featured_media = gamma_media | first
-      endif
+    assign gamma_token = gamma_featured_media.id | prepend: ',' | append: ','
+    if gamma_excluded_media_ids contains gamma_token
+      assign gamma_featured_media = gamma_media | first
     endif
   endif
+
+  # Gamma: video slides keep their native controls instead of opening zoom on click, like 3D models.
+  assign gamma_interactive_media_types = 'model,video,external_video' | split: ','
 
   if block_settings.hide_variants and selected_variant_media == blank
     assign selected_variant_media = gamma_featured_media
@@ -428,7 +428,7 @@
             --media-preview-ratio: {{ media.preview_image.aspect_ratio | default: 1.0 }};
           {% endcapture %}
         {% endif %}
-        {% if block_settings.zoom and media.media_type == 'model' %}
+        {% if block_settings.zoom and gamma_interactive_media_types contains media.media_type %}
           {%- capture attributes -%}"{% if settings.transition_to_main_product and forloop.first %} data-view-transition-type="product-image-transition"{% endif %}{% endcapture -%}
         {% elsif block_settings.zoom %}
           {%- capture attributes -%}on:click="#zoom-dialog-{{ block_id }}/open/{{ forloop.index0 }}"{% if settings.transition_to_main_product and forloop.first %} data-view-transition-type="product-image-transition"{% endif %}{% endcapture -%}

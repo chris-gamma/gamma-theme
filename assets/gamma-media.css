@@ -1,0 +1,9 @@
+/* Gamma: keep product-gallery videos and their posters fully visible, whatever image fit or ratio the gallery uses.
+   Applies to the main gallery and its zoom dialog; product cards keep their native image areas. */
+media-gallery
+  .product-media-container:is(.product-media-container--video, .product-media-container--external_video)
+  .product-media
+  :is(img, video, .deferred-media__poster-image) {
+  object-fit: contain;
+  background-color: var(--color-background);
+}
