@@ -1284,6 +1284,13 @@
           }
         ],
         "default": "none"
+      },
+      {
+        "type": "checkbox",
+        "id": "gamma_availability_badges",
+        "label": "t:gamma_availability.badges",
+        "info": "t:gamma_availability.badges_info",
+        "default": true
       }
     ]
   },

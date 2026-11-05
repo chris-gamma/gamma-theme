@@ -1,0 +1,47 @@
+{%- doc -%}
+  Renders a product-wide availability badge for product cards, or no output.
+  Claims are made only when complete variant data proves them; otherwise a neutral badge is used.
+
+  @param {object} product - Product rendered by the card.
+{%- enddoc -%}
+
+{%- liquid
+  capture status
+    render 'gamma-availability-status', product: product, mode: 'product'
+  endcapture
+  assign status = status | strip
+  case status
+    when 'backorder'
+      assign label = 'gamma_availability.backorder.label' | t
+    when 'special_order'
+      assign label = 'gamma_availability.special_order.label' | t
+    when 'varies'
+      assign label = 'gamma_availability.varies' | t
+  endcase
+-%}
+{%- if label != blank -%}
+  <div class="product-badges__badge product-badges__badge--rectangle gamma-availability-badge gamma-availability-badge--{{ status }}">
+    {{- label -}}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .product-badges:has(> .gamma-availability-badge) {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--gap-2xs, 0.25rem);
+    max-inline-size: calc(100% - 2 * var(--badge-inset));
+  }
+
+  .product-badges--top-right:has(> .gamma-availability-badge) {
+    align-items: flex-end;
+  }
+
+  .gamma-availability-badge {
+    color: var(--color-foreground);
+    background: var(--color-background);
+    box-shadow: inset 0 0 0 1px currentColor;
+    overflow-wrap: anywhere;
+  }
+{% endstylesheet %}
