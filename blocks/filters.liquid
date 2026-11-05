@@ -22,6 +22,13 @@
   fetchpriority="low"
 ></script>
 
+{% # Gamma: Back/Forward re-render workaround for Horizon 4.4.0; see the asset's removal note. %}
+<script
+  src="{{ 'gamma-facets-history.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>
+
 {%- liquid
   assign block_settings = block.settings
   assign products_count = results_size

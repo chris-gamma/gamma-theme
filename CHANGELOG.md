@@ -18,6 +18,7 @@ Location Gamma's storefront theme is based on Shopify Horizon 4.4.0.
 - Open order notes in the cart, Shopify cart-line status messages, a cart notice on supplier-dependent shipping for backordered and special-order items, hidden Shop Pay options in the cart and mobile Quick Add.
 - Bilingual CAD money formatting on product, quantity/volume, quick-order, cart, filter and gift card prices; other currencies keep native formatting.
 - Native Shopify privacy controls styled with the theme's typography, corners, wrapping and keyboard focus.
+- Brand, product-type, power-source, brand/type and brand/power-source collection templates. Their filters omit the choice the collection already fixes, through new Filters block settings; a link that applies one keeps it visible and removable.
 
 ### Changed
 
@@ -28,3 +29,4 @@ Location Gamma's storefront theme is based on Shopify Horizon 4.4.0.
 ### Fixed
 
 - Add to cart, Quick Add and discount changes keep the cart in the shopper's language.
+- Back and Forward after changing collection or search filters or sorting update the results, filters and counts (workaround for Horizon 4.4.0; see `assets/gamma-facets-history.js`).
