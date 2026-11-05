@@ -1,5 +1,5 @@
 {%- doc -%}
-  Renders backorder/special-order text for one cart line, or no output.
+  Renders Shopify's line status message and backorder/special-order text for one cart line, or no output.
   Uses all cart units of the line's variant so split lines share one stock check.
 
   @param {object} item - Cart line item.
@@ -34,6 +34,17 @@
       assign message = 'gamma_availability.special_order.message' | t
   endcase
 -%}
+{%- if item.error_message != blank -%}
+  <p class="gamma-availability-line gamma-availability-line--error">
+    <span
+      class="svg-wrapper gamma-availability-line__icon"
+      aria-hidden="true"
+    >
+      {{- 'icon-error.svg' | inline_asset_content -}}
+    </span>
+    <span>{{ item.error_message | escape }}</span>
+  </p>
+{%- endif -%}
 {%- if shown -%}
   <p
     class="gamma-availability-line gamma-availability-line--{{ status }}"
