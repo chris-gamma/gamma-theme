@@ -12,7 +12,7 @@
   assign status = status | strip
   case status
     when 'backorder'
-      assign label = 'gamma_availability.backorder.label' | t
+      assign label = 'gamma_availability.backorder.badge' | t
     when 'special_order'
       assign label = 'gamma_availability.special_order.label' | t
     when 'varies'

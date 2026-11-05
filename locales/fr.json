@@ -1,11 +1,12 @@
 {
   "gamma_availability": {
     "backorder": {
-      "label": "Épuisé",
+      "badge": "En rupture",
+      "label": "En rupture de stock",
       "message": "Cet article est en rupture de stock, mais vous pouvez quand même le commander."
     },
     "partial_backorder": {
-      "label": "Partiellement épuisé",
+      "label": "Partiellement en rupture de stock",
       "message": "Cette quantité n’est pas entièrement en stock, mais vous pouvez quand même la commander."
     },
     "special_order": {
