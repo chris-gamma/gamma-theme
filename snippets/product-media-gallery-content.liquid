@@ -28,11 +28,40 @@
   assign selected_product = closest.product
   assign selected_variant_media = selected_product.selected_or_first_available_variant.featured_media
 
-  if block_settings.hide_variants and selected_variant_media == blank
-    assign selected_variant_media = selected_product.featured_media
+  # Gamma: media marked for the other storefront language is removed before any native ordering or counting.
+  capture gamma_excluded_media_ids
+    render 'gamma-media-exclusions', media: selected_product.media
+  endcapture
+  assign gamma_media = selected_product.media
+  assign gamma_featured_media = selected_product.featured_media
+  if gamma_excluded_media_ids != blank
+    for gamma_item in selected_product.media
+      assign gamma_token = gamma_item.id | prepend: ',' | append: ','
+      if gamma_excluded_media_ids contains gamma_token
+        assign gamma_media = gamma_media | reject: 'id', gamma_item.id
+      endif
+    endfor
+
+    if selected_variant_media
+      assign gamma_token = selected_variant_media.id | prepend: ',' | append: ','
+      if gamma_excluded_media_ids contains gamma_token
+        assign selected_variant_media = nil
+      endif
+    endif
+
+    if gamma_featured_media
+      assign gamma_token = gamma_featured_media.id | prepend: ',' | append: ','
+      if gamma_excluded_media_ids contains gamma_token
+        assign gamma_featured_media = gamma_media | first
+      endif
+    endif
   endif
 
-  assign first_3d_model = selected_product.media | where: 'media_type', 'model' | first
+  if block_settings.hide_variants and selected_variant_media == blank
+    assign selected_variant_media = gamma_featured_media
+  endif
+
+  assign first_3d_model = gamma_media | where: 'media_type', 'model' | first
 
   if block_settings.hide_variants
     assign variant_images = selected_product.images | where: 'attached_to_variant?', true | map: 'src'
@@ -68,13 +97,13 @@
 
   assign slideshow_controls_style = block_settings.slideshow_controls_style
   # Use a counter instead of dots when there are many images to avoid cropping/overflow.
-  if slideshow_controls_style == 'dots' and selected_product.media.size > 15
+  if slideshow_controls_style == 'dots' and gamma_media.size > 15
     assign slideshow_controls_style = 'counter'
   endif
 
   assign render_slideshow_arrows = false
 
-  if selected_product.media.size <= 1
+  if gamma_media.size <= 1
     assign slideshow_class = 'product-media-gallery__slideshow--single-media slideshow--single-media'
   else
     assign slideshow_class = ''
@@ -114,22 +143,22 @@
 
   assign sorted_media = '' | split: ','
   if selected_variant_media
-    assign sorted_media = sorted_media | concat: selected_product.media | where: 'id', selected_variant_media.id
+    assign sorted_media = sorted_media | concat: gamma_media | where: 'id', selected_variant_media.id
 
-    for media in selected_product.media
+    for media in gamma_media
       if block_settings.hide_variants and variant_images contains media.src and sorted_media.size > 0
         continue
       endif
 
       if media.id != selected_variant_media.id
-        assign found_media = selected_product.media | where: 'id', media.id
+        assign found_media = gamma_media | where: 'id', media.id
         assign sorted_media = sorted_media | concat: found_media
       endif
     endfor
   elsif block_settings.hide_variants
     assign sorted_media = '' | split: ','
   else
-    assign sorted_media = selected_product.media
+    assign sorted_media = gamma_media
   endif
   assign has_image_drop = sorted_media | has: 'media_type', 'image'
 

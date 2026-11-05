@@ -1,0 +1,84 @@
+{%- doc -%}
+  Outputs the product media that the current storefront language must not show.
+
+  A preview filename ending in -en, _en, -fr or _fr (after removing the query,
+  extension and URL encoding) marks language-specific media. Other media is
+  neutral. Media marked for the other language family is excluded unless that
+  would leave the product without any media, in which case nothing is excluded.
+
+  Output is empty when every item is eligible, otherwise a comma-delimited ID
+  list with leading and trailing commas (",123,456,") so callers can match
+  ',<id>,' tokens.
+
+  @param {object[]} media - Product media in native order, such as product.media.
+
+  @example
+  {%- capture gamma_excluded_media_ids -%}
+    {%- render 'gamma-media-exclusions', media: product.media -%}
+  {%- endcapture -%}
+{%- enddoc -%}
+
+{%- liquid
+  assign language = request.locale.iso_code | downcase | split: '-' | first
+  assign other_language = ''
+
+  case language
+    when 'en'
+      assign other_language = 'fr'
+    when 'fr'
+      assign other_language = 'en'
+  endcase
+
+  if other_language != blank and media.size > 1
+    # Skip per-item parsing when no source could carry the other language's marker.
+    assign sources = media | map: 'preview_image' | map: 'src' | join: ' ' | downcase
+    assign hyphen_marker = '-' | append: other_language
+    assign underscore_marker = '_' | append: other_language
+    assign encoded_hyphen_marker = '%2d' | append: other_language
+    assign encoded_underscore_marker = '%5f' | append: other_language
+    assign has_candidate = false
+    if sources contains hyphen_marker or sources contains underscore_marker
+      assign has_candidate = true
+    elsif sources contains encoded_hyphen_marker or sources contains encoded_underscore_marker
+      assign has_candidate = true
+    endif
+
+    if has_candidate
+      assign excluded = ''
+      assign eligible_count = 0
+
+      for item in media
+        assign marker = ''
+        assign source = item.preview_image.src | append: ''
+
+        if source != blank
+          assign name = source | split: '?' | first | split: '#' | first | split: '/' | last | downcase | url_decode | strip
+          assign stem = name
+
+          if name contains '.'
+            assign extension = name | split: '.' | last
+            assign stem_size = name.size | minus: extension.size | minus: 1
+            assign stem = name | slice: 0, stem_size | strip
+          endif
+
+          if stem.size > 3
+            assign marker_delimiter = stem | slice: -3, 1
+            if marker_delimiter == '-' or marker_delimiter == '_'
+              assign marker = stem | slice: -2, 2
+            endif
+          endif
+        endif
+
+        if marker == other_language
+          assign excluded = excluded | append: item.id | append: ','
+        else
+          assign eligible_count = eligible_count | plus: 1
+        endif
+      endfor
+
+      if excluded != blank and eligible_count > 0
+        echo ',' | append: excluded
+      endif
+    endif
+  endif
+-%}
