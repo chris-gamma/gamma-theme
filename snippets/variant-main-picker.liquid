@@ -43,8 +43,8 @@
     data-product-title="{{ product_resource.title | escape }}"
     data-block-id="{{ block.id }}"
     data-product-url="{{ product_resource.url }}"
-    data-selection-restored="{{ 'gamma_information.restored' | t | escape }}"
-    data-selection-error="{{ 'gamma_information.error' | t | escape }}"
+    data-selection-restored="{{ 'gamma_information.restored' | t | escape_once }}"
+    data-selection-error="{{ 'gamma_information.error' | t | escape_once }}"
     ref="mainVariantPicker"
     {% if product.id == product_resource.id %}
       data-template-product-match="true"

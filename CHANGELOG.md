@@ -21,5 +21,6 @@ Location Gamma changes only; Horizon's history stays in Git. The foundation is H
 
 ### Changed
 
+- Product-information headings and captions escape translated text once; default dividers use Gamma Red.
 - Product-page titles wrap naturally without overriding custom typography settings.
 - English and French storefront and theme-editor translations are kept, with a locale check for future Horizon updates.

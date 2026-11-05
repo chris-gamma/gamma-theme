@@ -26,16 +26,16 @@
      --summary-font-case: var(--font-{{ block_settings.type_preset }}--case);
     {% render 'spacing-style', settings: block_settings %}
     {% render 'border-override', settings: block_settings %}
-    {% if block_settings.divider_color != blank %} --color-border: {{ block_settings.divider_color }};{% endif %}
+    --color-border: {{ block_settings.divider_color | default: settings.color_palette.brand }};
   "
   {{ block.shopify_attributes }}
 >
   {{ information_rows }}
 </div>
   <p ref="status" class="gamma-information-status" role="status" aria-live="polite" hidden
-    data-loading="{{ 'gamma_information.loading' | t | escape }}"
-    data-restored="{{ 'gamma_information.restored' | t | escape }}"
-    data-error="{{ 'gamma_information.error' | t | escape }}"></p>
+    data-loading="{{ 'gamma_information.loading' | t | escape_once }}"
+    data-restored="{{ 'gamma_information.restored' | t | escape_once }}"
+    data-error="{{ 'gamma_information.error' | t | escape_once }}"></p>
   <a ref="recovery" href="{{ closest.product.url }}" hidden>{{ 'gamma_information.reload' | t }}</a>
 </product-information-accordion>
 {% render 'accordion-styles' %}
@@ -43,6 +43,7 @@
   product-information-accordion { display: block; min-width: 0; width: 100%; }
   product-information-accordion[hidden], product-information-accordion [hidden] { display: none; }
   product-information-accordion .gamma-information-status { margin-block: var(--margin-sm); }
+  product-information-accordion .gamma-information-heading { min-width: 0; overflow-wrap: anywhere; }
   .gamma-specifications { container-type: inline-size; min-width: 0; }
   .gamma-specifications__table {
     width: 100%; table-layout: fixed; border-collapse: collapse;
