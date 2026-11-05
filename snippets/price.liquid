@@ -61,17 +61,18 @@
   endif
 
   # Format all prices
-  if use_currency
-    assign price = price | money_with_currency
-    assign compare_at_price = compare_at_price | money_with_currency
-    assign price_min = price_min | money_with_currency
-    assign price_max = price_max | money_with_currency
-  else
-    assign price = price | money
-    assign compare_at_price = compare_at_price | money
-    assign price_min = price_min | money
-    assign price_max = price_max | money
-  endif
+  capture price
+    render 'gamma-money', price: price, with_currency: use_currency
+  endcapture
+  capture compare_at_price
+    render 'gamma-money', price: compare_at_price, with_currency: use_currency
+  endcapture
+  capture price_min
+    render 'gamma-money', price: price_min, with_currency: use_currency
+  endcapture
+  capture price_max
+    render 'gamma-money', price: price_max, with_currency: use_currency
+  endcapture
 -%}
 
 <div ref="priceContainer">
@@ -83,9 +84,9 @@
         <bdi>{{- compare_at_price -}}</bdi>
       </span>
     {% endif %}
-    <span class="price-item__group price">
+    <span class="price-item__group price price--range">
       <span class="visually-hidden">{{ 'content.price_range' | t }}&nbsp;</span>
-      <bdi>{{ price_min }} - {{ price_max }}</bdi>
+      <bdi>{{ price_min }}</bdi> - <bdi>{{ price_max }}</bdi>
     </span>
   {% else %}
     {% comment %} Standard pricing display: render only the active branch (regular or sale) {% endcomment %}
@@ -117,11 +118,9 @@
   {% endif %}
   {%- if selected_variant.unit_price and show_unit_price %}
     {%- liquid
-      if use_currency
-        assign unit_price = selected_variant.unit_price | money_with_currency
-      else
-        assign unit_price = selected_variant.unit_price | money
-      endif
+      capture unit_price
+        render 'gamma-money', price: selected_variant.unit_price, with_currency: use_currency
+      endcapture
     -%}
     {% render 'unit-price', price: unit_price, measurement: selected_variant.unit_price_measurement %}
   {%- endif -%}

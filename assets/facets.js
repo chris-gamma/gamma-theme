@@ -1,7 +1,7 @@
 import { sectionRenderer } from '@theme/section-renderer';
 import { Component } from '@theme/component';
 import { debounce, mediaQueryLarge, startViewTransition } from '@theme/utilities';
-import { convertMoneyToMinorUnits, formatMoney } from '@theme/money-formatting';
+import { convertMoneyToMinorUnits, formatCadMoney, formatMoney } from '@theme/money-formatting';
 import { CollectionUpdateEvent, SearchUpdateEvent, StandardEvents } from '@shopify/events';
 
 /**
@@ -950,10 +950,10 @@ class FacetStatusComponent extends Component {
       return;
     }
 
-    const currency = facetStatus.dataset.currency || '';
+    const currency = this.#cadLocale ? 'CAD' : facetStatus.dataset.currency || '';
     const minInputNum = this.#parseCents(minInputValue, '0', currency);
     const maxInputNum = this.#parseCents(maxInputValue, facetStatus.dataset.rangeMax, currency);
-    facetStatus.innerHTML = `<bdi>${this.#formatMoney(minInputNum)}–${this.#formatMoney(maxInputNum)}</bdi>`;
+    facetStatus.innerHTML = `<bdi>${this.#formatMoney(minInputNum)}</bdi>–<wbr><bdi>${this.#formatMoney(maxInputNum)}</bdi>`;
   }
 
   /**
@@ -977,12 +977,23 @@ class FacetStatusComponent extends Component {
     return parseInt(cleanFallback, 10) || 0;
   }
 
+  get #cadLocale() {
+    const { presentmentCurrency, locale = '' } = this.refs.facetStatus.dataset;
+    const language = locale.toLowerCase().split('-')[0];
+    return presentmentCurrency === 'CAD' && (language === 'en' || language === 'fr') ? locale : '';
+  }
+
   /**
-   * Formats money, replicated the implementation of the `money` liquid filters
+   * Formats money for Gamma CAD display or the native money format.
    * @param {number} moneyValue - The money value
    * @returns {string} The formatted money value
    */
   #formatMoney(moneyValue) {
+    const locale = this.#cadLocale;
+    if (locale) {
+      return formatCadMoney(moneyValue, locale);
+    }
+
     if (!(this.refs.moneyFormat instanceof HTMLTemplateElement)) return '';
 
     const format = this.refs.moneyFormat.content.textContent || '{{amount}}';

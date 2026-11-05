@@ -6,6 +6,7 @@ This changelog records Location Gamma changes. Shopify's Horizon development his
 
 ### Added
 
+- Bilingual CAD formatting across product, quantity/volume, quick-order, cart, filter and gift-card displays, retaining native formatting for other currencies.
 - Admin-managed English/French menu overrides with language-family fallback, three-level footer links and configured shell menus.
 - Gamma logos, Inter/Oswald typography and accessible native palette roles, with centered desktop navigation and an inverse footer logo.
 - Native privacy API handoff, with map and attribution implementation reserved for G17/G23.

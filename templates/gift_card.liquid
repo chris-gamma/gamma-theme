@@ -55,9 +55,19 @@
       >
     {%- endif -%}
 
-    {%- assign formatted_balance = gift_card.balance | money_without_trailing_zeros | strip_html -%}
+    {%- liquid
+      assign formatted_balance = gift_card.balance | money_without_trailing_zeros | strip_html
+      assign gift_card_language = request.locale.iso_code | downcase | split: '-' | first
+      if cart.currency.iso_code == 'CAD'
+        if gift_card_language == 'en' or gift_card_language == 'fr'
+          capture formatted_balance
+            render 'gamma-money', price: gift_card.balance
+          endcapture
+        endif
+      endif
+    -%}
 
-    <title>{{ 'gift_cards.issued.title' | t: value: formatted_balance, shop: shop.name }}</title>
+    <title>{{ 'gift_cards.issued.title' | t: value: formatted_balance, shop: shop.name | escape }}</title>
 
     <meta
       name="description"
@@ -137,7 +147,7 @@
       </div>
       <div class="gift-card__price">
         <h2>
-          <bdi>{{ gift_card.balance | money_with_currency }}</bdi>
+          <bdi>{% render 'gamma-money', price: gift_card.balance, with_currency: true %}</bdi>
         </h2>
         {%- if gift_card.enabled == false or gift_card.expired -%}
           <p class="gift-card__badge gift-card__badge--expired">{{ 'gift_cards.issued.expired' | t }}</p>

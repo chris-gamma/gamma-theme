@@ -96,7 +96,7 @@ Priorities are P0 for shared prerequisites, P1 for purchasing/browsing/discovery
 | 2. Shared storefront presentation | G03 | French and English navigation | P1 | G01; G02 for content | Implemented |
 | 2. Shared storefront presentation | G04 | Gamma branding | P1 | G02, G03 | Implemented |
 | 2. Shared storefront presentation | G05 | Native privacy presentation | P1 | G03, G04 | Implemented |
-| 2. Shared storefront presentation | G06 | Bilingual CAD presentation | P1 | G02, G03 | Planned |
+| 2. Shared storefront presentation | G06 | Bilingual CAD presentation | P1 | G02, G03 | Implemented |
 | 3. Products and purchasing | G07 | Product information and scoped updates | P1 | G02, G03 | Planned |
 | 3. Products and purchasing | G08 | Availability and fulfillment information | P1 | G02, G03, G07 | Planned |
 | 3. Products and purchasing | G09 | Battery systems and recommendations | P1 | G02, G03, G07 | Planned |
@@ -332,7 +332,7 @@ Operation-specific permission mapping, persistence, withdrawal cleanup and reque
 
 ### G06 — Bilingual CAD presentation
 
-**Priority:** P1. **Status:** Planned. **Dependencies:** G02, G03.
+**Priority:** P1. **Status:** Implemented. **Dependencies:** G02, G03.
 
 #### Purpose
 
@@ -367,6 +367,8 @@ Cover zero, one cent, whole amounts, thousands, large values, absent inputs, cod
 - [ ] Filter boundaries remain exact, including empty bounds and clearing, with no 100-fold conversion error.
 - [ ] Gift cards show the remaining balance; machine metadata and structured amounts remain valid.
 - [ ] Applicable non-CAD behavior and native tier/unit-price functions remain intact.
+
+Local verification (`feature/money-formatting`, based on `58c6403`): shared Liquid/JavaScript CAD output uses two decimal places and U+00A0 spacing. Local renderer checks cover formatter parity, consumers, price-break JSON, native fallback routing and unchanged filter inputs; a Chromium harness covers English/French summaries, wrapping, keyboard focus and 320/375/768/1440px widths. `npm run check:all` passes with the six known Horizon warnings. Store-backed product/cart/editor/gift-card and cross-browser acceptance remains pending; the inherited Open Graph display-format amount is unchanged by explicit scope decision.
 
 #### Prototype reference
 

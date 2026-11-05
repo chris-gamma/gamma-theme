@@ -18,6 +18,14 @@
     {% if filter.type == 'price_range' and filter.min_value.value != null or filter.max_value.value != null %}
       {%- liquid
         assign is_active = true
+        assign minimum_price = filter.min_value.value | default: 0
+        assign maximum_price = filter.max_value.value | default: filter.range_max
+        capture formatted_minimum_price
+          render 'gamma-money', price: minimum_price
+        endcapture
+        capture formatted_maximum_price
+          render 'gamma-money', price: maximum_price
+        endcapture
       -%}
       <facet-remove-component
         class="
@@ -31,13 +39,7 @@
         on:click="/removeFilter?form="
         on:keydown="/removeFilter?form="
       >
-        {%- if filter.min_value.value != null and filter.max_value.value != null %}
-          <bdi>{{ filter.min_value.value | money }}–{{ filter.max_value.value | money }}</bdi>
-        {%- elsif filter.min_value.value != null -%}
-          <bdi>{{ filter.min_value.value | money }}–{{ filter.range_max | money }}</bdi>
-        {%- elsif filter.max_value.value != null -%}
-          <bdi>{{ 0 | money }}–{{ filter.max_value.value | money }}</bdi>
-        {%- endif -%}
+        <span><bdi>{{ formatted_minimum_price }}</bdi>–<wbr><bdi>{{ formatted_maximum_price }}</bdi></span>
         <span class="svg-wrapper svg-wrapper--smaller">
           {{- 'icon-filters-close.svg' | inline_asset_content -}}
         </span>
