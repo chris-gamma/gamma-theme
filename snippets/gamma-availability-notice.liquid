@@ -1,0 +1,117 @@
+{%- doc -%}
+  Renders the selected-variant backorder/special-order notice before purchase controls.
+  The element is always present so product selection can update or clear it.
+
+  @param {object} product - Product owning the purchase form.
+  @param {object} variant - Selected or first available variant.
+  @param {object} section - Section rendering the purchase form.
+  @param {object} block - Buy-buttons block rendering the notice.
+{%- enddoc -%}
+
+{%- liquid
+  capture status
+    render 'gamma-availability-status', product: product, variant: variant
+  endcapture
+  assign status = status | strip
+  assign shown = false
+  case status
+    when 'backorder'
+      assign shown = true
+      assign icon = 'icon-gamma-backorder.svg'
+      assign label = 'gamma_availability.backorder.label' | t
+      assign message = 'gamma_availability.backorder.message' | t
+    when 'partial_backorder'
+      assign shown = true
+      assign icon = 'icon-gamma-backorder.svg'
+      assign label = 'gamma_availability.partial_backorder.label' | t
+      assign message = 'gamma_availability.partial_backorder.message' | t
+    when 'special_order'
+      assign shown = true
+      assign icon = 'icon-gamma-special-order.svg'
+      assign label = 'gamma_availability.special_order.label' | t
+      assign message = 'gamma_availability.special_order.message' | t
+  endcase
+-%}
+<script
+  src="{{ 'gamma-availability-notice.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>
+<gamma-availability-notice
+  class="gamma-availability"
+  data-section-id="{{ section.id }}"
+  data-block-id="{{ block.id }}"
+  data-product-id="{{ product.id }}"
+  data-variant-id="{{ variant.id }}"
+  data-status="{{ status }}"
+  style="--gamma-availability-accent: {{ settings.color_palette.brand }};"
+>
+  <div
+    ref="panel"
+    class="gamma-availability__notice gamma-availability__notice--{{ status }}"
+    {% unless shown %}
+      hidden
+    {% endunless %}
+  >
+    {%- if shown -%}
+      <span
+        class="svg-wrapper gamma-availability__icon"
+        aria-hidden="true"
+      >
+        {{- icon | inline_asset_content -}}
+      </span>
+      <p class="gamma-availability__text">
+        <strong>{{ label }}</strong>
+        {{ message }}
+      </p>
+    {%- endif -%}
+  </div>
+  <span
+    ref="announcement"
+    class="visually-hidden"
+    role="status"
+  ></span>
+</gamma-availability-notice>
+
+{% stylesheet %}
+  gamma-availability-notice {
+    display: block;
+    min-width: 0;
+  }
+
+  product-card gamma-availability-notice,
+  gamma-availability-notice [hidden] {
+    display: none;
+  }
+
+  .gamma-availability__notice {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--gap-sm);
+    margin-block-end: var(--gap-sm);
+    padding: var(--padding-md);
+    border-radius: var(--style-border-radius-md);
+    background: rgb(var(--color-foreground-rgb) / 5%);
+    color: var(--color-foreground);
+    font-size: var(--font-paragraph--size);
+    line-height: var(--font-paragraph--line-height);
+  }
+
+  .gamma-availability__icon {
+    flex-shrink: 0;
+    width: var(--icon-size-md, 1.25rem);
+    height: var(--icon-size-md, 1.25rem);
+    color: var(--gamma-availability-accent, currentColor);
+  }
+
+  .gamma-availability__icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .gamma-availability__text {
+    margin: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+{% endstylesheet %}

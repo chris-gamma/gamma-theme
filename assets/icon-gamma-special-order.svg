@@ -1,0 +1,4 @@
+<svg aria-hidden="true" class="icon icon-gamma-special-order" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10 3.5L16 6.5V13.5L10 16.5L4 13.5V6.5L10 3.5Z" stroke="currentColor" stroke-width="var(--icon-stroke-width)" stroke-linejoin="round"/>
+  <path d="M4 6.5L10 9.5L16 6.5M10 9.5V16.5" stroke="currentColor" stroke-width="var(--icon-stroke-width)" stroke-linejoin="round"/>
+</svg>

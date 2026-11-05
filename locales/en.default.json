@@ -8,6 +8,21 @@
  * ------------------------------------------------------------
  */
 {
+  "gamma_availability": {
+    "backorder": {
+      "label": "Backorder",
+      "message": "This item is out of stock, but you can still order it."
+    },
+    "partial_backorder": {
+      "label": "Partial backorder",
+      "message": "Not all of this quantity is in stock, but you can still order it."
+    },
+    "special_order": {
+      "label": "Special order",
+      "message": "This item is ordered specially for you."
+    },
+    "varies": "Varies"
+  },
   "gamma_information": {
     "headings": {
       "included_in_the_set": "Included in the set",

@@ -1,0 +1,103 @@
+{%- doc -%}
+  Returns Gamma's availability token. Callers capture the output and strip it.
+  Shopify remains authoritative for purchase eligibility; tokens only describe fulfillment.
+
+  Variant mode tokens: unavailable, quantity_limited, in_stock, special_order,
+  partial_backorder, backorder, untracked, service_managed.
+  Product mode tokens (conservative card aggregate): blank, backorder, special_order, varies.
+
+  @param {object} product - Product supplying the exact `special order` tag.
+  @param {object} [variant] - Variant to resolve in variant mode.
+  @param {number} [quantity] - Units required; defaults to the variant's minimum order quantity.
+  @param {string} [mode] - `variant` (default) or `product`.
+
+  @example
+  {% capture status %}{% render 'gamma-availability-status', product: product, variant: variant %}{% endcapture %}
+{%- enddoc -%}
+
+{%- liquid
+  assign special = false
+  if product.tags contains 'special order'
+    assign special = true
+  endif
+
+  if mode == 'product'
+    assign status = ''
+    if product != blank and product.available
+      assign purchasable = product.variants | where: 'available'
+      assign tracked = purchasable | where: 'inventory_management', 'shopify'
+      assign others = purchasable.size | minus: tracked.size
+      assign all_delayed = false
+      assign any_delayed = false
+
+      if special
+        assign kind = 'special_order'
+        if tracked.size == 0
+          if purchasable.size > 0
+            assign all_delayed = true
+            assign any_delayed = true
+          endif
+        else
+          # Purchasable deny-policy variants have stock; stock at or below zero means continue selling.
+          assign quantities = tracked | map: 'inventory_quantity' | sort
+          if quantities.last <= 0
+            assign all_delayed = true
+          endif
+          if quantities.first <= 0
+            assign any_delayed = true
+          endif
+          if others > 0
+            assign any_delayed = true
+          endif
+        endif
+      else
+        assign kind = 'backorder'
+        assign continuing = tracked | where: 'inventory_policy', 'continue'
+        if continuing.size > 0
+          assign quantities = continuing | map: 'inventory_quantity' | sort
+          if quantities.first <= 0
+            assign any_delayed = true
+          endif
+          if continuing.size == purchasable.size and quantities.last <= 0
+            assign all_delayed = true
+          endif
+        endif
+      endif
+
+      if any_delayed
+        assign status = 'varies'
+        if all_delayed and product.variants.size == product.variants_count
+          assign status = kind
+        endif
+      endif
+    endif
+  else
+    assign status = 'unavailable'
+    if variant != blank and variant.available
+      assign required = quantity | default: variant.quantity_rule.min | default: 1 | at_least: 1
+
+      if variant.inventory_management == 'shopify'
+        assign stock = variant.inventory_quantity
+        if stock >= required
+          assign status = 'in_stock'
+        elsif variant.inventory_policy != 'continue'
+          assign status = 'quantity_limited'
+        elsif special
+          assign status = 'special_order'
+        elsif stock > 0
+          assign status = 'partial_backorder'
+        else
+          assign status = 'backorder'
+        endif
+      elsif special
+        assign status = 'special_order'
+      elsif variant.inventory_management == blank
+        assign status = 'untracked'
+      else
+        assign status = 'service_managed'
+      endif
+    endif
+  endif
+
+  echo status
+-%}
