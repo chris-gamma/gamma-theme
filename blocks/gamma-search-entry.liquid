@@ -20,6 +20,12 @@
   assign instruction_id = 'GammaSearchInstruction-' | append: block.id
 %}
 
+<script
+  src="{{ 'gamma-search-entry.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>
+
 <gamma-search-entry-component
   class="gamma-search-entry spacing-style"
   style="
