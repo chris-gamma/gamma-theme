@@ -158,7 +158,29 @@
                   role="cell"
                   headers="productImage"
                 >
-                  {% if item.image -%}
+                  {% liquid
+                    # Gamma: line thumbnails follow the storefront language's eligible media.
+                    assign gamma_line_image = item.image
+                    if item.image and item.product.media.size > 1
+                      capture gamma_excluded_media_ids
+                        render 'gamma-media-exclusions', media: item.product.media
+                      endcapture
+                      if gamma_excluded_media_ids != blank
+                        assign gamma_line_media = item.variant.featured_media | default: item.product.featured_media
+                        assign gamma_token = gamma_line_media.id | prepend: ',' | append: ','
+                        if gamma_excluded_media_ids contains gamma_token
+                          for gamma_item in item.product.media
+                            assign gamma_token = gamma_item.id | prepend: ',' | append: ','
+                            unless gamma_excluded_media_ids contains gamma_token
+                              assign gamma_line_image = gamma_item.preview_image
+                              break
+                            endunless
+                          endfor
+                        endif
+                      endif
+                    endif
+                  %}
+                  {% if gamma_line_image -%}
                     {% liquid
                       assign ratio = 1
                       assign border_opacity = settings.cart_thumbnail_border_opacity | divided_by: 100.0
@@ -170,7 +192,7 @@
                       if block_settings.image_ratio == 'portrait'
                         assign ratio = 0.8
                       elsif block_settings.image_ratio == 'adapt'
-                        assign ratio = item.image.aspect_ratio
+                        assign ratio = gamma_line_image.aspect_ratio
                       endif
                     %}
                     <a
@@ -179,7 +201,7 @@
                       style="--ratio:{{ ratio }};"
                     >
                       {%- liquid
-                        echo item.image | image_url: width: 250 | image_tag: class: 'cart-items__media-image border-style', style: border_override
+                        echo gamma_line_image | image_url: width: 250 | image_tag: class: 'cart-items__media-image border-style', style: border_override
                       -%}
                     </a>
                   {%- endif %}

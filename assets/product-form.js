@@ -827,8 +827,15 @@ class ProductFormComponent extends Component {
         }
       }
 
-      // Set the data attribute for the product variant media if it exists
-      if (resource) {
+      // Gamma: prefer the server-rendered image, which applies the storefront language's media eligibility.
+      const renderedVariantMedia = html
+        .querySelector('product-form-component [ref="addToCartButtonContainer"]')
+        ?.getAttribute('data-product-variant-media');
+
+      if (renderedVariantMedia) {
+        this.refs.addToCartButtonContainer?.setAttribute('data-product-variant-media', renderedVariantMedia);
+      } else if (resource) {
+        // Set the data attribute for the product variant media if it exists
         const productVariantMedia = resource.featured_media?.preview_image?.src;
         if (productVariantMedia) {
           this.refs.addToCartButtonContainer?.setAttribute(
