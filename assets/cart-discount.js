@@ -177,6 +177,7 @@ class CartDiscount extends Component {
         body: JSON.stringify({
           discount: allDiscountCodes.join(','),
           sections: [this.dataset.sectionId],
+          sections_url: window.location.pathname,
         }),
       });
 
@@ -328,7 +329,11 @@ class CartDiscount extends Component {
       );
 
       const config = fetchConfig('json', {
-        body: JSON.stringify({ discount: existingDiscounts.join(','), sections: [this.dataset.sectionId] }),
+        body: JSON.stringify({
+          discount: existingDiscounts.join(','),
+          sections: [this.dataset.sectionId],
+          sections_url: window.location.pathname,
+        }),
       });
 
       const response = await fetch(Theme.routes.cart_update_url, {
