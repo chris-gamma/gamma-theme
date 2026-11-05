@@ -1,0 +1,64 @@
+{%- doc -%}
+  Formats numeric Shopify cents for English/French CAD display, with native money-filter fallbacks.
+  Surrounding markup, labels and escaping belong to the caller.
+
+  @param {number} price - The price in Shopify currency subunits.
+  @param {boolean} [with_currency] - Include the currency code (defaults to false).
+  @param {string} [currency] - The amount's currency ISO code (defaults to cart presentment currency).
+{%- enddoc -%}
+
+{%- liquid
+  assign currency_code = currency | default: cart.currency.iso_code
+  assign language = request.locale.iso_code | downcase | split: '-' | first
+  assign localized_cad = false
+  if currency_code == 'CAD' and price != blank
+    if language == 'en' or language == 'fr'
+      assign localized_cad = true
+    endif
+  endif
+
+  if localized_cad
+    assign absolute_price = price | abs | round
+    assign whole = absolute_price | divided_by: 100 | floor | append: ''
+    assign fraction = absolute_price | modulo: 100
+    assign last_digit_index = whole.size | minus: 1
+    assign grouping_separator = ','
+    assign decimal_separator = '.'
+    if language == 'fr'
+      assign grouping_separator = ' '
+      assign decimal_separator = ','
+    endif
+
+    if price < 0
+      echo '-'
+    endif
+    if language == 'en'
+      echo '$'
+    endif
+    for digit_index in (0..last_digit_index)
+      assign remaining_digits = whole.size | minus: forloop.index0
+      assign group_remainder = remaining_digits | modulo: 3
+      unless forloop.first
+        if group_remainder == 0
+          echo grouping_separator
+        endif
+      endunless
+      echo whole | slice: digit_index, 1
+    endfor
+    echo decimal_separator
+    if fraction < 10
+      echo '0'
+    endif
+    echo fraction
+    if language == 'fr'
+      echo ' $'
+    endif
+    if with_currency
+      echo ' CAD'
+    endif
+  elsif with_currency
+    echo price | money_with_currency
+  else
+    echo price | money
+  endif
+-%}

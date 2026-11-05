@@ -18,6 +18,15 @@
   elsif filter_style == 'vertical'
     assign is_vertical = true
   endif
+
+  assign minimum_price = filter.min_value.value | default: 0
+  assign maximum_price = filter.max_value.value | default: filter.range_max
+  capture formatted_minimum_price
+    render 'gamma-money', price: minimum_price
+  endcapture
+  capture formatted_maximum_price
+    render 'gamma-money', price: maximum_price
+  endcapture
 -%}
 {% capture accordion_children %}
   <details
@@ -41,17 +50,12 @@
           class="hide-when-empty"
           ref="facetStatus"
           data-currency="{{ localization.country.currency.iso_code }}"
+          data-presentment-currency="{{ cart.currency.iso_code }}"
+          data-locale="{{ request.locale.iso_code }}"
           data-range-max="{{ filter.range_max | money_without_currency }}"
         >
           {%- if filter.min_value.value != null or filter.max_value.value != null %}
-            {%- if filter.min_value.value != null and filter.max_value.value != null %}
-              <bdi>{{ filter.min_value.value | money | strip_html }}–{{ filter.max_value.value | money | strip_html }}</bdi>
-            {%- elsif filter.min_value.value != null -%}
-              <bdi>{{ filter.min_value.value | money | strip_html }}–{{ filter.range_max | money | strip_html }}</bdi>
-
-            {%- elsif filter.max_value.value != null -%}
-              <bdi>{{ 0 | money | strip_html }}–{{ filter.max_value.value | money | strip_html }}</bdi>
-            {%- endif -%}
+            <bdi>{{ formatted_minimum_price | strip_html }}</bdi>–<wbr><bdi>{{ formatted_maximum_price | strip_html }}</bdi>
           {%- endif -%}
         </span>
       </facet-status-component>
@@ -147,7 +151,7 @@
             {%- endif %}
           "
         >
-          {%- capture formatted_highest_price -%}<bdi>{{ filter.range_max | money }}</bdi>{%- endcapture -%}
+          {%- capture formatted_highest_price -%}<bdi>{% render 'gamma-money', price: filter.range_max %}</bdi>{%- endcapture -%}
           {{ 'content.price_filter_html' | t: price: formatted_highest_price }}
         </div>
 
