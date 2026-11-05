@@ -12,6 +12,12 @@
     "badges": "Show backorder and special-order badges",
     "badges_info": "Product cards check up to 250 variants. Mixed or incomplete options show a neutral badge."
   },
+  "gamma_battery": {
+    "name": "Battery system",
+    "info": "Shows the product’s battery system (custom.battery_system). Edit systems in Content > Metaobjects.",
+    "icon_height": "Icon height",
+    "text_style": "Text style"
+  },
   "gamma_information": {
     "name": "Product information",
     "row": "Product information row",
