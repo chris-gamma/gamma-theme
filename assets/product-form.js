@@ -434,6 +434,8 @@ class ProductFormComponent extends Component {
       }
       formData.append('sections', cartItemComponentsSectionIds.join(','));
     });
+    // Render returned sections for the current page; otherwise Shopify can use the default language.
+    formData.append('sections_url', window.location.pathname);
 
     const itemCount = Number(formData.get('quantity')) || Number(this.dataset.quantityDefault);
     const deferredEventPromise = CartLinesUpdateEvent.createPromise();
@@ -620,6 +622,7 @@ class ProductFormComponent extends Component {
         quantity: item.quantity,
       })),
       sections: cartItemComponentsSectionIds.join(','),
+      sections_url: window.location.pathname,
     };
 
     fetch(Theme.routes.cart_add_url, {
