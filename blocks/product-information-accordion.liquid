@@ -1,0 +1,359 @@
+{% capture information_rows %}{% content_for 'blocks' %}{% endcapture %}
+<script src="{{ 'product-information-accordion.js' | asset_url }}" type="module" fetchpriority="low"></script>
+<product-information-accordion
+  data-block-id="{{ block.id }}"
+  data-section-id="{{ section.id }}"
+  data-product-id="{{ closest.product.id }}"
+  {% unless information_rows contains 'data-information-row=' %}hidden{% endunless %}
+>
+{% assign block_settings = block.settings %}
+
+{% render 'contrast-override',
+  background_color: block_settings.background_color,
+  text_color: block_settings.text_color,
+  section_id: block.id
+%}
+
+<div
+  ref="rows"
+  class="accordion accordion--{{ block.id }} accordion--{{ block_settings.icon }} border-style spacing-style{% if block_settings.background_color != blank or block_settings.text_color != blank %} color-custom-{{ block.id }}{% endif %}{% if block_settings.background_color != blank %} accordion--custom-background{% endif %}{% if block_settings.dividers %} accordion--dividers{% endif %}"
+  style="
+    --summary-font-family: var(--font-{{ block_settings.type_preset }}--family);
+     --summary-font-style: var(--font-{{ block_settings.type_preset }}--style);
+     --summary-font-weight: var(--font-{{ block_settings.type_preset }}--weight);
+     --summary-font-size: var(--font-{{ block_settings.type_preset }}--size);
+     --summary-font-line-height: var(--font-{{ block_settings.type_preset }}--line-height);
+     --summary-font-case: var(--font-{{ block_settings.type_preset }}--case);
+    {% render 'spacing-style', settings: block_settings %}
+    {% render 'border-override', settings: block_settings %}
+    {% if block_settings.divider_color != blank %} --color-border: {{ block_settings.divider_color }};{% endif %}
+  "
+  {{ block.shopify_attributes }}
+>
+  {{ information_rows }}
+</div>
+  <p ref="status" class="gamma-information-status" role="status" aria-live="polite" hidden
+    data-loading="{{ 'gamma_information.loading' | t | escape }}"
+    data-restored="{{ 'gamma_information.restored' | t | escape }}"
+    data-error="{{ 'gamma_information.error' | t | escape }}"></p>
+  <a ref="recovery" href="{{ closest.product.url }}" hidden>{{ 'gamma_information.reload' | t }}</a>
+</product-information-accordion>
+{% render 'accordion-styles' %}
+{% stylesheet %}
+  product-information-accordion { display: block; min-width: 0; width: 100%; }
+  product-information-accordion[hidden], product-information-accordion [hidden] { display: none; }
+  product-information-accordion .gamma-information-status { margin-block: var(--margin-sm); }
+  .gamma-specifications { container-type: inline-size; min-width: 0; }
+  .gamma-specifications__table {
+    width: 100%; table-layout: fixed; border-collapse: collapse;
+    font-family: var(--font-body--family); font-style: var(--font-body--style);
+    font-size: var(--font-paragraph--size); line-height: var(--font-paragraph--line-height);
+    color: inherit;
+  }
+  .gamma-specifications__label-column { width: 40%; }
+  .gamma-specifications__value-column { width: 60%; }
+  .gamma-specifications__table tr { border-block-end: 1px solid rgb(var(--color-foreground-rgb) / 10%); }
+  .gamma-specifications__table :is(th, td) {
+    text-align: start; vertical-align: top; overflow-wrap: anywhere;
+    padding: var(--padding-sm) var(--padding-md); font-weight: 400;
+  }
+  .gamma-specifications__table th {
+    font-weight: 600; background: rgb(var(--color-foreground-rgb) / 5%);
+  }
+  @container (width < 400px) {
+    .gamma-specifications__table :is(th, td) { padding-inline: var(--padding-xs); }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:gamma_information.name",
+  "tag": null,
+  "blocks": [
+    {
+      "type": "_product-information-row"
+    }
+  ],
+  "settings": [
+    {
+      "type": "select",
+      "id": "icon",
+      "label": "t:settings.icon",
+      "options": [
+        {
+          "value": "caret",
+          "label": "t:options.caret"
+        },
+        {
+          "value": "plus",
+          "label": "t:options.plus"
+        }
+      ],
+      "default": "caret"
+    },
+    {
+      "type": "checkbox",
+      "id": "dividers",
+      "label": "t:settings.dividers",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "divider_color",
+      "label": "t:settings.divider_color",
+      "placeholder": "t:settings.default",
+      "visible_if": "{{ block.settings.dividers }}"
+    },
+    {
+      "type": "select",
+      "id": "type_preset",
+      "label": "t:settings.heading_preset",
+      "options": [
+        {
+          "value": "",
+          "label": "t:options.default"
+        },
+        {
+          "value": "paragraph",
+          "label": "t:options.paragraph"
+        },
+        {
+          "value": "h1",
+          "label": "t:options.h1"
+        },
+        {
+          "value": "h2",
+          "label": "t:options.h2"
+        },
+        {
+          "value": "h3",
+          "label": "t:options.h3"
+        },
+        {
+          "value": "h4",
+          "label": "t:options.h4"
+        },
+        {
+          "value": "h5",
+          "label": "t:options.h5"
+        },
+        {
+          "value": "h6",
+          "label": "t:options.h6"
+        }
+      ],
+      "default": "h4",
+      "info": "t:info.edit_presets_in_theme_settings"
+    },
+    {
+      "type": "header",
+      "content": "t:content.appearance"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "t:settings.background_color",
+      "placeholder": "t:settings.default"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "t:settings.text_color",
+      "placeholder": "t:settings.default"
+    },
+    {
+      "type": "header",
+      "content": "t:content.borders"
+    },
+    {
+      "type": "select",
+      "id": "border",
+      "label": "t:settings.style",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:options.none"
+        },
+        {
+          "value": "solid",
+          "label": "t:options.solid"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "range",
+      "id": "border_width",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "t:settings.thickness",
+      "default": 1,
+      "visible_if": "{{ block.settings.border != 'none' }}"
+    },
+    {
+      "type": "range",
+      "id": "border_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "t:settings.opacity",
+      "default": 100,
+      "visible_if": "{{ block.settings.border != 'none' }}"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "t:settings.color",
+      "placeholder": "t:settings.default",
+      "visible_if": "{{ block.settings.border != 'none' }}"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "t:settings.border_radius",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-start",
+      "label": "t:settings.left",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-end",
+      "label": "t:settings.right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:gamma_information.name",
+      "category": "t:categories.product",
+      "blocks": {
+        "info-0": {
+          "type": "_product-information-row",
+          "settings": {
+            "family": "included_in_the_set",
+            "open_by_default": true,
+            "icon": "none",
+            "width": 20
+          }
+        },
+        "info-1": {
+          "type": "_product-information-row",
+          "settings": {
+            "family": "technical_specifications",
+            "open_by_default": true,
+            "icon": "none",
+            "width": 20
+          }
+        },
+        "info-2": {
+          "type": "_product-information-row",
+          "settings": {
+            "family": "gamma_s_advice",
+            "open_by_default": false,
+            "icon": "none",
+            "width": 20
+          }
+        },
+        "info-3": {
+          "type": "_product-information-row",
+          "settings": {
+            "family": "spare_parts_accessories",
+            "open_by_default": false,
+            "icon": "none",
+            "width": 20
+          }
+        },
+        "info-4": {
+          "type": "_product-information-row",
+          "settings": {
+            "family": "manuals_documentation",
+            "open_by_default": false,
+            "icon": "none",
+            "width": 20
+          }
+        },
+        "info-5": {
+          "type": "_product-information-row",
+          "settings": {
+            "family": "frequently_asked_questions",
+            "open_by_default": false,
+            "icon": "none",
+            "width": 20
+          }
+        },
+        "info-6": {
+          "type": "_product-information-row",
+          "settings": {
+            "family": "warranty_policy",
+            "open_by_default": false,
+            "icon": "none",
+            "width": 20
+          }
+        },
+        "info-7": {
+          "type": "_product-information-row",
+          "settings": {
+            "family": "return_exchange_policy",
+            "open_by_default": false,
+            "icon": "none",
+            "width": 20
+          }
+        }
+      },
+      "block_order": [
+        "info-0",
+        "info-1",
+        "info-2",
+        "info-3",
+        "info-4",
+        "info-5",
+        "info-6",
+        "info-7"
+      ]
+    }
+  ]
+}
+{% endschema %}

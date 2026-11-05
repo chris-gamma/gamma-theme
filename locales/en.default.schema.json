@@ -8,6 +8,21 @@
  * ------------------------------------------------------------
  */
 {
+  "gamma_information": {
+    "name": "Product information",
+    "row": "Product information row",
+    "family": "Information family",
+    "options": {
+      "included_in_the_set": "Included in the set",
+      "technical_specifications": "Technical specifications",
+      "gamma_s_advice": "Gamma’s advice",
+      "spare_parts_accessories": "Spare parts & accessories",
+      "manuals_documentation": "Manuals & documentation",
+      "frequently_asked_questions": "Frequently asked questions",
+      "warranty_policy": "Warranty",
+      "return_exchange_policy": "Returns & exchanges"
+    }
+  },
   "gamma": {
     "menu_en": "English menu override",
     "menu_fr": "French menu override",

@@ -240,6 +240,98 @@
                 "padding-inline-end": 0
               },
               "blocks": {}
+            },
+            "gamma_information": {
+              "type": "product-information-accordion",
+              "settings": {
+                "type_preset": "h4",
+                "dividers": true,
+                "icon": "caret"
+              },
+              "blocks": {
+                "info-0": {
+                  "type": "_product-information-row",
+                  "settings": {
+                    "family": "included_in_the_set",
+                    "open_by_default": true,
+                    "icon": "none",
+                    "width": 20
+                  }
+                },
+                "info-1": {
+                  "type": "_product-information-row",
+                  "settings": {
+                    "family": "technical_specifications",
+                    "open_by_default": true,
+                    "icon": "none",
+                    "width": 20
+                  }
+                },
+                "info-2": {
+                  "type": "_product-information-row",
+                  "settings": {
+                    "family": "gamma_s_advice",
+                    "open_by_default": false,
+                    "icon": "none",
+                    "width": 20
+                  }
+                },
+                "info-3": {
+                  "type": "_product-information-row",
+                  "settings": {
+                    "family": "spare_parts_accessories",
+                    "open_by_default": false,
+                    "icon": "none",
+                    "width": 20
+                  }
+                },
+                "info-4": {
+                  "type": "_product-information-row",
+                  "settings": {
+                    "family": "manuals_documentation",
+                    "open_by_default": false,
+                    "icon": "none",
+                    "width": 20
+                  }
+                },
+                "info-5": {
+                  "type": "_product-information-row",
+                  "settings": {
+                    "family": "frequently_asked_questions",
+                    "open_by_default": false,
+                    "icon": "none",
+                    "width": 20
+                  }
+                },
+                "info-6": {
+                  "type": "_product-information-row",
+                  "settings": {
+                    "family": "warranty_policy",
+                    "open_by_default": false,
+                    "icon": "none",
+                    "width": 20
+                  }
+                },
+                "info-7": {
+                  "type": "_product-information-row",
+                  "settings": {
+                    "family": "return_exchange_policy",
+                    "open_by_default": false,
+                    "icon": "none",
+                    "width": 20
+                  }
+                }
+              },
+              "block_order": [
+                "info-0",
+                "info-1",
+                "info-2",
+                "info-3",
+                "info-4",
+                "info-5",
+                "info-6",
+                "info-7"
+              ]
             }
           },
           "block_order": [
@@ -247,7 +339,8 @@
             "divider_VJhene",
             "variant_picker_R3rGDr",
             "buy_buttons_eYQEYi",
-            "text_aEtTtq"
+            "text_aEtTtq",
+            "gamma_information"
           ]
         },
         "disclosures": {

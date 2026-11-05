@@ -1,0 +1,79 @@
+{% doc %}
+  Renders one usable typed product-information candidate, or no output.
+  @param {object} owner - Product or selected variant supplying the metafield.
+  @param {string} family - Product-information metafield key.
+  @param {string} heading - Localized disclosure heading used as the table caption.
+{% enddoc %}
+{%- liquid
+  assign field = owner.metafields.custom[family]
+  assign expected_type = 'rich_text_field'
+  case family
+    when 'technical_specifications'
+      assign expected_type = 'list.single_line_text_field'
+    when 'warranty_policy', 'return_exchange_policy'
+      assign expected_type = 'metaobject_reference'
+  endcase
+-%}
+{%- if field.type == expected_type -%}
+  {%- if family == 'technical_specifications' -%}
+    {%- capture rows -%}
+      {%- comment -%}Keep each Liquid loop within its 50-iteration limit.{%- endcomment -%}
+      {%- assign batch_count = field.value.size | divided_by: 50.0 | ceil -%}
+      {%- for batch_index in (1..batch_count) -%}
+        {%- assign batch_offset = forloop.index0 | times: 50 -%}
+        {%- assign batch_values = field.value | slice: batch_offset, 50 -%}
+        {%- for specification in batch_values -%}
+          {%- assign entry = specification | strip -%}
+          {%- assign useful_entry = entry | remove: ' ' | strip -%}
+          {%- if useful_entry != blank -%}
+            {%- liquid
+              assign raw_label = entry | split: ':' | first
+              assign value_offset = raw_label.size | plus: 1
+              assign label = raw_label | strip
+              assign value = entry | slice: value_offset, entry.size | strip
+              assign useful_label = label | remove: ' ' | strip
+              assign useful_value = value | remove: ' ' | strip
+            -%}
+            <tr>
+              {%- if entry contains ':' and useful_label != blank and useful_value != blank -%}
+                <th scope="row">{{ label | escape }}</th><td>{{ value | escape }}</td>
+              {%- else -%}
+                <td colspan="2">{{ entry | escape }}</td>
+              {%- endif -%}
+            </tr>
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endfor -%}
+    {%- endcapture -%}
+    {%- if rows != blank -%}
+      <div class="gamma-specifications">
+        <table class="gamma-specifications__table">
+          <caption class="visually-hidden">{{ heading | escape }}</caption>
+          <colgroup><col class="gamma-specifications__label-column"><col class="gamma-specifications__value-column"></colgroup>
+          <tbody>{{ rows }}</tbody>
+        </table>
+      </div>
+    {%- endif -%}
+  {%- else -%}
+    {%- liquid
+      if expected_type == 'metaobject_reference'
+        assign policy = field.value
+        assign field = nil
+        if policy.system.type == family
+          if family == 'warranty_policy'
+            assign field = policy.warranty_policy
+          else
+            assign field = policy.policy_text
+          endif
+        endif
+      endif
+    -%}
+    {%- if field.type == 'rich_text_field' -%}
+      {%- capture rendered -%}{{ field | metafield_tag }}{%- endcapture -%}
+      {%- assign text = rendered | strip_html | replace: '&nbsp;', '' | replace: '&#160;', '' | remove: ' ' | strip -%}
+      {%- if text != blank or rendered contains '<img ' or rendered contains '<video ' or rendered contains '<audio ' or rendered contains '<iframe ' or rendered contains '<object ' -%}
+        <div class="rte">{{ rendered }}</div>
+      {%- endif -%}
+    {%- endif -%}
+  {%- endif -%}
+{%- endif -%}

@@ -1,4 +1,19 @@
 {
+  "gamma_information": {
+    "name": "Renseignements produit",
+    "row": "Rubrique produit",
+    "family": "Type de renseignements",
+    "options": {
+      "included_in_the_set": "Articles inclus",
+      "technical_specifications": "Caractéristiques techniques",
+      "gamma_s_advice": "Les conseils de Gamma",
+      "spare_parts_accessories": "Pièces de rechange et accessoires",
+      "manuals_documentation": "Manuels et documentation",
+      "frequently_asked_questions": "Foire aux questions",
+      "warranty_policy": "Garantie",
+      "return_exchange_policy": "Retours et échanges"
+    }
+  },
   "gamma": {
     "menu_en": "Menu de remplacement en anglais",
     "menu_fr": "Menu de remplacement en français",

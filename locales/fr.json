@@ -1,4 +1,21 @@
 {
+  "gamma_information": {
+    "headings": {
+      "included_in_the_set": "Articles inclus",
+      "technical_specifications": "Caractéristiques techniques",
+      "gamma_s_advice": "Les conseils de Gamma",
+      "spare_parts_accessories": "Pièces de rechange et accessoires",
+      "manuals_documentation": "Manuels et documentation",
+      "frequently_asked_questions": "Foire aux questions",
+      "warranty_policy": "Garantie",
+      "return_exchange_policy": "Retours et échanges"
+    },
+    "loading": "Mise à jour des renseignements sur le produit…",
+    "restored": "Impossible de sélectionner cette option. Votre sélection précédente a été rétablie.",
+    "error": "Impossible de mettre à jour les renseignements sur le produit.",
+    "reload": "Recharger les détails du produit",
+    "empty": "Ajoutez du contenu au produit ou à sa variante pour cette rubrique."
+  },
   "blocks": {
     "load_video": "Charger la vidéo : {{ description }}",
     "sold_out": "Épuisé",
