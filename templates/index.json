@@ -16,10 +16,10 @@
           "type": "text",
           "name": "t:names.heading",
           "settings": {
-            "text": "<p>Browse our latest products</p>",
-            "width": "fit-content",
+            "text": "<p>Reliable performance. Professional results.<br/>Anywhere you work.</p>",
+            "width": "100%",
             "max_width": "normal",
-            "alignment": "left",
+            "alignment": "center",
             "type_preset": "h2",
             "font": "var(--font-body--family)",
             "font_size": "1rem",
@@ -38,33 +38,41 @@
           },
           "blocks": {}
         },
-        "button_H9gpTf": {
-          "type": "button",
-          "name": "t:names.button",
+        "gamma_search_entry_Vk8T2p": {
+          "type": "gamma-search-entry",
           "settings": {
-            "label": "Shop all",
-            "link": "shopify://collections/all",
-            "open_in_new_tab": false,
-            "style_class": "button-custom",
-            "custom_button_background": "rgba(0, 0, 0, 0)",
-            "custom_button_text": "{{ settings.color_palette.background }}",
-            "custom_button_border": "{{ settings.color_palette.background }}",
-            "width": "fit-content",
-            "custom_width": 100,
-            "width_mobile": "fit-content",
-            "custom_width_mobile": 100
+            "placeholder": "",
+            "width": "custom",
+            "custom_width": 60,
+            "border_radius": 100,
+            "border_width": 1,
+            "background_color": "#000000",
+            "background_opacity": 60,
+            "text_color": "#ffffff",
+            "border_color": "#ffffff",
+            "input_type_preset": "paragraph",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
           },
           "blocks": {}
         }
       },
       "block_order": [
         "text_YLPk4p",
-        "button_H9gpTf"
+        "gamma_search_entry_Vk8T2p"
       ],
       "name": "t:names.hero",
       "settings": {
         "media_type_1": "image",
+        "image_1": "shopify://shop_images/stihl-hs82-action.jpg",
         "media_type_2": "image",
+        "image_2": "shopify://shop_images/stihl-tsa300-action.jpg",
+        "stack_media_on_mobile": true,
+        "custom_mobile_media": false,
+        "media_type_1_mobile": "image",
+        "media_type_2_mobile": "image",
         "link": "",
         "open_in_new_tab": false,
         "content_direction": "column",
