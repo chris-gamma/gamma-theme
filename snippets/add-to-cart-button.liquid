@@ -16,6 +16,26 @@
   if product.selected_or_first_available_variant.featured_media.preview_image == blank
     assign product_variant_media = product.featured_media.preview_image | image_url: width: 100
   endif
+
+  # Gamma: the fly-to-cart image follows the storefront language's eligible media.
+  if settings.add_to_cart_animation
+    capture gamma_excluded_media_ids
+      render 'gamma-media-exclusions', media: product.media
+    endcapture
+    if gamma_excluded_media_ids != blank
+      assign gamma_cart_media = product.selected_or_first_available_variant.featured_media | default: product.featured_media
+      assign gamma_token = gamma_cart_media.id | prepend: ',' | append: ','
+      if gamma_excluded_media_ids contains gamma_token
+        for gamma_item in product.media
+          assign gamma_token = gamma_item.id | prepend: ',' | append: ','
+          unless gamma_excluded_media_ids contains gamma_token
+            assign product_variant_media = gamma_item.preview_image | image_url: width: 100
+            break
+          endunless
+        endfor
+      endif
+    endif
+  endif
 -%}
 
 <add-to-cart-component
