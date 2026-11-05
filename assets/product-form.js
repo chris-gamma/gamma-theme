@@ -923,6 +923,10 @@ class ProductFormComponent extends Component {
 
       // Fetch and update cart quantity for the new variant
       this.#refreshCart().then((cart) => this.#updateCartQuantity(cart));
+    } catch (error) {
+      if (error?.name !== 'AbortError' && error?.name !== 'ProductSelectionError') {
+        console.warn('[product-form] Product selection failed:', error);
+      }
     } finally {
       // Only clear the flag if no newer variant selection has started
       if (generation === this.#variantChangeGeneration) {
@@ -988,9 +992,10 @@ class ProductFormComponent extends Component {
 
     if (item.pendingVariantChange) {
       try {
-        const result = /** @type {{detail?: {resource?: any, html?: Document | Element}}} */ (
+        const result = /** @type {{detail?: {resource?: any, html?: Document | Element, selectionRestored?: boolean}}} */ (
           await item.pendingVariantChange
         );
+        if (result?.detail?.selectionRestored) return { variantId: null, quantityConstraints: null };
         const resource = result?.detail?.resource;
         quantityConstraints = this.#getQuantityConstraintsFromHtml(result?.detail?.html);
         if (resource === null) {
@@ -999,7 +1004,10 @@ class ProductFormComponent extends Component {
           resolvedVariantId = resource.id != null ? String(resource.id) : null;
           available = resource.available !== false;
         }
-      } catch {
+      } catch (error) {
+        if (error?.name === 'ProductSelectionError') {
+          return { variantId: null, quantityConstraints: null };
+        }
         const resolvedVariant = await this.#resolveVariantFromUrl(item.variantResolutionUrl).catch(() => ({
           variantId: null,
           available: false,

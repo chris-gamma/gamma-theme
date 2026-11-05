@@ -6,6 +6,8 @@ Location Gamma changes only; Horizon's history stays in Git. The foundation is H
 
 ### Added
 
+- Configurable bilingual product-information accordions with variant/product fallback and responsive specification tables.
+- Failed product selection restores the confirmed variant and cancels Add to Cart actions queued against the failed choice.
 - Bilingual CAD money formatting on product, quantity/volume, quick-order, cart, filter and gift card prices; other currencies keep native formatting.
 - Admin-managed English/French menu overrides with language-family fallback, three-level footer links and configured shell menus.
 - Gamma logos, Inter/Oswald typography and accessible native palette roles, with centred desktop navigation and an inverse footer logo.
@@ -19,5 +21,6 @@ Location Gamma changes only; Horizon's history stays in Git. The foundation is H
 
 ### Changed
 
+- Product-information headings and captions escape translated text once; default dividers use Gamma Red.
 - Product-page titles wrap naturally without overriding custom typography settings.
 - English and French storefront and theme-editor translations are kept, with a locale check for future Horizon updates.

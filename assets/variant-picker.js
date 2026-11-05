@@ -11,6 +11,16 @@ import { ProductSelectEvent } from '@shopify/events';
  */
 
 /**
+ * @typedef {Object} ConfirmedSelection
+ * @property {Document} html
+ * @property {HTMLElement} picker
+ * @property {any} resource
+ * @property {any} variant
+ * @property {string} productId
+ * @property {string} sourceId
+ */
+
+/**
  * A custom element that manages a variant picker.
  *
  * @template {import('@theme/component').Refs} [TRefs=VariantPickerRefs]
@@ -29,10 +39,18 @@ export default class VariantPicker extends Component {
   /** @type {HTMLInputElement[][]} */
   #radios = [];
 
+  #selectionGeneration = 0;
+  #selectionPending = false;
+  #restoreOnReconnect = false;
+  /** @type {ConfirmedSelection | undefined} */
+  #confirmedSelection;
+
   #resizeObserver = new ResizeNotifier(() => this.updateVariantPickerCss());
 
   connectedCallback() {
     super.connectedCallback();
+    this.#radios = [];
+    this.#checkedIndices = [];
     const fieldsets = /** @type {HTMLFieldSetElement[]} */ (this.refs.fieldsets || []);
 
     fieldsets.forEach((fieldset) => {
@@ -45,13 +63,37 @@ export default class VariantPicker extends Component {
       }
     });
 
-    this.addEventListener('change', this.variantChanged.bind(this));
+    this.addEventListener('change', this.#handleChange);
     this.#resizeObserver.observe(this);
+    if (this.#restoreOnReconnect && this.#confirmedSelection?.resource) {
+      this.#restoreConfirmedPicker(this.#confirmedSelection);
+    }
+    this.#restoreOnReconnect = false;
+    if (this.#supportsRecovery && !this.#confirmedSelection) {
+      const html = document.implementation.createHTMLDocument();
+      const owner = this.closest('dialog, .shopify-section') ?? this.closest('product-component');
+      if (owner) {
+        html.body.append(owner.cloneNode(true));
+        this.#confirmedSelection = this.#readSelection(html);
+      }
+    }
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
+    this.removeEventListener('change', this.#handleChange);
+    this.#selectionGeneration++;
+    this.#restoreOnReconnect = this.#selectionPending;
+    this.#selectionPending = false;
+    this.#abortController?.abort();
     this.#resizeObserver.disconnect();
+  }
+
+  /** @param {Event} event */
+  #handleChange = (event) => this.variantChanged(event);
+
+  get #supportsRecovery() {
+    return !this.closest('product-card') && Boolean(this.closest('product-component'));
   }
 
   /**
@@ -87,11 +129,6 @@ export default class VariantPicker extends Component {
       : undefined;
 
     const { optionValueId = '', variantId = '', connectedProductUrl = '' } = selectedOption.dataset;
-    this.fetchUpdatedSection(this.buildRequestUrl(selectedOption), {
-      morphElementSelector,
-      detail: { optionValueId, variantId, connectedProductUrl },
-    });
-
     const url = new URL(window.location.href);
 
     if (isOnProductPage) {
@@ -107,7 +144,13 @@ export default class VariantPicker extends Component {
       url.pathname = newUrl;
     }
 
-    if (url.href !== window.location.href) {
+    this.fetchUpdatedSection(this.buildRequestUrl(selectedOption), {
+      morphElementSelector,
+      detail: { optionValueId, variantId, connectedProductUrl },
+      selectionUrl: isOnProductPage ? url.toString() : undefined,
+    });
+
+    if (!this.#supportsRecovery && url.href !== window.location.href) {
       yieldToMainThread().then(() => {
         history.replaceState({}, '', url.toString());
       });
@@ -304,9 +347,181 @@ export default class VariantPicker extends Component {
    * @param {string} requestUrl - The request URL.
    * @param {object} [options] - Request options.
    * @param {string} [options.morphElementSelector] - The selector of the element to be morphed. By default, only the variant picker is morphed.
+   * @param {string} [options.selectionUrl] - Product-page URL to commit after a confirmed selection.
    * @param {{ optionValueId?: string, variantId?: string, connectedProductUrl?: string }} [options.detail] - Synchronous product select event detail.
    */
-  fetchUpdatedSection(requestUrl, { morphElementSelector, detail = {} } = {}) {
+  fetchUpdatedSection(requestUrl, { morphElementSelector, detail = {}, selectionUrl } = {}) {
+    if (this.#supportsRecovery) {
+      this.#fetchRecoverableSelection(requestUrl, { morphElementSelector, detail, selectionUrl });
+      return;
+    }
+    this.#fetchNativeSection(requestUrl, { morphElementSelector, detail });
+  }
+
+  /** @param {Document} html @param {boolean} [allowNewTemplate] @returns {ConfirmedSelection | undefined} */
+  #readSelection(html, allowNewTemplate = false) {
+    const pickers = Array.from(html.querySelectorAll('variant-picker'));
+    const picker = pickers.find((node) => node instanceof HTMLElement &&
+      node.dataset.blockId === this.dataset.blockId && node.dataset.sectionId === this.dataset.sectionId) ??
+      (allowNewTemplate ? html.querySelector('main variant-picker') : undefined);
+    if (!(picker instanceof HTMLElement)) return;
+    const script = picker.querySelector('script[type="application/json"]');
+    if (!script?.textContent?.trim()) return;
+    const resource = JSON.parse(script.textContent);
+    if (resource !== null && (typeof resource !== 'object' || !resource.id)) return;
+    const payload = picker.closest('[view-event-payload]')?.getAttribute('view-event-payload');
+    return {
+      html,
+      picker,
+      resource,
+      variant: payload ? JSON.parse(payload)?.product?.selectedVariant ?? null : null,
+      productId: picker.dataset.productId ?? '',
+      sourceId: picker.querySelector('input:checked, option[selected]')?.getAttribute('data-option-value-id') ?? '',
+    };
+  }
+
+  /**
+   * @param {string} requestUrl
+   * @param {{morphElementSelector?: string, detail: {optionValueId?: string, variantId?: string, connectedProductUrl?: string}, selectionUrl?: string}} options
+   */
+  #fetchRecoverableSelection(requestUrl, { morphElementSelector, detail, selectionUrl }) {
+    this.#abortController?.abort();
+    const controller = this.#abortController = new AbortController();
+    const generation = ++this.#selectionGeneration;
+    const deferred = ProductSelectEvent.createPromise();
+    this.#selectionPending = true;
+    const originalProductId = this.dataset.productId ?? '';
+    const focused = document.activeElement;
+    const focusOption = focused instanceof HTMLElement ? focused.dataset.optionValueId : undefined;
+    const snapshot = this.#confirmedSelection;
+    const isCurrent = () => generation === this.#selectionGeneration && this.isConnected;
+    const abort = () => new DOMException('Selection superseded', 'AbortError');
+    this.dispatchEvent(new ProductSelectEvent({
+      product: { id: originalProductId, title: this.dataset.productTitle ?? '', handle: this.dataset.productHandle ?? '' },
+      selectedOptions: this.getAllSelectedOptions(), detail, promise: deferred.promise,
+    }));
+    // Keep a rejection handler even when no native consumer is mounted.
+    deferred.promise.catch(() => {});
+    fetch(requestUrl, { signal: controller.signal }).then(async (response) => {
+      if (!response.ok) throw new Error(`Product selection failed: HTTP ${response.status}`);
+      const html = new DOMParser().parseFromString(await response.text(), 'text/html');
+      if (!isCurrent()) throw abort();
+      const selection = this.#readSelection(html, Boolean(detail.connectedProductUrl && morphElementSelector === 'main'));
+      if (!selection || !selection.productId) throw new Error('Invalid product selection response');
+      const requestedOptions = new URL(requestUrl, location.origin).searchParams.get('option_values')?.split(',') ?? [];
+      const returnedOptions = Array.from(selection.picker.querySelectorAll('input:checked, option[selected]'))
+        .map((node) => node.getAttribute('data-option-value-id'));
+      if (requestedOptions.some((value) => !returnedOptions.includes(value))) {
+        throw new Error('Product selection response has the wrong options');
+      }
+      if (detail.connectedProductUrl) {
+        const expected = new URL(detail.connectedProductUrl, location.origin).pathname;
+        if (new URL(selection.picker.dataset.productUrl ?? '', location.origin).pathname !== expected) {
+          throw new Error('Product selection response has the wrong product');
+        }
+      } else if (selection.productId !== originalProductId) {
+        throw new Error('Product selection response has the wrong owner');
+      }
+      if (morphElementSelector && !html.querySelector(morphElementSelector)) {
+        throw new Error('Product selection response is missing its update target');
+      }
+      const consumerHtml = document.implementation.createHTMLDocument();
+      const sourceOwner = selection.picker.closest('.shopify-section') ?? selection.picker.closest('product-component');
+      if (!sourceOwner) throw new Error('Product selection response has no owner');
+      consumerHtml.body.append(sourceOwner.cloneNode(true));
+      const savedHtml = /** @type {Document} */ (consumerHtml.cloneNode(true));
+      const confirmed = { ...selection, html: savedHtml, picker: /** @type {HTMLElement} */ (selection.picker.cloneNode(true)) };
+      html.querySelector('overflow-list[defer]')?.removeAttribute('defer');
+      this.#pendingRequestUrl = undefined;
+      const newProduct = selection.productId !== originalProductId
+        ? { id: selection.productId, url: selection.picker.dataset.productUrl ?? '' } : undefined;
+      this.#selectionPending = false;
+      if (morphElementSelector === 'main') this.updateMain(html);
+      else if (morphElementSelector) this.updateElement(consumerHtml, morphElementSelector);
+      else this.updateVariantPicker(consumerHtml);
+      this.#confirmedSelection = confirmed;
+      // These indices point into the live picker and must follow its morphed controls.
+      this.#syncRadioState();
+      if (selectionUrl) history.replaceState(history.state, '', selectionUrl);
+      deferred.resolve({ variant: selection.variant, detail: {
+        html: consumerHtml, productId: selection.productId, newProduct, sourceId: selection.sourceId, resource: selection.resource,
+      } });
+    }).catch((error) => {
+      if (!isCurrent() || controller.signal.aborted || error?.name === 'AbortError') {
+        deferred.reject(abort());
+        return;
+      }
+      this.#pendingRequestUrl = undefined;
+      this.#selectionPending = false;
+      if (!snapshot?.resource) {
+        const failure = new Error('Product selection could not be restored');
+        failure.name = 'ProductSelectionError';
+        this.#showSelectionFailure(false);
+        deferred.reject(failure);
+        return;
+      }
+      const html = /** @type {Document} */ (snapshot.html.cloneNode(true));
+      try {
+        this.#restoreConfirmedPicker(snapshot);
+      } catch {
+        const failure = new Error('Product selection could not be restored');
+        failure.name = 'ProductSelectionError';
+        this.#showSelectionFailure(false);
+        deferred.reject(failure);
+        return;
+      }
+      this.#showSelectionFailure(true);
+      if (focused instanceof Element && !focused.isConnected && focusOption) {
+        /** @type {HTMLElement | null} */ (this.querySelector(`[data-option-value-id="${CSS.escape(focusOption)}"]`))?.focus({ preventScroll: true });
+      }
+      deferred.resolve({ variant: snapshot.variant, detail: {
+        html, productId: snapshot.productId, sourceId: snapshot.sourceId,
+        resource: snapshot.resource, selectionRestored: true,
+      } });
+    });
+  }
+
+  /** @param {ConfirmedSelection} snapshot */
+  #restoreConfirmedPicker(snapshot) {
+    this.updateVariantPicker(/** @type {Document} */ (snapshot.html.cloneNode(true)));
+    this.#pendingRequestUrl = undefined;
+    // Native morphing preserves optimistic markers; recovery must restore them too.
+    for (const control of this.querySelectorAll('input[data-current-checked]')) {
+      if (!(control instanceof HTMLInputElement)) continue;
+      const previous = snapshot.picker.querySelector(`input[data-option-value-id="${CSS.escape(control.dataset.optionValueId ?? '')}"]`);
+      control.checked = previous instanceof HTMLInputElement && previous.checked;
+      control.dataset.currentChecked = String(control.checked);
+      control.dataset.previousChecked = 'false';
+    }
+    this.#syncRadioState();
+  }
+
+  /** @param {boolean} restored */
+  #showSelectionFailure(restored) {
+    if (this.closest('product-component')?.querySelector('product-information-accordion')) return;
+    const status = this.querySelector('[data-selection-status]');
+    if (status instanceof HTMLElement) {
+      status.textContent = restored ? this.dataset.selectionRestored ?? '' : this.dataset.selectionError ?? '';
+      status.hidden = false;
+    }
+    const recovery = this.querySelector('[data-selection-recovery]');
+    if (recovery instanceof HTMLElement) recovery.hidden = restored;
+  }
+
+  #syncRadioState() {
+    this.#radios = Array.from(this.querySelectorAll('fieldset')).map((fieldset) => Array.from(fieldset.querySelectorAll('input')));
+    this.#checkedIndices = this.#radios.map((radios) => {
+      const checked = radios.findIndex((radio) => radio.checked);
+      return checked < 0 ? [] : [checked];
+    });
+    this.updateVariantPickerCss();
+  }
+
+  /**
+   * @param {string} requestUrl
+   * @param {{morphElementSelector?: string, detail?: {optionValueId?: string, variantId?: string, connectedProductUrl?: string}}} options
+   */
+  #fetchNativeSection(requestUrl, { morphElementSelector, detail = {} } = {}) {
     const { optionValueId = '', variantId, connectedProductUrl = '' } = detail;
     // We use this to abort the previous fetch request if it's still pending.
     this.#abortController?.abort();
