@@ -6,6 +6,8 @@ This changelog records Location Gamma changes. Shopify's Horizon development his
 
 ### Added
 
+- Configurable bilingual product-information accordions with variant/product fallback, responsive specification tables and verified schema contracts on both stores.
+- Failed product-selection recovery that restores the confirmed variant and cancels Add to Cart actions queued against the failed choice.
 - Bilingual CAD formatting across product, quantity/volume, quick-order, cart, filter and gift-card displays, retaining native formatting for other currencies.
 - Admin-managed English/French menu overrides with language-family fallback, three-level footer links and configured shell menus.
 - Gamma logos, Inter/Oswald typography and accessible native palette roles, with centered desktop navigation and an inverse footer logo.

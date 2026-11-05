@@ -97,7 +97,7 @@ Priorities are P0 for shared prerequisites, P1 for purchasing/browsing/discovery
 | 2. Shared storefront presentation | G04 | Gamma branding | P1 | G02, G03 | Implemented |
 | 2. Shared storefront presentation | G05 | Native privacy presentation | P1 | G03, G04 | Implemented |
 | 2. Shared storefront presentation | G06 | Bilingual CAD presentation | P1 | G02, G03 | Implemented |
-| 3. Products and purchasing | G07 | Product information and scoped updates | P1 | G02, G03 | Planned |
+| 3. Products and purchasing | G07 | Product information and scoped updates | P1 | G02, G03 | Implemented |
 | 3. Products and purchasing | G08 | Availability and fulfillment information | P1 | G02, G03, G07 | Planned |
 | 3. Products and purchasing | G09 | Battery systems and recommendations | P1 | G02, G03, G07 | Planned |
 | 3. Products and purchasing | G10 | Localized media and product video | P1 | G03; G02 for content | Planned |
@@ -176,6 +176,8 @@ Let staff maintain reusable business and product information in Shopify's normal
 #### Technical requirements and compatibility
 
 The planned product-information interface uses namespace `custom` on products and variants: five rich-text families (`included_in_the_set`, `gamma_s_advice`, `spare_parts_accessories`, `manuals_documentation`, `frequently_asked_questions`), `technical_specifications` as `list.single_line_text_field`, and typed `warranty_policy`/`return_exchange_policy` references. Product-owned relationships include `battery_system` and the optional `item_set_link` product reference. Verify actual definitions, validations and values before implementation.
+
+G07 schema verification (2026-11-04): all eight `custom` metafields exist with the required types on both `PRODUCT` and `PRODUCTVARIANT` in Gamma-Dev (`gid://shopify/Shop/81927143660`, `gamma-dev-2318.myshopify.com`) and Primary (`gid://shopify/Shop/74939334829`, reported permanent domain `d2e135-ff.myshopify.com`; historical alias `location-gamma.myshopify.com`). Both stores have compatible `warranty_policy` and `return_exchange_policy` metaobject definitions, required fields, public storefront access, merchant editing, publishable/translation capabilities and references restricted to their own definition IDs. No definitions or values needed creation or modification. Content, translations, active policy entries and other G02 contracts remain separate prerequisites.
 
 Public campaign, offer, hours and policy content should remain manageable through suitable Shopify content tools. Native references, translatability and storefront access should be researched before selecting new data structures. A new campaign membership projection or hours-priority field is an open design choice, not a required schema addition.
 
@@ -378,7 +380,7 @@ Local verification (`feature/money-formatting`, based on `58c6403`): shared Liqu
 
 ### G07 — Product information and scoped updates
 
-**Priority:** P1. **Status:** Planned. **Dependencies:** G02, G03.
+**Priority:** P1. **Status:** Implemented. **Dependencies:** G02, G03.
 
 #### Purpose
 
@@ -391,15 +393,21 @@ Give customers the information needed to judge what they are buying: what is inc
 - Use usable selected-variant content first, then product content. Empty/cleared variant content inherits the product content; an explicit hide override is not currently a requirement.
 - Hide rows with no useful content while retaining meaningful rich text, media and document links. Preserve ordered specification labels/values, units and everything after the first colon.
 - Let merchants control row ordering, headings, icons and initial-open state through appropriate editor components.
-- Update the relevant information when the customer changes an option or combined product, without requiring a full page reload. The content must agree with the selected price and purchase controls while preserving surviving disclosure state and appropriate keyboard focus.
+- Update the relevant information when the customer changes an option or combined product, without requiring a full page reload. The content must agree with the selected price and purchase controls while preserving surviving disclosure state and appropriate keyboard focus. Hide previous information while the selection loads. A failed selection restores the previous confirmed variant, picker and information, announces recovery and cancels Add to Cart actions queued against the failed choice; purchasing the restored variant requires a fresh action. Sold-out variants and successfully rendered nonexistent combinations remain native selection states. When restoration is unavailable, show a full-page recovery link.
 
 #### Appearance and placement
 
 Place the eight information families in a disclosure/accordion group beneath the product description within the main product-information area. Use clearly labeled rows, consistent dividers and expand/collapse indicators; allow optional row icons and merchant ordering. The starting composition opens included items and technical specifications and leaves the other rows collapsed, with initial state editable. Show specifications as a readable label/value table and preserve rich-text hierarchy and document links in the other rows. Empty rows leave no empty headings or separators.
 
+#### Technical-specification table
+
+Render a semantic table inside the specification disclosure, with a visually hidden caption matching its heading and no redundant visible column headings. Use fixed 40% label / 60% value columns, start/top alignment, semibold labels on a subtle foreground-derived 5% tint, regular body-text values, and thin horizontal row separators without an outer frame or vertical gridlines. Use native small vertical and medium inline spacing; below 400px of available table width, reduce inline padding to the extra-small token. Keep both columns on mobile and allow natural/emergency wrapping without clipping, fixed row heights or ordinary horizontal scrolling. Scope these styles to the specification component.
+
+Preserve list order, units and punctuation; render in batches within Liquid’s per-loop limit so longer lists retain every entry. Split at the first colon and retain the entire remainder. Escape both cells and use `th scope="row"` for labels. Nonempty entries without a usable pair span both columns; discard whitespace-only entries. An effectively empty variant list inherits product specifications. Variant updates and recovery retain the disclosure state.
+
 #### Technical requirements and compatibility
 
-Use G02's typed fields and native metafield rendering. Reusable blocks/snippets should isolate content resolution from layout without a speculative general-purpose framework. Research the current product-select/section-response contract and keep a stable update target even for empty output. Scope identity and response matching by product, block and owning section/dialog; handle combined listings and clean lifecycle registration.
+Use G02's typed fields and native metafield rendering. Reusable blocks/snippets should isolate content resolution from layout without a speculative general-purpose framework. Use the current `StandardEvents.productSelect` promise/response contract and keep a stable update target even for empty output. Successful selection adds no information-specific request. Native product-context pickers validate responses before applying them and commit product-page URLs after success, preserving unrelated URL/history state. A restored response carries optional `selectionRestored` metadata; queued cart resolution checks this before any fallback. Card swatch rendering retains its native request path. Scope identity and response matching by product, block and owning section/dialog; handle combined listings and clean lifecycle registration.
 
 #### Edge cases and quality
 
@@ -407,12 +415,16 @@ Cover wrong-type/draft/deleted references, whitespace-only markup, image/file-on
 
 #### Acceptance criteria
 
+- [x] Required product/variant definitions and policy dependencies are compatible on both stores; no creation was necessary.
 - [ ] All eight families show the correct variant/product content and translated headings.
 - [ ] Empty rows disappear without losing useful content, values or document links.
 - [ ] Native option/product updates cannot display stale or another product's information.
 - [ ] Disclosure/focus behavior, no-JS initial content and editor add/reorder/remove/save work.
 - [ ] The information group, initial-open settings, specification table and rich-text rows render legibly below the description in both languages and at narrow widths.
 - [ ] Price, picker, media, purchase controls and native Quick Add remain functional.
+- [ ] Failed selection restores the last confirmed variant and cancels its queued Add actions; stale failures and superseded requests cannot undo a newer selection.
+
+Local implementation (`feature/product-information`, based on `7b27a25`): eight configurable typed-information rows, variant/product fallback, scoped native-response updates, responsive 40/60 specification tables and previous-variant recovery are implemented. Both-store definition verification required no writes. Local browser checks use the actual feature modules with simulated native responses; Chromium and Firefox cover responsive English/French layouts, disclosure state, races, isolation, dropdown/combined-product selections, failed-selection recovery, queued-cart cancellation and reconnection. Theme Check retains only the six known Horizon warnings and JavaScript checking passes. WebKit cannot launch because `libicudata.so.74` is unavailable. Store-backed Liquid rendering, approved content/translations, real catalog/media/purchase journeys and theme-editor acceptance remain pending; no theme upload or publication was performed.
 
 #### Prototype reference
 

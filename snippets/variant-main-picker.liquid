@@ -43,6 +43,8 @@
     data-product-title="{{ product_resource.title | escape }}"
     data-block-id="{{ block.id }}"
     data-product-url="{{ product_resource.url }}"
+    data-selection-restored="{{ 'gamma_information.restored' | t | escape }}"
+    data-selection-error="{{ 'gamma_information.error' | t | escape }}"
     ref="mainVariantPicker"
     {% if product.id == product_resource.id %}
       data-template-product-match="true"
@@ -241,6 +243,8 @@
         {{ product_resource.selected_or_first_available_variant | json }}
       </script>
     </form>
+    <p data-selection-status role="status" aria-live="polite" hidden></p>
+    <a data-selection-recovery href="{{ product_resource.url }}" hidden>{{ 'gamma_information.reload' | t }}</a>
   </variant-picker>
 {% endunless %}
 

@@ -103,6 +103,8 @@ declare module '@shopify/events' {
     connectedProductUrl?: string;
   }
   interface ProductSelectResultDetail {
+    /** The requested selection failed and the last confirmed variant was restored. */
+    selectionRestored?: boolean;
     html: Document;
     productId: string;
     newProduct?: { id: string; url: string };

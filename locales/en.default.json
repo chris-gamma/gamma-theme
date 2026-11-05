@@ -8,6 +8,23 @@
  * ------------------------------------------------------------
  */
 {
+  "gamma_information": {
+    "headings": {
+      "included_in_the_set": "Included in the set",
+      "technical_specifications": "Technical specifications",
+      "gamma_s_advice": "Gamma’s advice",
+      "spare_parts_accessories": "Spare parts & accessories",
+      "manuals_documentation": "Manuals & documentation",
+      "frequently_asked_questions": "Frequently asked questions",
+      "warranty_policy": "Warranty",
+      "return_exchange_policy": "Returns & exchanges"
+    },
+    "loading": "Updating product information…",
+    "restored": "Couldn’t select that option. Your previous selection has been restored.",
+    "error": "Product information could not be updated.",
+    "reload": "Reload product details",
+    "empty": "Add product content or a variant override for this information row."
+  },
   "accessibility": {
     "account": "Account",
     "active_filters": "Active filters:",
