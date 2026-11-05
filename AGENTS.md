@@ -22,7 +22,7 @@ Shared instructions for Codex, GitHub Copilot and other coding agents. Read [REA
 
 ## Theme conventions
 
-- This is a buildless Horizon 4.3.0 Liquid theme. Use `layout/` and `templates/` for page composition, `sections/` and `blocks/` for editor components, `snippets/` for shared rendering, `assets/` for CSS/JavaScript, and `config/` for settings.
+- This is a buildless Horizon 4.4.0 Liquid theme. Use `layout/` and `templates/` for page composition, `sections/` and `blocks/` for editor components, `snippets/` for shared rendering, `assets/` for CSS/JavaScript, and `config/` for settings.
 - As authorized features are developed, update buildless development infrastructure when their actual code demonstrates a useful improvement: local checks, type declarations, editor configuration and narrowly scoped development dependencies. Keep changes proportionate and grounded in implemented code; do not add infrastructure in anticipation of future features. This permission does not itself authorize compilation/bundling, generated storefront assets, new test infrastructure, hooks, CI or store-connected work.
 - Follow nearby Horizon code, native custom elements and event interfaces. Keep useful server-rendered content and progressive enhancement. Preserve section/block ownership, schema IDs, merchant settings, accessibility and performance behavior.
 - Keep Shopify authoritative for selected variants, numeric money, cart, pickup and locale/resource URLs. Preserve existing English/French string references and native localization forms.

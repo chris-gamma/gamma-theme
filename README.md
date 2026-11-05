@@ -1,6 +1,6 @@
 # Location Gamma theme
 
-`gamma-theme` is Location Gamma's Shopify storefront theme, maintained from Shopify Horizon. Its foundation is Horizon 4.3.0.
+`gamma-theme` is Location Gamma's Shopify storefront theme, maintained from Shopify Horizon. Its foundation is Horizon 4.4.0.
 
 The theme keeps Horizon's core storefront features and adds Gamma's customizations, with English and French translations. It uses Liquid, CSS and JavaScript directly, with no build step.
 
@@ -31,7 +31,7 @@ This runs Theme Check, JavaScript type checking and whitespace checks for staged
 | `npm run check:js` | Check JavaScript types without generating files |
 | `npm run check:js:watch` | Recheck JavaScript as you edit |
 
-Horizon 4.3.0 has six known warnings: one `ExcessiveSettingsCount` in `sections/header.liquid` and five `UnusedDocParam` warnings in `snippets/divider.liquid`. Review new findings separately from these upstream warnings.
+Horizon 4.4.0 has seven known warnings: one `ExcessiveSettingsCount` in `sections/header.liquid`, one `LiquidComplexity` in `snippets/product-media-gallery-content.liquid` and five `UnusedDocParam` warnings in `snippets/divider.liquid`. Gamma's localized media filtering raises that snippet's complexity from Horizon's 125 to 130. Review new findings separately from these upstream warnings.
 
 Local checks do not replace testing in the storefront and theme editor. Confirm the target store and theme before any upload or deployment. `shopify theme dev` uploads a development theme to Shopify.
 

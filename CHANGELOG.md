@@ -1,6 +1,6 @@
 # Changelog
 
-Location Gamma's storefront theme is based on Shopify Horizon 4.3.0.
+Location Gamma's storefront theme is based on Shopify Horizon 4.4.0.
 
 ## Unreleased
 
@@ -17,3 +17,7 @@ Location Gamma's storefront theme is based on Shopify Horizon 4.3.0.
 - Backorder and special-order notices before purchase controls, per-line cart availability text and evidence-based product-card badges, with native per-location pickup enabled.
 - Bilingual CAD formatting across product, quantity/volume, quick-order, cart, filter and gift-card displays, retaining native formatting for other currencies.
 - Native Shopify privacy controls styled with the theme's typography, corners, wrapping and keyboard focus, retaining all consent choices and preference reopening.
+
+### Changed
+
+- Updated the Horizon foundation from 4.3.0 to 4.4.0, retaining Gamma's customizations and English/French locales. Primary buttons now use the Accent font's weight, as configured.
