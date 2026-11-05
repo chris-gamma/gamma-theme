@@ -1,0 +1,387 @@
+{% liquid
+  assign block_settings = block.settings
+
+  assign width = '100%'
+  if block_settings.width == 'custom'
+    assign width = block_settings.custom_width | append: '%'
+  endif
+
+  assign placeholder = block_settings.placeholder | default: ''
+  if placeholder == blank
+    assign placeholder = 'content.search_input_placeholder' | t
+  endif
+
+  assign background_rgb = block_settings.background_color.rgb | default: '0 0 0'
+  assign background_opacity = block_settings.background_opacity | divided_by: 100.0
+  assign text_rgb = block_settings.text_color.rgb | default: '255 255 255'
+  assign border_color = block_settings.border_color | default: 'transparent'
+
+  assign input_id = 'GammaSearch-' | append: block.id
+  assign instruction_id = 'GammaSearchInstruction-' | append: block.id
+%}
+
+<gamma-search-entry-component
+  class="gamma-search-entry spacing-style"
+  style="
+    --gamma-search-width: {{ width }};
+    --gamma-search-radius: {{ block_settings.border_radius }}px;
+    --gamma-search-border-width: {{ block_settings.border_width }}px;
+    --gamma-search-background: {{ background_rgb }};
+    --gamma-search-background-opacity: {{ background_opacity }};
+    --gamma-search-text: {{ text_rgb }};
+    --gamma-search-border: {{ border_color }};
+    {% render 'spacing-style', settings: block_settings %}
+  "
+  {{ block.shopify_attributes }}
+>
+  <form
+    action="{{ routes.search_url }}"
+    method="get"
+    role="search"
+    class="gamma-search-entry__form"
+    ref="form"
+  >
+    <p
+      id="{{ instruction_id }}"
+      class="gamma-search-entry__instruction"
+    >
+      {{ 'gamma_search.instruction' | t }}
+    </p>
+    <div class="gamma-search-entry__field">
+      <label
+        for="{{ input_id }}"
+        class="visually-hidden"
+      >
+        {{- 'content.search_input_label' | t -}}
+      </label>
+      <input
+        id="{{ input_id }}"
+        class="gamma-search-entry__input {{ block_settings.input_type_preset }}"
+        type="search"
+        name="q"
+        placeholder="{{ placeholder | escape }}"
+        autocomplete="off"
+        enterkeyhint="search"
+        aria-describedby="{{ instruction_id }}"
+        ref="input"
+      >
+      <input
+        name="options[prefix]"
+        type="hidden"
+        value="last"
+      >
+      <button
+        type="submit"
+        class="button-unstyled gamma-search-entry__submit"
+      >
+        <span
+          class="svg-wrapper"
+          aria-hidden="true"
+        >
+          {{- 'icon-search.svg' | inline_asset_content -}}
+        </span>
+        <span class="visually-hidden">{{ 'content.search' | t }}</span>
+      </button>
+    </div>
+  </form>
+</gamma-search-entry-component>
+
+{% stylesheet %}
+  .gamma-search-entry {
+    --gamma-search-focus-width: max(2px, var(--focus-outline-width));
+
+    display: block;
+    width: var(--gamma-search-width);
+    max-width: 100%;
+    min-width: 0;
+
+    /* Hero content ignores pointer events outside its controls; the whole field stays clickable. */
+    pointer-events: auto;
+
+    @media screen and (max-width: 749px) {
+      width: 100%;
+    }
+  }
+
+  .gamma-search-entry__form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--gap-xs);
+  }
+
+  .gamma-search-entry__instruction,
+  .gamma-search-entry__field {
+    color: rgb(var(--gamma-search-text));
+    background-color: rgb(var(--gamma-search-background) / var(--gamma-search-background-opacity));
+    border-radius: var(--gamma-search-radius);
+  }
+
+  /* The instruction comes first for screen readers and is shown below the field. */
+  .gamma-search-entry__instruction {
+    order: 1;
+    max-width: 100%;
+    margin: 0;
+    padding: var(--padding-3xs) var(--padding-md);
+    border-radius: min(var(--gamma-search-radius), 1rem);
+    font-size: var(--font-size--xs);
+    line-height: var(--font-paragraph--line-height);
+    text-align: center;
+    text-wrap: pretty;
+    overflow-wrap: break-word;
+  }
+
+  .gamma-search-entry__field {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: var(--minimum-touch-target);
+    padding-inline-end: var(--padding-2xs);
+    border: var(--gamma-search-border-width) solid var(--gamma-search-border);
+  }
+
+  .gamma-search-entry__field:has(.gamma-search-entry__input:focus-visible) {
+    outline: var(--gamma-search-focus-width) solid rgb(var(--gamma-search-text));
+    outline-offset: var(--focus-outline-offset);
+
+    /* A solid band of the background colour on both sides of the outline keeps it visible over any image. */
+    box-shadow: 0 0 0 calc(var(--focus-outline-offset) + var(--gamma-search-focus-width) * 2)
+      rgb(var(--gamma-search-background));
+  }
+
+  .gamma-search-entry .gamma-search-entry__input {
+    --color: rgb(var(--gamma-search-text));
+
+    flex: 1 1 auto;
+    min-width: 0;
+    padding-block: var(--padding-md);
+    padding-inline: max(var(--padding-lg), calc(var(--gamma-search-radius) / 3)) var(--padding-xs);
+    color: rgb(var(--gamma-search-text));
+    background: transparent;
+    border: 0;
+    border-radius: var(--gamma-search-radius);
+    text-overflow: ellipsis;
+    box-shadow: none;
+    outline: none;
+  }
+
+  .gamma-search-entry .gamma-search-entry__input::placeholder {
+    color: rgb(var(--gamma-search-text) / var(--opacity-subdued-text));
+    opacity: 1;
+  }
+
+  .gamma-search-entry__input::-webkit-search-decoration,
+  .gamma-search-entry__input::-webkit-search-cancel-button {
+    appearance: none;
+  }
+
+  .gamma-search-entry__submit {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: var(--minimum-touch-target);
+    height: var(--minimum-touch-target);
+    color: rgb(var(--gamma-search-text));
+    background: transparent;
+    border-radius: var(--gamma-search-radius);
+    cursor: pointer;
+  }
+
+  .gamma-search-entry__submit:focus-visible {
+    outline: var(--gamma-search-focus-width) solid rgb(var(--gamma-search-text));
+    outline-offset: calc(var(--gamma-search-focus-width) * -1.5);
+  }
+
+  .gamma-search-entry__submit .svg-wrapper,
+  .gamma-search-entry__submit svg {
+    width: var(--icon-size-md);
+    height: var(--icon-size-md);
+  }
+
+  @media (forced-colors: active) {
+    .gamma-search-entry__instruction,
+    .gamma-search-entry__field {
+      border: 1px solid CanvasText;
+    }
+
+    .gamma-search-entry__field:has(.gamma-search-entry__input:focus-visible) {
+      outline-color: Highlight;
+    }
+
+    .gamma-search-entry__submit {
+      color: ButtonText;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:gamma_search.name",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "placeholder",
+      "label": "t:gamma_search.placeholder",
+      "info": "t:gamma_search.placeholder_info"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "t:settings.width",
+      "options": [
+        {
+          "value": "fill",
+          "label": "t:options.fill"
+        },
+        {
+          "value": "custom",
+          "label": "t:options.custom"
+        }
+      ],
+      "default": "custom",
+      "info": "t:gamma_search.width_info"
+    },
+    {
+      "type": "range",
+      "id": "custom_width",
+      "label": "t:settings.custom_width",
+      "min": 20,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "default": 60,
+      "visible_if": "{{ block.settings.width == \"custom\" }}"
+    },
+    {
+      "type": "header",
+      "content": "t:content.input"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "t:settings.border_radius",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "border_width",
+      "label": "t:settings.border_width",
+      "min": 0,
+      "max": 4,
+      "step": 0.5,
+      "unit": "px",
+      "default": 1
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "t:settings.background",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "background_opacity",
+      "label": "t:gamma_search.background_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 60,
+      "info": "t:gamma_search.colors_info"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "t:settings.text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "t:settings.borders",
+      "default": "#ffffff"
+    },
+    {
+      "type": "select",
+      "id": "input_type_preset",
+      "label": "t:settings.type_preset",
+      "options": [
+        {
+          "value": "paragraph",
+          "label": "t:options.paragraph"
+        },
+        {
+          "value": "h6",
+          "label": "t:options.h6"
+        },
+        {
+          "value": "h5",
+          "label": "t:options.h5"
+        },
+        {
+          "value": "h4",
+          "label": "t:options.h4"
+        }
+      ],
+      "default": "paragraph",
+      "info": "t:info.edit_presets_in_theme_settings"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-start",
+      "label": "t:settings.left",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-end",
+      "label": "t:settings.right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:gamma_search.name",
+      "category": "t:categories.forms"
+    }
+  ]
+}
+{% endschema %}

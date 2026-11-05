@@ -54,6 +54,9 @@
     "reload": "Reload product details",
     "empty": "Add product content or a variant override for this information row."
   },
+  "gamma_search": {
+    "instruction": "Search suggestions may open as you type."
+  },
   "accessibility": {
     "account": "Account",
     "active_filters": "Active filters:",
