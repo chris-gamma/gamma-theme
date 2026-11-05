@@ -1,7 +1,9 @@
 {
   "gamma_availability": {
     "badges": "Afficher les badges de rupture et de commande spéciale",
-    "badges_info": "Les cartes produit vérifient jusqu’à 250 variantes. Les options mixtes ou incomplètes affichent un badge neutre."
+    "badges_info": "Les cartes produit vérifient jusqu’à 250 variantes. Les options mixtes ou incomplètes affichent un badge neutre.",
+    "cart_notice": "Afficher l’avis de rupture et de commande spéciale",
+    "cart_notice_info": "Explique dans le résumé du panier que l’expédition dépend du fournisseur et comment les commandes mêlant des articles en stock sont expédiées ensemble."
   },
   "gamma_battery": {
     "name": "Système de batterie",
