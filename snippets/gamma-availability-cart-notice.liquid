@@ -1,0 +1,91 @@
+{%- doc -%}
+  Renders the cart's backorder/special-order notice, or no output.
+  Any delayed line explains supplier-dependent shipping; a cart that also has an in-stock line
+  shows the ship-together notice instead. Line statuses use all cart units of each variant,
+  matching `gamma-availability-line`.
+{%- enddoc -%}
+
+{%- liquid
+  assign has_in_stock = false
+  assign has_delayed = false
+
+  if settings.gamma_cart_availability_notice
+    for item in cart.items
+      if item.variant == blank
+        continue
+      endif
+
+      assign units = cart | item_count_for_variant: item.variant.id | at_least: item.quantity
+      capture status
+        render 'gamma-availability-status', product: item.product, variant: item.variant, quantity: units
+      endcapture
+      assign status = status | strip
+
+      case status
+        when 'in_stock'
+          assign has_in_stock = true
+        when 'backorder', 'partial_backorder', 'special_order'
+          assign has_delayed = true
+      endcase
+
+      if has_in_stock and has_delayed
+        break
+      endif
+    endfor
+  endif
+-%}
+{%- if has_delayed -%}
+  <div
+    class="gamma-cart-availability-notice"
+    style="--gamma-availability-accent: {{ settings.color_palette.brand }};"
+  >
+    <span
+      class="svg-wrapper gamma-cart-availability-notice__icon"
+      aria-hidden="true"
+    >
+      {{- 'icon-info.svg' | inline_asset_content -}}
+    </span>
+    <p class="gamma-cart-availability-notice__text">
+      {%- if has_in_stock == false -%}
+        {{ 'gamma_availability.cart_notice.delay' | t }}
+      {%- elsif settings.show_cart_note -%}
+        {%- assign note_label = 'content.seller_note' | t -%}
+        {{ 'gamma_availability.cart_notice.ship_together_with_note' | t: note_label: note_label }}
+      {%- else -%}
+        {{ 'gamma_availability.cart_notice.ship_together_without_note' | t }}
+      {%- endif -%}
+    </p>
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .gamma-cart-availability-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--gap-xs, 0.5rem);
+    padding: var(--padding-sm, 0.75rem);
+    border-radius: var(--style-border-radius-inputs, 0.5rem);
+    background-color: rgb(var(--color-foreground-rgb) / 0.05);
+    color: var(--color-foreground);
+    font-size: var(--font-size--xs);
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+
+  .gamma-cart-availability-notice__icon {
+    flex-shrink: 0;
+    width: 1.1em;
+    height: 1.1em;
+    margin-block-start: 0.15em;
+    color: var(--gamma-availability-accent, currentColor);
+  }
+
+  .gamma-cart-availability-notice__icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .gamma-cart-availability-notice__text {
+    margin: 0;
+  }
+{% endstylesheet %}

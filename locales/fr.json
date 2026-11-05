@@ -12,7 +12,12 @@
       "label": "Commande spéciale",
       "message": "Cet article est commandé spécialement pour vous."
     },
-    "varies": "Variable"
+    "varies": "Variable",
+    "cart_notice": {
+      "delay": "Votre panier comprend des articles en rupture de stock ou en commande spéciale. Leur délai d’expédition dépend de la disponibilité chez le fournisseur.",
+      "ship_together_with_note": "Votre panier comprend des articles en rupture de stock ou en commande spéciale. Leur délai d’expédition dépend de la disponibilité chez le fournisseur, et nous expédierons votre commande en un seul envoi lorsque tous les articles seront reçus. Si vous souhaitez recevoir séparément les articles en stock, indiquez-le sous « {{ note_label }} ». Des frais d’expédition supplémentaires s’appliquent.",
+      "ship_together_without_note": "Votre panier comprend des articles en rupture de stock ou en commande spéciale. Leur délai d’expédition dépend de la disponibilité chez le fournisseur, et nous expédierons votre commande en un seul envoi lorsque tous les articles seront reçus. Si vous souhaitez recevoir séparément les articles en stock, communiquez avec nous. Des frais d’expédition supplémentaires s’appliquent."
+    }
   },
   "gamma_battery": {
     "types": {

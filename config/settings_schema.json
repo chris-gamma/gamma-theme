@@ -1575,6 +1575,13 @@
         "default": true
       },
       {
+        "type": "checkbox",
+        "id": "gamma_cart_availability_notice",
+        "label": "t:gamma_availability.cart_notice",
+        "info": "t:gamma_availability.cart_notice_info",
+        "default": true
+      },
+      {
         "type": "url",
         "id": "empty_cart_button_link",
         "label": "t:settings.empty_cart_button_link",

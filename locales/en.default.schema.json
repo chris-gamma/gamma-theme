@@ -10,7 +10,9 @@
 {
   "gamma_availability": {
     "badges": "Show backorder and special-order badges",
-    "badges_info": "Product cards check up to 250 variants. Mixed or incomplete options show a neutral badge."
+    "badges_info": "Product cards check up to 250 variants. Mixed or incomplete options show a neutral badge.",
+    "cart_notice": "Show backorder and special-order notice",
+    "cart_notice_info": "Explains supplier-dependent shipping in the cart summary, and how orders mixing in-stock items ship together."
   },
   "gamma_battery": {
     "name": "Battery system",
