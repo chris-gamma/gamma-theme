@@ -4,7 +4,7 @@
 
 Gamma is a bilingual Shopify storefront for Location Gamma, combining equipment sales with clear access to rental services. The theme will provide dependable product information, practical purchasing guidance, useful store information and coordinated promotional campaigns. Merchants should be able to manage content and presentation through Shopify's normal editing tools.
 
-Development starts from the current modified Horizon fork on `dev`. The foundation is Horizon 4.3.0 at `6de238c5fc76a877a73beafc0e34be7b98284431`, identified by `vendor/horizon-v4.3.0`. The working tree, project configuration and merchant settings on the receiving development branch must be inspected before each change. [README.md](../README.md) covers the development environment; [AGENTS.md](../AGENTS.md) defines repository conventions.
+Development starts from the current modified Horizon fork on `dev`. The foundation is Horizon 4.4.0 at `b2b74b0ade1ca0bf9a22b60aad5df2b49c20cd7a`, identified by `vendor/horizon-v4.4.0`. The working tree, project configuration and merchant settings on the receiving development branch must be inspected before each change. [README.md](../README.md) covers the development environment; [AGENTS.md](../AGENTS.md) defines repository conventions.
 
 ### Objectives
 
