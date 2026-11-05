@@ -10,6 +10,7 @@
 {
   "gamma_availability": {
     "backorder": {
+      "badge": "Backorder",
       "label": "Backorder",
       "message": "This item is out of stock, but you can still order it."
     },
