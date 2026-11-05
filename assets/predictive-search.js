@@ -126,7 +126,11 @@ class PredictiveSearchComponent extends Component {
   #loadEmptyState() {
     if (this.#emptyStateLoaded) return;
     this.#emptyStateLoaded = true;
-    this.resetSearch(false);
+
+    // Gamma: loading the empty state clears the input, so skip it once a query has been typed.
+    // A query's results replace the empty state; the next reset loads it.
+    if (this.refs.searchInput.value) return;
+    this.#resetSearch();
   }
 
   get #allResultsItems() {
