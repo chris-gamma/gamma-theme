@@ -51,6 +51,25 @@
     >
       {% liquid
         assign image_to_show = current_variant.featured_image | default: product.featured_image
+
+        # Gamma: the sticky image follows the storefront language's eligible media.
+        capture gamma_excluded_media_ids
+          render 'gamma-media-exclusions', media: product.media
+        endcapture
+        if gamma_excluded_media_ids != blank
+          assign gamma_sticky_media = current_variant.featured_media | default: product.featured_media
+          assign gamma_token = gamma_sticky_media.id | prepend: ',' | append: ','
+          if gamma_excluded_media_ids contains gamma_token
+            for gamma_item in product.media
+              assign gamma_token = gamma_item.id | prepend: ',' | append: ','
+              unless gamma_excluded_media_ids contains gamma_token
+                assign gamma_sticky_media = gamma_item
+                break
+              endunless
+            endfor
+            assign image_to_show = gamma_sticky_media.preview_image
+          endif
+        endif
       %}
       {% if image_to_show %}
         <div

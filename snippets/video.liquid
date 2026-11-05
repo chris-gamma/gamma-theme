@@ -42,7 +42,8 @@
 {% if video_from_url %}
   {% liquid
     if video_type == 'youtube'
-      assign video_src = 'https://www.youtube.com/embed/VIDEO_ID?' | replace: 'VIDEO_ID', video
+      # Gamma: use YouTube's privacy-enhanced host.
+      assign video_src = 'https://www.youtube-nocookie.com/embed/VIDEO_ID?' | replace: 'VIDEO_ID', video
 
       if video_autoplay == false and video_preview_image != blank
         assign video_src = video_src | append: '&autoplay=1'
@@ -61,7 +62,8 @@
       endif
       assign class = 'js-youtube'
     else
-      assign video_src = 'https://player.vimeo.com/video/VIDEO_ID?' | replace: 'VIDEO_ID', video
+      # Gamma: ask Vimeo not to track the playback session.
+      assign video_src = 'https://player.vimeo.com/video/VIDEO_ID?dnt=1' | replace: 'VIDEO_ID', video
 
       if video_autoplay == false and video_preview_image != blank
         assign video_src = video_src | append: '&autoplay=1'
@@ -93,24 +95,26 @@
   {% liquid
     if disable_controls
       assign controls = false
-      assign enable_js_api = true
     else
       assign controls = true
-      assign enable_js_api = false
     endif
+
+    # Gamma: keep the player API with native controls so deferred media can still pause external players.
+    assign enable_js_api = true
   %}
 
   {% capture video_tag %}
     {% if video.host == 'youtube' %}
-      {{
-        video
-        | external_video_url: autoplay: true, loop: video_loop, playlist: video.external_id, mute: '1', controls: controls, enablejsapi: enable_js_api
-        | external_video_tag: data-video-type: 'youtube'
-      }}
+      {%- liquid
+        # Gamma: use YouTube's privacy-enhanced host while keeping Shopify's player parameters.
+        assign youtube_url = video | external_video_url: autoplay: true, loop: video_loop, playlist: video.external_id, mute: '1', controls: controls, enablejsapi: enable_js_api
+        assign youtube_url = youtube_url | replace_first: 'https://www.youtube.com/embed/', 'https://www.youtube-nocookie.com/embed/'
+        echo youtube_url | external_video_tag: data-video-type: 'youtube'
+      -%}
     {% elsif video.host == 'vimeo' %}
       {{
         video
-        | external_video_url: autoplay: true, loop: video_loop, muted: '1', controls: controls, api: enable_js_api
+        | external_video_url: autoplay: true, loop: video_loop, muted: '1', controls: controls, api: enable_js_api, dnt: '1'
         | external_video_tag: data-video-type: 'vimeo'
       }}
     {% else %}

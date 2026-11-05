@@ -39,10 +39,24 @@
   assign variant_to_link = product.selected_or_first_available_variant
 
   if settings.transition_to_main_product
-    assign featured_image = variant_to_link.featured_image
-    if featured_image == blank
-      assign featured_image = product.featured_media.preview_image
+    # Gamma: the transition image follows the storefront language's eligible media.
+    capture gamma_excluded_media_ids
+      render 'gamma-media-exclusions', media: product.media
+    endcapture
+    assign gamma_transition_media = variant_to_link.featured_media | default: product.featured_media
+    if gamma_excluded_media_ids != blank and gamma_transition_media
+      assign gamma_token = gamma_transition_media.id | prepend: ',' | append: ','
+      if gamma_excluded_media_ids contains gamma_token
+        for gamma_item in product.media
+          assign gamma_token = gamma_item.id | prepend: ',' | append: ','
+          unless gamma_excluded_media_ids contains gamma_token
+            assign gamma_transition_media = gamma_item
+            break
+          endunless
+        endfor
+      endif
     endif
+    assign featured_image = gamma_transition_media.preview_image
 
     if featured_image != blank
       assign featured_media_url = featured_image | image_url: width: 500

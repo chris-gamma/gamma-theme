@@ -681,7 +681,8 @@ export class Slideshow extends Component {
 
     // Check if the event target is within a 3D model interactive element
     // This prevents the slideshow from capturing drag events when interacting with 3D models
-    if (event.target.closest('model-viewer')) {
+    // Gamma: native video controls (seeking, volume) need the same exemption.
+    if (event.target.closest('model-viewer, video[controls]')) {
       return;
     }
 
