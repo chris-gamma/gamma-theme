@@ -20,6 +20,7 @@ Location Gamma's storefront theme is based on Shopify Horizon 4.4.0.
 - Native Shopify privacy controls styled with the theme's typography, corners, wrapping and keyboard focus.
 - Brand, product-type, power-source, brand/type and brand/power-source collection templates. Their filters omit the choice the collection already fixes, through new Filters block settings; a link that applies one keeps it visible and removable.
 - Home search field under the hero slogan that opens the header search dialog with the same query and suggestions, and stays a plain search form without JavaScript. Width, corners, border, background, text colour and size are editable in the theme editor.
+- Rental equipment in search, set up in Theme settings > Search with separate French and English rental site addresses (off by default). The search dialog shows up to four matching rental items above the store's results, with a link to all rental results and a switch to turn them off for the browser tab. A link to the rental site's search appears when nothing matches or the catalogue can't be reached, and the search results page links to it without JavaScript.
 
 ### Changed
 
@@ -32,3 +33,4 @@ Location Gamma's storefront theme is based on Shopify Horizon 4.4.0.
 - Add to cart, Quick Add and discount changes keep the cart in the shopper's language.
 - Back and Forward after changing collection or search filters or sorting update the results, filters and counts (workaround for Horizon 4.4.0; see `assets/gamma-facets-history.js`).
 - A query typed while predictive search is loading recently viewed products is no longer erased (fix for Horizon 4.4.0 in `assets/predictive-search.js`; remove once Horizon stops clearing it).
+- Enter in the search dialog opens the highlighted suggestion or result, even with a single result (fix for Horizon 4.4.0 in `assets/predictive-search.js`).
