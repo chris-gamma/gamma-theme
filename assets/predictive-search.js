@@ -238,6 +238,13 @@ class PredictiveSearchComponent extends Component {
         break;
 
       case 'Enter': {
+        // A highlighted result takes precedence over the single-result shortcut.
+        if (this.#currentIndex >= 0) {
+          event.preventDefault();
+          this.#currentItem?.querySelector('a')?.click();
+          break;
+        }
+
         const singleResultContainer = this.refs.predictiveSearchResults.querySelector('[data-single-result-url]');
         if (singleResultContainer instanceof HTMLElement && singleResultContainer.dataset.singleResultUrl) {
           event.preventDefault();
@@ -245,14 +252,9 @@ class PredictiveSearchComponent extends Component {
           return;
         }
 
-        if (this.#currentIndex >= 0) {
-          event.preventDefault();
-          this.#currentItem?.querySelector('a')?.click();
-        } else {
-          const searchUrl = new URL(Theme.routes.search_url, location.origin);
-          searchUrl.searchParams.set('q', this.refs.searchInput.value);
-          window.location.href = searchUrl.toString();
-        }
+        const searchUrl = new URL(Theme.routes.search_url, location.origin);
+        searchUrl.searchParams.set('q', this.refs.searchInput.value);
+        window.location.href = searchUrl.toString();
         break;
       }
     }
