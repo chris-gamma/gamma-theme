@@ -1,0 +1,129 @@
+{% liquid
+  assign family = 'warranty_policy'
+  assign policy = block.settings.warranty_policy
+  assign entry_name = policy.product_brand_type.value
+  if policy == blank
+    assign family = 'return_exchange_policy'
+    assign policy = block.settings.return_exchange_policy
+    assign entry_name = policy.policy_type.value
+  endif
+  assign heading = block.settings.heading | default: entry_name
+  assign summary = heading
+  if summary == blank
+    assign summary_key = 'gamma_information.headings.' | append: family
+    assign summary = summary_key | t
+  endif
+%}
+{% capture content %}{% render 'gamma-policy-content', policy: policy, type: family %}{% endcapture %}
+{% assign content = content | strip %}
+{% if content != blank and block.settings.collapsible %}
+  {% capture policy_row %}
+    <details class="details" {% if block.settings.open_by_default %}open{% endif %}>
+      <summary class="details__header">
+        {{ summary | escape }}
+        <span class="svg-wrapper icon-caret icon-animated">{{ 'icon-caret.svg' | inline_asset_content }}</span>
+        <span class="svg-wrapper icon-plus">{{ 'icon-plus.svg' | inline_asset_content }}</span>
+      </summary>
+      <div class="details-content">{{ content }}</div>
+    </details>
+  {% endcapture %}
+  <div
+    class="gamma-policy gamma-policy--collapsible accordion accordion--caret accordion--dividers"
+    style="
+      --summary-font-family: var(--font-h6--family);
+      --summary-font-style: var(--font-h6--style);
+      --summary-font-weight: var(--font-h6--weight);
+      --summary-font-size: var(--font-h6--size);
+      --summary-font-line-height: var(--font-h6--line-height);
+      --summary-font-case: var(--font-h6--case);
+    "
+    {{ block.shopify_attributes }}
+  >
+    {% render 'accordion-custom-component',
+      children: policy_row,
+      open_by_default_on_desktop: block.settings.open_by_default,
+      open_by_default_on_mobile: block.settings.open_by_default
+    %}
+  </div>
+  {% render 'accordion-styles' %}
+{% elsif content != blank %}
+  <div class="gamma-policy" {{ block.shopify_attributes }}>
+    {% if block.settings.show_heading and heading != blank %}
+      <h2 class="gamma-policy__heading h3">{{ heading | escape }}</h2>
+    {% endif %}
+    {{ content }}
+  </div>
+{% elsif request.design_mode %}
+  <p class="gamma-policy" {{ block.shopify_attributes }}>{{ 'gamma_policy.editor_empty' | t }}</p>
+{% endif %}
+
+{% stylesheet %}
+  .gamma-policy {
+    width: 100%;
+  }
+
+  .gamma-policy__heading {
+    margin-block-end: var(--margin-md);
+  }
+
+  .gamma-policy--collapsible + .gamma-policy--collapsible .details {
+    border-block-start: var(--style-border-width) solid var(--color-border);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:gamma_policy.name",
+  "tag": null,
+  "settings": [
+    {
+      "type": "metaobject",
+      "id": "warranty_policy",
+      "label": "t:gamma_information.options.warranty_policy",
+      "metaobject_type": "warranty_policy"
+    },
+    {
+      "type": "metaobject",
+      "id": "return_exchange_policy",
+      "label": "t:gamma_information.options.return_exchange_policy",
+      "metaobject_type": "return_exchange_policy"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:gamma_policy.entry_info"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:gamma_policy.heading",
+      "info": "t:gamma_policy.heading_info"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_heading",
+      "label": "t:gamma_policy.show_heading",
+      "default": true,
+      "visible_if": "{{ block.settings.collapsible == false }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "collapsible",
+      "label": "t:gamma_policy.collapsible",
+      "info": "t:gamma_policy.collapsible_info",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "open_by_default",
+      "label": "t:settings.open_row_by_default",
+      "default": false,
+      "visible_if": "{{ block.settings.collapsible }}"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:gamma_policy.name"
+    }
+  ]
+}
+{% endschema %}
