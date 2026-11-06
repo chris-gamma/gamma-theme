@@ -41,6 +41,17 @@
     "background_opacity": "Opacité de l’arrière-plan",
     "colors_info": "S’applique au champ et à son instruction. Un arrière-plan plus transparent ou d’autres couleurs peuvent rendre le texte difficile à lire sur une image; vérifiez le contraste avec votre image."
   },
+  "gamma_rental": {
+    "header": "Recherche de location",
+    "enable": "Afficher l’équipement à louer dans la recherche",
+    "enable_info": "Ajoute l’équipement correspondant du site de location aux suggestions de recherche et un lien de recherche de location à la page de recherche. Nécessite l’adresse du site de location pour chaque langue.",
+    "site_fr": "Adresse du site de location en français",
+    "site_fr_info": "Adresse des pages en français du site de location. Doit commencer par https:// et se terminer par /.",
+    "site_en": "Adresse du site de location en anglais",
+    "site_en_info": "Adresse des pages en anglais du site de location. Doit commencer par https:// et se terminer par /.",
+    "name": "Lien de recherche de location",
+    "link_info": "Mène aux résultats de recherche du site de location pour les termes du client. Configurez la recherche de location dans Paramètres du thème > Recherche."
+  },
   "gamma": {
     "menu_en": "Menu de remplacement en anglais",
     "menu_fr": "Menu de remplacement en français",

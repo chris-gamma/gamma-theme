@@ -54,6 +54,21 @@
     "reload": "Reload product details",
     "empty": "Add product content or a variant override for this information row."
   },
+  "gamma_rental": {
+    "heading": "Equipment for rent",
+    "card_label": "{{ title }}, rental details",
+    "loading": "Searching…",
+    "view_all": "See all rental results",
+    "see_results": "See rental results",
+    "browse": "Browse rental equipment",
+    "search_terms": "Search rental equipment for “{{ terms }}”",
+    "error": "Rental equipment can’t be shown right now.",
+    "results_count": {
+      "one": "1 rental result for “{{ terms }}”",
+      "other": "{{ count }} rental results for “{{ terms }}”"
+    },
+    "editor_disabled": "Rental search is off, or the rental site address for this language is missing or invalid. Set it up in Theme settings > Search."
+  },
   "gamma_search": {
     "instruction": "Search suggestions may open as you type."
   },

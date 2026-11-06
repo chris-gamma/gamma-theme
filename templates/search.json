@@ -50,6 +50,14 @@
         "padding-block-end": 0
       }
     },
+    "rental": {
+      "type": "gamma-rental-search-link",
+      "settings": {
+        "alignment": "flex-start",
+        "padding-block-start": 16,
+        "padding-block-end": 0
+      }
+    },
     "main": {
       "type": "search-results",
       "blocks": {
@@ -176,6 +184,7 @@
   },
   "order": [
     "search",
+    "rental",
     "main"
   ]
 }

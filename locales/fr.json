@@ -45,6 +45,21 @@
     "reload": "Recharger les détails du produit",
     "empty": "Ajoutez du contenu au produit ou à sa variante pour cette rubrique."
   },
+  "gamma_rental": {
+    "heading": "Équipement à louer",
+    "card_label": "{{ title }}, détails de location",
+    "loading": "Recherche en cours…",
+    "view_all": "Voir tous les résultats de location",
+    "see_results": "Voir les résultats de location",
+    "browse": "Parcourir les équipements à louer",
+    "search_terms": "Rechercher « {{ terms }} » parmi les équipements à louer",
+    "error": "Impossible d’afficher l’équipement à louer pour le moment.",
+    "results_count": {
+      "one": "1 résultat de location pour « {{ terms }} »",
+      "other": "{{ count }} résultats de location pour « {{ terms }} »"
+    },
+    "editor_disabled": "La recherche de location est désactivée, ou l’adresse du site de location pour cette langue est manquante ou invalide. Configurez-la dans Paramètres du thème > Recherche."
+  },
   "gamma_search": {
     "instruction": "Des suggestions de recherche peuvent s’ouvrir pendant la saisie."
   },

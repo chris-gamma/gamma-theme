@@ -1,0 +1,43 @@
+{%- doc -%}
+  Outputs the rental site address for the storefront language, from Theme settings > Search.
+  Outputs nothing when rental search is off or that address isn't an https:// folder address
+  (ending with / and without a query, fragment or credentials).
+
+  @param {string} [terms] - HTML-escaped search terms, such as `search.terms`. When present, outputs the rental site's search results address for them.
+{%- enddoc -%}
+
+{%- liquid
+  assign site = ''
+
+  if settings.gamma_rental_search
+    assign language = request.locale.iso_code | downcase | split: '-' | first
+
+    case language
+      when 'fr'
+        assign site = settings.gamma_rental_site_fr | append: ''
+      when 'en'
+        assign site = settings.gamma_rental_site_en | append: ''
+    endcase
+
+    assign scheme = site | slice: 0, 8 | downcase
+    assign host_first_character = site | slice: 8
+    assign last_character = site | slice: -1
+
+    if scheme != 'https://' or last_character != '/' or host_first_character == blank or host_first_character == '/'
+      assign site = ''
+    elsif site contains '?' or site contains '#' or site contains '@' or site contains ' ' or site contains '\' or site contains '"'
+      assign site = ''
+    endif
+  endif
+
+  if site != blank
+    if terms != blank
+      # The rental site's search results page for its equipment post type.
+      # search.terms is HTML-escaped; restore the typed characters before encoding them for the URL.
+      assign encoded_terms = terms | replace: '&quot;', '"' | replace: '&#39;', "'" | replace: '&lt;', '<' | replace: '&gt;', '>' | replace: '&amp;', '&' | url_encode
+      echo site | append: '?post_type=gamma_product&s=' | append: encoded_terms
+    else
+      echo site
+    endif
+  endif
+-%}
