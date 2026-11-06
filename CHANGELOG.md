@@ -21,9 +21,14 @@ Location Gamma's storefront theme is based on Shopify Horizon 4.4.0.
 - Brand, product-type, power-source, brand/type and brand/power-source collection templates. Their filters omit the choice the collection already fixes, through new Filters block settings; a link that applies one keeps it visible and removable.
 - Home search field under the hero slogan that opens the header search dialog with the same query and suggestions, and stays a plain search form without JavaScript. Width, corners, border, background, text colour and size are editable in the theme editor.
 - Rental equipment in search, set up in Theme settings > Search with separate French and English rental site addresses (off by default). The search dialog shows up to four matching rental items above the store's results, with a link to all rental results and a switch to turn them off for the browser tab. A link to the rental site's search appears when nothing matches or the catalogue can't be reached, and the search results page links to it without JavaScript.
+- A “Who we are” introduction below the featured products, in a wider column on larger screens, and a heading for the featured products.
+- A four-part footer: logo, newsletter sign-up, social links and payment methods; address, telephone and email; and the shop, company, legal and account menus. The powered-by notice is off.
+- A contact page with the store's contact details, the page content and the contact form. Department cards written in the content as a display-card-table of display-card boxes form a responsive grid; their styles load only where used.
+- A Policy block showing a selected warranty or return-and-exchange entry, as a section or a collapsible row; consecutive collapsible blocks form one list. A warranty page template (warranty-info) and a comparison page template (leaf-blower-chart).
 
 ### Changed
 
+- French contact and newsletter forms say “Courriel” instead of “E-mail”, and the password page sign-up button reads “Subscribe”. Long email addresses wrap instead of widening narrow layouts.
 - French backorders read “En rupture de stock” (“En rupture” on product-card badges); “Épuisé” is for sold-out items.
 
 - Updated the Horizon foundation from 4.3.0 to 4.4.0, keeping Gamma's customizations and English/French locales. Primary buttons use the Accent font's weight.
@@ -31,6 +36,7 @@ Location Gamma's storefront theme is based on Shopify Horizon 4.4.0.
 ### Fixed
 
 - Add to cart, Quick Add and discount changes keep the cart in the shopper's language.
+- The contact form's phone field accepts ordinary formats such as (514) 481-5631 and +1 514 481 5631 (fix for Horizon 4.4.0 in `blocks/contact-form.liquid`; remove once Horizon stops limiting it to digits and hyphens).
 - Back and Forward after changing collection or search filters or sorting update the results, filters and counts (workaround for Horizon 4.4.0; see `assets/gamma-facets-history.js`).
 - A query typed while predictive search is loading recently viewed products is no longer erased (fix for Horizon 4.4.0 in `assets/predictive-search.js`; remove once Horizon stops clearing it).
 - Enter in the search dialog opens the highlighted suggestion or result, even with a single result (fix for Horizon 4.4.0 in `assets/predictive-search.js`).
