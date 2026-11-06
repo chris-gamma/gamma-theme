@@ -50,6 +50,17 @@
     "background_opacity": "Background opacity",
     "colors_info": "Applies to the field and its instruction. A more transparent background or other colors can make them hard to read over an image, so check the contrast with your image."
   },
+  "gamma_rental": {
+    "header": "Rental search",
+    "enable": "Show rental equipment in search",
+    "enable_info": "Adds matching equipment from the rental site to search suggestions and a rental search link to the search page. Needs the rental site address for each language.",
+    "site_fr": "French rental site address",
+    "site_fr_info": "Address of the rental site’s French pages. Must start with https:// and end with /.",
+    "site_en": "English rental site address",
+    "site_en_info": "Address of the rental site’s English pages. Must start with https:// and end with /.",
+    "name": "Rental search link",
+    "link_info": "Links to the rental site’s search results for the customer’s terms. Set up rental search in Theme settings > Search."
+  },
   "gamma": {
     "menu_en": "English menu override",
     "menu_fr": "French menu override",
