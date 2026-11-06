@@ -2,3 +2,7 @@
   text-wrap: wrap;
   overflow-wrap: anywhere;
 }
+
+.text-block a[href^='mailto:'] {
+  overflow-wrap: anywhere;
+}
