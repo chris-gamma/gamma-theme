@@ -1960,6 +1960,29 @@
           }
         ],
         "default": "default"
+      },
+      {
+        "type": "header",
+        "content": "t:gamma_rental.header"
+      },
+      {
+        "type": "checkbox",
+        "id": "gamma_rental_search",
+        "label": "t:gamma_rental.enable",
+        "info": "t:gamma_rental.enable_info",
+        "default": false
+      },
+      {
+        "type": "url",
+        "id": "gamma_rental_site_fr",
+        "label": "t:gamma_rental.site_fr",
+        "info": "t:gamma_rental.site_fr_info"
+      },
+      {
+        "type": "url",
+        "id": "gamma_rental_site_en",
+        "label": "t:gamma_rental.site_en",
+        "info": "t:gamma_rental.site_en_info"
       }
     ]
   },

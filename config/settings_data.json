@@ -97,7 +97,12 @@
     "badge_sale_text_color": "{{ settings.color_palette.background }}",
     "logo": "shopify://shop_images/logo-gamma-primary.svg",
     "logo_inverse": "shopify://shop_images/logo-gamma-inverted.svg",
-    "favicon": "shopify://shop_images/monogram-gamma-transparent.svg"
+    "favicon": "shopify://shop_images/monogram-gamma-transparent.svg",
+    // The rental site, and with it the rental API, moves to locations.locationgamma.com at launch:
+    // update both addresses then (the API is wp-json/wp/v2/products under each).
+    "gamma_rental_search": true,
+    "gamma_rental_site_fr": "https://www.locationgamma.com/fr/",
+    "gamma_rental_site_en": "https://www.locationgamma.com/"
   },
   "presets": {
     "Default": {
