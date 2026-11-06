@@ -1,3 +1,6 @@
+import { Component } from '@theme/component';
+import { DialogCloseEvent } from '@theme/dialog';
+
 /**
  * Search requests for the rental site's WordPress catalogue (`wp-json/wp/v2/products` under each
  * language's site address). Responses are external data: only https destinations and images on the
@@ -388,4 +391,535 @@ function isDimension(value) {
  */
 function isRecord(value) {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+const DEBOUNCE_DELAY = 300;
+const CACHE_ENTRIES = 20;
+const CACHE_LIFETIME = 5 * 60 * 1000;
+const FAILURE_LIMIT = 2;
+const FAILURE_PAUSE = 60 * 1000;
+const DENIED_PAUSE = 10 * 60 * 1000;
+const RATE_LIMIT_PAUSE = { fallback: 120, min: 30, max: 600 };
+const IMAGE_FAILURE_LIMIT = 2;
+
+/**
+ * Successful searches for this page view, oldest first.
+ * @type {Map<string, { expires: number, matches: RentalMatches }>}
+ */
+const cache = new Map();
+
+/** Consecutive service failures, and when requests may resume after too many or a refusal. */
+const service = { failures: 0, pausedUntil: 0 };
+
+/** The visitor's choice to hide rental results lasts for the browser tab, without persistent storage. */
+const COLLAPSED_KEY = 'gamma-rental-search:collapsed';
+
+function readExpanded() {
+  try {
+    return sessionStorage.getItem(COLLAPSED_KEY) !== '1';
+  } catch {
+    return true;
+  }
+}
+
+/** @param {boolean} expanded */
+function storeExpanded(expanded) {
+  try {
+    if (expanded) sessionStorage.removeItem(COLLAPSED_KEY);
+    else sessionStorage.setItem(COLLAPSED_KEY, '1');
+  } catch {
+    // The choice still applies until the page changes.
+  }
+}
+
+/** Images are skipped once they fail to load and none has loaded, as when the site is unavailable. */
+const images = { loaded: 0, failed: 0 };
+
+/**
+ * @param {string} key
+ * @returns {RentalMatches | null}
+ */
+function cachedMatches(key) {
+  const entry = cache.get(key);
+  if (!entry) return null;
+
+  cache.delete(key);
+  if (entry.expires <= Date.now()) return null;
+
+  cache.set(key, entry);
+  return entry.matches;
+}
+
+/**
+ * @param {string} key
+ * @param {RentalMatches} matches
+ */
+function rememberMatches(key, matches) {
+  cache.delete(key);
+  cache.set(key, { expires: Date.now() + CACHE_LIFETIME, matches });
+
+  for (const oldest of cache.keys()) {
+    if (cache.size <= CACHE_ENTRIES) break;
+    cache.delete(oldest);
+  }
+}
+
+/**
+ * Pauses requests after repeated failures, a rate limit or a refusal. Cancelled requests aren't
+ * failures and never reach this.
+ * @param {RentalSearchError} error
+ */
+function recordFailure(error) {
+  const now = Date.now();
+
+  if (error.kind === 'rate-limited') {
+    const seconds = error.retryAfter ?? RATE_LIMIT_PAUSE.fallback;
+    service.pausedUntil = now + Math.min(Math.max(seconds, RATE_LIMIT_PAUSE.min), RATE_LIMIT_PAUSE.max) * 1000;
+  } else if (error.kind === 'denied') {
+    service.pausedUntil = now + DENIED_PAUSE;
+  } else {
+    service.failures += 1;
+    if (service.failures >= FAILURE_LIMIT) service.pausedUntil = now + FAILURE_PAUSE;
+  }
+}
+
+/**
+ * @typedef {object} Refs
+ * @property {HTMLElement} group
+ * @property {HTMLElement} message
+ * @property {HTMLUListElement} results
+ * @property {HTMLUListElement} actions
+ * @property {HTMLElement} status
+ * @property {HTMLElement} title
+ * @property {HTMLElement} toggle - Shows or hides the results; labelled by the title.
+ */
+
+/**
+ * Shows rental equipment matching the search dialog's query before the native results. It follows
+ * the dialog's input on its own, so it works whether native predictive search succeeds or not, and
+ * never changes native results, counts or search events.
+ *
+ * @extends {Component<Refs>}
+ */
+class GammaRentalSearch extends Component {
+  requiredRefs = ['group', 'message', 'results', 'actions', 'status', 'title', 'toggle'];
+
+  /** @type {AbortController | undefined} */
+  #listeners;
+
+  /** @type {AbortController | null} */
+  #request = null;
+
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
+  #timer;
+
+  /** @type {HTMLInputElement | null} */
+  #input = null;
+
+  /** @type {URL | null} */
+  #site = null;
+
+  /** The normalized query the group currently reflects. */
+  #query = '';
+
+  /** Incremented whenever the query changes, so older requests can't render. */
+  #generation = 0;
+
+  /**
+   * What the group shows: nothing, or a query's link only (switch off), loading, matches or failure.
+   * @type {{ kind: 'collapsed', query: string } | { kind: 'loading', query: string } | { kind: 'error', query: string } | { kind: 'matches', query: string, matches: RentalMatches } | null}
+   */
+  #view = null;
+
+  /** Whether results are shown, or only the header. */
+  #expanded = true;
+
+  connectedCallback() {
+    super.connectedCallback();
+
+    // Morph can move this element; a move disconnects and reconnects it in one task.
+    if (this.#listeners) return;
+
+    const search = this.closest('predictive-search-component');
+    const input = search?.querySelector('input[name="q"]');
+    this.#site = parseSite(this.dataset.site ?? '');
+    if (!search || !(input instanceof HTMLInputElement) || !this.#site) return;
+
+    this.#input = input;
+    this.#listeners = new AbortController();
+    const { signal } = this.#listeners;
+
+    input.addEventListener('input', this.#handleInput, { signal });
+    input.addEventListener('compositionend', this.#sync, { signal });
+    input.addEventListener('keydown', this.#handleKeydown, { signal });
+    // Native Clear empties the input after a short delay without an input event.
+    search.addEventListener('click', this.#handleClick, { signal });
+    this.closest('dialog-component')?.addEventListener(DialogCloseEvent.eventName, this.#clear, { signal });
+    this.refs.toggle.addEventListener('click', this.#toggle, { signal });
+    // Horizon handles the form's keys in a document capture listener, so the focused switch must claim them first.
+    window.addEventListener('keydown', this.#handleToggleKeydown, { capture: true, signal });
+    this.refs.title.addEventListener('click', this.#toggle, { signal });
+
+    this.#expanded = readExpanded();
+    this.#sync();
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+
+    queueMicrotask(() => {
+      if (this.isConnected) return;
+
+      this.#listeners?.abort();
+      this.#listeners = undefined;
+      this.#clear();
+    });
+  }
+
+  /** @param {Event} event */
+  #handleInput = (event) => {
+    if (event instanceof InputEvent && event.isComposing) return;
+    this.#sync();
+  };
+
+  /** @param {KeyboardEvent} event */
+  #handleKeydown = (event) => {
+    if (event.key === 'Escape') this.#clear();
+  };
+
+  /** @param {MouseEvent} event */
+  #handleClick = (event) => {
+    if (event.target instanceof Element && event.target.closest('.predictive-search__reset-button')) this.#clear();
+  };
+
+  /** Hides the group and cancels pending work until the query changes again. */
+  #clear = () => {
+    this.#generation += 1;
+    this.#query = '';
+    this.#cancel();
+    this.#hide();
+  };
+
+  /** Brings the group in line with the input's current query. */
+  #sync = () => {
+    const site = this.#site;
+    if (!this.#input || !site) return;
+
+    const query = normalizeQuery(this.#input.value);
+    if (query === this.#query) return;
+
+    this.#query = query;
+    const generation = (this.#generation += 1);
+    this.#cancel();
+
+    if (!isSearchableQuery(query)) {
+      this.#hide();
+      return;
+    }
+
+    // With the switch off, the catalogue isn't searched; the header links to the rental site instead.
+    if (!this.#expanded) {
+      this.#view = { kind: 'collapsed', query };
+      this.#render();
+      this.refs.status.textContent = '';
+      return;
+    }
+
+    const key = `${site.href} ${query.toLocaleLowerCase()}`;
+    const matches = cachedMatches(key);
+    if (matches) {
+      this.#showMatches(matches, query);
+      return;
+    }
+
+    if (Date.now() < service.pausedUntil) {
+      this.#showError(query);
+      return;
+    }
+
+    this.#showLoading();
+    this.#timer = setTimeout(() => this.#search(site, query, key, generation), DEBOUNCE_DELAY);
+  };
+
+  /**
+   * @param {URL} site
+   * @param {string} query
+   * @param {string} key
+   * @param {number} generation
+   */
+  async #search(site, query, key, generation) {
+    const request = new AbortController();
+    this.#request = request;
+
+    try {
+      const matches = await fetchRentalMatches(site, query, request.signal);
+      service.failures = 0;
+      rememberMatches(key, matches);
+      if (this.#isCurrent(generation, query)) this.#showMatches(matches, query);
+    } catch (error) {
+      const failure = error instanceof RentalSearchError ? error : new RentalSearchError('invalid');
+      if (failure.kind === 'aborted') return;
+
+      recordFailure(failure);
+      if (this.#isCurrent(generation, query)) this.#showError(query);
+    } finally {
+      if (this.#request === request) this.#request = null;
+    }
+  }
+
+  /**
+   * @param {number} generation
+   * @param {string} query
+   */
+  #isCurrent(generation, query) {
+    return (
+      generation === this.#generation &&
+      this.isConnected &&
+      !!this.#input &&
+      normalizeQuery(this.#input.value) === query
+    );
+  }
+
+  #cancel() {
+    clearTimeout(this.#timer);
+    this.#request?.abort();
+    this.#request = null;
+  }
+
+  #hide() {
+    this.#view = null;
+    this.#render();
+    this.refs.status.textContent = '';
+  }
+
+  /** Replaces results for an earlier query; the group stays hidden if nothing was showing. */
+  #showLoading() {
+    if (!this.#view) return;
+
+    this.#view = { kind: 'loading', query: this.#query };
+    this.#render();
+    this.refs.status.textContent = '';
+  }
+
+  /**
+   * @param {RentalMatches} matches
+   * @param {string} query
+   */
+  #showMatches(matches, query) {
+    if (matches.results.length === 0) {
+      this.#hide();
+      return;
+    }
+
+    this.#view = { kind: 'matches', query, matches };
+    this.#render();
+
+    const count = Math.max(matches.total ?? 0, matches.results.length);
+    const label = new Intl.PluralRules(this.dataset.locale).select(count) === 'one'
+      ? this.dataset.labelCountOne
+      : this.dataset.labelCountOther;
+    this.#announce(fill(label, { count: String(count), terms: query }));
+  }
+
+  /** @param {string} query */
+  #showError(query) {
+    this.#view = { kind: 'error', query };
+    this.#render();
+    this.#announce(this.dataset.labelError ?? '');
+  }
+
+  #toggle = () => {
+    this.#expanded = !this.#expanded;
+    storeExpanded(this.#expanded);
+
+    // Show the current query's results, or stop searching for them.
+    this.#query = '';
+    this.#sync();
+  };
+
+  /** @param {KeyboardEvent} event */
+  #handleToggleKeydown = (event) => {
+    if (event.target !== this.refs.toggle || (event.key !== 'Enter' && event.key !== ' ')) return;
+
+    // Keep native search from also activating the highlighted item or opening the search page.
+    event.preventDefault();
+    event.stopPropagation();
+    this.#toggle();
+  };
+
+  /** Shows the current view. With the switch off, only the header and its rental site link remain. */
+  #render() {
+    const { group, message, results, actions, toggle } = this.refs;
+    const site = this.#site;
+    const view = this.#view;
+    const expanded = this.#expanded;
+
+    toggle.setAttribute('aria-checked', String(expanded));
+    group.toggleAttribute('data-collapsed', !expanded);
+    group.removeAttribute('aria-busy');
+    this.removeAttribute('data-results');
+    message.hidden = true;
+    results.hidden = true;
+    actions.hidden = true;
+    results.replaceChildren();
+    actions.replaceChildren();
+
+    group.hidden = !view || !site;
+    if (!view || !site) return;
+
+    if (view.kind === 'collapsed') {
+      actions.append(this.#createAction(this.dataset.labelSeeResults ?? '', searchPageUrl(site, view.query)));
+      actions.hidden = false;
+      return;
+    }
+
+    if (view.kind === 'loading') {
+      group.setAttribute('aria-busy', 'true');
+      message.textContent = this.dataset.labelLoading ?? '';
+      message.hidden = false;
+      return;
+    }
+
+    if (view.kind === 'error') {
+      actions.append(this.#createAction(fill(this.dataset.labelSearch, { terms: view.query }), searchPageUrl(site, view.query)));
+      actions.hidden = false;
+      message.textContent = this.dataset.labelError ?? '';
+      message.hidden = false;
+      return;
+    }
+
+    const { results: items, total } = view.matches;
+    if (Math.max(total ?? 0, items.length) > items.length) {
+      actions.append(this.#createAction(this.dataset.labelViewAll ?? '', searchPageUrl(site, view.query)));
+      actions.hidden = false;
+    }
+
+    results.replaceChildren(...items.map((item) => this.#createCard(item)));
+    results.hidden = false;
+    this.setAttribute('data-results', '');
+  }
+
+  /** @param {string} text */
+  #announce(text) {
+    const { status } = this.refs;
+    const generation = this.#generation;
+
+    status.textContent = '';
+    requestAnimationFrame(() => {
+      if (generation === this.#generation) status.textContent = text;
+    });
+  }
+
+  /**
+   * Mirrors the native product result card, without price or purchase controls. The rental page
+   * opens in a new tab so the store's search stays open.
+   * @param {RentalResult} result
+   */
+  #createCard(result) {
+    const item = element('li', 'predictive-search-results__card predictive-search-results__card--product');
+    const card = element('div', 'resource-card');
+    const link = element('a', 'resource-card__link');
+    const name = element('span', 'visually-hidden');
+    const media = element('div', 'resource-card__media gamma-rental-search__media');
+    const content = element('div', 'resource-card__content');
+    const title = element('p', 'resource-card__title paragraph');
+    // Keeps the line native cards use for the price, so card heights match.
+    const spacer = element('p', 'resource-card__subtext paragraph gamma-rental-search__spacer');
+
+    link.href = result.url;
+    link.target = '_blank';
+    link.rel = 'noopener';
+    name.textContent = fill(this.dataset.labelCard, { title: result.title });
+    title.textContent = result.title;
+    spacer.setAttribute('aria-hidden', 'true');
+
+    link.append(name);
+    media.append(createImage(result.image));
+    content.append(title, spacer);
+    card.append(link, media, content);
+    item.append(card);
+    return item;
+  }
+
+  /**
+   * A link to the rental site's search, in the same keyboard navigation as the results. It opens
+   * in a new tab, like the result cards.
+   * @param {string} text
+   * @param {string} url
+   */
+  #createAction(text, url) {
+    const item = element(
+      'li',
+      'predictive-search-results__card predictive-search-results__card--query gamma-rental-search__action'
+    );
+    const link = element('a', 'pills__pill predictive-search-results__pill');
+
+    link.href = url;
+    link.target = '_blank';
+    link.rel = 'noopener';
+    link.textContent = text;
+    item.append(link);
+    return item;
+  }
+}
+
+/**
+ * @param {RentalImage | null} image
+ * @returns {HTMLElement}
+ */
+function createImage(image) {
+  if (!image || (images.loaded === 0 && images.failed >= IMAGE_FAILURE_LIMIT)) return createPlaceholder();
+
+  const img = document.createElement('img');
+  img.className = 'resource-card__image gamma-rental-search__image';
+  img.alt = '';
+  img.width = image.width;
+  img.height = image.height;
+  img.loading = 'lazy';
+  img.decoding = 'async';
+  img.referrerPolicy = 'no-referrer';
+  img.addEventListener('load', () => (images.loaded += 1), { once: true });
+  img.addEventListener(
+    'error',
+    () => {
+      images.failed += 1;
+      img.replaceWith(createPlaceholder());
+    },
+    { once: true }
+  );
+  img.src = image.url;
+  return img;
+}
+
+function createPlaceholder() {
+  const placeholder = element('div', 'resource-card__image-placeholder gamma-rental-search__placeholder');
+  placeholder.setAttribute('aria-hidden', 'true');
+  return placeholder;
+}
+
+/**
+ * @template {keyof HTMLElementTagNameMap} T
+ * @param {T} tag
+ * @param {string} className
+ * @returns {HTMLElementTagNameMap[T]}
+ */
+function element(tag, className) {
+  const node = document.createElement(tag);
+  node.className = className;
+  return node;
+}
+
+/**
+ * Replaces `[name]` placeholders in a translated label.
+ * @param {string | undefined} label
+ * @param {Record<string, string>} values
+ */
+function fill(label, values) {
+  let text = label ?? '';
+  for (const [name, value] of Object.entries(values)) text = text.split(`[${name}]`).join(value);
+  return text;
+}
+
+if (!customElements.get('gamma-rental-search')) {
+  customElements.define('gamma-rental-search', GammaRentalSearch);
 }

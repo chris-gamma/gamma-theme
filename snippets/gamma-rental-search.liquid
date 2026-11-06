@@ -1,0 +1,312 @@
+{%- doc -%}
+  Renders the rental equipment group of the search dialog, before the native results. Every
+  predictive search render (initial, empty state and results) includes it with the same ID, and
+  morph skips its attributes and contents, so native updates keep the group and its results.
+  Renders nothing when rental search is off or has no valid site address for the language.
+{%- enddoc -%}
+
+{%- liquid
+  capture rental_site
+    render 'gamma-rental-url'
+  endcapture
+  assign rental_site = rental_site | strip
+-%}
+
+{%- if rental_site != blank -%}
+  {% render 'pills-styles' %}
+  {% render 'predictive-search-styles' %}
+
+  <script
+    src="{{ 'gamma-rental-search.js' | asset_url }}"
+    type="module"
+    fetchpriority="low"
+  ></script>
+  <gamma-rental-search
+    id="GammaRentalSearch"
+    class="gamma-rental-search"
+    data-site="{{ rental_site | escape }}"
+    data-locale="{{ request.locale.iso_code | escape }}"
+    data-label-card="{{ 'gamma_rental.card_label' | t: title: '[title]' | escape }}"
+    data-label-loading="{{ 'gamma_rental.loading' | t | escape }}"
+    data-label-error="{{ 'gamma_rental.error' | t | escape }}"
+    data-label-view-all="{{ 'gamma_rental.view_all' | t | escape }}"
+    data-label-see-results="{{ 'gamma_rental.see_results' | t | escape }}"
+    data-label-search="{{ 'gamma_rental.search_terms' | t: terms: '[terms]' | escape }}"
+    data-label-count-one="{{ 'gamma_rental.results_count.one' | t: terms: '[terms]' | escape }}"
+    data-label-count-other="{{ 'gamma_rental.results_count.other' | t: count: '[count]', terms: '[terms]' | escape }}"
+    data-skip-node-update
+    data-skip-subtree-update
+  >
+    <div
+      class="gamma-rental-search__group predictive-search-results__products"
+      ref="group"
+      hidden
+    >
+      <div class="gamma-rental-search__header">
+        <div class="gamma-rental-search__heading">
+          <h3
+            id="GammaRentalSearchTitle"
+            class="predictive-search-results__title"
+            ref="title"
+          >
+            {{ 'gamma_rental.heading' | t }}
+          </h3>
+          {%- comment -%}
+            The switch is an item of the native result list so its arrow keys and Enter reach it.
+          {%- endcomment -%}
+          <ul class="predictive-search-results__list gamma-rental-search__controls list-unstyled">
+            <li class="predictive-search-results__card predictive-search-results__card--query gamma-rental-search__action">
+              <a
+                class="gamma-rental-search__switch"
+                role="switch"
+                tabindex="0"
+                aria-checked="true"
+                aria-labelledby="GammaRentalSearchTitle"
+                ref="toggle"
+              ></a>
+            </li>
+          </ul>
+        </div>
+        <ul
+          class="predictive-search-results__list gamma-rental-search__actions list-unstyled"
+          ref="actions"
+          hidden
+        ></ul>
+      </div>
+      <p
+        class="gamma-rental-search__message"
+        ref="message"
+        hidden
+      ></p>
+      <ul
+        class="predictive-search-results__list predictive-search-results__wrapper-products list-unstyled"
+        aria-labelledby="GammaRentalSearchTitle"
+        ref="results"
+        hidden
+      ></ul>
+    </div>
+    <p
+      class="visually-hidden"
+      role="status"
+      ref="status"
+    ></p>
+  </gamma-rental-search>
+{%- endif -%}
+
+{% stylesheet %}
+  .gamma-rental-search {
+    display: block;
+    container-type: inline-size;
+    color: var(--color-foreground);
+  }
+
+  /* Native list classes set a display value that would otherwise override [hidden]. */
+  .gamma-rental-search [hidden] {
+    display: none;
+  }
+
+  .gamma-rental-search__group {
+    padding-block: var(--padding-md);
+    border-block-end: var(--border-width-sm) solid var(--color-border);
+
+    &[data-collapsed] {
+      padding-block: var(--padding-sm);
+
+      .gamma-rental-search__header {
+        margin-block-end: 0;
+      }
+    }
+  }
+
+  /* Rental results add a group to the dialog, so let it use more of a tall viewport. */
+  @media screen and (min-width: 750px) {
+    .search-modal:has(gamma-rental-search) {
+      --modal-max-height: max(65dvh, calc(100dvh - 12rem));
+    }
+  }
+
+  /* While rental results show, native search's “no results” message would contradict them. */
+  predictive-search-component:has(.gamma-rental-search[data-results])
+    #predictive-search-results:has(.predictive-search-results__no-results) {
+    display: none;
+  }
+
+  .gamma-rental-search__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--gap-2xs) var(--gap-sm);
+    margin-block-end: var(--margin-xs);
+
+    @media screen and (max-width: 749px) {
+      margin-block-end: var(--margin-sm);
+    }
+  }
+
+  .gamma-rental-search__heading {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-sm);
+  }
+
+  .gamma-rental-search__header .predictive-search-results__title {
+    width: auto;
+    margin-block: 0;
+    cursor: pointer;
+  }
+
+  .gamma-rental-search__switch {
+    --switch-width: 2.5rem;
+    --switch-height: 1.5rem;
+    --switch-color: rgb(var(--color-foreground-rgb) / var(--opacity-subdued-text));
+
+    position: relative;
+    display: block;
+    flex: none;
+    inline-size: var(--switch-width);
+    block-size: var(--switch-height);
+    border: var(--border-width-sm) solid var(--switch-color);
+    border-radius: calc(var(--switch-height) / 2);
+    background-color: var(--color-background);
+    cursor: pointer;
+    transition: background-color var(--animation-speed) var(--animation-easing);
+
+    /* A larger touch target than the visible track. */
+    &::after {
+      content: '';
+      position: absolute;
+      inset: -10px -4px;
+    }
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset-block-start: 3px;
+      inset-inline-start: 3px;
+      inline-size: calc(var(--switch-height) - 8px);
+      block-size: calc(var(--switch-height) - 8px);
+      border-radius: 50%;
+      background-color: var(--switch-color);
+      transition: transform var(--animation-speed) var(--animation-easing);
+    }
+
+    &[aria-checked='true'] {
+      --switch-color: var(--color-foreground);
+
+      background-color: var(--color-foreground);
+
+      &::before {
+        background-color: var(--color-background);
+        transform: translateX(calc(var(--switch-width) - var(--switch-height)));
+      }
+    }
+
+    &:focus-visible {
+      outline: var(--focus-outline-width) solid var(--color-foreground);
+      outline-offset: var(--focus-outline-offset);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+
+      &::before {
+        transition: none;
+      }
+    }
+
+    @media (forced-colors: active) {
+      border-color: ButtonText;
+
+      &::before {
+        background-color: ButtonText;
+      }
+
+      &[aria-checked='true'] {
+        background-color: Highlight;
+
+        &::before {
+          background-color: HighlightText;
+        }
+      }
+    }
+  }
+
+  :dir(rtl) .gamma-rental-search__switch[aria-checked='true']::before {
+    transform: translateX(calc(var(--switch-height) - var(--switch-width)));
+  }
+
+  .gamma-rental-search__controls [aria-selected='true'].keyboard-focus .gamma-rental-search__switch {
+    outline: var(--focus-outline-width) solid var(--color-foreground);
+    outline-offset: var(--focus-outline-offset);
+  }
+
+  .gamma-rental-search__message {
+    margin: 0;
+    color: rgb(var(--color-foreground-rgb) / var(--opacity-subdued-text));
+  }
+
+  /* Rental photos vary in shape, so they're scaled to fit a white box rather than cropped. */
+  .gamma-rental-search__media {
+    --resource-card-aspect-ratio: 4 / 5;
+
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: var(--resource-card-corner-radius);
+    background-color: rgb(255 255 255);
+  }
+
+  .gamma-rental-search .gamma-rental-search__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+    object-fit: contain;
+  }
+
+  .gamma-rental-search__placeholder {
+    padding: 0;
+  }
+
+  .gamma-rental-search__spacer::before {
+    content: '\00a0';
+  }
+
+  /* Rental titles often differ only at the end (size, power source), so they aren't clamped. */
+  .gamma-rental-search .resource-card__title {
+    display: block;
+    overflow: visible;
+  }
+
+  .gamma-rental-search__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap-2xs);
+    min-width: 0;
+    margin-inline-start: auto;
+  }
+
+  .gamma-rental-search .predictive-search-results__card.gamma-rental-search__action {
+    flex: 0 1 auto;
+    width: auto;
+    min-width: 0;
+    max-width: 100%;
+    padding: 0;
+    border: 0;
+    background-color: transparent;
+  }
+
+  .gamma-rental-search
+    .predictive-search-results__card.predictive-search-results__card--query.gamma-rental-search__action:is(
+      :hover,
+      [aria-selected='true']
+    ) {
+    border: 0;
+    background-color: transparent;
+  }
+
+  .gamma-rental-search__action .predictive-search-results__pill {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+{% endstylesheet %}
