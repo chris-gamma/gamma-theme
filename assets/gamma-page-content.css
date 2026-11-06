@@ -1,0 +1,14 @@
+/* Department cards authored in page content as .display-card-table > .display-card */
+.rte .display-card-table {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--gap-md);
+  margin-block: var(--margin-md) var(--margin-2xl);
+}
+
+.rte .display-card {
+  padding: var(--padding-lg) var(--padding-xl);
+  border-radius: var(--style-border-radius-md);
+  background-color: rgb(var(--color-foreground-rgb) / var(--opacity-5));
+  overflow-wrap: anywhere;
+}
