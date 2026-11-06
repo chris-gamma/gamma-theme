@@ -103,13 +103,13 @@
     >
       {{- 'blocks.contact_form.phone' | t -}}
     </label>
+    {% # Gamma: plain tel input; Horizon 4.4.0 limited this field to digits and hyphens. %}
     <input
       type="tel"
       id="ContactForm-phone"
       class="contact-form__input"
       autocomplete="tel"
       name="contact[phone]"
-      pattern="[0-9\-]*"
       value="{% if form.phone %}{{ form.phone }}{% elsif customer %}{{ customer.phone }}{% endif %}"
       placeholder="{{ 'blocks.contact_form.phone' | t }}"
     >
