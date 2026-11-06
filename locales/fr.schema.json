@@ -1,4 +1,13 @@
 {
+  "gamma_policy": {
+    "name": "Politique",
+    "entry_info": "Sélectionnez une entrée. Son texte paraît tel quel sur les pages de produits. Si les deux sont sélectionnées, la garantie est affichée. Modifiez les entrées dans Contenu > Métaobjets.",
+    "heading": "Titre",
+    "heading_info": "Laissez vide pour utiliser le nom de l’entrée.",
+    "show_heading": "Afficher le titre",
+    "collapsible": "Afficher comme rangée repliable",
+    "collapsible_info": "Les politiques affichées l’une après l’autre en rangées repliables forment une seule liste. Le nom de l’entrée, ou le titre ci-dessus, identifie la rangée."
+  },
   "gamma_filters": {
     "fixed_attributes": "Attributs fixes de la collection",
     "fixed_attributes_info": "Masque les filtres communs à tous les produits des collections qui utilisent ce modèle. Un filtre masqué réapparaît lorsqu’un lien l’applique, afin que le client puisse le retirer.",

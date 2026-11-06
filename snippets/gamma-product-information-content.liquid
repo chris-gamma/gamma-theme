@@ -54,26 +54,9 @@
         </table>
       </div>
     {%- endif -%}
+  {%- elsif expected_type == 'metaobject_reference' -%}
+    {%- render 'gamma-policy-content', policy: field.value, type: family -%}
   {%- else -%}
-    {%- liquid
-      if expected_type == 'metaobject_reference'
-        assign policy = field.value
-        assign field = nil
-        if policy.system.type == family
-          if family == 'warranty_policy'
-            assign field = policy.warranty_policy
-          else
-            assign field = policy.policy_text
-          endif
-        endif
-      endif
-    -%}
-    {%- if field.type == 'rich_text_field' -%}
-      {%- capture rendered -%}{{ field | metafield_tag }}{%- endcapture -%}
-      {%- assign text = rendered | strip_html | replace: '&nbsp;', '' | replace: '&#160;', '' | remove: ' ' | strip -%}
-      {%- if text != blank or rendered contains '<img ' or rendered contains '<video ' or rendered contains '<audio ' or rendered contains '<iframe ' or rendered contains '<object ' -%}
-        <div class="rte">{{ rendered }}</div>
-      {%- endif -%}
-    {%- endif -%}
+    {%- render 'gamma-policy-content', field: field -%}
   {%- endif -%}
 {%- endif -%}
