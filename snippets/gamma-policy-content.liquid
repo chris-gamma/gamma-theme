@@ -1,0 +1,25 @@
+{% doc %}
+  Renders a warranty or return/exchange policy entry's text, or another rich text field, when it has useful content.
+  @param {object} [policy] - Policy metaobject whose text is rendered.
+  @param {string} [type] - Metaobject type the policy must have: warranty_policy or return_exchange_policy.
+  @param {object} [field] - Rich text field rendered when no policy is given.
+{% enddoc %}
+{%- liquid
+  if policy
+    assign field = nil
+    if policy.system.type == type
+      if type == 'warranty_policy'
+        assign field = policy.warranty_policy
+      else
+        assign field = policy.policy_text
+      endif
+    endif
+  endif
+-%}
+{%- if field.type == 'rich_text_field' -%}
+  {%- capture rendered -%}{{ field | metafield_tag }}{%- endcapture -%}
+  {%- assign text = rendered | strip_html | replace: '&nbsp;', '' | replace: '&#160;', '' | remove: ' ' | strip -%}
+  {%- if text != blank or rendered contains '<img ' or rendered contains '<video ' or rendered contains '<audio ' or rendered contains '<iframe ' or rendered contains '<object ' -%}
+    <div class="rte">{{ rendered }}</div>
+  {%- endif -%}
+{%- endif -%}
