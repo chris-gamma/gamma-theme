@@ -8,6 +8,15 @@
  * ------------------------------------------------------------
  */
 {
+  "gamma_policy": {
+    "name": "Policy",
+    "entry_info": "Select one entry. Its text appears exactly as on product pages. If both are selected, the warranty is shown. Edit entries in Content > Metaobjects.",
+    "heading": "Heading",
+    "heading_info": "Leave blank to use the entry’s name.",
+    "show_heading": "Show heading",
+    "collapsible": "Show as collapsible row",
+    "collapsible_info": "Policies shown one after another as collapsible rows form a single list. The entry’s name, or the heading above, labels the row."
+  },
   "gamma_filters": {
     "fixed_attributes": "Fixed collection attributes",
     "fixed_attributes_info": "Hides filters shared by every product in collections using this template. A hidden filter reappears while a link applies it, so customers can remove it.",

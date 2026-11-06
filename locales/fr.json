@@ -1,4 +1,7 @@
 {
+  "gamma_policy": {
+    "editor_empty": "Sélectionnez une entrée de politique publiée. Les clients ne voient pas ce bloc avant qu’une entrée soit sélectionnée."
+  },
   "gamma_availability": {
     "backorder": {
       "badge": "En rupture",

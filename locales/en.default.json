@@ -8,6 +8,9 @@
  * ------------------------------------------------------------
  */
 {
+  "gamma_policy": {
+    "editor_empty": "Select a published policy entry. Customers don’t see this block until one is selected."
+  },
   "gamma_availability": {
     "backorder": {
       "badge": "Backorder",
