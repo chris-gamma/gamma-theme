@@ -1,0 +1,511 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "blocks": {
+        "heading": {
+          "type": "text",
+          "name": "t:names.title",
+          "settings": {
+            "text": "<h1>{{ closest.page.title }}</h1>",
+            "width": "100%",
+            "max_width": "normal",
+            "alignment": "left",
+            "type_preset": "h2",
+            "font": "var(--font-body--family)",
+            "font_size": "",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "page-content": {
+          "type": "page-content",
+          "settings": {},
+          "blocks": {}
+        },
+        "stihl": {
+          "type": "group",
+          "name": "STIHL",
+          "settings": {
+            "content_direction": "column",
+            "vertical_on_mobile": true,
+            "horizontal_alignment": "flex-start",
+            "vertical_alignment": "flex-start",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "flex-start",
+            "gap": 0,
+            "width": "fill",
+            "custom_width": 100,
+            "width_mobile": "fill",
+            "custom_width_mobile": 100,
+            "height": "fit",
+            "custom_height": 100,
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "toggle_overlay": false,
+            "overlay_color": "#00000026",
+            "overlay_style": "solid",
+            "gradient_direction": "to top",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "link": "",
+            "open_in_new_tab": false,
+            "placeholder": "",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "stihl_heading": {
+              "type": "text",
+              "name": "t:names.heading",
+              "settings": {
+                "text": "<h2>STIHL</h2>",
+                "width": "100%",
+                "max_width": "normal",
+                "alignment": "left",
+                "type_preset": "h3",
+                "font": "var(--font-body--family)",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "wrap": "pretty",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 16,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "stihl_gas_tools": {
+              "type": "gamma-policy",
+              "settings": {
+                "warranty_policy": "stihl-gas-tools",
+                "heading": "",
+                "show_heading": true,
+                "collapsible": true,
+                "open_by_default": false
+              },
+              "blocks": {}
+            },
+            "stihl_gas_chainsaws_cutquik": {
+              "type": "gamma-policy",
+              "settings": {
+                "warranty_policy": "stihl-gas-chainsaws-cutquik",
+                "heading": "",
+                "show_heading": true,
+                "collapsible": true,
+                "open_by_default": false
+              },
+              "blocks": {}
+            },
+            "stihl_kombi_attachments": {
+              "type": "gamma-policy",
+              "settings": {
+                "warranty_policy": "stihl-kombi-attachments",
+                "heading": "",
+                "show_heading": true,
+                "collapsible": true,
+                "open_by_default": false
+              },
+              "blocks": {}
+            },
+            "stihl_as_system_tools": {
+              "type": "gamma-policy",
+              "settings": {
+                "warranty_policy": "stihl-as-system-tools",
+                "heading": "",
+                "show_heading": true,
+                "collapsible": true,
+                "open_by_default": false
+              },
+              "blocks": {}
+            },
+            "stihl_batteries": {
+              "type": "gamma-policy",
+              "settings": {
+                "warranty_policy": "stihl-batteries",
+                "heading": "",
+                "show_heading": true,
+                "collapsible": true,
+                "open_by_default": false
+              },
+              "blocks": {}
+            },
+            "stihl_electric": {
+              "type": "gamma-policy",
+              "settings": {
+                "warranty_policy": "stihl-electric",
+                "heading": "",
+                "show_heading": true,
+                "collapsible": true,
+                "open_by_default": false
+              },
+              "blocks": {}
+            },
+            "stihl_gas_lawn_mowers": {
+              "type": "gamma-policy",
+              "settings": {
+                "warranty_policy": "stihl-gas-lawn-mowers",
+                "heading": "",
+                "show_heading": true,
+                "collapsible": true,
+                "open_by_default": false
+              },
+              "blocks": {}
+            },
+            "stihl_rb_pressure_washers": {
+              "type": "gamma-policy",
+              "settings": {
+                "warranty_policy": "stihl-rb-pressure-washers",
+                "heading": "",
+                "show_heading": true,
+                "collapsible": true,
+                "open_by_default": false
+              },
+              "blocks": {}
+            },
+            "stihl_sg_sr_sprayers": {
+              "type": "gamma-policy",
+              "settings": {
+                "warranty_policy": "stihl-sg-sr-sprayers",
+                "heading": "",
+                "show_heading": true,
+                "collapsible": true,
+                "open_by_default": false
+              },
+              "blocks": {}
+            },
+            "stihl_handheld_tools_pruners_loppers": {
+              "type": "gamma-policy",
+              "settings": {
+                "warranty_policy": "stihl-handheld-tools-pruners-loppers",
+                "heading": "",
+                "show_heading": true,
+                "collapsible": true,
+                "open_by_default": false
+              },
+              "blocks": {}
+            },
+            "stihl_advance_procom": {
+              "type": "gamma-policy",
+              "settings": {
+                "warranty_policy": "stihl-advance-procom",
+                "heading": "",
+                "show_heading": true,
+                "collapsible": true,
+                "open_by_default": false
+              },
+              "blocks": {}
+            },
+            "stihl_parts_cutting_attachments_safety_gear": {
+              "type": "gamma-policy",
+              "settings": {
+                "warranty_policy": "stihl-parts-cutting-attachments-safety-gear",
+                "heading": "",
+                "show_heading": true,
+                "collapsible": true,
+                "open_by_default": false
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "stihl_heading",
+            "stihl_gas_tools",
+            "stihl_gas_chainsaws_cutquik",
+            "stihl_kombi_attachments",
+            "stihl_as_system_tools",
+            "stihl_batteries",
+            "stihl_electric",
+            "stihl_gas_lawn_mowers",
+            "stihl_rb_pressure_washers",
+            "stihl_sg_sr_sprayers",
+            "stihl_handheld_tools_pruners_loppers",
+            "stihl_advance_procom",
+            "stihl_parts_cutting_attachments_safety_gear"
+          ]
+        },
+        "echo_shindaiwa": {
+          "type": "group",
+          "name": "ECHO / Shindaiwa",
+          "settings": {
+            "content_direction": "column",
+            "vertical_on_mobile": true,
+            "horizontal_alignment": "flex-start",
+            "vertical_alignment": "flex-start",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "flex-start",
+            "gap": 0,
+            "width": "fill",
+            "custom_width": 100,
+            "width_mobile": "fill",
+            "custom_width_mobile": 100,
+            "height": "fit",
+            "custom_height": 100,
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "toggle_overlay": false,
+            "overlay_color": "#00000026",
+            "overlay_style": "solid",
+            "gradient_direction": "to top",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "link": "",
+            "open_in_new_tab": false,
+            "placeholder": "",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "echo_shindaiwa_heading": {
+              "type": "text",
+              "name": "t:names.heading",
+              "settings": {
+                "text": "<h2>ECHO / Shindaiwa</h2>",
+                "width": "100%",
+                "max_width": "normal",
+                "alignment": "left",
+                "type_preset": "h3",
+                "font": "var(--font-body--family)",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "wrap": "pretty",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 16,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "echo_shindaiwa_echo_handheld_gas_equipment": {
+              "type": "gamma-policy",
+              "settings": {
+                "warranty_policy": "echo-handheld-gas-equipment",
+                "heading": "",
+                "show_heading": true,
+                "collapsible": true,
+                "open_by_default": false
+              },
+              "blocks": {}
+            },
+            "echo_shindaiwa_echo_shindaiwa_gas_split_shaft_attachments": {
+              "type": "gamma-policy",
+              "settings": {
+                "warranty_policy": "echo-shindaiwa-gas-split-shaft-attachments",
+                "heading": "",
+                "show_heading": true,
+                "collapsible": true,
+                "open_by_default": false
+              },
+              "blocks": {}
+            },
+            "echo_shindaiwa_echo_eforce_56v_equipment": {
+              "type": "gamma-policy",
+              "settings": {
+                "warranty_policy": "echo-eforce-56v-equipment",
+                "heading": "",
+                "show_heading": true,
+                "collapsible": true,
+                "open_by_default": false
+              },
+              "blocks": {}
+            },
+            "echo_shindaiwa_echo_eforce_56v_batteries_chargers": {
+              "type": "gamma-policy",
+              "settings": {
+                "warranty_policy": "echo-eforce-56v-batteries-chargers",
+                "heading": "",
+                "show_heading": true,
+                "collapsible": true,
+                "open_by_default": false
+              },
+              "blocks": {}
+            },
+            "echo_shindaiwa_echo_gas_lawn_mowers": {
+              "type": "gamma-policy",
+              "settings": {
+                "warranty_policy": "echo-gas-lawn-mowers",
+                "heading": "",
+                "show_heading": true,
+                "collapsible": true,
+                "open_by_default": false
+              },
+              "blocks": {}
+            },
+            "echo_shindaiwa_echo_chipper_shredders_wheeled_trimmers": {
+              "type": "gamma-policy",
+              "settings": {
+                "warranty_policy": "echo-chipper-shredders-wheeled-trimmers",
+                "heading": "",
+                "show_heading": true,
+                "collapsible": true,
+                "open_by_default": false
+              },
+              "blocks": {}
+            },
+            "echo_shindaiwa_echo_pressure_washers": {
+              "type": "gamma-policy",
+              "settings": {
+                "warranty_policy": "echo-pressure-washers",
+                "heading": "",
+                "show_heading": true,
+                "collapsible": true,
+                "open_by_default": false
+              },
+              "blocks": {}
+            },
+            "echo_shindaiwa_echo_generators_inverters": {
+              "type": "gamma-policy",
+              "settings": {
+                "warranty_policy": "echo-generators-inverters",
+                "heading": "",
+                "show_heading": true,
+                "collapsible": true,
+                "open_by_default": false
+              },
+              "blocks": {}
+            },
+            "echo_shindaiwa_echo_fire_pumps": {
+              "type": "gamma-policy",
+              "settings": {
+                "warranty_policy": "echo-fire-pumps",
+                "heading": "",
+                "show_heading": true,
+                "collapsible": true,
+                "open_by_default": false
+              },
+              "blocks": {}
+            },
+            "echo_shindaiwa_echo_shindaiwa_manual_sprayers": {
+              "type": "gamma-policy",
+              "settings": {
+                "warranty_policy": "echo-shindaiwa-manual-sprayers",
+                "heading": "",
+                "show_heading": true,
+                "collapsible": true,
+                "open_by_default": false
+              },
+              "blocks": {}
+            },
+            "echo_shindaiwa_echo_shindaiwa_spreaders": {
+              "type": "gamma-policy",
+              "settings": {
+                "warranty_policy": "echo-shindaiwa-spreaders",
+                "heading": "",
+                "show_heading": true,
+                "collapsible": true,
+                "open_by_default": false
+              },
+              "blocks": {}
+            },
+            "echo_shindaiwa_echo_hand_tools": {
+              "type": "gamma-policy",
+              "settings": {
+                "warranty_policy": "echo-hand-tools",
+                "heading": "",
+                "show_heading": true,
+                "collapsible": true,
+                "open_by_default": false
+              },
+              "blocks": {}
+            },
+            "echo_shindaiwa_echo_eforce_56v_cutting_attachments": {
+              "type": "gamma-policy",
+              "settings": {
+                "warranty_policy": "echo-eforce-56v-cutting-attachments",
+                "heading": "",
+                "show_heading": true,
+                "collapsible": true,
+                "open_by_default": false
+              },
+              "blocks": {}
+            },
+            "echo_shindaiwa_echo_replacement_parts_accessories": {
+              "type": "gamma-policy",
+              "settings": {
+                "warranty_policy": "echo-replacement-parts-accessories",
+                "heading": "",
+                "show_heading": true,
+                "collapsible": true,
+                "open_by_default": false
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "echo_shindaiwa_heading",
+            "echo_shindaiwa_echo_handheld_gas_equipment",
+            "echo_shindaiwa_echo_shindaiwa_gas_split_shaft_attachments",
+            "echo_shindaiwa_echo_eforce_56v_equipment",
+            "echo_shindaiwa_echo_eforce_56v_batteries_chargers",
+            "echo_shindaiwa_echo_gas_lawn_mowers",
+            "echo_shindaiwa_echo_chipper_shredders_wheeled_trimmers",
+            "echo_shindaiwa_echo_pressure_washers",
+            "echo_shindaiwa_echo_generators_inverters",
+            "echo_shindaiwa_echo_fire_pumps",
+            "echo_shindaiwa_echo_shindaiwa_manual_sprayers",
+            "echo_shindaiwa_echo_shindaiwa_spreaders",
+            "echo_shindaiwa_echo_hand_tools",
+            "echo_shindaiwa_echo_eforce_56v_cutting_attachments",
+            "echo_shindaiwa_echo_replacement_parts_accessories"
+          ]
+        }
+      },
+      "block_order": [
+        "heading",
+        "page-content",
+        "stihl",
+        "echo_shindaiwa"
+      ],
+      "settings": {
+        "content_direction": "column",
+        "gap": 32,
+        "padding-block-start": 40,
+        "padding-block-end": 80
+      }
+    }
+  },
+  "order": [
+    "main"
+  ]
+}
