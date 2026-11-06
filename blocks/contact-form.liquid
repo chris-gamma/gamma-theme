@@ -103,13 +103,13 @@
     >
       {{- 'blocks.contact_form.phone' | t -}}
     </label>
+    {% # Horizon 4.4.0 limited this field to digits and hyphens; a plain tel input accepts (514) 481-5631, 514 481 5631 and +1 514 481 5631. %}
     <input
       type="tel"
       id="ContactForm-phone"
       class="contact-form__input"
       autocomplete="tel"
       name="contact[phone]"
-      pattern="[0-9\-]*"
       value="{% if form.phone %}{{ form.phone }}{% elsif customer %}{{ customer.phone }}{% endif %}"
       placeholder="{{ 'blocks.contact_form.phone' | t }}"
     >
