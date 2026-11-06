@@ -36,6 +36,7 @@
       --summary-font-size: var(--font-h6--size);
       --summary-font-line-height: var(--font-h6--line-height);
       --summary-font-case: var(--font-h6--case);
+      --gamma-policy-divider-color: {{ settings.color_palette.brand }};
     "
     {{ block.shopify_attributes }}
   >
@@ -66,8 +67,9 @@
     margin-block-end: var(--margin-md);
   }
 
-  .gamma-policy--collapsible + .gamma-policy--collapsible .details {
-    border-block-start: var(--style-border-width) solid var(--color-border);
+  /* Each row is its own accordion, so outrank Horizon's first-row rule that removes the top border. */
+  .gamma-policy--collapsible + .gamma-policy--collapsible accordion-custom:first-child .details {
+    border-block-start: var(--style-border-width) solid var(--gamma-policy-divider-color);
   }
 {% endstylesheet %}
 
