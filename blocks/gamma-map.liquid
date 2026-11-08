@@ -1,0 +1,754 @@
+{%- doc -%}
+  Renders a location map: the selected static image with an OpenStreetMap credit, an optional
+  address line and Google Maps/Apple Maps directions. These work without JavaScript. When a uMap
+  map ID is set, gamma-map.js turns the image into a button that loads the interactive map, with a
+  button in its corner to turn it off. The map loads only after the visitor turns it on or when
+  Shopify reports preferences permission and the visitor hasn't turned maps off. The iframe is
+  kept inert in a template without a src until then.
+{%- enddoc -%}
+
+{%- liquid
+  assign block_settings = block.settings
+  assign map_id = block_settings.map_id | strip
+  assign address = block_settings.address | strip
+
+  assign map_lang = 'en'
+  assign locale_prefix = request.locale.iso_code | slice: 0, 2 | downcase
+  if locale_prefix == 'fr'
+    assign map_lang = 'fr'
+  endif
+
+  assign image = block_settings.image | default: block_settings.image_mobile
+  assign image_mobile = block_settings.image_mobile | default: block_settings.image
+
+  case block_settings.aspect_ratio
+    when 'square'
+      assign ratio = 1
+    when 'landscape'
+      assign ratio = '4 / 3'
+    when 'wide'
+      assign ratio = '16 / 9'
+    else
+      assign ratio = image.aspect_ratio | default: '4 / 3'
+  endcase
+
+  case block_settings.aspect_ratio_mobile
+    when 'square'
+      assign ratio_mobile = 1
+    when 'landscape'
+      assign ratio_mobile = '4 / 3'
+    when 'wide'
+      assign ratio_mobile = '16 / 9'
+    else
+      assign ratio_mobile = image_mobile.aspect_ratio | default: '4 / 3'
+  endcase
+
+  # The t filter escapes the address, and image_tag escapes its alt text again, so the alt text
+  # takes the address unescaped. The frame title is written directly and keeps t's escaping.
+  if address != blank
+    assign image_alt = 'gamma_map.image_alt' | t: address: '{address}' | replace: '{address}', address
+    assign frame_title = 'gamma_map.frame_title' | t: address: address
+  else
+    assign image_alt = 'gamma_map.image_alt_generic' | t
+    assign frame_title = 'gamma_map.frame_title_generic' | t
+  endif
+
+  # Directions links are built from the address, so they can't point anywhere else.
+  # The Apple Maps form is the long-standing one older devices understand; maps.apple.com
+  # redirects it to the current directions page.
+  assign destination = address | url_encode | replace: '+', '%20'
+  assign google_url = 'https://www.google.com/maps/dir/?api=1&destination=' | append: destination
+  assign apple_url = 'https://maps.apple.com/?daddr=' | append: destination
+  assign new_window = 'accessibility.new_window' | t
+
+  assign widths = '300, 400, 600, 800, 1000, 1200, 1600'
+  assign widths_array = widths | split: ', '
+  assign max_width = block_settings.max_width | default: 480 | at_most: 480
+  assign sizes = 'auto, min(' | append: max_width | append: 'px, 100vw)'
+
+  # Footer and lower placements load the image when it nears the viewport.
+  assign loading = 'lazy'
+  if section.location == 'template' and section.index <= 2
+    assign loading = 'eager'
+  endif
+-%}
+
+<gamma-map-component
+  class="gamma-map"
+  style="
+    --gamma-map-ratio: {{ ratio }};
+    --gamma-map-ratio-mobile: {{ ratio_mobile }};
+    --gamma-map-accent: {{ settings.color_palette.brand }};
+    --gamma-map-max-width: {{ max_width }}px;
+  "
+  data-map-id="{{ map_id | escape }}"
+  data-map-lang="{{ map_lang }}"
+  data-state="static"
+  {{ block.shopify_attributes }}
+>
+  {%- comment -%} The width settings size the map box; the links below use the whole column. {%- endcomment -%}
+  <div
+    class="gamma-map__media size-style{% if image == blank %} gamma-map__media--empty{% endif %}"
+    style="{% render 'size-style', settings: block_settings %}"
+    ref="media"
+  >
+    {%- if image != blank -%}
+      <picture class="gamma-map__picture">
+        {%- if image_mobile.id != image.id -%}
+          <source
+            media="(max-width: 749px)"
+            srcset="
+              {%- for width in widths_array -%}
+                {{ image_mobile | image_url: width: width }} {{ width }}w{% unless forloop.last %},{% endunless %}
+              {%- endfor -%}
+            "
+            sizes="{% if loading == 'lazy' %}auto, {% endif %}min({{ max_width }}px, 100vw)"
+            width="{{ image_mobile.width }}"
+            height="{{ image_mobile.height }}"
+          >
+        {%- endif -%}
+        {{
+          image
+          | image_url: width: 1600
+          | image_tag:
+            width: image.width,
+            height: image.height,
+            widths: widths,
+            sizes: sizes,
+            loading: loading,
+            alt: image_alt,
+            class: 'gamma-map__image'
+        }}
+      </picture>
+      {%- if map_id != blank -%}
+        {%- comment -%}
+          Clicking anywhere on the image loads the interactive map. Shown only when scripting is on.
+        {%- endcomment -%}
+        <button
+          type="button"
+          class="button-unstyled gamma-map__activate"
+          ref="showButton"
+          on:click="/show"
+          hidden
+        >
+          <span class="gamma-map__chip">
+            <span class="svg-wrapper gamma-map__icon">{{- 'icon-gamma-map.svg' | inline_asset_content -}}</span>
+            <span class="gamma-map__chip-label">{{ 'gamma_map.show' | t }}</span>
+          </span>
+        </button>
+      {%- endif -%}
+      {%- comment -%}
+        OpenStreetMap requires this credit on its map images. The interactive map shows its own,
+        under uMap's ? control.
+      {%- endcomment -%}
+      <p class="gamma-map__credit">
+        ©&nbsp;<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>
+      </p>
+    {%- endif -%}
+    <div
+      class="gamma-map__loading"
+      aria-hidden="true"
+    >
+      <span class="gamma-map__spinner"></span>
+      <span>{{ 'gamma_map.loading' | t }}</span>
+    </div>
+    {%- if map_id != blank -%}
+      <button
+        type="button"
+        class="button-unstyled gamma-map__off"
+        ref="hideButton"
+        on:click="/hide"
+        hidden
+      >
+        <span class="svg-wrapper">{{- 'icon-close.svg' | inline_asset_content -}}</span>
+        <span class="visually-hidden">{{ 'gamma_map.hide' | t }}</span>
+      </button>
+    {%- endif -%}
+    <template ref="frameTemplate">
+      <iframe
+        class="gamma-map__frame"
+        title="{{ frame_title }}"
+        referrerpolicy="no-referrer"
+        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+        allow="fullscreen"
+      ></iframe>
+    </template>
+  </div>
+
+  {%- comment -%}
+    Shown only when scripting is on, so revealing them doesn't shift the layout. The script hides
+    them again when the map ID isn't valid. Without a static image, the text button loads the map.
+  {%- endcomment -%}
+  {%- if map_id != blank -%}
+    <div
+      class="gamma-map__controls"
+      ref="controls"
+      hidden
+    >
+      <p
+        class="gamma-map__status visually-hidden"
+        role="status"
+        ref="status"
+        data-loading="{{ 'gamma_map.loading' | t }}"
+        data-loaded="{{ 'gamma_map.loaded' | t }}"
+        data-failed="{{ 'gamma_map.failed' | t }}"
+        data-off="{{ 'gamma_map.off' | t }}"
+      ></p>
+      {%- if image == blank -%}
+        <button
+          type="button"
+          class="button-unstyled gamma-map__button"
+          ref="showButton"
+          on:click="/show"
+        >
+          <span class="svg-wrapper gamma-map__icon">{{- 'icon-gamma-map.svg' | inline_asset_content -}}</span>
+          <span>{{ 'gamma_map.show' | t }}</span>
+        </button>
+      {%- endif -%}
+      <button
+        type="button"
+        class="button-unstyled gamma-map__button"
+        ref="retryButton"
+        on:click="/retry"
+        hidden
+      >
+        {{ 'gamma_map.retry' | t }}
+      </button>
+    </div>
+  {%- endif -%}
+
+  {%- if block_settings.show_address and address != blank -%}
+    <p class="gamma-map__address">{{ address | escape }}</p>
+  {%- endif -%}
+
+  {%- if block_settings.show_directions and address != blank -%}
+    <ul
+      class="gamma-map__directions"
+      role="list"
+    >
+      <li>
+        <a
+          class="gamma-map__directions-link"
+          href="{{ google_url | escape }}"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="{{ 'gamma_map.directions_link' | t: service: 'Google Maps' }} {{ new_window }}"
+        >
+          <span class="svg-wrapper gamma-map__icon">{{- 'icon-gamma-directions.svg' | inline_asset_content -}}</span>
+          <span>Google Maps</span>
+        </a>
+      </li>
+      <li>
+        <a
+          class="gamma-map__directions-link"
+          href="{{ apple_url | escape }}"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="{{ 'gamma_map.directions_link' | t: service: 'Apple Maps' }} {{ new_window }}"
+        >
+          <span class="svg-wrapper gamma-map__icon">{{- 'icon-gamma-directions.svg' | inline_asset_content -}}</span>
+          <span>Apple Maps</span>
+        </a>
+      </li>
+    </ul>
+  {%- endif -%}
+
+  {%- if request.design_mode -%}
+    <div class="gamma-map__editor">
+      {%- if map_id == blank -%}
+        <p>{{ 'gamma_map.editor.missing_map_id' | t }}</p>
+      {%- else -%}
+        <p
+          ref="invalidNote"
+          hidden
+        >
+          {{ 'gamma_map.editor.invalid_map_id' | t }}
+        </p>
+        <p>{{ 'gamma_map.editor.no_automatic' | t }}</p>
+      {%- endif -%}
+      {%- if address == blank -%}
+        <p>{{ 'gamma_map.editor.missing_address' | t }}</p>
+      {%- endif -%}
+      {%- if image == blank -%}
+        <p>{{ 'gamma_map.editor.missing_image' | t }}</p>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+</gamma-map-component>
+
+{% stylesheet %}
+  gamma-map-component {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xs);
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /*
+   * uMap folds its map credits under its ? control only while the map is at most 480px wide,
+   * so the maximum width setting stops there.
+   */
+  .gamma-map__media {
+    position: relative;
+    max-width: min(100%, var(--gamma-map-max-width));
+    aspect-ratio: var(--gamma-map-ratio-mobile);
+    overflow: hidden;
+    background-color: rgb(var(--color-foreground-rgb) / var(--opacity-5, 0.05));
+    container-type: inline-size;
+  }
+
+  @media screen and (min-width: 750px) {
+    .gamma-map__media {
+      aspect-ratio: var(--gamma-map-ratio);
+    }
+  }
+
+  /* Without a static image, the box appears only for the interactive map. */
+  .gamma-map:not([data-state='loading'], [data-state='loaded']) .gamma-map__media--empty {
+    display: none;
+  }
+
+  .gamma-map__picture,
+  .gamma-map__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .gamma-map__image {
+    object-fit: cover;
+  }
+
+  /* The whole image is the button; its chip in the corner shows what it does. */
+  .gamma-map .gamma-map__activate {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    display: none;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 0.375rem;
+    cursor: pointer;
+  }
+
+  @media (scripting: enabled) {
+    .gamma-map .gamma-map__activate {
+      display: flex;
+    }
+  }
+
+  .gamma-map .gamma-map__activate:focus-visible {
+    outline: var(--focus-outline-width) solid #000;
+    outline-offset: calc(var(--focus-outline-width) * -1);
+    box-shadow: inset 0 0 0 calc(var(--focus-outline-width) * 3) #fff;
+  }
+
+  /* The activation chip and the off button share uMap's control look: white, square and outlined. */
+  .gamma-map__chip,
+  .gamma-map .gamma-map__off {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--gap-2xs, 0.25rem);
+    min-width: 2rem;
+    min-height: 2rem;
+    border: 1px solid rgb(0 0 0 / 0.6);
+    border-radius: 0.25rem;
+    background-color: #fff;
+    color: #000;
+    font-size: var(--font-size--xs);
+    line-height: 1.2;
+  }
+
+  .gamma-map__chip {
+    padding: 0.25rem 0.5rem;
+  }
+
+  .gamma-map__activate:hover .gamma-map__chip,
+  .gamma-map .gamma-map__off:hover {
+    background-color: #f4f4f4;
+  }
+
+  /* Narrow maps, such as the footer's, show only the icon; the button keeps its name. */
+  @container (max-width: 15rem) {
+    .gamma-map__chip {
+      padding: 0;
+    }
+
+    .gamma-map__chip-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+
+  /* Top right, the corner uMap leaves free when its map isn't being edited. */
+  .gamma-map .gamma-map__off {
+    position: absolute;
+    z-index: 3;
+    inset-block-start: 0.375rem;
+    inset-inline-end: 0.375rem;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .gamma-map .gamma-map__off:focus-visible {
+    outline: var(--focus-outline-width) solid #000;
+    outline-offset: var(--focus-outline-offset);
+    box-shadow: 0 0 0 var(--focus-outline-offset) #fff;
+  }
+
+  /* Bottom left; the interactive map shows its own credits instead. */
+  .gamma-map__credit {
+    position: absolute;
+    z-index: 1;
+    inset-block-end: 0;
+    inset-inline-start: 0;
+    margin: 0;
+    padding: 0.0625rem 0.3125rem;
+    background-color: rgb(255 255 255 / 0.85);
+    color: #000;
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+
+  /* A focused credit stays until focus moves on, so loading never takes focus away. */
+  .gamma-map[data-state='loaded'] .gamma-map__credit:not(:focus-within) {
+    display: none;
+  }
+
+  .gamma-map__credit a {
+    color: inherit;
+  }
+
+  .gamma-map__frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background-color: #fff;
+  }
+
+  .gamma-map[data-state='loading'] .gamma-map__frame {
+    visibility: hidden;
+  }
+
+  .gamma-map__loading {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: var(--gap-xs);
+    padding: var(--padding-xs);
+    background-color: rgb(255 255 255 / 0.75);
+    color: #000;
+    font-size: var(--font-size--sm);
+    text-align: center;
+  }
+
+  .gamma-map[data-state='loading'] .gamma-map__loading {
+    display: flex;
+  }
+
+  .gamma-map__spinner {
+    flex: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid rgb(0 0 0 / 0.2);
+    border-block-start-color: var(--gamma-map-accent);
+    border-radius: 50%;
+    animation: gamma-map-spin 0.8s linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gamma-map__spinner {
+      animation: none;
+    }
+  }
+
+  @keyframes gamma-map-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* The controls' children join the block's column, so an empty bar adds no gap. */
+  .gamma-map__controls {
+    display: none;
+  }
+
+  @media (scripting: enabled) {
+    .gamma-map__controls {
+      display: contents;
+    }
+  }
+
+  /* The script shows and hides controls with the hidden attribute. */
+  .gamma-map [hidden] {
+    display: none !important;
+  }
+
+  .gamma-map .gamma-map__button {
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    gap: var(--gap-2xs, 0.25rem);
+    max-width: 100%;
+    padding: var(--padding-2xs) var(--padding-sm, 0.75rem);
+    border: var(--style-border-width, 1px) solid currentColor;
+    border-radius: var(--style-border-radius-buttons-secondary, 0);
+    background-color: transparent;
+    color: inherit;
+    font-size: var(--font-size--sm);
+    line-height: 1.3;
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .gamma-map .gamma-map__button:hover {
+    background-color: rgb(var(--color-foreground-rgb) / var(--opacity-10, 0.1));
+    color: inherit;
+  }
+
+  .gamma-map__icon {
+    flex: none;
+    color: var(--gamma-map-accent);
+  }
+
+  .gamma-map__chip .gamma-map__icon {
+    color: inherit;
+  }
+
+  .gamma-map__status,
+  .gamma-map__address {
+    margin: 0;
+  }
+
+  .gamma-map__status:not(.visually-hidden) {
+    font-weight: var(--font-weight-bold, 700);
+  }
+
+  .gamma-map__directions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap-2xs, 0.25rem) var(--gap-sm);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .gamma-map__directions-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--gap-2xs, 0.25rem);
+    color: inherit;
+  }
+
+  @media (forced-colors: active) {
+    .gamma-map__credit,
+    .gamma-map__loading,
+    .gamma-map__chip,
+    .gamma-map .gamma-map__off {
+      background-color: Canvas;
+      color: CanvasText;
+    }
+
+    .gamma-map__chip,
+    .gamma-map .gamma-map__off {
+      border-color: ButtonText;
+    }
+  }
+
+  .gamma-map__editor {
+    padding: var(--padding-xs);
+    border: var(--style-border-width, 1px) dashed currentColor;
+    font-size: var(--font-size--xs);
+  }
+
+  .gamma-map__editor p {
+    margin: 0;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:gamma_map.name",
+  "tag": null,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:gamma_map.block_info"
+    },
+    {
+      "type": "text",
+      "id": "map_id",
+      "label": "t:gamma_map.map_id",
+      "info": "t:gamma_map.map_id_info"
+    },
+    {
+      "type": "text",
+      "id": "address",
+      "label": "t:gamma_map.address",
+      "info": "t:gamma_map.address_info"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_address",
+      "label": "t:gamma_map.show_address",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_directions",
+      "label": "t:gamma_map.show_directions",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:gamma_map.static_map"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:gamma_map.image",
+      "info": "t:gamma_map.image_info"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "t:gamma_map.image_mobile",
+      "info": "t:gamma_map.image_mobile_info"
+    },
+    {
+      "type": "header",
+      "content": "t:content.size"
+    },
+    {
+      "type": "select",
+      "id": "aspect_ratio",
+      "label": "t:gamma_map.aspect_ratio",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "t:gamma_map.ratio_image"
+        },
+        {
+          "value": "square",
+          "label": "t:options.square"
+        },
+        {
+          "value": "landscape",
+          "label": "t:gamma_map.ratio_4_3"
+        },
+        {
+          "value": "wide",
+          "label": "t:gamma_map.ratio_16_9"
+        }
+      ],
+      "default": "adapt"
+    },
+    {
+      "type": "select",
+      "id": "aspect_ratio_mobile",
+      "label": "t:gamma_map.aspect_ratio_mobile",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "t:gamma_map.ratio_image"
+        },
+        {
+          "value": "square",
+          "label": "t:options.square"
+        },
+        {
+          "value": "landscape",
+          "label": "t:gamma_map.ratio_4_3"
+        },
+        {
+          "value": "wide",
+          "label": "t:gamma_map.ratio_16_9"
+        }
+      ],
+      "default": "adapt"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "t:settings.width_desktop",
+      "options": [
+        {
+          "value": "fill",
+          "label": "t:options.fill"
+        },
+        {
+          "value": "custom",
+          "label": "t:options.custom"
+        }
+      ],
+      "default": "fill"
+    },
+    {
+      "type": "range",
+      "id": "custom_width",
+      "label": "t:settings.custom_width",
+      "min": 25,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "default": 100,
+      "visible_if": "{{ block.settings.width == 'custom' }}"
+    },
+    {
+      "type": "select",
+      "id": "width_mobile",
+      "label": "t:settings.width_mobile",
+      "options": [
+        {
+          "value": "fill",
+          "label": "t:options.fill"
+        },
+        {
+          "value": "custom",
+          "label": "t:options.custom"
+        }
+      ],
+      "default": "fill"
+    },
+    {
+      "type": "range",
+      "id": "custom_width_mobile",
+      "label": "t:settings.custom_width",
+      "min": 25,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "default": 100,
+      "visible_if": "{{ block.settings.width_mobile == 'custom' }}"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "t:gamma_map.max_width",
+      "info": "t:gamma_map.max_width_info",
+      "min": 120,
+      "max": 480,
+      "step": 10,
+      "unit": "px",
+      "default": 480
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:gamma_map.name"
+    }
+  ]
+}
+{% endschema %}

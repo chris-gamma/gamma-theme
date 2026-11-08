@@ -108,6 +108,27 @@
       "near_limit": "Almost 50 Store hours entries are published. Set past exceptions to Draft in Content > Metaobjects."
     }
   },
+  "gamma_map": {
+    "show": "Show interactive map",
+    "hide": "Turn off interactive map",
+    "retry": "Try again",
+    "loading": "Loading the interactive map…",
+    "loaded": "Interactive map loaded.",
+    "off": "Interactive map turned off.",
+    "failed": "The interactive map couldn’t load. The address and directions are still available.",
+    "image_alt": "Map showing {{ address }}",
+    "image_alt_generic": "Map of our location",
+    "frame_title": "Interactive map: {{ address }}",
+    "frame_title_generic": "Interactive map",
+    "directions_link": "Get directions in {{ service }}.",
+    "editor": {
+      "missing_map_id": "Add a uMap map ID to offer the interactive map. This note appears only in the theme editor.",
+      "invalid_map_id": "The uMap map ID isn’t valid, so the interactive map isn’t offered. Use the end of the map’s address, such as my-map_123456.",
+      "no_automatic": "Interactive maps don’t load automatically in the theme editor. Click the static map, or Show interactive map when there’s no image, to preview one. This note appears only in the theme editor.",
+      "missing_address": "Add the address to show it and the directions links.",
+      "missing_image": "Select a static map image. Without one, the map shows only once a customer turns on the interactive map."
+    }
+  },
   "accessibility": {
     "account": "Account",
     "active_filters": "Active filters:",
