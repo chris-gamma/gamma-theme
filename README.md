@@ -35,6 +35,16 @@ Horizon 4.4.0 has seven known warnings: one `ExcessiveSettingsCount` in `section
 
 Local checks do not replace testing in the storefront and theme editor. Confirm the target store and theme before any upload or deployment. `shopify theme dev` uploads a development theme to Shopify.
 
+## Map previews
+
+The Map block's static images are generated from its uMap maps. On a branch connected to a Shopify theme through GitHub (for example `dev`, connected to `gamma-theme/dev`), run from the repository root:
+
+```sh
+node scripts/generate-map-previews.mjs
+```
+
+The script finds the theme named after the repository and branch on the store of the default Shopify CLI environment and reads its Map blocks without changing anything on Shopify. It saves a lossless PNG of each map, at three times the size its block displays, in `docs/map_previews/`, named after the placement and display size (for example `carte-pied-de-page-180x180.png`). Use `--environment <name>` for another store, `--theme <name or ID>` from another branch and `--dry-run` to list the previews without capturing them. It needs Node 22 or later, Shopify CLI access to the store and Chrome, Chromium or Edge (set `CHROME_PATH` if yours isn't found). Upload the files to Shopify Files and select them in each Map block, and run it again after changing a map's view on uMap or a block's Maximum width or aspect ratios.
+
 ## Development workflow
 
 Use `dev` for ongoing development and reserve `main` for approved releases. Keep changes focused, review the full diff and run the local checks before integration. Use the repository's configured commit identity and signing settings.
