@@ -264,12 +264,31 @@
                 "show_caption": true
               },
               "blocks": {}
+            },
+            "gamma_map": {
+              "type": "gamma-map",
+              "settings": {
+                "map_id": "carte-location-gamma-map_1369176",
+                "address": "5840 Rue Saint-Jacques, Montréal, QC H4A 2E9",
+                "show_address": false,
+                "show_directions": true,
+                "image": "shopify://shop_images/carte-statique-petite.webp",
+                "aspect_ratio": "square",
+                "aspect_ratio_mobile": "square",
+                "width": "fill",
+                "custom_width": 100,
+                "width_mobile": "fill",
+                "custom_width_mobile": 100,
+                "max_width": 180
+              },
+              "blocks": {}
             }
           },
           "block_order": [
             "visit_heading",
             "gamma_business_contact",
-            "gamma_hours"
+            "gamma_hours",
+            "gamma_map"
           ]
         },
         "gamma_menus_shop": {
