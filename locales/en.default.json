@@ -75,6 +75,39 @@
   "gamma_search": {
     "instruction": "Search suggestions may open as you type."
   },
+  "gamma_hours": {
+    "caption": "Store hours",
+    "days": {
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
+    },
+    "changed": "(changed hours)",
+    "fallback": "Our hours aren’t available right now. Please contact us before your visit.",
+    "editor": {
+      "showing": "Showing “{{ name }}” ({{ source }}). This note appears only in the theme editor.",
+      "showing_none": "Customers see the contact message instead of hours. This note appears only in the theme editor.",
+      "sources": {
+        "override": "override",
+        "exception": "dated exception",
+        "regular": "regular hours"
+      },
+      "override_unused": "The override entry isn’t shown: it’s a draft, its Force off is on or a day is empty.",
+      "regular_missing": "Select regular hours in Theme settings > Store hours.",
+      "regular_unusable": "The regular hours entry isn’t shown: it’s a draft, its Force off is on or a day is empty.",
+      "invalid_window": "An entry has a Display end without a Display start, or ends before it starts, so it’s ignored.",
+      "invalid_entry": "A dated exception in effect has an empty day, so it’s ignored.",
+      "overlap": "More than one dated exception is in effect; the shortest is shown.",
+      "no_notice": "The dated exception in effect has no holiday notice, so customers see the contact message. Turn on its notice and state the affected dates.",
+      "notice_dates": "The holiday notice shown doesn’t include a date. State the affected dates so customers know when these hours apply.",
+      "too_many": "There are 50 or more published Store hours entries, so dated exceptions can’t all be checked and customers see the contact message. Set past exceptions to Draft in Content > Metaobjects.",
+      "near_limit": "Almost 50 Store hours entries are published. Set past exceptions to Draft in Content > Metaobjects."
+    }
+  },
   "accessibility": {
     "account": "Account",
     "active_filters": "Active filters:",

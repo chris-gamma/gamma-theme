@@ -66,6 +66,39 @@
   "gamma_search": {
     "instruction": "Des suggestions de recherche peuvent s’ouvrir pendant la saisie."
   },
+  "gamma_hours": {
+    "caption": "Heures d’ouverture",
+    "days": {
+      "monday": "Lundi",
+      "tuesday": "Mardi",
+      "wednesday": "Mercredi",
+      "thursday": "Jeudi",
+      "friday": "Vendredi",
+      "saturday": "Samedi",
+      "sunday": "Dimanche"
+    },
+    "changed": "(horaire modifié)",
+    "fallback": "Nos heures d’ouverture ne sont pas disponibles pour le moment. Veuillez communiquer avec nous avant votre visite.",
+    "editor": {
+      "showing": "Affichage de « {{ name }} » ({{ source }}). Cette note n’est visible que dans l’éditeur de thème.",
+      "showing_none": "Les clients voient le message de contact au lieu des heures. Cette note n’est visible que dans l’éditeur de thème.",
+      "sources": {
+        "override": "remplacement",
+        "exception": "exception datée",
+        "regular": "horaire régulier"
+      },
+      "override_unused": "L’entrée de remplacement n’est pas affichée : elle est en brouillon, son Force off est activé ou un jour est vide.",
+      "regular_missing": "Sélectionnez l’horaire régulier dans Paramètres du thème > Heures d’ouverture.",
+      "regular_unusable": "L’entrée d’horaire régulier n’est pas affichée : elle est en brouillon, son Force off est activé ou un jour est vide.",
+      "invalid_window": "Une entrée a un Display end sans Display start, ou se termine avant de commencer; elle est donc ignorée.",
+      "invalid_entry": "Une exception datée en vigueur a un jour vide; elle est donc ignorée.",
+      "overlap": "Plusieurs exceptions datées sont en vigueur; la plus courte est affichée.",
+      "no_notice": "L’exception datée en vigueur n’a pas d’avis de congé : les clients voient donc le message de contact. Activez son avis et précisez les dates touchées.",
+      "notice_dates": "L’avis de congé affiché ne contient aucune date. Précisez les dates touchées pour que les clients sachent quand cet horaire s’applique.",
+      "too_many": "Au moins 50 entrées Store hours sont publiées : les exceptions datées ne peuvent pas toutes être vérifiées et les clients voient le message de contact. Mettez les exceptions passées en brouillon dans Contenu > Métaobjets.",
+      "near_limit": "Près de 50 entrées Store hours sont publiées. Mettez les exceptions passées en brouillon dans Contenu > Métaobjets."
+    }
+  },
   "blocks": {
     "load_video": "Charger la vidéo : {{ description }}",
     "sold_out": "Épuisé",
