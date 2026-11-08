@@ -2159,5 +2159,32 @@
         "default": "equal-width-buttons"
       }
     ]
+  },
+  {
+    "name": "t:gamma_hours.settings.name",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "t:gamma_hours.settings.info"
+      },
+      {
+        "type": "metaobject",
+        "id": "gamma_hours_regular",
+        "label": "t:gamma_hours.settings.regular",
+        "info": "t:gamma_hours.settings.regular_info",
+        "metaobject_type": "store_hours"
+      },
+      {
+        "type": "metaobject",
+        "id": "gamma_hours_override",
+        "label": "t:gamma_hours.settings.override",
+        "info": "t:gamma_hours.settings.override_info",
+        "metaobject_type": "store_hours"
+      },
+      {
+        "type": "paragraph",
+        "content": "t:gamma_hours.settings.exceptions_info"
+      }
+    ]
   }
 ]

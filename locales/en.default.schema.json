@@ -75,6 +75,23 @@
     "menu_fr": "French menu override",
     "menu_override_info": "Optional. An unset or empty override uses the default menu above. Edit links and destinations in Content > Menus."
   },
+  "gamma_hours": {
+    "name": "Store hours",
+    "layout": "Layout",
+    "layout_full": "Full",
+    "layout_compact": "Compact",
+    "show_caption": "Show title",
+    "block_info": "Every Store hours block shows the same schedule, chosen in Theme settings > Store hours.",
+    "settings": {
+      "name": "Store hours",
+      "info": "Hours come from Content > Metaobjects > Store hours and appear wherever a Store hours block is placed. Store hours blocks show the override if one is set, otherwise the dated exception in effect, otherwise the regular hours. Without usable hours, customers see a message asking them to contact the store.",
+      "regular": "Regular hours",
+      "regular_info": "Shown when no override or dated exception applies.",
+      "override": "Override",
+      "override_info": "Optional. Shown everywhere, whatever its dates, until you clear it here or turn on the entry’s Force off.",
+      "exceptions_info": "Dated exceptions: an entry with a Display start is shown from that time until its Display end, or for 7 days without one. Turn on its holiday notice and state the affected dates in it; an exception without a notice shows the contact message instead. If exceptions overlap, the shortest is shown. Force off or Draft status hides an entry. Up to 49 published entries can be checked, so set past exceptions to Draft."
+    }
+  },
   "categories": {
     "banners": "Banners",
     // Category for fundamental content blocks (text, images, buttons)

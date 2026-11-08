@@ -1,0 +1,200 @@
+{%- doc -%}
+  Selects the store_hours entry that every hours placement shows and outputs `source|handle|notes`.
+
+  Precedence: a usable override from Theme settings > Store hours, then the dated exception whose
+  display window contains the evaluation time, then the configured regular entry. `source` is
+  `override`, `exception`, `regular` or `none` (show the contact message). `notes` is a
+  comma-separated list of editor warnings.
+
+  An entry is usable when it is published, Force off isn't on and all seven days have text.
+  A window starts at Display start (inclusive) and ends at Display end (exclusive), or 7 days after
+  the start without an end. Overlapping windows: the shortest wins, then the later start, then the
+  handle in A–Z order. A dated exception must show a notice, which states its dates; without one,
+  the contact message is shown instead of an undated holiday timetable. When the loop may not
+  include every entry, exceptions can't be checked safely and the contact message is shown.
+
+  @param {number} [at] - Evaluation time in Unix seconds. Defaults to the render time; set it only to verify timing.
+{%- enddoc -%}
+
+{%- liquid
+  # Liquid loops over metaobject_definition.values return at most 50 entries without paginate.
+  assign loop_limit = 50
+  assign warning_threshold = 45
+
+  if at != blank
+    assign now = at | plus: 0
+  else
+    assign now = 'now' | date: '%s' | plus: 0
+  endif
+
+  assign days = 'monday,tuesday,wednesday,thursday,friday,saturday,sunday' | split: ','
+  assign digits = '0,1,2,3,4,5,6,7,8,9' | split: ','
+  assign source = 'none'
+  assign handle = ''
+  assign notes = ''
+  assign blocked = false
+
+  # 1. Manual override, regardless of its dates.
+  assign entry = settings.gamma_hours_override
+  if entry != blank
+    assign usable = true
+    if entry.force_off.value == true
+      assign usable = false
+    else
+      for day in days
+        if entry[day].value == blank
+          assign usable = false
+          break
+        endif
+      endfor
+    endif
+
+    if usable
+      assign source = 'override'
+      assign handle = entry.system.handle
+    else
+      assign notes = notes | append: ',override_unused'
+    endif
+  endif
+
+  # 2. Dated exceptions.
+  if source == 'none'
+    assign seen = 0
+    assign matches = 0
+    assign best = nil
+    assign best_handle = ''
+    assign best_length = 0
+    assign best_start = 0
+
+    for entry in metaobjects.store_hours.values
+      assign seen = seen | plus: 1
+
+      if entry.force_off.value == true
+        continue
+      endif
+
+      assign start_value = entry.display_start.value
+      assign end_value = entry.display_end.value
+
+      if start_value == blank
+        if end_value != blank
+          assign notes = notes | append: ',invalid_window'
+        endif
+        continue
+      endif
+
+      assign start = start_value | date: '%s' | plus: 0
+      if end_value == blank
+        assign finish = start | plus: 604800
+      else
+        assign finish = end_value | date: '%s' | plus: 0
+      endif
+
+      if start <= 0 or finish <= start
+        assign notes = notes | append: ',invalid_window'
+        continue
+      endif
+
+      if now < start or now >= finish
+        continue
+      endif
+
+      assign usable = true
+      for day in days
+        if entry[day].value == blank
+          assign usable = false
+          break
+        endif
+      endfor
+      unless usable
+        assign notes = notes | append: ',invalid_entry'
+        continue
+      endunless
+
+      assign matches = matches | plus: 1
+      assign length = finish | minus: start
+      assign entry_handle = entry.system.handle
+      assign better = false
+
+      if best_handle == blank or length < best_length
+        assign better = true
+      elsif length == best_length
+        if start > best_start
+          assign better = true
+        elsif start == best_start and entry_handle < best_handle
+          assign better = true
+        endif
+      endif
+
+      if better
+        assign best = entry
+        assign best_handle = entry_handle
+        assign best_length = length
+        assign best_start = start
+      endif
+    endfor
+
+    if seen >= loop_limit
+      assign notes = notes | append: ',too_many'
+      assign blocked = true
+    elsif best_handle != blank
+      if matches > 1
+        assign notes = notes | append: ',overlap'
+      endif
+
+      assign notice = best.holiday_hours_notice.value | strip
+      if best.show_holiday_hours_notice.value == true and notice != blank
+        assign source = 'exception'
+        assign handle = best_handle
+
+        assign has_digit = false
+        for digit in digits
+          if notice contains digit
+            assign has_digit = true
+            break
+          endif
+        endfor
+        unless has_digit
+          assign notes = notes | append: ',notice_dates'
+        endunless
+      else
+        assign notes = notes | append: ',no_notice'
+        assign blocked = true
+      endif
+    endif
+
+    if seen >= warning_threshold and seen < loop_limit
+      assign notes = notes | append: ',near_limit'
+    endif
+  endif
+
+  # 3. Regular schedule.
+  if source == 'none' and blocked == false
+    assign entry = settings.gamma_hours_regular
+    if entry == blank
+      assign notes = notes | append: ',regular_missing'
+    else
+      assign usable = true
+      if entry.force_off.value == true
+        assign usable = false
+      else
+        for day in days
+          if entry[day].value == blank
+            assign usable = false
+            break
+          endif
+        endfor
+      endif
+
+      if usable
+        assign source = 'regular'
+        assign handle = entry.system.handle
+      else
+        assign notes = notes | append: ',regular_unusable'
+      endif
+    endif
+  endif
+
+  assign notes = notes | remove_first: ','
+  echo source | append: '|' | append: handle | append: '|' | append: notes
+-%}

@@ -66,6 +66,23 @@
     "menu_fr": "Menu de remplacement en français",
     "menu_override_info": "Facultatif. Si le menu de remplacement est vide ou non sélectionné, le menu par défaut ci-dessus est utilisé. Modifiez les liens et leurs destinations dans Contenu > Menus."
   },
+  "gamma_hours": {
+    "name": "Heures d’ouverture",
+    "layout": "Mise en page",
+    "layout_full": "Complète",
+    "layout_compact": "Compacte",
+    "show_caption": "Afficher le titre",
+    "block_info": "Tous les blocs Heures d’ouverture affichent le même horaire, choisi dans Paramètres du thème > Heures d’ouverture.",
+    "settings": {
+      "name": "Heures d’ouverture",
+      "info": "Les heures proviennent de Contenu > Métaobjets > Store hours et s’affichent partout où un bloc Heures d’ouverture est placé. Ces blocs affichent l’horaire de remplacement s’il y en a un, sinon l’exception datée en vigueur, sinon l’horaire régulier. Sans horaire utilisable, les clients voient un message les invitant à communiquer avec le magasin.",
+      "regular": "Horaire régulier",
+      "regular_info": "Affiché lorsqu’aucun remplacement ni aucune exception datée ne s’applique.",
+      "override": "Remplacement",
+      "override_info": "Facultatif. Affiché partout, peu importe ses dates, jusqu’à ce que vous le retiriez ici ou que vous activiez Force off dans l’entrée.",
+      "exceptions_info": "Exceptions datées : une entrée qui a un Display start s’affiche à partir de ce moment jusqu’à son Display end, ou pendant 7 jours s’il n’y en a pas. Activez son avis de congé et précisez-y les dates touchées; une exception sans avis affiche plutôt le message de contact. Si des exceptions se chevauchent, la plus courte s’affiche. Force off ou le statut Brouillon masque une entrée. Jusqu’à 49 entrées publiées peuvent être vérifiées : mettez les exceptions passées en brouillon."
+    }
+  },
   "names": {
     "404": "404",
     "custom_section": "Section personnalisée",
