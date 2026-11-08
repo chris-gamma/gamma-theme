@@ -99,6 +99,27 @@
       "near_limit": "Près de 50 entrées Store hours sont publiées. Mettez les exceptions passées en brouillon dans Contenu > Métaobjets."
     }
   },
+  "gamma_map": {
+    "show": "Afficher la carte interactive",
+    "hide": "Désactiver la carte interactive",
+    "retry": "Réessayer",
+    "loading": "Chargement de la carte interactive…",
+    "loaded": "Carte interactive chargée.",
+    "off": "Carte interactive désactivée.",
+    "failed": "La carte interactive n’a pas pu se charger. L’adresse et l’itinéraire restent accessibles.",
+    "image_alt": "Carte indiquant {{ address }}",
+    "image_alt_generic": "Carte de notre emplacement",
+    "frame_title": "Carte interactive : {{ address }}",
+    "frame_title_generic": "Carte interactive",
+    "directions_link": "Obtenir l’itinéraire dans {{ service }}.",
+    "editor": {
+      "missing_map_id": "Ajoutez l’identifiant d’une carte uMap pour offrir la carte interactive. Cette note n’est visible que dans l’éditeur de thème.",
+      "invalid_map_id": "L’identifiant de la carte uMap n’est pas valide : la carte interactive n’est donc pas offerte. Utilisez la fin de l’adresse de la carte, par exemple ma-carte_123456.",
+      "no_automatic": "Les cartes interactives ne se chargent pas automatiquement dans l’éditeur de thème. Cliquez sur la carte statique, ou sur Afficher la carte interactive en l’absence d’image, pour en prévisualiser une. Cette note n’est visible que dans l’éditeur de thème.",
+      "missing_address": "Ajoutez l’adresse pour l’afficher avec les liens d’itinéraire.",
+      "missing_image": "Sélectionnez une image de carte statique. Sans image, la carte ne s’affiche que lorsqu’un client active la carte interactive."
+    }
+  },
   "blocks": {
     "load_video": "Charger la vidéo : {{ description }}",
     "sold_out": "Épuisé",

@@ -92,6 +92,28 @@
       "exceptions_info": "Dated exceptions: an entry with a Display start is shown from that time until its Display end, or for 7 days without one. Turn on its holiday notice and state the affected dates in it; an exception without a notice shows the contact message instead. If exceptions overlap, the shortest is shown. Force off or Draft status hides an entry. Up to 49 published entries can be checked, so set past exceptions to Draft."
     }
   },
+  "gamma_map": {
+    "name": "Map",
+    "block_info": "Shows a static map, the address and Google Maps and Apple Maps directions. The interactive uMap map loads only after a customer clicks the map, or when Shopify’s customer privacy settings allow preferences and the customer hasn’t turned maps off. Turning maps on or off applies to every map and is remembered on the customer’s device.",
+    "map_id": "uMap map ID",
+    "map_id_info": "The end of the map’s address on umap.openstreetmap.fr, such as my-map_123456. Leave blank for a static map only.",
+    "address": "Address",
+    "address_info": "Used for the directions links and to describe the map, such as 123 Main Street, City, QC A1A 1A1.",
+    "show_address": "Show address",
+    "show_directions": "Show directions links",
+    "static_map": "Static map",
+    "image": "Image",
+    "image_info": "Shown until the interactive map loads. Use a map image without map controls; an OpenStreetMap credit is shown on it.",
+    "image_mobile": "Mobile image",
+    "image_mobile_info": "Optional. Shown on screens narrower than 750 px.",
+    "aspect_ratio": "Desktop aspect ratio",
+    "aspect_ratio_mobile": "Mobile aspect ratio",
+    "ratio_image": "Match image",
+    "ratio_4_3": "4:3",
+    "ratio_16_9": "16:9",
+    "max_width": "Maximum width",
+    "max_width_info": "Up to 480 px, which keeps uMap’s credits under its ? button."
+  },
   "categories": {
     "banners": "Banners",
     // Category for fundamental content blocks (text, images, buttons)
