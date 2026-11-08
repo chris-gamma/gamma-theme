@@ -1,0 +1,245 @@
+{%- liquid
+  capture selection
+    render 'gamma-store-hours-entry'
+  endcapture
+  assign parts = selection | strip | split: '|'
+  assign source = parts[0]
+  assign handle = parts[1]
+  assign notes = parts[2] | split: ',' | uniq
+
+  assign hours = nil
+  if handle != blank
+    assign hours = metaobjects.store_hours[handle]
+  endif
+
+  assign days = 'monday,tuesday,wednesday,thursday,friday,saturday,sunday' | split: ','
+  assign notice = hours.holiday_hours_notice.value | strip
+  assign show_notice = false
+  if hours.show_holiday_hours_notice.value == true and notice != blank
+    assign show_notice = true
+  endif
+-%}
+
+<div
+  class="gamma-hours gamma-hours--{{ block.settings.layout }}"
+  style="--gamma-hours-accent: {{ settings.color_palette.brand }};"
+  {{ block.shopify_attributes }}
+>
+  {%- if hours != blank -%}
+    {%- if show_notice -%}
+      <p class="gamma-hours__notice">{{ notice | escape }}</p>
+    {%- endif -%}
+    <table class="gamma-hours__table">
+      <caption class="gamma-hours__caption{% unless block.settings.show_caption %} visually-hidden{% endunless %}">
+        {{- 'gamma_hours.caption' | t -}}
+      </caption>
+      <tbody>
+        {%- for day in days -%}
+          {%- liquid
+            assign day_key = 'gamma_hours.days.' | append: day
+            # The store_hours definition has no Sunday highlight field.
+            assign highlighted = false
+            unless day == 'sunday'
+              assign highlight_key = 'highlight_' | append: day
+              if hours[highlight_key].value == true
+                assign highlighted = true
+              endif
+            endunless
+          -%}
+          <tr class="gamma-hours__row{% if highlighted %} gamma-hours__row--highlighted{% endif %}">
+            <th scope="row" class="gamma-hours__day">
+              {{- day_key | t -}}
+              {%- if highlighted -%}
+                <span class="visually-hidden"> {{ 'gamma_hours.changed' | t }}</span>
+              {%- endif -%}
+            </th>
+            <td class="gamma-hours__value">{{ hours[day].value | escape }}</td>
+          </tr>
+        {%- endfor -%}
+      </tbody>
+    </table>
+  {%- else -%}
+    <p class="gamma-hours__fallback">{{ 'gamma_hours.fallback' | t }}</p>
+  {%- endif -%}
+
+  {%- if request.design_mode -%}
+    <div class="gamma-hours__editor">
+      {%- if hours != blank -%}
+        {%- assign source_key = 'gamma_hours.editor.sources.' | append: source -%}
+        <p>{{ 'gamma_hours.editor.showing' | t: name: hours.name.value, source: source_key | t }}</p>
+      {%- else -%}
+        <p>{{ 'gamma_hours.editor.showing_none' | t }}</p>
+      {%- endif -%}
+      {%- for note in notes -%}
+        {%- assign note_key = 'gamma_hours.editor.' | append: note -%}
+        <p>{{ note_key | t }}</p>
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .gamma-hours {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xs);
+    width: 100%;
+    min-width: 0;
+  }
+
+  .gamma-hours__notice {
+    margin: 0;
+    padding-inline-start: var(--padding-xs);
+    border-inline-start: 3px solid var(--gamma-hours-accent);
+    font-weight: var(--font-weight-bold, 700);
+    overflow-wrap: anywhere;
+  }
+
+  .gamma-hours__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .gamma-hours__caption:not(.visually-hidden) {
+    caption-side: top;
+    margin-block-end: var(--margin-2xs, 0.25rem);
+    font-weight: var(--font-weight-bold, 700);
+    text-align: start;
+  }
+
+  .gamma-hours__day,
+  .gamma-hours__value {
+    padding-block: var(--padding-2xs);
+    border-block-end: var(--style-border-width) solid rgb(var(--color-foreground-rgb) / var(--opacity-10));
+    text-align: start;
+    vertical-align: top;
+    font-weight: inherit;
+  }
+
+  .gamma-hours__day {
+    padding-inline: var(--padding-xs) var(--padding-sm);
+    white-space: nowrap;
+  }
+
+  .gamma-hours__value {
+    width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .gamma-hours__row:last-child > * {
+    border-block-end: 0;
+  }
+
+  .gamma-hours__row--highlighted > * {
+    color: var(--gamma-hours-accent);
+    font-weight: var(--font-weight-bold, 700);
+  }
+
+  /* A bar beside the day marks the change without relying on colour, including in forced colours. */
+  .gamma-hours__row--highlighted .gamma-hours__day {
+    box-shadow: inset 3px 0 0 var(--gamma-hours-accent);
+  }
+
+  @media (forced-colors: active) {
+    .gamma-hours__row--highlighted .gamma-hours__day {
+      border-inline-start: 3px solid CanvasText;
+      box-shadow: none;
+    }
+  }
+
+  /* Very narrow columns, such as 320 px at 200% zoom, stack each day above its hours. */
+  .gamma-hours {
+    container-type: inline-size;
+  }
+
+  @container (max-width: 16rem) {
+    .gamma-hours__table,
+    .gamma-hours__table tbody,
+    .gamma-hours__row,
+    .gamma-hours__day,
+    .gamma-hours__value {
+      display: block;
+    }
+
+    .gamma-hours__day {
+      padding-block-end: 0;
+      border-block-end: 0;
+      white-space: normal;
+    }
+
+    .gamma-hours__value {
+      width: auto;
+      padding-inline-start: var(--padding-xs);
+      overflow-wrap: break-word;
+    }
+
+    .gamma-hours__row--highlighted .gamma-hours__day {
+      box-shadow: none;
+    }
+
+    .gamma-hours__row--highlighted {
+      box-shadow: inset 3px 0 0 var(--gamma-hours-accent);
+    }
+  }
+
+  .gamma-hours--compact {
+    font-size: var(--font-size--xs);
+  }
+
+  .gamma-hours--compact .gamma-hours__day,
+  .gamma-hours--compact .gamma-hours__value {
+    padding-block: 0.125rem;
+  }
+
+  .gamma-hours__fallback,
+  .gamma-hours__editor p {
+    margin: 0;
+  }
+
+  .gamma-hours__editor {
+    padding: var(--padding-xs);
+    border: var(--style-border-width) dashed currentColor;
+    font-size: var(--font-size--xs);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:gamma_hours.name",
+  "tag": null,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:gamma_hours.block_info"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "t:gamma_hours.layout",
+      "options": [
+        {
+          "value": "full",
+          "label": "t:gamma_hours.layout_full"
+        },
+        {
+          "value": "compact",
+          "label": "t:gamma_hours.layout_compact"
+        }
+      ],
+      "default": "full"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_caption",
+      "label": "t:gamma_hours.show_caption",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:gamma_hours.name"
+    }
+  ]
+}
+{% endschema %}
