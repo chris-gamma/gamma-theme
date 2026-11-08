@@ -188,10 +188,72 @@
                 "gamma_business_contact",
                 "gamma_hours"
               ]
+            },
+            "gamma_business_map": {
+              "type": "group",
+              "settings": {
+                "content_direction": "column",
+                "vertical_on_mobile": true,
+                "horizontal_alignment": "flex-start",
+                "vertical_alignment": "flex-start",
+                "align_baseline": false,
+                "horizontal_alignment_flex_direction_column": "flex-start",
+                "vertical_alignment_flex_direction_column": "flex-start",
+                "gap": 16,
+                "width": "custom",
+                "custom_width": 55,
+                "width_mobile": "fill",
+                "custom_width_mobile": 100,
+                "height": "fit",
+                "custom_height": 100,
+                "background_media": "none",
+                "video_position": "cover",
+                "background_image_position": "cover",
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 0,
+                "link": "",
+                "open_in_new_tab": false,
+                "placeholder": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {
+                "gamma_map": {
+                  "type": "gamma-map",
+                  "settings": {
+                    "map_id": "carte-location-gamma-map_1369176",
+                    "address": "5840 Rue Saint-Jacques, Montréal, QC H4A 2E9",
+                    "show_address": false,
+                    "show_directions": true,
+                    "image": "shopify://shop_images/carte-statique-grande.webp",
+                    "image_mobile": "shopify://shop_images/carte-statique-moyenne.webp",
+                    "aspect_ratio": "landscape",
+                    "aspect_ratio_mobile": "landscape",
+                    "width": "fill",
+                    "custom_width": 100,
+                    "width_mobile": "fill",
+                    "custom_width_mobile": 100,
+                    "max_width": 480
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "gamma_map"
+              ]
             }
           },
           "block_order": [
-            "gamma_business_details"
+            "gamma_business_details",
+            "gamma_business_map"
           ]
         }
       },
