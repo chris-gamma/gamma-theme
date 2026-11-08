@@ -83,6 +83,28 @@
       "exceptions_info": "Exceptions datées : une entrée qui a un Display start s’affiche à partir de ce moment jusqu’à son Display end, ou pendant 7 jours s’il n’y en a pas. Activez son avis de congé et précisez-y les dates touchées; une exception sans avis affiche plutôt le message de contact. Si des exceptions se chevauchent, la plus courte s’affiche. Force off ou le statut Brouillon masque une entrée. Jusqu’à 49 entrées publiées peuvent être vérifiées : mettez les exceptions passées en brouillon."
     }
   },
+  "gamma_map": {
+    "name": "Carte",
+    "block_info": "Affiche une carte statique, l’adresse et les itinéraires Google Maps et Apple Maps. La carte interactive uMap ne se charge qu’après qu’un client clique sur la carte, ou lorsque les paramètres de confidentialité client de Shopify autorisent les préférences et que le client n’a pas désactivé les cartes. L’activation ou la désactivation s’applique à toutes les cartes et est mémorisée sur l’appareil du client.",
+    "map_id": "Identifiant de la carte uMap",
+    "map_id_info": "La fin de l’adresse de la carte sur umap.openstreetmap.fr, par exemple ma-carte_123456. Laissez vide pour une carte statique seulement.",
+    "address": "Adresse",
+    "address_info": "Sert aux liens d’itinéraire et à décrire la carte, par exemple 123, rue Principale, Ville (Québec) A1A 1A1.",
+    "show_address": "Afficher l’adresse",
+    "show_directions": "Afficher les liens d’itinéraire",
+    "static_map": "Carte statique",
+    "image": "Image",
+    "image_info": "Affichée jusqu’au chargement de la carte interactive. Utilisez une image de carte sans commandes; une mention OpenStreetMap y est affichée.",
+    "image_mobile": "Image mobile",
+    "image_mobile_info": "Facultative. Affichée sur les écrans de moins de 750 px.",
+    "aspect_ratio": "Format sur ordinateur",
+    "aspect_ratio_mobile": "Format sur mobile",
+    "ratio_image": "Selon l’image",
+    "ratio_4_3": "4:3",
+    "ratio_16_9": "16:9",
+    "max_width": "Largeur maximale",
+    "max_width_info": "Jusqu’à 480 px, ce qui garde les crédits d’uMap sous son bouton ?."
+  },
   "names": {
     "404": "404",
     "custom_section": "Section personnalisée",
