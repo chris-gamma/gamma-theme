@@ -256,11 +256,20 @@
                 "padding-inline-end": 0
               },
               "blocks": {}
+            },
+            "gamma_hours": {
+              "type": "gamma-store-hours",
+              "settings": {
+                "layout": "compact",
+                "show_caption": true
+              },
+              "blocks": {}
             }
           },
           "block_order": [
             "visit_heading",
-            "gamma_business_contact"
+            "gamma_business_contact",
+            "gamma_hours"
           ]
         },
         "gamma_menus_shop": {

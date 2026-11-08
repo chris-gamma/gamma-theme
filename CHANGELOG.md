@@ -25,6 +25,7 @@ Location Gamma's storefront theme is based on Shopify Horizon 4.4.0.
 - A four-part footer: logo, newsletter sign-up, social links and payment methods; address, telephone and email; and the shop, company, legal and account menus. The powered-by notice is off.
 - A contact page with the store's contact details, the page content and the contact form. Department cards written in the content as a display-card-table of display-card boxes form a responsive grid; their styles load only where used.
 - A Policy block showing a selected warranty or return-and-exchange entry, as a section or a collapsible row; consecutive collapsible blocks form one list. A warranty page template (warranty-info) and a comparison page template (leaf-blower-chart).
+- Store hours in the footer (compact) and on the contact page (full), set in Theme settings > Store hours: an override, otherwise the dated exception in effect, otherwise the regular hours. Exceptions show a holiday notice above a seven-day table. Without reliable hours, customers are asked to contact the store.
 
 ### Changed
 
