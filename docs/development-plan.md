@@ -61,6 +61,8 @@ Use supported Shopify app integrations and native services where appropriate. Ex
 
 Store authentication, previews/uploads, synchronization, configuration writes, installations, test transactions and publication require explicit authorization. Before any authorized store operation, verify the store identity, theme ID and actual role. Names such as `dev` are not identity or safety evidence.
 
+The SCS campaign administration app (G22) is, with the WordPress rental catalogue, one of Gamma's two self-operated services. It runs on the existing VPS that hosts the WordPress rental catalogue, isolated from WordPress, and must never be a runtime dependency of the storefront, cart or checkout: published campaigns, notices, prices and discounts are Shopify data. Its deployment, store installation, scopes and server configuration require the same explicit authorization as other store and external-service operations.
+
 ## Implementation approach
 
 For each feature:
@@ -108,17 +110,19 @@ Priorities are P0 for shared prerequisites, P1 for purchasing/browsing/discovery
 | 5. Business content and location | G15 | Home, footer and information pages | P2 | G02, G03, G04, G07, G09, G10, G13 | Implemented |
 | 5. Business content and location | G16 | Regular and holiday hours | P2 | G02, G03, G15 | Implemented |
 | 5. Business content and location | G17 | Maps, directions and activation | P2 | G02, G05, G15 | Implemented |
-| 6. Promotions and integrations | G18 | Campaign data, routes and lifecycle | P2 | G02, G03, G06, G12 | Planned |
-| 6. Promotions and integrations | G19 | Campaign index and detail browsing | P2 | G10, G12, G18 | Planned |
-| 6. Promotions and integrations | G20 | Product campaign banners | P2 | G07, G18, G19 | Planned |
-| 6. Promotions and integrations | G21 | Discount and promotion operation | P2 | G11, G15, G18, G19, G20 | Planned |
-| 6. Promotions and integrations | G22 | Campaign application compatibility | P2 | G02, G18, G19, G20 | Planned |
+| 6. Promotions and integrations | G18 | Campaign data model, lifecycle and theme contract | P2 | G02, G03, G06, G10, G12, G14 | Planned |
+| 6. Promotions and integrations | G19 | Campaign pages and index | P2 | G10, G12, G14, G18 | Planned |
+| 6. Promotions and integrations | G20 | Product and cart promotional notices | P2 | G07, G08, G09, G11, G18, G19 | Planned |
+| 6. Promotions and integrations | G21 | Financial promotions and dealer-gift operations | P2 | G11, G18, G20, G22 | Planned |
+| 6. Promotions and integrations | G22 | Campaign administration app | P2 | G02, G18; Q11 | Planned |
 | 6. Promotions and integrations | G23 | UTM and referral integration | P2 | G02, G05, G11 | Planned |
 | 7. Integrated acceptance | G24 | Complete storefront verification | Required gate | All required features | Planned |
 
 Phases group related work; they need not be rigidly sequential. Once language and data contracts are settled, branding and money presentation can proceed independently. Product details, media and home search can also proceed independently when their dependencies are ready. Hours and map development can run alongside campaigns after shared content/privacy requirements are established. Coordinate changes to shared product templates, cards, cart snippets and locale files before local integration.
 
 Use coherent feature branches following the repository workflow, typically one feature or independently useful increment at a time. Implementation research, local work, merchant setup and rendered acceptance can progress separately. A blocked external prerequisite should not stop unrelated development.
+
+The Sales Campaign System (G18–G22) is one system developed in two repositories: theme features G18–G20 in this repository and the G22 campaign administration app in a separate app repository, with G21's operating procedures spanning both and Shopify Admin. G18's data contract comes first; the VPS checks (Q11) and the SCS proofs of concept should run before G22 development, because they are the only items that could change the hosting or data-model decisions. The proofs of concept cover rendering cost and block re-rendering, cache delay at boundaries (which sets the claim margin), translated images and URLs, previewing Draft entries in the theme editor, a promotional price list on the primary market, adding a gift by order editing, the optional Flow review condition and rental image import. Theme and app work then proceed together toward the February 2027 soft launch. If the app cannot be ready, the theme and data contract launch unchanged and staff operate campaigns in Shopify Admin as an emergency contingency, not the plan. The selected architecture is described in [the SCS proposal](scs-redesign-proposal-with-app.md); the companion [no-app proposal](scs-redesign-proposal-no-app.md) is retained only as a comparison and as the reference for those emergency manual procedures. The branch sequence for the remaining work is decided separately.
 
 ## Phase 1 — Foundation and data
 
@@ -179,7 +183,7 @@ The planned product-information interface uses namespace `custom` on products an
 
 G07 schema verification (2026-11-04): all eight `custom` metafields exist with the required types on both `PRODUCT` and `PRODUCTVARIANT` in Gamma-Dev (`gid://shopify/Shop/81927143660`, `gamma-dev-2318.myshopify.com`) and Primary (`gid://shopify/Shop/74939334829`, reported permanent domain `d2e135-ff.myshopify.com`; historical alias `location-gamma.myshopify.com`). Both stores have compatible `warranty_policy` and `return_exchange_policy` metaobject definitions, required fields, public storefront access, merchant editing, publishable/translation capabilities and references restricted to their own definition IDs. No definitions or values needed creation or modification. Content, translations, active policy entries and other G02 contracts remain separate prerequisites.
 
-Public campaign, offer, hours and policy content should remain manageable through suitable Shopify content tools. Native references, translatability and storefront access should be researched before selecting new data structures. A new campaign membership projection or hours-priority field is an open design choice, not a required schema addition.
+Public campaign, offer, hours and policy content should remain manageable through suitable Shopify content tools. Native references, translatability and storefront access should be researched before selecting new data structures. Campaign content uses G18's merchant-owned definitions, administered through the G22 app; campaign eligibility uses collections with app-maintained back-links rather than a product membership projection.
 
 #### Edge cases and quality
 
@@ -886,209 +890,207 @@ Local implementation (`feature/maps`): `blocks/gamma-map.liquid` renders `<gamma
 
 ## Phase 6 — Promotions and integrations
 
-### G18 — Campaign data, routes and lifecycle
+### G18 — Campaign data model, lifecycle and theme contract
 
-**Priority:** P2. **Status:** Planned. **Dependencies:** G02, G03, G06, G12.
+**Priority:** P2. **Status:** Planned. **Dependencies:** G02, G03, G06, G10, G12, G14; definitions created by G22's setup step (or an authorized manual setup on Gamma-Dev).
 
 #### Purpose
 
-Let staff describe a campaign and its offers once and use that information consistently in promotion lists, detail pages and product banners. Publishing content does not establish that an offer is active now, and a product's appearance in one promotional surface must agree with its eligibility elsewhere. A shared lifecycle and membership contract prevents contradictory claims as offers start, pause or end.
+Give every promotional surface one dependable description of a campaign: its offers, who qualifies, what the customer receives and how they receive it. Real STIHL, ECHO and Shindaiwa campaigns combine promotional prices, discounts, dealer-supplied gifts, manufacturer claims and in-store offers, and rental or informational campaigns have no products at all. Content must be published Shopify data the theme can render without the G22 app, and its lifecycle must stop claims at the right moment.
 
 #### Expected behaviour and functional requirements
 
-- Support merchant-managed campaigns and ordered offers with names, rich content, images/destinations, product/collection references and optional timing/paused state.
-- A campaign provides the overall event and destination; its ordered offers describe the individual benefits and relevant products. Staff can prepare future content or pause a campaign without deleting that information.
-- Distinguish storefront publication/access from computed paused, future, active, open-ended, ended and invalid lifecycle states.
-- Use one approved membership rule across index/detail/PDP and financial claims. Resolve off-collection offer membership and variant restrictions before dependent renderers are accepted.
-- Preserve optional ended-index visibility and a duration-based detail grace capability unless an approved archive policy changes them. Ended content must be visibly expired.
-- A customer following an older campaign link receives the approved ended/unavailable presentation rather than an apparently live saving. Content lifecycle alone does not create, activate or verify a financial discount; G21 governs those claims.
-- Provide stable numeric list ordering and native localized campaign URLs. Define exact date boundaries and stable winner ties with G20/G21.
+- Model campaigns with four merchant-owned metaobject definitions: `promotion` (the campaign page), `promotion_offer` (one benefit, its redemption and terms), `promotion_group` (who qualifies and, for gifts, what they receive) and `rental_item` (a reusable card linking to the WordPress catalogue). Products are optional at every level, so rental and informational campaigns need none.
+- Each offer states a benefit (promotional price, percentage or amount off, kit or bundle price, free gift, manufacturer rebate, financing, rental discount or rate, information), a redemption (price shown, automatic at checkout, discount code, supplied by Gamma, manufacturer fulfils, in store, contact us, no action) and its funding (manufacturer program, Location Gamma, shared). Only valid benefit/redemption pairs are allowed; a free gift is never an automatic checkout redemption.
+- Eligibility always lives on groups: a qualifying collection, optionally narrowed to listed variants, with an optional minimum quantity per entitlement (for example two qualifying sets) and an optional companion set (for example "plus an AP battery"). Gift groups carry a translatable gift label, optional reward product references, a gift quantity and an optional per-order limit. A variant matching two groups of one offer with different gifts is invalid.
+- Gift offers record whether the gift is guaranteed for every qualifying order (may be backordered) or limited to a stated quantity, whether it is currently backordered, and whether some conditions can only be confirmed by staff.
+- Derive lifecycle at render time: draft, scheduled, live, paused, ended (retention presentation) and archived. Start is inclusive and end exclusive, as absolute instants authored in the store time zone; the displayed end is the last valid day. Discount-dependent claims hide a configurable margin before the end. Ended campaign pages show an explicit ended notice without offers or calls to action and are noindex.
+- Use native metaobject webpages at `/pages/promotions/{handle}` (French) and `/en/pages/promotions/{handle}` (English), with the `promotions` page as index.
+- Find a product's live offers through its collections: each eligibility collection carries a `promotion.promotions` back-link, so the lookup never scans every campaign. A missing or invalid link, reference or collection produces no claim rather than a wrong one.
+- Financial claims render only when the offer's `enforcement_verified_at` shows the Shopify resources behind them were verified (G21, G22). Gift claims follow G20's qualification rules.
 
 #### Technical requirements and compatibility
 
-The planned merchant-owned `sales_campaigns` contract includes `sale_name`, `sale_collection`, `start_date`, `end_date`, `sale_paused`, `banner_text`, `sale_list_text`, `banner_priority`, `sale_list_priority`, `sale_image`, `sale_image_url` and `offers`. `promo_offers` includes `offer_name`, `offer_description`, `offer_image`, `offer_image_link` and `products`. Verify actual definitions, reference validations and requiredness; changing required collection/product-list semantics is an explicit decision. Campaign image destinations and offer image destinations are distinct fields.
+Definitions are merchant-owned (no `$app:` prefix) so content survives an app uninstall, with public storefront read and translation enabled. `promotion` is publishable, renderable and online-store-capable with URL handle `promotions`. Key fields: `promotion` — `title`, `sponsor`, `business`, `summary`, `eyebrow`, `intro`, `image`, `starts_at`, `ends_at`, `paused`, `priority`, `offers` (max 12), `button`, `terms`, `source`; `promotion_offer` — `title`, `summary`, `label`, `details`, `terms`, `how_to`, `benefit`, `redemption`, `funding`, `code`, `action`, `image`, `starts_at`, `ends_at`, `groups` (max 8), `gift_availability`, `gift_quantity_limit`, `gift_supply`, `staff_confirmed_terms`, `enforcement_verified_at`, `map_reviewed_at`, `app_config` (app-only, never rendered); `promotion_group` — `heading`, `note`, `description`, `collection`, `variants` (max 50), `min_quantity`, `requires_collection`, `requires_quantity`, `requires_label`, `reward_label`, `rewards` (max 3), `reward_quantity`, `reward_limit`, `rental_items` (max 24), `link`; `rental_item` — `title`, `url`, `image`, `note`, `catalogue_ref`. Collection metafields: `promotion.promotions` (max 5) and `seo.hidden`. The authoritative field table is in [the SCS proposal](scs-redesign-proposal-with-app.md).
 
-Use native metaobject/resource URLs and the approved promotions page/template assignment. A URL handle is not a template suffix. Respect Liquid/reference/handle limits and prove enumeration completeness at the intended scale. Choose a membership projection only if research establishes its need and setup/maintenance contract. `banner_priority` remains reserved rather than silently becoming a new selection rule.
+Respect verified Liquid limits: 50 iterations per loop, 250 entries per paginated page, 1,000 entries per metaobject type per render and 20 handle lookups; `product.collections` excludes collections not on the Online Store. List validations keep every unpaginated loop complete; the index uses `paginate … by 250` and never re-fetches entries by handle. French images and URLs use translations of the same fields if Translate & Adapt and the API support them (proof of concept), otherwise explicit French fields. The theme never reads `app_config`; app-written fields mean the same when written by staff in the emergency fallback. The old `sales_campaigns` and `promo_offers` definitions (one expired, unverified entry each) are not migrated; the `promotions` URL handle is moved to `promotion` at cutover, the `promotions` page is assigned to `page.promotions`, and the old definitions are deleted once the new theme is live. Archiving sets a campaign to Draft and unpublishes its app-created collections; expired discounts are left in place.
 
 #### Edge cases and quality
 
-Cover draft/deleted references, explicit false pause, missing/start-only/end-only dates, equal/reversed boundaries, exact expiry, timezone/DST and limit overflow. Source/financial timestamps must agree. No missing projection or truncated loop may masquerade as complete eligibility. Keep shared helpers focused; this feature does not require a hosted campaign application.
+Cover draft, deleted and unpublished references; offers outside the campaign window; missing, reversed, start-only and end-only dates; exact boundaries and DST; open-ended campaigns; products in more than 45 collections; deleted variants silently removed from lists; ambiguous manufacturer lists; missing French; published counts approaching 250; scheduled campaigns under manufacturer embargo (no public content before start).
 
 #### Acceptance criteria
 
-- [ ] Definitions, references, membership, sorting and date/archive decisions are explicit and consistent across consumers.
-- [ ] All lifecycle and publication/reference cases produce the approved state.
-- [ ] Native bilingual URLs and page/template assignments resolve correctly.
-- [ ] Enumeration limits and overflow are verified without silently omitting campaigns/products.
-- [ ] Any new data interface has an approved definition and maintenance path before use.
+- [ ] Definitions, validations, translation and storefront access match the contract on Gamma-Dev and Primary.
+- [ ] Every lifecycle state and boundary produces the approved presentation in both languages.
+- [ ] Every researched manufacturer offer, a rental campaign with cards and a product-free campaign can be expressed without workarounds.
+- [ ] The lookup is bounded, fails closed on missing data and agrees with the discount targets.
+- [ ] Native bilingual routes, index assignment and enumeration limits are verified.
 
 #### Prototype reference
 
 `docs/metaobjects/sales_campaigns.definition.json`, `docs/metaobjects/promo_offers.definition.json`, SCS lifecycle/ended-window/URL helpers and `templates/page.promotions.json` establish the contract. The prototype used an inclusive end boundary and detail grace of `end + (end - start)`. Grouped and ungrouped product membership differed; the exported campaign definition required a collection. `banner_priority` was unused. These are important decisions to evaluate explicitly, not reasons to copy every rendering assumption.
 
-### G19 — Campaign index and detail browsing
+### G19 — Campaign pages and index
 
-**Priority:** P2. **Status:** Planned. **Dependencies:** G10, G12, G18.
+**Priority:** P2. **Status:** Planned. **Dependencies:** G10, G12, G14, G18.
 
 #### Purpose
 
-Give customers a usable place to browse promotions and understand offers whose conditions cannot be explained by a price badge alone. A campaign can contain several distinct offers, so its detail page must connect each description to the relevant products and make the remaining eligible products discoverable. Grouping is a browsing aid and must not make any eligible product unreachable.
+Give customers a place to browse promotions and understand offers whose conditions cannot be explained by a price badge alone. A manufacturer campaign can contain several offers with different products, gifts and redemption routes; each needs its own explanation, qualifying equipment and terms, while rental and informational campaigns need equally clear pages without products.
 
 #### Expected behaviour and functional requirements
 
-- Provide a sorted campaign index with linked cards and names so customers can identify an event and open its details. Use usable campaign list copy, then banner copy; use the campaign image, then a usable offer image where needed.
-- Provide detail headings, campaign list/banner copy, optional linked campaign imagery, ordered offer headings/descriptions/images and an Other deals group.
-- Present the applicable offer explanation beside or clearly associated with its product group. Approved qualification instructions and onward destinations must be understandable without inferring conditions from an image alone.
-- Support grouped and ungrouped presentation without changing approved membership. Resolve duplicate product ownership consistently, including ordered overlapping offers.
-- Keep every product page reachable with ordinary navigation; pagination must remain available even when a current group/remainder is empty.
-- Expose compatible merchant controls for headings/body, image visibility/sizing, grouping, layout, page size, spacing and pagination/infinite-scroll behavior.
-- Provide meaningful empty, unavailable and expired views, including appropriate page headings and indexing behavior.
+- Provide a promotions index of live campaigns grouped by business (equipment sales, rentals), ordered by priority, then end date (open-ended last), then title, with an empty state. Optional "Coming soon" and "Recently ended" groups stay off by default.
+- Provide campaign pages with a hero (eyebrow, title, artwork in the current language, summary, introduction, dates, button, official manufacturer link), offer navigation when there are three or more offers, offer sections and campaign terms.
+- Each offer section shows its benefit heading, artwork, details, a redemption panel matching its redemption mode, inline terms, and either native product cards for each group or rental cards. Group notes and eligible-variant lines appear under cards; collection-based groups show a bounded number of products and a link to the native collection page.
+- A free-gift offer prominently names the gift and the qualifying equipment, states the conditions and exclusions, explains that no gift needs to be added to the cart and that Location Gamma supplies it with the order, and includes the backorder statement (G20 wording). It never implies the gift is added at checkout.
+- Financial offers show native prices on cards and the approved redemption wording ("Applied automatically at checkout", "Use code … at checkout"); their claims render only after G21/G22 verification. Manufacturer-redeemed offers show the claim link and deadline; in-store offers show store contact and hours links.
+- Provide a collection-page callout for live promotions linked through the collection's `promotion.promotions`.
+- Provide meaningful scheduled, paused, ended and unavailable views with an h1 and appropriate indexing.
 
 #### Appearance and placement
 
-Present the promotions index as a responsive campaign-card grid beneath its heading and optional introduction. Each card has its usable image, campaign name, summary and a visibly actionable detail link. Preserve a useful text-led card when imagery is absent.
-
-On a detail page, place the campaign title and introductory copy/optional image before the offers. Use a distinct heading and description for each offer, optional associated artwork and a native product-card grid beneath it; place remaining eligible products under Other deals where grouping applies. Image/text combinations can sit beside one another at larger widths and stack on mobile. Pagination or loading controls must be visible after the relevant product output even when a group is empty. Expired and unavailable states need an explicit textual explanation rather than a blank content area.
+Present the index as a responsive card grid beneath its heading and optional introduction; each card has its artwork, sponsor text badge, title, summary, date line and a visibly actionable link, and remains useful without artwork. On campaign pages, place the hero before the offers, uncropped so manufacturer artwork with text stays readable. Each offer is a headed section (h2) with artwork beside the text at larger widths and stacked on mobile, followed by its redemption or gift panel, terms and grids (group headings h3). Gift panels reuse the G08 notice language: a softly highlighted panel with a gift icon and text that does not rely on color. Terms are HTML text, never only inside artwork.
 
 #### Technical requirements and compatibility
 
-Use current native product cards, collection/filter/grid behavior, pagination and resource links. Scope IDs by surface/section and avoid globally colliding grid/heading targets. Preserve native no-JS links and applicable asynchronous filtering/history. The chosen grouping/pagination design must demonstrate complete membership and communicate any approved cross-page grouping tradeoff; a simpler layout must not hide products.
+Use one generic metaobject template and native product cards configured once in the theme editor; no campaign-specific templates and no campaign content in theme JSON. Scope IDs by section and offer. Rental cards reuse G14 presentation and URL validation. Promotion-only eligibility collections are published to the Online Store and hidden with `seo.hidden`; the all-collections list skips them (a small Gamma change to Horizon's collection list, reported as such). Manufacturer pages contain only that campaign's products.
 
 #### Edge cases and quality
 
-Cover no campaigns, empty/deleted collections, overlapping offers, duplicate references, off-collection products under the chosen rule, fully grouped first pages, later unmatched products and empty middle pages. Validate long French headings, linked image alt text, native Quick Add, focus and worst-case rendering cost. Liquid cannot be assumed to set arbitrary HTTP statuses for unavailable content.
+Cover no campaigns, offers with no products, empty or deleted collections, overlapping offers, a product in several offers, ambiguous manufacturer items, missing artwork or French artwork, long French headings and terms, 60-card pages, and unavailable or ended campaigns reached from old links. Liquid cannot set arbitrary HTTP statuses.
 
 #### Acceptance criteria
 
-- [ ] Index/detail content, links, ordering and fallbacks are correct in both languages.
-- [ ] Grouped and ungrouped views expose the same approved product set.
-- [ ] Every product remains reachable across empty/grouped pages with JavaScript disabled.
-- [ ] Merchant controls, native filters/cards/Quick Add and editor changes work together.
-- [ ] Unique IDs, accessible CTAs/headings, expired wording and metadata/indexing behavior pass rendered review.
-- [ ] Index cards, campaign introduction, offer groups and Other deals have a clear responsive hierarchy, including missing images, long French copy and empty groups.
+- [ ] Index, campaign pages, offer sections, gift panels, redemption panels and rental cards render correctly in both languages for the STIHL, ECHO, rental and informational fixtures.
+- [ ] Gift panels state the gift, conditions and backorder statement without implying cart or checkout insertion.
+- [ ] Financial claims appear only when verified; native prices match Shopify.
+- [ ] Native cards, Quick Add, no-JS links and theme-editor settings work; IDs are unique.
+- [ ] Ended, scheduled, paused and unavailable views, accessibility, long French copy and responsive layouts pass rendered review.
 
 #### Prototype reference
 
 `sections/scs-sales-index.liquid`, `sections/scs-sales-campaign.liquid`, campaign-card/richtext snippets and campaign templates implemented these surfaces. Grouped mode rendered offer products before a paginated collection remainder; pagination was conditional on nonempty remainder output. Index sorting reloaded objects by handle, and the visible CTA text was not itself linked. The offer presentation is useful, while membership, limits, links and pagination require a complete current design.
 
-### G20 — Product campaign banners
+### G20 — Product and cart promotional notices
 
-**Priority:** P2. **Status:** Planned. **Dependencies:** G07, G18, G19.
+**Priority:** P2. **Status:** Planned. **Dependencies:** G07, G08, G09, G11, G18; G19 for the offer-conditions pages the notices link to.
 
 #### Purpose
 
-Explain a relevant offer while the customer is deciding whether to buy the product, including when they arrive directly from search or an external link and have not visited the promotions index. The banner should communicate a usable benefit and route to its details, matched to the selected product context and current campaign state.
+Explain a relevant offer while the customer is deciding whether to buy, and again beside the qualifying item in the cart, even when they arrive directly from search or an external link. Dealer-supplied gifts are not visible in the cart or checkout, so the notices must say what the purchase earns, that Location Gamma supplies the gift, and that a backordered gift may delay the order — and must never claim a gift is earned when the cart does not prove it.
 
 #### Expected behaviour and functional requirements
 
-- Determine eligible campaigns through G18's complete membership/lifecycle contract.
-- Show only information applicable to the displayed product and, where required, its selected variant. The customer can read the offer summary and follow a working CTA to the campaign's details and conditions.
-- Prefer the eligible usable campaign with the earliest finite end, followed by open-ended candidates, with a stable tie rule agreed through Q06. Do not select an empty candidate that suppresses usable information.
-- Use relevant offer description first, then usable campaign list copy, then banner copy. Resolve imagery and destinations through appropriate offer/campaign fallbacks without accidentally requiring an image to have unrelated copy.
-- Provide a real detail-page CTA and merchant image/size/compact-spacing controls.
-- Update relevant option/combined-product changes within the correct owner. Suppress known expired live claims on already-loaded pages.
+- On product pages, show live offers that apply to the displayed product and selected variant (up to a configurable number, default two), each with its benefit, redemption or gift wording, end date and a link to the offer's conditions. Distinguish a product that qualifies on its own from one that qualifies only with another purchase or quantity.
+- Under each qualifying cart line, show a compact gift notice that names the gift (and quantity) when the whole cart satisfies the group's conditions: entitlements are the qualifying units divided by the minimum quantity, limited by the companion units when a companion set exists, multiplied by the gift quantity and capped by the per-order limit. Multi-line conditions show the full notice under the first participating line and a short "counts toward" note under the others.
+- Use conditional wording when conditions are not yet met, "may qualify" wording when the offer has staff-confirmed conditions, a "model confirmed by Gamma" statement for variable rewards, and the stated quantity for limited-quantity gifts. Never use "while supplies last" alone.
+- Every gift notice states that the gift is supplied by Location Gamma, that a backordered gift may delay the order and that Gamma will contact the customer; when the offer is marked currently backordered, say so directly. Promise no date, no separate shipment and no immediate availability.
+- Recommended wording (subject to legal review): "Complimentary with this purchase: {gift}. Gift supplied by Location Gamma. If the gift is backordered, your order may be delayed. We'll contact you with more information if that happens." / « Offert avec cet achat : {gift}. Cadeau fourni par Location Gamma. Si le cadeau est en rupture de stock, votre commande pourrait être retardée. Le cas échéant, nous communiquerons avec vous pour vous donner plus de détails. » The full set of conditional, backordered, staff-confirmed and limited-quantity variants is in the SCS proposal.
+- Nothing is added to the cart, no line properties or attributes are written and no financial discount is implied for a gift.
 
 #### Appearance and placement
 
-Place the banner in the main product's title/price group, after the battery-system row when present and before the option picker. Use a compact, padded panel with a subtle background, border and rounded corners so the offer is noticeable without competing with the purchase controls. When enabled and available, place proportionally scaled artwork beside the rich-text summary and detail CTA; text-only output must also look intentional. Preserve image visibility/size and compact-spacing controls, and let long copy reflow without clipping or forcing the main product column wider.
+Place the product-page block in the product header after the battery-system row and before the option picker, as a compact padded panel that doesn't compete with purchase controls; text-only output must look intentional and long French copy must reflow. In the cart, render the gift notice inside the line's details immediately after the G08 availability line, using the same notice style with a gift icon, so it is visibly associated with that line; it adds no cart-wide summary message.
 
 #### Technical requirements and compatibility
 
-Use native referenced resources, safe rich-text rendering and G07's scoped update requirements. Separate eligible/winning/renderable states so diagnostics can distinguish a configured wrapper from active content. Confirm current event/response shape before implementation. A small known-expiry enhancement may support presentation, but it is not an observer of remote pause, discount deletion or retargeting.
+Resolve offers through G18's bounded collection lookup, computed once per cart render (a first pass records each line's qualifying groups and unit counts; a second pass renders notices). The cart notice is Liquid inside the native cart sections, rendered from `snippets/cart-products.liquid` after `gamma-availability-line`, so it re-renders with every quantity change, removal, Quick Add and drawer or page update and works without JavaScript; no second cart-state owner, client controller or Horizon JavaScript change is added. The product block re-renders through G07's native variant updates. A small known-expiry script hides time-limited notices on cached pages; Shopify's next render is authoritative. The wording must stay consistent with G11's ship-together notice (orders with delayed items ship together once everything has arrived). Order notes, discounts, totals, accelerated checkout and checkout handoff are unchanged. Proposed performance targets, to be confirmed with Theme Inspector in the rendering proof of concept: the product-page lookup adds at most 10% to the page's median server render time, and cart notices add at most 10% to the render of a 10-line cart. No storefront path calls the app or the VPS.
 
 #### Edge cases and quality
 
-Cover only open-ended candidates, finite/open-ended mixtures, equal end times, blank/invalid bodies, missing images/links, future/paused/expired campaigns and narrower variant eligibility. Keep multiple product instances independent. Financial claims must be truthful for the selected context; generic product-wide wording is unsuitable when only some variants qualify.
+Cover a product alone versus incomplete multi-product conditions, quantity changes across the threshold, several qualifying lines, a product in two offers, ECHO tier kits as variants, ambiguous kits, variable rewards, gifts marked backordered, expired or paused offers on loaded pages, carts with more than 50 lines, mixed qualifying and ordinary lines, and backordered qualifying products alongside G11's notice.
 
 #### Acceptance criteria
 
-- [ ] Eligibility and winners match the approved rules, including open-ended-only and tie cases.
-- [ ] Useful copy/media fallbacks and CTAs render correctly in both languages.
-- [ ] Blank/expired/ineligible content cannot leave a stale or misleading claim.
-- [ ] Product ownership, asynchronous selection, editor controls, keyboard and responsive layout pass.
-- [ ] The documented distinction between known expiry and remote-state freshness is maintained.
-- [ ] The panel occupies the intended product-header position, with usable image/text and text-only layouts, working appearance controls and readable mobile/French copy.
+- [ ] Product and cart notices match actual eligibility for every fixture, including incomplete and staff-confirmed cases, in both languages.
+- [ ] No notice implies that a gift is in the cart or applied at checkout, and none contradicts G11's notices.
+- [ ] Notices update with variant, quantity and line changes in the drawer, page and Quick Add, and render without JavaScript.
+- [ ] Placement, accessibility, mobile layouts and long French copy pass rendered review; lookup cost stays within the agreed budget.
 
 #### Prototype reference
 
-`blocks/scs-product-sale-banner.liquid` called `snippets/scs-banner-content.liquid`. It scanned collection/offer membership and chose the earliest finite end; an initial sentinel prevented open-ended-only campaigns from winning. Winner selection preceded usable-copy checks, and image selection was partly coupled to offer description. Existing copy/media/CTA fallbacks explain the intended feature; these defects need independent correction.
+`blocks/scs-product-sale-banner.liquid` called `snippets/scs-banner-content.liquid`. It scanned collection/offer membership and chose the earliest finite end; an initial sentinel prevented open-ended-only campaigns from winning. Winner selection preceded usable-copy checks, and image selection was partly coupled to offer description. Existing copy/media/CTA fallbacks explain the intended feature; these defects need independent correction. The prototype had no cart notices.
 
-### G21 — Discount and promotion operation
+### G21 — Financial promotions and dealer-gift operations
 
-**Priority:** P2; required before enabling financial claims. **Status:** Planned. **Dependencies:** G11, G15, G18, G19, G20; approved commercial rules.
+**Priority:** P2; required before enabling financial or gift claims. **Status:** Planned. **Dependencies:** G11, G18, G20, G22; approved commercial and legal rules.
 
 #### Purpose
 
-Keep the price or benefit a customer is promised aligned with what Shopify actually applies in the cart and checkout. Campaign text and dates describe an offer but do not enforce a discount. Staff therefore need an explicit owner and a workable activation, pause and expiry process that keeps public claims and financial configuration in agreement.
+Keep every promotional promise true. Shopify must actually apply the prices and discounts the storefront advertises, and staff must reliably supply the gifts it promises, without turning the campaign app into an order or fulfillment system.
 
 #### Expected behaviour and functional requirements
 
-- Distinguish informational campaigns from claims that require a real discount or code. For a financial offer, customers can identify its qualifying items, required action and applicable conditions before relying on the advertised benefit.
-- Match each financial claim to exact products/variants, dates, quantities, minimums, eligibility, combinations and supported currencies.
-- Identify one financial operator/writer and avoid conflicting manual/application actions.
-- Verify discounts before exposing savings claims; hide claims before removing/disabling their corresponding financial offer. Record partial failures accurately.
-- Provide practical activation, pause, expiry, target-edit, discrepancy and rollback procedures, including approved recheck responsibility and loaded-page freshness limitations.
-- Support the announcement capability with current approved text/codes and a clear redemption route. For required BXGY offers, explain which qualifying and reward items the customer must add, whether a code is needed, and prove actual allocation behavior; automatic gift insertion is a separate optional feature.
+- Support Shopify-native financial promotions on Grow: promotional prices (price and compare-at), percentage and fixed-amount automatic discounts, discount codes (a code per language on one discount), product, variant and collection targets, minimums, per-order caps, native schedules and combination settings, and native kit or bundle prices where appropriate. No Functions, Plus-only stacking or custom checkout behavior. Buy X Get Y is not used for gifts.
+- Configure each financial offer once in G22; the app creates and verifies the Shopify resources. A claim appears only after read-back verification (`enforcement_verified_at`); a staff checkout-summary check (stopping before payment) follows within one business day of each activation.
+- Order operations so that the benefit exists before it is promised and the claim is hidden before enforcement is removed. Manufacturer-funded benefits never run outside the manufacturer's window.
+- Detect conflicts before publication: two product discounts on one product (only the best applies on Grow), unowned discounts on the same products, overlapping price plans, percentage-of-MSRP rules while a promotional price is active, and the 25 active automatic discount limit.
+- Apply MAP rules from the manufacturers' policies: manufacturer programs as published are allowed; store-funded price claims on MAP brands only at or above MAP (STIHL) or not more than $1.00 below it (ECHO), with a named reviewer; gifts and non-price benefits without dollar values; the gift's value never subtracted from a price.
+- Dealer-gift operations are a staff procedure in Shopify Admin, not app functions: check each new order against the app's read-only gift reference (and an optional Shopify Flow `gift-review` tag); verify line items, quantities, conditions and the order date against the published offer version; tag `gift-owed`, `gift-backordered`, `gift-fulfilled` or `gift-cancelled` and add a timeline note naming the gift and offer version; add the gift to unfulfilled orders by order editing with a 100% line discount (otherwise a $0 draft order); contact customers about backorders; keep saved order views for gifts to review and gifts owed.
+- Cart line properties and attributes are not used as proof of entitlement. The app has no order, customer or fulfillment scopes.
+- Document an emergency manual procedure for financial promotions if the app is unavailable.
 
 #### Appearance and placement
 
-Use the native header announcement area for an approved store-wide promotion or code. Keep the message concise and its link/action clear, with readable contrast and mobile/French wrapping. Detailed qualification belongs on the appropriate campaign/product surface; announcements, banners and cart messages must agree about the benefit and conditions. This feature does not prescribe a second promotional overlay or a custom checkout layout.
+Use the native header announcement area only for an approved store-wide promotion or code; detailed conditions belong on campaign, product and cart surfaces (G19, G20). This feature adds no checkout layout or second promotional overlay.
 
 #### Technical requirements and compatibility
 
-Keep native discounts/cart/checkout financially authoritative. Research current Shopify representability and plan/app capabilities before choosing management tooling. Reuse supported native administration where sufficient; an application or Function is not an automatic prerequisite. If automation is selected, its ownership, canonical inputs, percentage/money units, add/remove target behavior, failure recovery and authorization must be demonstrated separately.
+Shopify is authoritative for prices, allocations and totals; application calculations only plan. Price changes are app jobs with snapshots: none of an offer's prices are applied if any differ from the approved regular values, and restore happens only when current values still equal what the app applied (a promotional price list replaces price jobs if a proof of concept shows it works on the primary market). Gift fulfilment relies on native order editing within its documented limits (unfulfilled items only; not local-delivery or Shop Pay Installments orders). Optional Flow automation uses an order-created condition on a hidden `promo-gift-live` collection maintained by the app, as a review hint only.
 
 #### Edge cases and quality
 
-Cover excluded variants, mixed carts, minimum thresholds, gift quantities, overlapping campaigns, incompatible combinations, paused/expired discounts, external edits and partial activation/removal. A theme timer cannot detect every financial change. Unknown ownership or unverified claims block activation, not unrelated storefront work. Test transactions require their own authorization and approved environment.
+Cover excluded variants, mixed carts, minimums, overlapping campaigns, incompatible combinations, discounts edited or deleted in Admin, partial plan failures, price conflicts at start and end, missed price jobs during an outage, cancelled or returned qualifying items, backordered gifts, orders partly fulfilled before a gift arrives, and duplicates prevented by tags. Test transactions require their own authorization.
 
 #### Acceptance criteria
 
-- [ ] Advertised conditions and actual authorized cart/checkout allocations agree in both languages.
-- [ ] Codes, exclusions, dates, quantities and combinations are verified for the exact enabled offers.
-- [ ] A named operator/writer and usable activation/pause/expiry/rollback procedures are established.
-- [ ] Financial failures leave truthful presentation and an explicit reconciliation outcome.
-- [ ] Announcements and product/campaign/cart copy remain consistent without theme-calculated prices.
+- [ ] Advertised financial benefits and actual Shopify allocations in cart and checkout summary agree for automatic, code, promotional-price and kit offers in both languages.
+- [ ] Activation, pause, natural end, early end and rollback follow the required order, with partial failures reported.
+- [ ] MAP and conflict rules block or flag the approved cases.
+- [ ] Staff identify, record, fulfil and close gift entitlements on test orders, including backorder, cancellation and return cases, without app involvement.
+- [ ] Approved bilingual gift wording, return terms and limited-quantity policy are documented after legal review.
 
 #### Prototype reference
 
 SCS theme files displayed claims; the related `/home/chris/shopify/sales-campaign-manager` application contained native-discount planning/execution code. Source/audit findings included ambiguous percentage conversion, untrusted posted lifecycle/IDs, incomplete target removal and weak partial-failure persistence. `sections/header-group.json` contained a launch-code announcement. These show the coordination need, not a production-ready financial workflow or a requirement to reuse that app's executor.
 
-### G22 — Campaign application compatibility
+### G22 — Campaign administration app
 
-**Priority:** P2. **Status:** Planned. **Dependencies:** G02, G18, G19, G20.
+**Priority:** P2; required project deliverable. **Status:** Planned. **Dependencies:** G02, G18; verified VPS prerequisites (Q11).
 
 #### Purpose
 
-Let staff or the required campaign application determine whether the configured storefront can display campaigns and what a missing promotion actually means. An installed but empty banner, an ineligible campaign, an inaccessible page and an incompatible theme need different responses. Reliable diagnostics prevent false assurance or unnecessary configuration changes while keeping financial validity a separate check.
+Make campaign creation, translation, scheduling and Shopify-native discount management easy and reliable for staff. A purpose-built custom app, installed only on Location Gamma's store, is the primary administration tool for the SCS; staff should rarely edit the underlying metaobjects, collections or discounts directly.
 
 #### Expected behaviour and functional requirements
 
-- Establish whether the campaign application is required for merchant operations and which diagnostics it must support. Preserve the required operator workflows without assuming that a new application or automated repair system is needed.
-- Provide a small versioned interface identifying index/detail surfaces, empty/unavailable states, product wrapper, active banner and CTA.
-- Let diagnostics distinguish active content from a configured but empty block and identify incompatible responses. Report missing setup, no currently usable content and an inability to inspect the page as separate outcomes, with an actionable next step for the operator.
-- Verify definitions, page/template assignment and native resource routes without silent repair side effects.
-- Keep authoring/import/scheduler/financial automation separately scoped unless needed and approved.
+- Manage campaigns and their content; offers, groups, eligibility and related products; manufacturer and dealer promotion information; French and English content; scheduling and lifecycle; native promotional prices and automatic and code discounts; configuration validation and conflict detection; claim accuracy; preview and publication; campaign health; and the data the theme needs (G18).
+- Exclude: adding gifts to carts or orders; fulfilling, shipping, reserving or tracking gifts; inventory and purchase orders; manufacturer reimbursement; returns; reading or editing orders; customer notifications; rental transactions or rates; Rental Expert or Point of Rental; checkout customization; replacing Shopify's discount calculation.
+- Provide a Shopify-native embedded experience: campaign list with lifecycle and health status; guided creation from templates (manufacturer seasonal, store sale, rental, information) and deep duplication; multi-offer editing with groups, gifts and conditions; product, variant and collection pickers; English and French side by side through Shopify translations; artwork per language; preview; validation with blocking errors and warnings; publish, pause, resume, end and archive with clear confirmations; a read-only gift reference for staff; a reusable rental-equipment library (an optional WordPress catalogue picker); health findings; concise activity history; settings.
+- Create, read back and reconcile owned Shopify resources (eligibility collections with back-links, discounts, price plans), marking them with app-owned metafields and never modifying resources it doesn't own. Detect manual Admin changes through webhooks and an hourly reconcile, and hide affected financial claims when intent is broken.
+- Keep immutable published versions of campaign terms so gift entitlements remain auditable after edits or expiry.
 
 #### Technical requirements and compatibility
 
-Inspect both consumer and theme boundaries before finalizing markers or versioning. Parse actual attributes/state rather than loosely matching substrings. Bind authorized diagnostic requests to verified destinations and handle password-protected previews safely. Theme updates should not require financial write access; any necessary application change is a separate, bounded application task.
+Separate app repository using Shopify's React Router template, App Bridge, Polaris web components and the Admin GraphQL API pinned to a stable version; expiring offline tokens; least-privilege scopes (metaobjects and definitions, products, discounts, files, translations, locales, publications — no order, customer, fulfillment, inventory or theme scopes); HMAC-verified webhooks and mandatory compliance topics. Host on the existing rental VPS as one systemd service under a dedicated user with resource limits, behind a separate nginx server block and subdomain, with its own MariaDB database and least-privilege user (Prisma ORM 7 with the MariaDB adapter, pinned; Prisma 8 does not yet support MariaDB). Run Node.js 24 LTS. Jobs run in-process with database leases and catch up after restarts. Deploy versioned releases with symlink rollback and additive migrations. Secrets live outside Git; nightly database dumps are copied off the server; an uptime check, failure alerts and a daily Health digest are configured. Preview uses the theme editor on Draft entries if the proof of concept confirms it, otherwise Active entries with `paused` set, rendered in full only in design mode. The app has no app proxy or storefront endpoint, and the storefront, cart and checkout must never depend on the app or the VPS. Merchant-owned definitions keep content independent of the app installation; if the database is lost, ownership is rebuilt from the app-owned metafields on owned resources. Unit tests cover eligibility, entitlement counting, lifecycle and DST, price plans and conflict rules. Before cutover, confirm the retired `sales-campaign-manager` app has no write access on Primary.
 
 #### Edge cases and quality
 
-Cover empty wrappers, unavailable campaigns, ungrouped detail, password/access failures, malformed responses, incompatible versions and unsafe redirects/origins. Marker presence does not establish translations, catalog completeness or discount validity. Address credential/origin handling before enabling any diagnostic path that could transmit a password.
+Cover app and VPS restarts, database restore, partial plan failures, concurrent manual edits, expired tokens, webhook delivery failures, overdue jobs, MariaDB or nginx outages, resource contention with WordPress, prolonged inactivity beyond the API support window, uninstall and reinstall, and missing French or invalid data blocked before publication.
 
 #### Acceptance criteria
 
-- [ ] Required application workflows and the theme interface are explicitly documented.
-- [ ] Active, empty, unavailable and incompatible fixtures yield distinct correct results.
-- [ ] Native routes/assignments work with the accepted theme version and actual consumer.
-- [ ] Diagnostics have no unapproved repairs, financial writes or off-origin credential transmission.
-- [ ] A decision records non-applicability if the application is not required; the feature is not silently omitted.
+- [ ] The app is installed on Gamma-Dev, then Primary, with only the approved scopes, and staff complete the STIHL, ECHO, rental and informational journeys without editing metaobjects or discounts directly.
+- [ ] Owned resources match intent after creation, edits, pauses and ends; drift and partial failures appear in Health with recovery actions.
+- [ ] Hosting checks pass: isolation from WordPress, OAuth and webhook connectivity, restart, backup and restore, scheduler operation, credential rotation and failure alerts.
+- [ ] With the app stopped, published campaigns, notices, prices, discounts, cart and checkout keep working.
+- [ ] A documented maintenance schedule (at least a yearly API and dependency update) and recovery procedures exist.
 
 #### Prototype reference
 
-SCS blocks/sections emitted `data-scs-*` markers. In `/home/chris/shopify/sales-campaign-manager`, `app/lib/scs/contracts.ts`, `app/services/scs/theme-compatibility.server.ts` and `app/services/scs/setup-proof.server.ts` consumed them. A substring check could mistake `data-scs-banner-block` for an active `data-scs-banner`. Setup also depended on the promotions template/route contract. Structural markers remain useful, but exact detection and safe diagnostic networking require review.
+SCS blocks/sections emitted `data-scs-*` markers. In `/home/chris/shopify/sales-campaign-manager`, `app/lib/scs/contracts.ts`, `app/services/scs/theme-compatibility.server.ts` and `app/services/scs/setup-proof.server.ts` consumed them. A substring check could mistake `data-scs-banner-block` for an active `data-scs-banner`. Setup also depended on the promotions template/route contract. The new app starts from a fresh scaffold; its representability, fingerprint and conflict ideas are references only, and DOM markers are unnecessary because the app reads Shopify data directly.
 
 ### G23 — UTM and referral integration
 
@@ -1145,6 +1147,7 @@ Establish that customers can complete whole journeys with consistent information
 - Verify editor add/remove/reorder/save, no-JS content, accessibility, metadata and representative performance.
 - Review the specified appearance and placement with complete content: product-header hierarchy, icon/text alignment, disclosures, notices, search groups, campaign cards and business-information layouts must remain coherent across languages, widths and asynchronous updates.
 - Confirm affected checkout/account/notification handoffs where they depend on the theme's language, promotions or fulfillment information. Broader platform redesign is not implied.
+- Verify the Sales Campaign System end to end: campaigns created and published through the G22 app appear correctly on campaign, product and cart surfaces; gift notices match actual cart eligibility without implying a cart or checkout gift; native discounts and promotional prices match their claims in cart and checkout summary; staff identify and record gift-entitled test orders; and the storefront keeps working while the app or VPS is unavailable.
 - Separate passed, failed, blocked and not-run checks; return defects to their owning feature before acceptance.
 
 #### Technical requirements and compatibility
@@ -1163,6 +1166,8 @@ Include combined product changes, incomplete data, cached pages, overlapping pro
 - [ ] No unresolved critical purchasing, financial, navigation, localization or accessibility defect is accepted.
 - [ ] Performance and metadata meet agreed requirements, and available/unavailable verification is reported accurately.
 - [ ] Required visual hierarchies and responsive layouts are verified with real content, including long French labels, missing artwork, zoom and dynamically replaced output.
+- [ ] SCS scenarios — dealer-gift offers (STIHL battery, ECHO tiers, multiple gifts, conditional tool-plus-battery and two-unit offers, backordered gift, incomplete carts), mixed and multiple offers, expiry and pause, real automatic and code discounts, scheduled price changes and rollback, rental and product-free campaigns, English and French — pass on Gamma-Dev with actual Shopify behavior.
+- [ ] App and VPS outage, restart and backup-restore drills leave storefront, cart and checkout unaffected.
 - [ ] The result is reviewable before any separately authorized deployment/publication decision.
 
 ### Connected-journey matrix
@@ -1172,8 +1177,11 @@ Include combined product changes, incomplete data, cached pages, overlapping pro
 | Home → search → product | Immediate typing/paste/IME, recently viewed initialization, native/rental results, localized links/media and selected product information |
 | Collection → filter/sort → Quick Add → cart | Correct specialized filters, numeric bounds, availability/media, later pages, swatches, quantities and back navigation |
 | Product → variant → pickup → cart | Details, price, media, campaign and availability agree; location information and added line identity remain native |
-| Campaign index → grouped detail → later page → product | Lifecycle, ordering, membership, duplicates, empty groups, complete pagination and native product controls |
-| Active campaign → expiry/pause → existing page/cart | Known-expiry presentation, actual discount boundary, operator actions and documented remote-state freshness limits |
+| Campaign index → campaign page → product → cart | Lifecycle, ordering, offer and group membership, gift and redemption panels, product-page notices for the selected variant and matching cart-line gift notices, including incomplete conditions |
+| Active campaign → expiry/pause → existing page/cart | Known-expiry presentation, claim margin, actual discount and price boundaries, app lifecycle actions and documented cache freshness limits |
+| App edit → publication → storefront | Validation, preview, publication, owned discount and price creation, read-back before financial claims, drift detection after a manual Admin change |
+| Qualifying order → staff gift record → fulfilment | Gift reference, optional Flow review tag, verification against the published offer version, tags and order edit, backorder contact, cancellation and return handling |
+| App or VPS unavailable → storefront | Published campaigns, notices, prices, discounts, cart and checkout unaffected; jobs catch up after restart |
 | Cart → checkout → confirmation | Mixed fulfillment, note, quantities, discounts, eligibility and supported language/terms/account/notification continuity |
 | Contact → hours → map → directions | Current exception/override, translated notice, static fallback, activation, timeout/retry/disable and privacy withdrawal |
 | Privacy choice → attribution/external media/search | Correct processing/activation conditions, revocation and useful native shopping when an integration is unavailable |
@@ -1207,12 +1215,16 @@ Independent local work can proceed while these are resolved. Resolve each before
 | Q02 | Backorder/special-order terms and real lead times, minimum-quantity wording, mixed-order shipping and pickup promises | G08, G11, G21 | Resolved 2026-11-05: backorder/special-order shipping depends on supplier availability with no stated lead time; mixed orders ship together, with separate shipments on request at additional charge; native Shopify quantity messages suffice; no pickup promise; current line wording approved, with French backorders labelled “En rupture de stock” (“En rupture” on badges). G21 campaign wording remains separate |
 | Q03 | Remembered-session versus per-instance map activation, multiple-instance disable and native privacy behavior; permitted editable destinations | G05, G17 | Resolved 2026-11-08: a visitor's choice to turn maps on or off applies to every map and persists on the device; without a choice, maps load automatically when Shopify reports preferences permission and turn off when it is withdrawn; turning maps on needs no Shopify permission and turning them off overrides it; directions are generated from each block's address for Google Maps and Apple Maps, and the uMap ID, address and images are block settings; loading fails after 20 s with a manual retry; the provisional screenshots need clean replacements before launch |
 | Q04 | Hours missing-end fallback, start/end boundaries, overlap ordering, timezone authoring, Sunday highlighting and optional priority | G16 | Resolved 2026-11-08: start inclusive, end exclusive; instants compared absolutely, authored in the store timezone; shortest overlapping window wins, then later start, then handle; 7-day default without an end; unusable data falls through to the contact message; no Sunday highlight or priority field; loaded pages keep their schedule until re-rendered |
-| Q05 | Campaign collection/offer membership, off-collection products, variant restrictions, intended scale and any projection maintenance | G18–G22 | Open; one complete contract required for all surfaces |
-| Q06 | Campaign end boundary, duration-based grace/archive presentation, winner ties, remote-claim freshness and operator/recheck responsibility | G18–G21 | Open; align content, financial conditions and operating practice |
-| Q07 | Required campaign-application workflows, diagnostic destinations and ownership of financial changes | G21, G22 | Open; theme/application boundaries must be explicit |
+| Q05 | Campaign collection/offer membership, off-collection products, variant restrictions, intended scale and any projection maintenance | G18–G22 | Resolved 2026-11-08: eligibility lives on offer groups as a collection, optionally narrowed to variants, with quantity and companion conditions; collections carry app-maintained back-links to their promotions; no product membership projection; bounded lookup that fails closed |
+| Q06 | Campaign end boundary, duration-based grace/archive presentation, winner ties, remote-claim freshness and operator/recheck responsibility | G18–G21 | Resolved 2026-11-08 in principle: start inclusive, end exclusive, store time zone; financial claims hide a margin before the end (default 30 minutes pending a caching proof of concept); ended pages show an ended notice for a retention period (default 30 days) and are then archived; product pages show up to two offers in priority, end and offer order. The defaults await approval |
+| Q07 | Required campaign-application workflows, diagnostic destinations and ownership of financial changes | G21, G22 | Resolved 2026-11-08: a custom app installed only on Location Gamma's store is the required SCS administration tool and the only writer of SCS-owned Shopify resources; it has no order, fulfillment or customer responsibilities; DOM-marker diagnostics are unnecessary |
 | Q08 | Approved bilingual branding, copy, external menu destinations, documents/policies, contact/department information and authored comparison content | G03, G04, G07, G09, G15–G21 | Open; content owners approve the relevant material |
 | Q09 | Approved bilingual rental API/page/image origins, response/CORS behavior and any separately proposed domain changes | G14 | Resolved 2026-11-05: the current WordPress catalogue is approved, with English `https://www.locationgamma.com/` and French `https://www.locationgamma.com/fr/` (API `wp-json/wp/v2/products` under each, equipment links as returned, `?post_type=gamma_product&s=` search pages); browser-verified CORS reflects the storefront origin without preflight and exposes `X-WP-Total`. The image server doesn't allow anonymous cross-origin images, so images load as ordinary no-referrer requests. The planned move to `locations.locationgamma.com` is a future change of the two theme settings once that host serves the same structure; it isn't operational or verified yet |
 | Q10 | Attribution need, current Checkout Blocks capability, selected fields, downstream behavior and privacy handling | G23 | Open; verify with the merchant/application configuration |
+| Q11 | VPS suitability for the G22 app: administrator and access, operating system, systemd, resources, nginx and TLS method, subdomain and DNS, MariaDB version (a supported LTS) and permissions, Node.js 24 LTS, outbound/inbound HTTPS, time synchronization, backups and off-site storage, SMTP alerts, monitoring | G22 | Open; only the public facts are known (nginx serves the rental site at 54.39.243.199); hosting is revisited if the checks fail |
+| Q12 | Dealer-gift legal and policy wording: bilingual gift and backorder notices, gift return terms when a qualifying item is returned, limited-quantity gifts (stated quantity required under Quebec guidance), wrong-claim policy | G19–G21 | Open; recommended defaults in the SCS proposal; legal review before publication |
+| Q13 | Manufacturer confirmations: Gamma's online sales qualify for each program, pre-approval of Gamma-authored campaign pages, treatment of prices shown only in the cart, MAP reviewer | G19–G21 | Open; confirm with STIHL and ECHO before publishing the affected offers |
+| Q14 | SCS operating options: the optional Shopify Flow `gift-review` workflow and an optional second approver for financial offers | G21, G22 | Open; recommended: adopt the Flow workflow if its proof of concept passes, and leave the second approver off |
 
 ### Material requirement and architecture decisions
 
@@ -1227,10 +1239,14 @@ Independent local work can proceed while these are resolved. Resolve each before
 | 2026-11-06 | G15 | The leaf-blower comparison chart is deferred until after the remaining planned theme feature branches and may be unfinished at launch; the `leaf-blower-chart` template stays available | Low-priority content; its absence does not block G15 completion, merging or publication |
 | 2026-11-08 | G05, G17 | Interactive maps use a persistent first-party map choice (`localStorage`) alongside Shopify's preferences permission: an explicit choice applies to every map and outlasts the session, a turn-off overrides the permission, and automatic loading waits until a map is near the viewport | Approved customer workflow; replaces the earlier session-scoped planning preference recorded under G05 |
 | 2026-11-08 | G16 | One Theme settings override and regular selection serve every hours block; dated exceptions must show a notice stating their dates; more than 49 published entries shows the contact message; expired entries are archived as Draft | Placements can't disagree, undated holiday timetables aren't shown, and draft archival keeps the unpaginated loop complete |
+| 2026-11-08 | G18–G22 | The SCS includes a purpose-built custom app, installed only on Location Gamma's store, as the campaign administration tool and part of the launch implementation; Grow remains the plan. Manual Shopify Admin operation is only an emergency fallback | Easy, reliable campaign and discount administration; G22 becomes a required deliverable instead of a compatibility layer, and the earlier no-app and phased-hybrid recommendations are superseded |
+| 2026-11-08 | G22 | The app is self-hosted on the existing rental VPS, with its own MariaDB database if the server checks (Q11) pass; Prisma ORM 7 is pinned because Prisma 8 doesn't yet support MariaDB | Uses existing infrastructure without a paid host; isolation from WordPress and storefront independence are acceptance requirements |
+| 2026-11-08 | G18–G21 | Free gifts are dealer-fulfilled promotional benefits: no automatic cart insertion, no Buy X Get Y for gifts, no reward lines and no app-managed fulfilment; campaign, product and cart-line notices explain the gift and that a backordered gift may delay the order; staff record gifts on orders with native Shopify tools | Faithfully presents every researched manufacturer gift offer, including conditional ones, without cart manipulation; replaces the earlier automatic-gift design |
+| 2026-11-08 | G18–G20 | Campaign content lives in merchant-owned metaobjects rendered by generic theme sections; eligibility uses collections with back-links for bounded product and cart lookup; financial claims require app read-back verification | One membership definition shared by display and discounts; the storefront never depends on the app at runtime |
 
 ## Optional extensions
 
-The following require separate scope and acceptance decisions: directional product-to-kit links beyond G09's core battery/recommendation feature; catalog import/normalization tooling; PoR status or resale-quantity synchronization; additional analytics; a full campaign authoring/import/scheduler application; price automation; automatic gifts; and broader reward/volume programs.
+The following require separate scope and acceptance decisions: directional product-to-kit links beyond G09's core battery/recommendation feature; catalog import/normalization tooling; PoR status or resale-quantity synchronization; additional analytics; campaign spreadsheet import; the G22 WordPress catalogue picker; and broader reward/volume programs. Automatic gift insertion and app-managed gift fulfilment are out of scope (G20, G21, G22).
 
 These extensions must not become hidden prerequisites for required storefront behavior. Their absence does not justify omitting required rental discovery, product information, location content, promotional browsing or a truthful supported discount workflow. Any future extension must respect the same native authority, localization, accessibility, privacy and operational requirements.
 
