@@ -70,6 +70,14 @@
   endif
 -%}
 
+{%- if map_id != blank -%}
+  <script
+    src="{{ 'gamma-map.js' | asset_url }}"
+    type="module"
+    fetchpriority="low"
+  ></script>
+{%- endif -%}
+
 <gamma-map-component
   class="gamma-map"
   style="
@@ -126,7 +134,6 @@
           class="button-unstyled gamma-map__activate"
           ref="showButton"
           on:click="/show"
-          hidden
         >
           <span class="gamma-map__chip">
             <span class="svg-wrapper gamma-map__icon">{{- 'icon-gamma-map.svg' | inline_asset_content -}}</span>
@@ -180,7 +187,6 @@
     <div
       class="gamma-map__controls"
       ref="controls"
-      hidden
     >
       <p
         class="gamma-map__status visually-hidden"
