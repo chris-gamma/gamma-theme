@@ -1,0 +1,332 @@
+{%- doc -%}
+  Finds the live campaign offers that the selected variant qualifies for, through its collections'
+  `promotion.promotions` back-links, without scanning every campaign. It outputs codes and IDs only;
+  the caller renders the results.
+
+  Output: `status|notes|records`, without spaces or line breaks. `status` is `ok` (complete),
+  `suppressed` (a limit or budget was reached, so callers make no claim for the product) or
+  `invalid` (`product` or `variant` missing). `records` are matches separated by `;`, best first,
+  each with 16 fields separated by `:`: promotion, offer, group and qualifying collection IDs; the
+  zero-based positions of that collection, the campaign, the offer and the group in their lists;
+  claim; hide_at; effective end; priority; minimum quantity; companion collection ID and quantity;
+  and `1` when staff confirm conditions. Confirm an entry's ID before using it by position.
+  Lookups are limited by work budgets (campaign, offer and group references) and Shopify's
+  50-iteration `for` limit.
+
+  @param {product} product - The product being shown or bought.
+  @param {variant} variant - The selected variant of that product.
+  @param {number} [at] - Evaluation time in Unix seconds. Defaults to the render time and is passed to every nested evaluation.
+{%- enddoc -%}
+
+{%- liquid
+  # Budgets count references loaded; each list reserves its ceiling before it is read.
+  assign link_ceiling = 5
+  assign offer_ceiling = 12
+  assign group_ceiling = 8
+  assign link_budget = 30
+  assign promotion_budget = 8
+  # At most 50 offer references, so at most 50 records reach the final loop (50-iteration limit).
+  assign offer_budget = 50
+  assign group_budget = 200
+
+  if at != blank
+    assign now = at | plus: 0
+  else
+    assign now = 'now' | date: '%s' | plus: 0
+  endif
+
+  assign status = 'ok'
+  assign notes = ''
+  assign records = ''
+
+  if product == blank or variant == blank
+    assign status = 'invalid'
+    assign notes = ',input_missing'
+  else
+    assign collection_count = product.collections.size
+    if collection_count >= 50
+      assign status = 'suppressed'
+      assign notes = ',collections_truncated'
+    elsif collection_count >= 45
+      assign notes = ',collections_near_limit'
+    endif
+  endif
+
+  # Pass 1: the product's collection IDs and every (campaign, collection) back-link with its positions.
+  assign collection_ids = ','
+  assign links = '|'
+  assign seen_promotions = ','
+  assign link_count = 0
+  assign promotion_count = 0
+
+  if status == 'ok'
+    for collection in product.collections
+      assign c = forloop.index0
+      assign collection_ids = collection_ids | append: collection.id | append: ','
+      if status != 'ok'
+        continue
+      endif
+
+      assign field = collection.metafields.promotion.promotions
+      if field == blank
+        continue
+      endif
+      assign reserved = link_count | plus: link_ceiling
+      if reserved > link_budget
+        assign status = 'suppressed'
+        assign notes = notes | append: ',budget_links'
+        continue
+      endif
+
+      assign campaigns = field.value
+      assign campaign_count = campaigns.size | plus: 0
+      assign link_count = link_count | plus: campaign_count
+      if campaign_count > link_ceiling
+        assign status = 'suppressed'
+        assign notes = notes | append: ',links_over_limit'
+        continue
+      endif
+
+      for promotion in campaigns
+        assign p = forloop.index0
+        if promotion == blank
+          assign notes = notes | append: ',link_unavailable'
+          continue
+        endif
+        if promotion.system.type != 'promotion'
+          assign notes = notes | append: ',link_wrong_type'
+          continue
+        endif
+        assign key = 'P' | append: promotion.system.id | append: 'C' | append: collection.id | append: '='
+        assign search = '|' | append: key
+        if links contains search
+          assign notes = notes | append: ',link_duplicate'
+          continue
+        endif
+        assign links = links | append: key | append: c | append: '.' | append: p | append: '|'
+        assign token = ',' | append: promotion.system.id | append: ','
+        unless seen_promotions contains token
+          assign seen_promotions = seen_promotions | append: promotion.system.id | append: ','
+          assign promotion_count = promotion_count | plus: 1
+        endunless
+      endfor
+
+      if promotion_count > promotion_budget
+        assign status = 'suppressed'
+        assign notes = notes | append: ',budget_promotions'
+      endif
+    endfor
+  endif
+
+  # Pass 2: each distinct live campaign once (lists already counted in pass 1), then every offer it
+  # references, evaluated under that campaign even if another campaign also references it.
+  assign done_promotions = ','
+  assign offer_count = 0
+  assign group_count = 0
+
+  if status == 'ok' and promotion_count > 0
+    for collection in product.collections
+      if status != 'ok'
+        break
+      endif
+      assign field = collection.metafields.promotion.promotions
+      if field == blank
+        continue
+      endif
+
+      for promotion in field.value
+        if status != 'ok'
+          break
+        endif
+        if promotion == blank or promotion.system.type != 'promotion'
+          continue
+        endif
+        assign token = ',' | append: promotion.system.id | append: ','
+        if done_promotions contains token
+          continue
+        endif
+        assign done_promotions = done_promotions | append: promotion.system.id | append: ','
+
+        capture parent
+          render 'gamma-promotion-state', promotion: promotion, at: now
+        endcapture
+        assign parent = parent | strip
+        assign parent_parts = parent | split: '|'
+        if parent_parts[0] != 'live'
+          if parent_parts[3] != blank
+            assign promotion_notes = parent_parts[3] | prepend: ',' | replace: ',', ',promotion_'
+            assign notes = notes | append: promotion_notes
+          endif
+          continue
+        endif
+
+        assign priority = promotion.priority.value | plus: 0
+        if priority < 1 or priority > 99
+          assign priority = 50
+        endif
+
+        assign offers_field = promotion.offers
+        if offers_field == blank
+          continue
+        endif
+        assign reserved = offer_count | plus: offer_ceiling
+        if reserved > offer_budget
+          assign status = 'suppressed'
+          assign notes = notes | append: ',budget_offers'
+          break
+        endif
+        assign offers = offers_field.value
+        assign offers_size = offers.size | plus: 0
+        assign offer_count = offer_count | plus: offers_size
+        if offers_size > offer_ceiling
+          assign status = 'suppressed'
+          assign notes = notes | append: ',offers_over_limit'
+          break
+        endif
+
+        assign seen_offers = ','
+        for offer in offers
+          assign o = forloop.index0
+          if status != 'ok'
+            break
+          endif
+          if offer == blank
+            assign notes = notes | append: ',offer_unavailable'
+            continue
+          endif
+          assign token = ',' | append: offer.system.id | append: ','
+          if seen_offers contains token
+            assign notes = notes | append: ',offer_duplicate'
+            continue
+          endif
+          assign seen_offers = seen_offers | append: offer.system.id | append: ','
+
+          capture offer_result
+            render 'gamma-promotion-offer', offer: offer, parent: parent, at: now
+          endcapture
+          assign offer_parts = offer_result | strip | split: '|'
+          if offer_parts[5] != blank
+            assign offer_notes = offer_parts[5] | prepend: ',' | replace: ',', ',offer_'
+            assign notes = notes | append: offer_notes
+          endif
+          assign claim = offer_parts[1]
+          if claim == blank or claim == 'none'
+            continue
+          endif
+
+          assign groups_field = offer.groups
+          if groups_field == blank
+            continue
+          endif
+          assign reserved = group_count | plus: group_ceiling
+          if reserved > group_budget
+            assign status = 'suppressed'
+            assign notes = notes | append: ',budget_groups'
+            break
+          endif
+          assign groups = groups_field.value
+          assign groups_size = groups.size | plus: 0
+          assign group_count = group_count | plus: groups_size
+          if groups_size > group_ceiling
+            assign status = 'suppressed'
+            assign notes = notes | append: ',groups_over_limit'
+            break
+          endif
+
+          # Every group whose collection holds the product decides whether the offer is emitted.
+          assign eligible = 0
+          assign invalid = false
+          assign match = ''
+          assign match_position = ''
+          for group in groups
+            capture group_result
+              render 'gamma-promotion-group', group: group, variant: variant, collection_ids: collection_ids, claim: claim
+            endcapture
+            assign group_parts = group_result | strip | split: '|'
+            case group_parts[0]
+              when 'eligible'
+                assign eligible = eligible | plus: 1
+                assign match = group_parts
+                assign match_position = forloop.index0
+                assign match_group = group.system.id
+              when 'invalid'
+                assign invalid = true
+            endcase
+            if group_parts[6] != blank
+              assign group_notes = group_parts[6] | prepend: ',' | replace: ',', ',group_'
+              assign notes = notes | append: group_notes
+            endif
+          endfor
+
+          if invalid
+            assign notes = notes | append: ',group_invalid'
+            continue
+          endif
+          if eligible > 1
+            assign notes = notes | append: ',offer_ambiguous'
+            continue
+          endif
+          if eligible == 0
+            continue
+          endif
+
+          # The matching group's own collection must back-link this campaign.
+          assign search = '|P' | append: promotion.system.id | append: 'C' | append: match[1] | append: '='
+          unless links contains search
+            assign notes = notes | append: ',link_missing'
+            continue
+          endunless
+          assign positions = links | split: search | last | split: '|' | first | split: '.'
+
+          # Sort key: priority, effective end, authored offer position, promotion ID, offer ID.
+          assign end_key = offer_parts[3] | default: '99999999999'
+          assign padded_priority = '00' | append: priority | slice: -2, 2
+          assign padded_end = '00000000000' | append: end_key | slice: -11, 11
+          assign padded_position = '00' | append: o | slice: -2, 2
+          assign padded_promotion = '00000000000000000000' | append: promotion.system.id | slice: -20, 20
+          assign padded_offer = '00000000000000000000' | append: offer.system.id | slice: -20, 20
+          assign sort_key = padded_priority | append: padded_end | append: padded_position | append: padded_promotion | append: padded_offer
+
+          assign record = promotion.system.id | append: ':' | append: offer.system.id | append: ':' | append: match_group
+          assign record = record | append: ':' | append: match[1] | append: ':' | append: positions[0] | append: ':' | append: positions[1]
+          assign record = record | append: ':' | append: o | append: ':' | append: match_position | append: ':' | append: claim
+          assign record = record | append: ':' | append: offer_parts[4] | append: ':' | append: offer_parts[3] | append: ':' | append: priority
+          assign record = record | append: ':' | append: match[2] | append: ':' | append: match[3] | append: ':' | append: match[4] | append: ':' | append: match[5]
+          assign records = records | append: ';' | append: sort_key | append: '~' | append: record
+        endfor
+      endfor
+    endfor
+  endif
+
+  # Best first; an offer matched under several campaigns keeps only its first record.
+  # The offer budget keeps this at 50 or fewer; more would be truncated by the loop, so suppress.
+  if status == 'ok' and records != blank
+    assign sorted = records | remove_first: ';' | split: ';' | sort
+    if sorted.size > 50
+      assign status = 'suppressed'
+      assign notes = notes | append: ',records_over_limit'
+    endif
+  endif
+  if status == 'ok' and records != blank
+    assign records = ''
+    assign kept_offers = ','
+    for entry in sorted
+      assign record = entry | split: '~' | last
+      assign record_parts = record | split: ':'
+      assign offer_id = record_parts[1]
+      assign token = ',' | append: offer_id | append: ','
+      if kept_offers contains token
+        assign notes = notes | append: ',offer_shared'
+        continue
+      endif
+      assign kept_offers = kept_offers | append: offer_id | append: ','
+      assign records = records | append: ';' | append: record
+    endfor
+    assign records = records | remove_first: ';'
+  else
+    assign records = ''
+  endif
+
+  assign notes = notes | remove_first: ',' | split: ',' | uniq | join: ','
+  echo status | append: '|' | append: notes | append: '|' | append: records
+-%}
