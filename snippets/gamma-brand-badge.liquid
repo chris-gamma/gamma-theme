@@ -1,0 +1,60 @@
+{%- doc -%}
+  Renders a text badge for a `brand` metaobject entry, such as a promotion's sponsor. Shopify returns a
+  Draft, deleted or missing reference as blank, so the badge then renders nothing. The colour is the
+  theme's brand colour when `use_theme_brand_color` is set, otherwise `badge_color`, otherwise a neutral
+  outline; filled badges use black or white text, whichever contrasts more (at least 4.5:1 for any
+  colour). The entry's `logo` is reserved and not displayed.
+
+  @param {object} brand - The `brand` metaobject entry, or blank.
+
+  @example
+  {% render 'gamma-brand-badge', brand: promotion.sponsor.value %}
+{%- enddoc -%}
+
+{%- liquid
+  assign brand_name = ''
+  if brand != blank and brand.system.type == 'brand'
+    assign brand_name = brand.name.value | strip
+  endif
+
+  if brand_name != blank
+    assign badge_color = brand.badge_color.value
+    if brand.use_theme_brand_color.value == true
+      assign badge_color = settings.color_palette.brand
+    endif
+    if badge_color != blank
+      assign badge_color = badge_color | color_modify: 'alpha', 1
+      assign badge_text_color = '#000000'
+      assign black_contrast = badge_color | color_contrast: '#000000'
+      assign white_contrast = badge_color | color_contrast: '#ffffff'
+      if white_contrast > black_contrast
+        assign badge_text_color = '#ffffff'
+      endif
+    endif
+  endif
+-%}
+{%- if brand_name != blank -%}
+  <p
+    class="gamma-brand-badge"
+    {% if badge_color != blank %}
+      style="--gamma-badge-background: {{ badge_color }}; --gamma-badge-text: {{ badge_text_color }};"
+    {% endif %}
+  >
+    {{- brand_name | escape -}}
+  </p>
+{%- endif -%}
+
+{% stylesheet %}
+  .gamma-brand-badge {
+    align-self: flex-start;
+    margin: 0;
+    padding: 0.125rem 0.5rem;
+    border: 1px solid var(--gamma-badge-background, currentColor);
+    border-radius: var(--style-border-radius-pills, 999px);
+    background-color: var(--gamma-badge-background, transparent);
+    color: var(--gamma-badge-text, inherit);
+    font-size: 0.8125rem;
+    font-weight: var(--font-weight-bold, 700);
+    overflow-wrap: anywhere;
+  }
+{% endstylesheet %}

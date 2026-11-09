@@ -32,6 +32,7 @@
     {%- when 'live' -%}
       <header class="gamma-promotion__hero">
         <div class="gamma-promotion__hero-text">
+          {%- render 'gamma-brand-badge', brand: entry.sponsor.value -%}
           {%- if entry.eyebrow.value != blank -%}
             <p class="gamma-promotion__eyebrow">{{ entry.eyebrow.value | escape }}</p>
           {%- endif -%}

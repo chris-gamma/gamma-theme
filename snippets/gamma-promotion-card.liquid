@@ -5,23 +5,11 @@
   @param {object} promotion - The `promotion` entry.
   @param {string} state - The campaign's gamma-promotion-state output.
   @param {string} heading_level - Heading tag for the title, such as `h3`.
-  @param {color} [badge_color] - Sponsor badge background colour.
 {%- enddoc -%}
 
 {%- liquid
   assign parts = state | split: '|'
   assign status = parts[0]
-  assign sponsor = promotion.sponsor.value | append: ''
-  assign sponsor_key = 'gamma_promotion.sponsors.' | append: sponsor
-  if badge_color != blank
-    assign badge_color = badge_color | color_modify: 'alpha', 1
-    assign badge_text_color = '#000000'
-    assign black_contrast = badge_color | color_contrast: '#000000'
-    assign white_contrast = badge_color | color_contrast: '#ffffff'
-    if white_contrast > black_contrast
-      assign badge_text_color = '#ffffff'
-    endif
-  endif
   capture date_line
     render 'gamma-promotion-dates', start: parts[1], end: parts[2]
   endcapture
@@ -40,16 +28,7 @@
     }}
   {%- endif -%}
   <div class="gamma-promotion-card__body">
-    {%- if sponsor != blank -%}
-      <p
-        class="gamma-promotion-card__badge"
-        {% if badge_color != blank %}
-          style="--gamma-badge-background: {{ badge_color }}; --gamma-badge-text: {{ badge_text_color }};"
-        {% endif %}
-      >
-        {{- sponsor_key | t -}}
-      </p>
-    {%- endif -%}
+    {%- render 'gamma-brand-badge', brand: promotion.sponsor.value -%}
     <{{ heading_level }} class="gamma-promotion-card__title">
       <a class="gamma-promotion-card__link" href="{{ promotion.system.url }}">{{ promotion.title.value | escape }}</a>
     </{{ heading_level }}>
@@ -98,17 +77,6 @@
     margin: 0;
     overflow-wrap: anywhere;
     hyphens: auto;
-  }
-
-  .gamma-promotion-card__badge {
-    align-self: flex-start;
-    padding: 0.125rem 0.5rem;
-    border: 1px solid var(--gamma-badge-background, currentColor);
-    border-radius: var(--style-border-radius-pills, 999px);
-    background-color: var(--gamma-badge-background, transparent);
-    color: var(--gamma-badge-text, inherit);
-    font-size: 0.8125rem;
-    font-weight: var(--font-weight-bold, 700);
   }
 
   .gamma-promotion-card__link {

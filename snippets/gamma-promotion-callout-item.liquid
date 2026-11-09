@@ -1,6 +1,6 @@
 {%- doc -%}
-  Renders one live campaign in a collection's promotion callout: its title linked to the campaign page,
-  its summary and dates. It hides at the campaign's end on loaded pages.
+  Renders one live campaign in a collection's promotion callout: its sponsor badge, its title linked to
+  the campaign page, its summary and dates. It hides at the campaign's end on loaded pages.
 
   @param {object} promotion - The live `promotion` entry.
   @param {number} [start] - Campaign start in Unix seconds.
@@ -11,6 +11,7 @@
   {%- render 'gamma-promotion-dates', start: start, end: end -%}
 {%- endcapture -%}
 <li class="gamma-promotion-callout__item"{% if end != blank %} data-gamma-hide-at="{{ end }}"{% endif %}>
+  {%- render 'gamma-brand-badge', brand: promotion.sponsor.value -%}
   <a href="{{ promotion.system.url }}"><strong>{{ promotion.title.value | escape }}</strong></a>
   {%- if promotion.summary.value != blank -%}
     <p>{{ promotion.summary.value | escape }}</p>
