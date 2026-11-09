@@ -120,6 +120,91 @@
       "missing_image": "Sélectionnez une image de carte statique. Sans image, la carte ne s’affiche que lorsqu’un client active la carte interactive."
     }
   },
+  "gamma_promotion": {
+    "dates": {
+      "from_through": "Du {{ start }} au {{ end }} inclusivement",
+      "through": "Jusqu’au {{ end }} inclusivement",
+      "from": "À compter du {{ start }}"
+    },
+    "ended": "Cette promotion est terminée.",
+    "unavailable_heading": "Cette promotion n’est pas offerte",
+    "unavailable": "Elle n’a pas encore commencé, elle est suspendue ou elle n’est plus offerte. Consultez nos promotions en cours pour d’autres offres.",
+    "index_link": "Voir les promotions en cours",
+    "source": "Détails officiels du fabricant",
+    "new_tab": "(s’ouvre dans un nouvel onglet)",
+    "editor_diagnostics": "Affiché seulement dans l’éditeur de thème. État : {{ state }}. Codes : {{ codes }}",
+    "offers_nav": "Offres de cette promotion",
+    "offer_terms": "Conditions de l’offre",
+    "terms": "Conditions de la promotion",
+    "card_limit": "Affiché seulement dans l’éditeur de thème : cette page a atteint sa limite de 60 cartes; les autres articles admissibles sont présentés sous forme de liens.",
+    "redemption": {
+      "price_shown": "Les prix promotionnels sont indiqués sur les produits admissibles.",
+      "automatic": "Appliqué automatiquement au paiement.",
+      "discount_code_html": "Utilisez le code <code>{{ code }}</code> au paiement.",
+      "manufacturer": "Comment réclamer",
+      "claim_by": "Soumettez votre réclamation au plus tard le {{ date }}.",
+      "claim_link": "Formulaire de réclamation",
+      "in_store": "Cette offre est offerte en magasin.",
+      "contact": "Nous joindre et heures d’ouverture"
+    },
+    "gift": {
+      "heading": "Comment recevoir votre cadeau",
+      "how": "Inutile d’ajouter le cadeau à votre panier. Achetez l’équipement admissible comme d’habitude : Location Gamma fournit le cadeau avec votre commande. Si le cadeau est en rupture de stock, votre commande pourrait être retardée; nous communiquerons alors avec vous.",
+      "backordered": "Ce cadeau est présentement en rupture de stock; votre commande pourrait donc être retardée. Nous communiquerons avec vous pour vous donner plus de détails.",
+      "limited": "Offre limitée aux {{ quantity }} premières commandes admissibles.",
+      "label": "Cadeau : {{ gift }}",
+      "varies": "Le modèle du cadeau dépend de votre achat; Location Gamma le confirme."
+    },
+    "conditions": {
+      "quantity": "Achetez {{ count }} articles admissibles pour chaque cadeau.",
+      "companion": "Achetez-le avec {{ companion }}.",
+      "staff": "Certaines conditions sont confirmées par notre équipe après votre commande."
+    },
+    "cards": {
+      "eligible_variants": "Admissibles : {{ variants }}",
+      "see_all": {
+        "one": "Voir le produit admissible",
+        "other": "Voir les {{ count }} produits admissibles"
+      },
+      "more": "Autres articles admissibles :"
+    },
+    "post_sale": {
+      "heading": "Réclamations pour les achats admissibles déjà effectués",
+      "between": "Pour les achats admissibles effectués entre le {{ start }} et le {{ end }}.",
+      "before": "Pour les achats admissibles effectués au plus tard le {{ end }}."
+    },
+    "index": {
+      "empty": "Aucune promotion en ce moment. Revenez bientôt.",
+      "cta": "Voir la promotion",
+      "groups": {
+        "sales": "Vente d’équipement",
+        "rental": "Location d’équipement",
+        "coming": "À venir",
+        "ended": "Récemment terminées"
+      },
+      "pages": "{{ group }} : pages",
+      "page": "Page {{ number }}",
+      "previous": "Page précédente",
+      "next": "Page suivante",
+      "too_many": "Affiché seulement dans l’éditeur de thème : plus de 250 promotions sont publiées; les pages suivantes sont donc triées séparément. Archivez les promotions terminées."
+    },
+    "sponsors": {
+      "location_gamma": "Location Gamma",
+      "stihl": "STIHL",
+      "echo": "ECHO",
+      "shindaiwa": "Shindaiwa",
+      "ego": "EGO",
+      "ox_tools": "OX Tools",
+      "hilti": "Hilti",
+      "big_green_egg": "Big Green Egg",
+      "napoleon": "Napoleon",
+      "other_manufacturer": "Fabricant"
+    },
+    "callout": {
+      "heading": "Promotions en cours",
+      "over_limit": "Affiché seulement dans l’éditeur de thème : cette collection est liée à plus de 5 promotions; aucune n’est donc affichée."
+    }
+  },
   "blocks": {
     "load_video": "Charger la vidéo : {{ description }}",
     "sold_out": "Épuisé",
