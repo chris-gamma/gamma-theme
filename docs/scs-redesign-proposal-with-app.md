@@ -1,6 +1,6 @@
 # Sales Campaign System — selected architecture (custom app)
 
-Location Gamma · revised 2026-11-08 · section 6 pinned as the G18 contract, with its theme snippets implemented locally; the rest is planning, and nothing is set up in Shopify.
+Location Gamma · revised 2026-11-09 · section 6 pinned as the G18 contract, with its theme snippets implemented locally; `promotion.sponsor` now references the shared `brand` definition (section 6). The rest is planning. Of the definitions described here, only `brand` exists in Shopify (Gamma-Dev); the four SCS definitions don't.
 
 This document describes the selected architecture for the Sales Campaign System (SCS): a purpose-built custom Shopify app, self-hosted on the VPS that already serves the WordPress rental catalogue, administering campaign content and Shopify-native financial promotions for a Liquid storefront that never depends on the app at runtime. It incorporates the decisions approved on 2026-11-08 (section 2) and supersedes this document's earlier recommendations, which assumed managed hosting, PostgreSQL, automatic free-gift cart insertion and a phased no-app launch. The companion [no-app proposal](scs-redesign-proposal-no-app.md) remains as a read-only comparison and emergency fallback reference; it is not the selected design.
 
@@ -159,6 +159,7 @@ Pinned for G18 on 2026-11-08 (`feature/scs-data-contract`). **Provisional** mark
 ### Principles
 
 - **Ownership and provisioning.** All four definitions are merchant-owned (types without the `$app:` prefix) so content survives an app uninstall. Shopify declares only app-owned definitions in `shopify.app.toml`, and the `onlineStore` capability isn't supported there, so G22's setup step (or an authorized Gamma-Dev fixture pass before the app exists) creates them at runtime with `metaobjectDefinitionCreate` and the collection metafield with `metafieldDefinitionCreate`, after explicit approval. Setup adopts existing compatible definitions rather than recreating them.
+- **Shared Brand.** Sponsors are entries of the merchant-owned `brand` definition (section 6), which the SCS shares with other store features and doesn't own. `promotion.sponsor` references one; neither the theme nor G22 keeps its own list of brands, names or colours.
 - **Capabilities.** All four are translatable with `access.storefront: PUBLIC_READ`. `promotion`, `promotion_offer` and `rental_item` are publishable (new entries start as Draft). `promotion_group` isn't publishable: a group is embedded in its offer and is visible wherever a visible offer references it. Only `promotion` is renderable (meta title `title`, meta description `summary`) and has the Online Store capability.
 - **Public read isn't privacy.** Fields of an Active public-read entry can be read through the Storefront API as well as Liquid, whatever the theme renders; a scheduled or paused page controls HTML only. Embargoed campaigns and offers stay Draft until release. No dealer-only data belongs in these definitions; G22 must settle private storage for sensitive operational data (for example `app_config` if it would hold anything not publishable) before populating it.
 - **Eligibility always lives on groups.** Every offer that targets products has at least one group; the app hides the group level in the editor when there's only one.
@@ -176,7 +177,7 @@ Publishable, translatable, renderable, Online Store with URL handle `promotions`
 | Key | Type | Required, default, bounds | Enforced |
 | --- | --- | --- | --- |
 | `title` | `single_line_text_field` | Required; max 80 | S |
-| `sponsor` | `single_line_text_field`, choices `location_gamma`, `stihl`, `echo`, `shindaiwa`, `ego`, `ox_tools`, `hilti`, `big_green_egg`, `napoleon`, `other_manufacturer` | Required | S |
+| `sponsor` | `metaobject_reference` → `brand` | Required. Replaces the fixed sponsor choices of 2026-11-08. A Draft or deleted Brand reads as blank: the campaign renders without a badge | S; A (Active Brand before publication); L (no badge) |
 | `business` | `single_line_text_field`, choices `equipment_sales`, `equipment_rental`, `sales_and_rental` | Required | S |
 | `summary` | `multi_line_text_field` | Required; max 220 | S |
 | `eyebrow` | `single_line_text_field` | | |
@@ -257,6 +258,21 @@ Publishable, translatable, reusable.
 | `note` | `single_line_text_field` | | |
 | `catalogue_ref` | `json` | App-only: English and French WordPress post IDs; not part of the Liquid interface | A |
 
+### `brand` ("Brand"), shared
+
+Merchant-owned, publishable, translatable, `access.storefront: PUBLIC_READ`; no Online Store pages. Managed by staff in Shopify Admin → Content and shared by the SCS and other store features: it is not one of the four SCS definitions, and neither G22's setup nor its uninstall creates, changes or deletes it. Created on Gamma-Dev on 2026-11-09 with entries `location-gamma`, `stihl`, `echo`, `shindaiwa` and `ego`; not yet on Primary.
+
+| Key | Type | Required, default, bounds | Theme use |
+| --- | --- | --- | --- |
+| `name` | `single_line_text_field` | Required. Customer-facing name, translated in Translate & Adapt when it differs in French | Badge text |
+| `badge_color` | `color` | Optional | Badge fill when `use_theme_brand_color` isn't set |
+| `use_theme_brand_color` | `boolean` | Blank = false. True for Location Gamma | Badge fill from the active theme's brand colour (`settings.color_palette.brand`), so it follows theme changes |
+| `logo` | `file_reference` (`Image`) | Optional | Reserved; not displayed. Logos are shown only from approved brand packages |
+
+**Existing relationships (Gamma-Dev, 2026-11-09).** `battery_system.brand` (optional single Brand reference), `warranty_policy.brands` and `return_exchange_policy.brands` (optional Brand lists) were added to existing definitions and backfilled for four STIHL battery systems, six STIHL warranty policies and one STIHL return policy. The theme doesn't read these references yet; existing battery-system, warranty and return content is unchanged.
+
+**Ownership boundary.** Shopify Admin owns every definition, Brand entry, colour, translation and reference, and their migration between stores. The theme owns only presentation: it reads a Brand through a reference and contains no Brand IDs, handles, names or colours. G22 reads Brand entries as its source of truth (sponsor picker, filters, MAP rules keyed to Brand IDs) and never keeps a separate brand registry; whether staff may create Brand entries from the app is decided with G22.
+
 ### Collection metafields
 
 | Namespace and key | Type | Rule | Enforced |
@@ -276,13 +292,13 @@ Publishable, translatable, reusable.
 | `Finding` | Health issue, severity, resource, first and last seen, resolution |
 | `PublishedVersion` | Immutable snapshot of a campaign's customer-facing terms at each publication, so entitlements remain auditable after edits or expiry |
 | `AuditEvent` | Staff user, action, campaign, summary |
-| `Setting` | MAP vendors, claim margin, retention, discount budget reserve, rental origins, alert address |
+| `Setting` | MAP rules keyed to Brand entry IDs, claim margin, retention, discount budget reserve, rental origins, alert address |
 
 JSON values are stored as text columns serialized by the app, which avoids depending on MariaDB's JSON-alias behaviour.
 
 ### Theme contract (stable interface)
 
-The theme reads only the fields above, by key, and never `app_config`, `map_reviewed_at`, `catalogue_ref` or ownership metafields. App-written fields mean the same whether written by the app or, in the emergency fallback, by staff. New optional fields can be added without theme changes; renaming or removing a field is a coordinated theme and app release. The app never edits theme files.
+The theme reads only the fields above, by key, and never `app_config`, `map_reviewed_at`, `catalogue_ref`, a Brand's `logo` or ownership metafields. Sponsor badges on the index cards, the campaign hero and collection callouts come from `snippets/gamma-brand-badge.liquid`, which reads the referenced Brand's `name`, `use_theme_brand_color` and `badge_color` (in that precedence: theme brand colour, then `badge_color`, then a neutral outline), sets black or white text by whichever contrasts more (at least 4.5:1 for any fill) and renders nothing for a missing, Draft or wrong-type reference. App-written fields mean the same whether written by the app or, in the emergency fallback, by staff. New optional fields can be added without theme changes; renaming or removing a field is a coordinated theme and app release. The app never edits theme files.
 
 The G18 snippets apply the contract once for every surface. They output fixed codes, IDs, list positions and Unix seconds only (no translated text), take an optional `at` evaluation time in Unix seconds (as `gamma-store-hours-entry` does) and are not rendered on any customer-facing entry point until G19/G20 call them. Each snippet's LiquidDoc header is authoritative for its exact output and diagnostic codes.
 
@@ -540,7 +556,7 @@ G07 variant updates; G08 notice styling and order of messages; G09 block positio
 
 **Navigation:** Campaigns · Gift reference · Rental equipment · Health · Activity · Settings.
 
-- **Campaigns list:** tabs *Needs attention*, *Live*, *Scheduled*, *Drafts*, *Paused*, *Ended*, *Archived*; search; sponsor and business filters; columns for status, dates, offers, health and last change.
+- **Campaigns list:** tabs *Needs attention*, *Live*, *Scheduled*, *Drafts*, *Paused*, *Ended*, *Archived*; search; sponsor (Brand) and business filters; columns for status, dates, offers, health and last change.
 - **Create campaign:** starting points *Manufacturer seasonal*, *Store sale*, *Rental promotion*, *Information*, or *Duplicate a past campaign* (deep copy: new promotion, offer and group entries with content and translations; dates, verification and ownership cleared; rental items and existing collections shared).
 - **Campaign editor:** details; English and French side by side with completeness and "outdated" badges; artwork per language; schedule; ordered offers with move up and down; terms; button; a summary panel with blocking errors, warnings, translation status, the Shopify changes the next publish makes, and preview links.
 - **Offer editor (progressive disclosure):**
@@ -553,7 +569,7 @@ G07 variant updates; G08 notice styling and order of messages; G09 block positio
 - **Gift reference:** read-only list of live and recently ended gift offers for staff (section 9). It reads campaign data only; it never reads orders.
 - **Rental equipment:** reusable cards; optional catalogue picker (section 14).
 - **Health:** findings in plain language with actions; **Activity:** who did what and when.
-- **Settings:** MAP vendors, claim margin, retention, discount budget reserve, rental origins, alert email, optional second approver for financial offers.
+- **Settings:** MAP rules per Brand, claim margin, retention, discount budget reserve, rental origins, alert email, optional second approver for financial offers.
 - **Preview:** Plan A: the theme editor previews Draft entries (POC P-PRE); Plan B: Active + `paused`, with the full page rendered in theme design mode only.
 
 **Journeys:** informational campaign ≈ 10 minutes; in-store rental rate; cleaning and sanding cards; STIHL seven-offer campaign by duplicating last season (estimated 1–2 hours, mostly checking manufacturer lists and French copy); pause; drift repair from Health.
@@ -717,6 +733,7 @@ Indefinite maintenance-free operation can't be promised: an app idle past the AP
 | Item | Action |
 | --- | --- |
 | `sales_campaigns` / `promo_offers` (one expired, unverified entry each on Primary; Gamma-Dev held two campaigns and three offers on 2026-11-08) | Not migrated. The app setup frees the `promotions` URL handle and creates the new definitions on gamma-dev; on Primary at cutover after confirming the published theme. Old definitions are deleted once the new theme is live |
+| Sponsor choices (`location_gamma` … `other_manufacturer`) | Replaced by the `brand` reference before any `promotion` entry exists, so nothing is migrated. Each sponsor needs an Active Brand entry on the store; `other_manufacturer` has no equivalent and becomes the actual manufacturer's Brand. The index section's per-sponsor colour settings and the theme's sponsor names were removed |
 | `sales-campaign-manager` | Retired; confirm it isn't installed with write access on Primary; ideas only |
 | `promotions` page | Reassigned to `page.promotions` |
 | Theme | New files plus reported Gamma changes in Horizon areas: the cart-line gift notice call in `cart-products.liquid` and the collection-list filter |
