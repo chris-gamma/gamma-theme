@@ -172,6 +172,33 @@
       "heading": "Réclamations pour les achats admissibles déjà effectués",
       "between": "Pour les achats admissibles effectués entre le {{ start }} et le {{ end }}.",
       "before": "Pour les achats admissibles effectués au plus tard le {{ end }}."
+    },
+    "index": {
+      "empty": "Aucune promotion en ce moment. Revenez bientôt.",
+      "cta": "Voir la promotion",
+      "groups": {
+        "sales": "Vente d’équipement",
+        "rental": "Location d’équipement",
+        "coming": "À venir",
+        "ended": "Récemment terminées"
+      },
+      "pages": "{{ group }} : pages",
+      "page": "Page {{ number }}",
+      "previous": "Page précédente",
+      "next": "Page suivante",
+      "too_many": "Affiché seulement dans l’éditeur de thème : plus de 250 promotions sont publiées; les pages suivantes sont donc triées séparément. Archivez les promotions terminées."
+    },
+    "sponsors": {
+      "location_gamma": "Location Gamma",
+      "stihl": "STIHL",
+      "echo": "ECHO",
+      "shindaiwa": "Shindaiwa",
+      "ego": "EGO",
+      "ox_tools": "OX Tools",
+      "hilti": "Hilti",
+      "big_green_egg": "Big Green Egg",
+      "napoleon": "Napoleon",
+      "other_manufacturer": "Fabricant"
     }
   },
   "blocks": {
