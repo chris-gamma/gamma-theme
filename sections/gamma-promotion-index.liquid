@@ -1,0 +1,390 @@
+{%- liquid
+  assign at = 'now' | date: '%s' | plus: 0
+  assign item_separator = '@@gamma-promotion@@'
+  assign key_separator = '~~gamma-key~~'
+  assign title_padding = '                                                                                '
+  assign sales = ''
+  assign rental = ''
+  assign coming = ''
+  assign ended = ''
+  assign total_pages = 1
+
+  # Read every published campaign once (campaign-level fields only), then sort the whole list, so
+  # the order never depends on how Shopify stores entries or where a page boundary falls.
+  paginate metaobjects.promotion.values by 250
+    assign total_pages = paginate.pages
+    for promotion in metaobjects.promotion.values
+      capture state
+        render 'gamma-promotion-state', promotion: promotion, at: at
+      endcapture
+      assign state = state | strip
+      assign parts = state | split: '|'
+      assign status = parts[0]
+      assign business = promotion.business.value | append: ''
+
+      assign group = ''
+      case status
+        when 'live'
+          assign group = 'live'
+        when 'scheduled'
+          if section.settings.show_coming_soon
+            assign group = 'coming'
+          endif
+        when 'ended'
+          if section.settings.show_recently_ended
+            assign group = 'ended'
+          endif
+      endcase
+      if group == blank
+        continue
+      endif
+
+      assign priority = promotion.priority.value | plus: 0
+      if priority < 1 or priority > 99
+        assign priority = 50
+      endif
+      assign padded_priority = '00' | append: priority | slice: -2, 2
+      assign end_key = parts[2] | default: '99999999999'
+      assign padded_end = '00000000000' | append: end_key | slice: -11, 11
+      assign start_key = parts[1] | default: '00000000000'
+      assign padded_start = '00000000000' | append: start_key | slice: -11, 11
+      assign title_key = promotion.title.value | strip | downcase | append: title_padding | slice: 0, 80
+      assign tie = title_key | append: promotion.system.handle
+
+      case group
+        when 'live'
+          assign key = padded_priority | append: padded_end | append: tie
+        when 'coming'
+          assign key = padded_start | append: tie
+        when 'ended'
+          # Most recently ended first: invert the end for an ascending sort.
+          assign inverted_end = 99999999999 | minus: end_key
+          assign key = '00000000000' | append: inverted_end | slice: -11, 11 | append: tie
+      endcase
+
+      assign sponsor_color_setting = 'badge_color_' | append: promotion.sponsor.value
+      assign badge_color = section.settings[sponsor_color_setting]
+      if promotion.sponsor.value == 'location_gamma' and badge_color == blank
+        assign badge_color = settings.color_palette.brand
+      endif
+
+      capture card
+        if group == 'live'
+          echo '<li class="gamma-promotion-index__item" data-gamma-hide-at="' | append: parts[2] | append: '">'
+        else
+          echo '<li class="gamma-promotion-index__item">'
+        endif
+        render 'gamma-promotion-card', promotion: promotion, state: state, heading_level: 'h3', badge_color: badge_color
+        echo '</li>'
+      endcapture
+      assign entry = item_separator | append: key | append: key_separator | append: card
+
+      case group
+        when 'live'
+          if business == 'equipment_sales' or business == 'sales_and_rental'
+            assign sales = sales | append: entry
+          endif
+          if business == 'equipment_rental' or business == 'sales_and_rental'
+            assign rental = rental | append: entry
+          endif
+        when 'coming'
+          assign coming = coming | append: entry
+        when 'ended'
+          assign ended = ended | append: entry
+      endcase
+    endfor
+  endpaginate
+
+  assign page_size = section.settings.page_size | plus: 0
+  assign groups = 'sales,rental,coming,ended' | split: ','
+  assign has_live = false
+  if sales != blank or rental != blank
+    assign has_live = true
+  endif
+-%}
+
+<div class="section-background"></div>
+<div
+  class="section section--page-width gamma-promotion-index spacing-style"
+  style="{% render 'spacing-style', settings: section.settings %} --gamma-promotion-accent: {{ settings.color_palette.brand }};"
+>
+  <header class="gamma-promotion-index__header">
+    <h1 class="gamma-promotion-index__title">{{ page.title | escape }}</h1>
+    {%- if page.content != blank -%}
+      <div class="rte">{{ page.content }}</div>
+    {%- endif -%}
+  </header>
+
+  {%- unless has_live -%}
+    <p class="gamma-promotion-index__empty">{{ 'gamma_promotion.index.empty' | t }}</p>
+  {%- endunless -%}
+
+  {%- for name in groups -%}
+    {%- liquid
+      case name
+        when 'sales'
+          assign list = sales
+        when 'rental'
+          assign list = rental
+        when 'coming'
+          assign list = coming
+        when 'ended'
+          assign list = ended
+      endcase
+      if list == blank
+        continue
+      endif
+      assign sorted = list | remove_first: item_separator | split: item_separator | sort
+      assign heading_key = 'gamma_promotion.index.groups.' | append: name
+      assign group_id = 'GammaPromotions-' | append: section.id | append: '-' | append: name
+      assign group_heading = heading_key | t
+    -%}
+    <section class="gamma-promotion-index__group" aria-labelledby="{{ group_id }}-title">
+      <h2 id="{{ group_id }}-title" class="gamma-promotion-index__group-title">{{ group_heading }}</h2>
+      <gamma-promotion-pager
+        id="{{ group_id }}"
+        data-page-size="{{ page_size }}"
+        data-label="{{ 'gamma_promotion.index.pages' | t: group: group_heading | escape }}"
+        data-page-label="{{ 'gamma_promotion.index.page' | t: number: '__n__' | escape }}"
+        data-previous="{{ 'gamma_promotion.index.previous' | t | escape }}"
+        data-next="{{ 'gamma_promotion.index.next' | t | escape }}"
+      >
+        <ul class="gamma-promotion-index__grid" role="list">
+          {%- comment -%} Printed in runs of 50 so no single loop exceeds Shopify's documented 50 iterations. {%- endcomment -%}
+          {%- for run in (0..4) -%}
+            {%- assign offset = run | times: 50 -%}
+            {%- if offset >= sorted.size -%}{%- break -%}{%- endif -%}
+            {%- for item in sorted limit: 50 offset: offset -%}
+              {{- item | split: key_separator | last -}}
+            {%- endfor -%}
+          {%- endfor -%}
+        </ul>
+      </gamma-promotion-pager>
+    </section>
+  {%- endfor -%}
+
+  {%- if total_pages > 1 -%}
+    {%- if request.design_mode -%}
+      <p class="gamma-promotion-index__diagnostic">{{ 'gamma_promotion.index.too_many' | t }}</p>
+    {%- endif -%}
+    {%- paginate metaobjects.promotion.values by 250 -%}
+      {{ paginate | default_pagination }}
+    {%- endpaginate -%}
+  {%- endif -%}
+</div>
+
+<script src="{{ 'gamma-hide-at.js' | asset_url }}" type="module" fetchpriority="low"></script>
+<script src="{{ 'gamma-promotion-pager.js' | asset_url }}" type="module" fetchpriority="low"></script>
+
+{% stylesheet %}
+  .gamma-promotion-index {
+    row-gap: var(--gap-2xl, 3rem);
+  }
+
+  .gamma-promotion-index [hidden] {
+    display: none !important;
+  }
+
+  .gamma-promotion-index__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-sm, 0.75rem);
+    max-width: 48rem;
+  }
+
+  .gamma-promotion-index__title,
+  .gamma-promotion-index__group-title,
+  .gamma-promotion-index__empty {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .gamma-promotion-index__group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-md, 1rem);
+  }
+
+  .gamma-promotion-index__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+    gap: var(--gap-lg, 1.5rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .gamma-promotion-index__item {
+    min-width: 0;
+  }
+
+  .gamma-promotion-index__diagnostic {
+    margin: 0;
+    padding: var(--padding-sm, 0.75rem);
+    border: 1px dashed currentColor;
+  }
+
+  .gamma-promotion-pager__nav {
+    margin-block-start: var(--margin-md, 1rem);
+  }
+
+  .gamma-promotion-pager__list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--gap-xs, 0.5rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .gamma-promotion-pager__button {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    padding: 0 0.75rem;
+    border: 1px solid rgb(var(--color-foreground-rgb) / var(--opacity-30, 30%));
+    border-radius: var(--style-border-radius-buttons-secondary, 0);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .gamma-promotion-pager__button[aria-current='page'] {
+    border-color: currentColor;
+    font-weight: var(--font-weight-bold, 700);
+    text-decoration: underline;
+  }
+
+  .gamma-promotion-pager__button:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  .gamma-promotion-pager__button:focus-visible {
+    outline: var(--focus-outline-width, 2px) solid currentColor;
+    outline-offset: var(--focus-outline-offset, 3px);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:gamma_promotion.index_name",
+  "tag": "section",
+  "class": "section-wrapper",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:gamma_promotion.index_info"
+    },
+    {
+      "type": "range",
+      "id": "page_size",
+      "label": "t:gamma_promotion.page_size",
+      "min": 6,
+      "max": 48,
+      "step": 3,
+      "default": 24
+    },
+    {
+      "type": "checkbox",
+      "id": "show_coming_soon",
+      "label": "t:gamma_promotion.show_coming_soon",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_recently_ended",
+      "label": "t:gamma_promotion.show_recently_ended",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "t:gamma_promotion.badge_colors"
+    },
+    {
+      "type": "color",
+      "id": "badge_color_location_gamma",
+      "label": "t:gamma_promotion.badge_location_gamma",
+      "info": "t:gamma_promotion.badge_location_gamma_info"
+    },
+    {
+      "type": "color",
+      "id": "badge_color_stihl",
+      "label": "t:gamma_promotion.badge_stihl",
+      "default": "#f37a1f"
+    },
+    {
+      "type": "color",
+      "id": "badge_color_echo",
+      "label": "t:gamma_promotion.badge_echo",
+      "default": "#ff4713"
+    },
+    {
+      "type": "color",
+      "id": "badge_color_shindaiwa",
+      "label": "t:gamma_promotion.badge_shindaiwa",
+      "default": "#c00020"
+    },
+    {
+      "type": "color",
+      "id": "badge_color_ego",
+      "label": "t:gamma_promotion.badge_ego",
+      "default": "#6ec72e"
+    },
+    {
+      "type": "color",
+      "id": "badge_color_ox_tools",
+      "label": "t:gamma_promotion.badge_ox_tools",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "badge_color_hilti",
+      "label": "t:gamma_promotion.badge_hilti",
+      "default": "#d2051e"
+    },
+    {
+      "type": "color",
+      "id": "badge_color_big_green_egg",
+      "label": "t:gamma_promotion.badge_big_green_egg",
+      "default": "#095540"
+    },
+    {
+      "type": "color",
+      "id": "badge_color_napoleon",
+      "label": "t:gamma_promotion.badge_napoleon",
+      "default": "#e4002b"
+    },
+    {
+      "type": "color",
+      "id": "badge_color_other_manufacturer",
+      "label": "t:gamma_promotion.badge_other_manufacturer"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 80
+    }
+  ]
+}
+{% endschema %}

@@ -181,6 +181,33 @@
       "heading": "Claims for eligible past purchases",
       "between": "For eligible purchases made between {{ start }} and {{ end }}.",
       "before": "For eligible purchases made on or before {{ end }}."
+    },
+    "index": {
+      "empty": "There are no promotions right now. Come back soon.",
+      "cta": "See the promotion",
+      "groups": {
+        "sales": "Equipment sales",
+        "rental": "Equipment rental",
+        "coming": "Coming soon",
+        "ended": "Recently ended"
+      },
+      "pages": "{{ group }}: pages",
+      "page": "Page {{ number }}",
+      "previous": "Previous page",
+      "next": "Next page",
+      "too_many": "Shown only in the theme editor: more than 250 promotions are published, so later pages are sorted separately. Archive ended promotions."
+    },
+    "sponsors": {
+      "location_gamma": "Location Gamma",
+      "stihl": "STIHL",
+      "echo": "ECHO",
+      "shindaiwa": "Shindaiwa",
+      "ego": "EGO",
+      "ox_tools": "OX Tools",
+      "hilti": "Hilti",
+      "big_green_egg": "Big Green Egg",
+      "napoleon": "Napoleon",
+      "other_manufacturer": "Manufacturer"
     }
   },
   "accessibility": {

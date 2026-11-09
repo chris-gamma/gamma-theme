@@ -1,0 +1,17 @@
+{
+  "sections": {
+    "main": {
+      "type": "gamma-promotion-index",
+      "settings": {
+        "page_size": 24,
+        "show_coming_soon": false,
+        "show_recently_ended": false,
+        "padding-block-start": 40,
+        "padding-block-end": 80
+      }
+    }
+  },
+  "order": [
+    "main"
+  ]
+}

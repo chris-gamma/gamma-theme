@@ -1,0 +1,149 @@
+{%- doc -%}
+  Renders one campaign card for the promotions index from campaign-level fields only (never offers or
+  groups). The title link covers the whole card, and the visible call to action is part of it.
+
+  @param {object} promotion - The `promotion` entry.
+  @param {string} state - The campaign's gamma-promotion-state output.
+  @param {string} heading_level - Heading tag for the title, such as `h3`.
+  @param {color} [badge_color] - Sponsor badge background colour.
+{%- enddoc -%}
+
+{%- liquid
+  assign parts = state | split: '|'
+  assign status = parts[0]
+  assign sponsor = promotion.sponsor.value | append: ''
+  assign sponsor_key = 'gamma_promotion.sponsors.' | append: sponsor
+  if badge_color != blank
+    assign badge_color = badge_color | color_modify: 'alpha', 1
+    assign badge_text_color = '#000000'
+    assign black_contrast = badge_color | color_contrast: '#000000'
+    assign white_contrast = badge_color | color_contrast: '#ffffff'
+    if white_contrast > black_contrast
+      assign badge_text_color = '#ffffff'
+    endif
+  endif
+  capture date_line
+    render 'gamma-promotion-dates', start: parts[1], end: parts[2]
+  endcapture
+-%}
+<article class="gamma-promotion-card">
+  {%- if promotion.image.value != blank -%}
+    {{
+      promotion.image.value
+      | image_url: width: 900
+      | image_tag:
+        widths: '300, 450, 600, 900',
+        sizes: '(min-width: 990px) 33vw, (min-width: 750px) 50vw, 100vw',
+        loading: 'lazy',
+        alt: '',
+        class: 'gamma-promotion-card__image'
+    }}
+  {%- endif -%}
+  <div class="gamma-promotion-card__body">
+    {%- if sponsor != blank -%}
+      <p
+        class="gamma-promotion-card__badge"
+        {% if badge_color != blank %}
+          style="--gamma-badge-background: {{ badge_color }}; --gamma-badge-text: {{ badge_text_color }};"
+        {% endif %}
+      >
+        {{- sponsor_key | t -}}
+      </p>
+    {%- endif -%}
+    <{{ heading_level }} class="gamma-promotion-card__title">
+      <a class="gamma-promotion-card__link" href="{{ promotion.system.url }}">{{ promotion.title.value | escape }}</a>
+    </{{ heading_level }}>
+    {%- if promotion.summary.value != blank -%}
+      <p class="gamma-promotion-card__summary">{{ promotion.summary.value | escape }}</p>
+    {%- endif -%}
+    {%- if date_line != blank -%}
+      <p class="gamma-promotion-card__dates">
+        {%- if status == 'ended' -%}{{ 'gamma_promotion.ended' | t }} {% endif -%}
+        {{- date_line | strip -}}
+      </p>
+    {%- endif -%}
+    <p class="gamma-promotion-card__cta" aria-hidden="true">{{ 'gamma_promotion.index.cta' | t }}</p>
+  </div>
+</article>
+
+{% stylesheet %}
+  .gamma-promotion-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    border: var(--style-border-width, 1px) solid rgb(var(--color-foreground-rgb) / var(--opacity-10, 10%));
+    border-radius: var(--style-border-radius-md, 0);
+  }
+
+  .gamma-promotion-card__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+    background: rgb(var(--color-foreground-rgb) / 4%);
+  }
+
+  .gamma-promotion-card__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--gap-xs, 0.5rem);
+    padding: var(--padding-md, 1rem);
+  }
+
+  .gamma-promotion-card__body > * {
+    margin: 0;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+  }
+
+  .gamma-promotion-card__badge {
+    align-self: flex-start;
+    padding: 0.125rem 0.5rem;
+    border: 1px solid var(--gamma-badge-background, currentColor);
+    border-radius: var(--style-border-radius-pills, 999px);
+    background-color: var(--gamma-badge-background, transparent);
+    color: var(--gamma-badge-text, inherit);
+    font-size: 0.8125rem;
+    font-weight: var(--font-weight-bold, 700);
+  }
+
+  .gamma-promotion-card__link {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* The title link covers the card, so the visible call to action is clickable without a second link. */
+  .gamma-promotion-card__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .gamma-promotion-card__link:focus-visible {
+    outline: none;
+  }
+
+  .gamma-promotion-card:has(.gamma-promotion-card__link:focus-visible) {
+    outline: var(--focus-outline-width, 2px) solid currentColor;
+    outline-offset: var(--focus-outline-offset, 3px);
+  }
+
+  .gamma-promotion-card__dates {
+    font-weight: var(--font-weight-bold, 700);
+  }
+
+  .gamma-promotion-card__cta {
+    margin-block-start: auto;
+    padding-block-start: var(--padding-xs, 0.5rem);
+    font-weight: var(--font-weight-bold, 700);
+    text-decoration: underline;
+  }
+
+  .gamma-promotion-card:hover .gamma-promotion-card__cta {
+    color: var(--gamma-promotion-accent, currentColor);
+  }
+{% endstylesheet %}
