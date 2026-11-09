@@ -114,6 +114,10 @@
     "max_width": "Maximum width",
     "max_width_info": "Up to 480 px, which keeps uMap’s credits under its ? button."
   },
+  "gamma_promotion": {
+    "campaign_name": "Promotion page",
+    "campaign_info": "Shows the promotion from Shopify content. Scheduled, paused, ended and unavailable promotions show a notice instead of offers."
+  },
   "categories": {
     "banners": "Banners",
     // Category for fundamental content blocks (text, images, buttons)

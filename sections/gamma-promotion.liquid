@@ -1,0 +1,241 @@
+{%- liquid
+  assign entry = metaobject
+  assign at = 'now' | date: '%s' | plus: 0
+
+  capture state_result
+    render 'gamma-promotion-state', promotion: entry, at: at
+  endcapture
+  assign state_result = state_result | strip
+  assign state_parts = state_result | split: '|'
+  assign state = state_parts[0]
+  assign campaign_start = state_parts[1]
+  assign campaign_end = state_parts[2]
+  assign diagnostics = state_parts[3]
+
+  # The index page owns the parent path of every campaign URL (/pages/{index}/{campaign}).
+  assign url_parts = entry.system.url | split: '/'
+  assign last_part = url_parts | last
+  assign index_url = entry.system.url | remove_last: last_part | remove_last: '/'
+  if index_url == blank
+    assign index_url = routes.root_url
+  endif
+
+  assign title = entry.title.value | escape
+-%}
+
+<div class="section-background"></div>
+<div
+  class="section section--page-width gamma-promotion spacing-style"
+  style="{% render 'spacing-style', settings: section.settings %} --gamma-promotion-accent: {{ settings.color_palette.brand }};"
+>
+  {%- case state -%}
+    {%- when 'live' -%}
+      <header class="gamma-promotion__hero">
+        <div class="gamma-promotion__hero-text">
+          {%- if entry.eyebrow.value != blank -%}
+            <p class="gamma-promotion__eyebrow">{{ entry.eyebrow.value | escape }}</p>
+          {%- endif -%}
+          <h1 class="gamma-promotion__title">{{ title }}</h1>
+          {%- capture date_line -%}
+            {%- render 'gamma-promotion-dates', start: campaign_start, end: campaign_end -%}
+          {%- endcapture -%}
+          {%- if date_line != blank -%}
+            <p class="gamma-promotion__dates">{{ date_line }}</p>
+          {%- endif -%}
+          {%- if entry.summary.value != blank -%}
+            <p class="gamma-promotion__summary">{{ entry.summary.value | escape | newline_to_br }}</p>
+          {%- endif -%}
+          {%- if entry.intro.value != blank -%}
+            <div class="gamma-promotion__rte rte">{{ entry.intro | metafield_tag }}</div>
+          {%- endif -%}
+          {%- liquid
+            assign button_url = entry.button.value.url | append: ''
+            assign button_text = entry.button.value.text | strip
+            assign button_scheme = button_url | slice: 0, 8 | downcase
+            assign source_url = entry.source.value | append: ''
+            assign source_scheme = source_url | slice: 0, 8 | downcase
+            assign show_button = false
+            if button_scheme == 'https://' and button_text != blank
+              assign show_button = true
+            endif
+            assign show_source = false
+            if source_scheme == 'https://'
+              assign show_source = true
+            endif
+          -%}
+          {%- if show_button or show_source -%}
+            <p class="gamma-promotion__actions" data-gamma-hide-at="{{ campaign_end }}">
+              {%- if show_button -%}
+                <a class="button" href="{{ button_url | escape }}">{{ button_text | escape }}</a>
+              {%- endif -%}
+              {%- if show_source -%}
+                <a class="gamma-promotion__source" href="{{ source_url | escape }}" target="_blank" rel="noopener">
+                  {{- 'gamma_promotion.source' | t -}}
+                  <span class="visually-hidden">{{ 'gamma_promotion.new_tab' | t }}</span>
+                </a>
+              {%- endif -%}
+            </p>
+          {%- endif -%}
+        </div>
+        {%- if entry.image.value != blank -%}
+          <div class="gamma-promotion__hero-media">
+            {{
+              entry.image.value
+              | image_url: width: 1600
+              | image_tag:
+                widths: '480, 720, 960, 1200, 1600',
+                sizes: '(min-width: 990px) 50vw, 100vw',
+                class: 'gamma-promotion__hero-image',
+                alt: entry.image.value.alt
+            }}
+          </div>
+        {%- endif -%}
+      </header>
+    {%- when 'ended' -%}
+      <header class="gamma-promotion__state">
+        <h1 class="gamma-promotion__title">{{ title }}</h1>
+        <p class="gamma-promotion__notice">
+          {{- 'gamma_promotion.ended' | t -}}
+          {%- capture date_line -%}
+            {%- render 'gamma-promotion-dates', start: campaign_start, end: campaign_end -%}
+          {%- endcapture -%}
+          {%- if date_line != blank %} {{ date_line }}.{% endif -%}
+        </p>
+        <p><a href="{{ index_url }}">{{ 'gamma_promotion.index_link' | t }}</a></p>
+      </header>
+    {%- else -%}
+      <header class="gamma-promotion__state">
+        <h1 class="gamma-promotion__title">{{ 'gamma_promotion.unavailable_heading' | t }}</h1>
+        <p class="gamma-promotion__notice">{{ 'gamma_promotion.unavailable' | t }}</p>
+        <p><a href="{{ index_url }}">{{ 'gamma_promotion.index_link' | t }}</a></p>
+      </header>
+  {%- endcase -%}
+
+  {%- if request.design_mode and diagnostics != blank -%}
+    <p class="gamma-promotion__diagnostic">
+      {{- 'gamma_promotion.editor_diagnostics' | t: state: state, codes: diagnostics -}}
+    </p>
+  {%- endif -%}
+</div>
+
+<script src="{{ 'gamma-hide-at.js' | asset_url }}" type="module" fetchpriority="low"></script>
+
+{% stylesheet %}
+  .gamma-promotion {
+    row-gap: var(--gap-2xl, 3rem);
+    min-width: 0;
+  }
+
+  .gamma-promotion [hidden] {
+    display: none !important;
+  }
+
+  .gamma-promotion__hero {
+    display: grid;
+    gap: var(--gap-xl, 2rem);
+    align-items: start;
+  }
+
+  @media screen and (min-width: 990px) {
+    .gamma-promotion__hero:has(.gamma-promotion__hero-media) {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+  }
+
+  .gamma-promotion__hero-text,
+  .gamma-promotion__state {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-sm, 0.75rem);
+    min-width: 0;
+    max-width: 48rem;
+  }
+
+  .gamma-promotion__eyebrow {
+    margin: 0;
+    font-weight: var(--font-weight-bold, 700);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .gamma-promotion__title,
+  .gamma-promotion__summary,
+  .gamma-promotion__dates,
+  .gamma-promotion__notice {
+    margin: 0;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+  }
+
+  .gamma-promotion__dates {
+    font-weight: var(--font-weight-bold, 700);
+  }
+
+  .gamma-promotion__notice {
+    padding-inline-start: var(--padding-xs, 0.5rem);
+    border-inline-start: 3px solid var(--gamma-promotion-accent);
+  }
+
+  .gamma-promotion__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--gap-sm, 0.75rem) var(--gap-md, 1rem);
+    margin: 0;
+  }
+
+  /* Manufacturer artwork often carries text, so it is never cropped. */
+  .gamma-promotion__hero-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--style-border-radius-md, 0);
+  }
+
+  .gamma-promotion__diagnostic {
+    margin: 0;
+    padding: var(--padding-sm, 0.75rem);
+    border: 1px dashed currentColor;
+    font-family: monospace;
+    font-size: 0.875rem;
+    overflow-wrap: anywhere;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:gamma_promotion.campaign_name",
+  "tag": "section",
+  "class": "section-wrapper",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:gamma_promotion.campaign_info"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 80
+    }
+  ]
+}
+{% endschema %}

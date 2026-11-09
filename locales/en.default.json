@@ -134,7 +134,14 @@
       "from_through": "From {{ start }} through {{ end }}",
       "through": "Through {{ end }}",
       "from": "Starting {{ start }}"
-    }
+    },
+    "ended": "This promotion has ended.",
+    "unavailable_heading": "This promotion isn’t available",
+    "unavailable": "It hasn’t started yet, it’s paused, or it’s no longer offered. See our current promotions for other offers.",
+    "index_link": "See current promotions",
+    "source": "Official manufacturer details",
+    "new_tab": "(opens in a new tab)",
+    "editor_diagnostics": "Shown only in the theme editor. State: {{ state }}. Codes: {{ codes }}"
   },
   "accessibility": {
     "account": "Account",
