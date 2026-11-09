@@ -1,6 +1,6 @@
 # Sales Campaign System — selected architecture (custom app)
 
-Location Gamma · revised 2026-11-08 · research and planning only; nothing is implemented.
+Location Gamma · revised 2026-11-08 · section 6 pinned as the G18 contract, with its theme snippets implemented locally; the rest is planning, and nothing is set up in Shopify.
 
 This document describes the selected architecture for the Sales Campaign System (SCS): a purpose-built custom Shopify app, self-hosted on the VPS that already serves the WordPress rental catalogue, administering campaign content and Shopify-native financial promotions for a Liquid storefront that never depends on the app at runtime. It incorporates the decisions approved on 2026-11-08 (section 2) and supersedes this document's earlier recommendations, which assumed managed hosting, PostgreSQL, automatic free-gift cart insertion and a phased no-app launch. The companion [no-app proposal](scs-redesign-proposal-no-app.md) remains as a read-only comparison and emergency fallback reference; it is not the selected design.
 
@@ -154,88 +154,115 @@ Ordered multi-offer pages; tiered rewards by model group; multiple gifts from on
 
 ## 6. Data model and theme contract
 
+Pinned for G18 on 2026-11-08 (`feature/scs-data-contract`). **Provisional** marks behaviour that a Gamma-Dev proof (section 19) can still change; such a change is a coordinated theme and app release.
+
 ### Principles
 
-- Merchant-owned definitions (no `$app:` prefix), created by the app's setup step after explicit approval; storefront public read; they survive an app uninstall.
-- **Eligibility and gifts always live on groups.** Every offer that targets products has at least one group; the app hides the group level in the editor when there's only one. One owner type keeps the theme contract and validation simple.
+- **Ownership and provisioning.** All four definitions are merchant-owned (types without the `$app:` prefix) so content survives an app uninstall. Shopify declares only app-owned definitions in `shopify.app.toml`, and the `onlineStore` capability isn't supported there, so G22's setup step (or an authorized Gamma-Dev fixture pass before the app exists) creates them at runtime with `metaobjectDefinitionCreate` and the collection metafield with `metafieldDefinitionCreate`, after explicit approval. Setup adopts existing compatible definitions rather than recreating them.
+- **Capabilities.** All four are translatable with `access.storefront: PUBLIC_READ`. `promotion`, `promotion_offer` and `rental_item` are publishable (new entries start as Draft). `promotion_group` isn't publishable: a group is embedded in its offer and is visible wherever a visible offer references it. Only `promotion` is renderable (meta title `title`, meta description `summary`) and has the Online Store capability.
+- **Public read isn't privacy.** Fields of an Active public-read entry can be read through the Storefront API as well as Liquid, whatever the theme renders; a scheduled or paused page controls HTML only. Embargoed campaigns and offers stay Draft until release. No dealer-only data belongs in these definitions; G22 must settle private storage for sensitive operational data (for example `app_config` if it would hold anything not publishable) before populating it.
+- **Eligibility always lives on groups.** Every offer that targets products has at least one group; the app hides the group level in the editor when there's only one.
+- **Stored choices are fixed `snake_case` values,** never translated. The theme maps them to its own locale strings. A translated choice no longer matches, so the theme fails closed.
+- **Translated copy never decides eligibility.** Labels (`requires_label`, `reward_label`) are display copy; booleans and references decide which conditions exist.
+- **French** is entered as Shopify translations of the same fields. Images, URLs and links use translations of the same fields if P-TR passes; explicit French fields (`image_fr`, `url_fr`, …) are **provisional** and are added only if it fails.
 - Field order follows the theme's reading order; app-only fields come last and are never rendered.
-- French is entered through Shopify translations; images and URLs use translations of the same fields if POC P-TR passes, otherwise explicit French fields (`image_fr`, `url_fr`).
+
+**Enforcement column:** **S** = Shopify validation on the field definition (required, `choices`, `min`/`max`, `list.max`, `metaobject_definition_id`, `file_type_options`); **A** = G22 validation before publication (also the emergency manual procedure's checklist); **L** = Liquid safeguard in the G18 snippets (the claim is suppressed and a diagnostic code reported). Shopify can't make a field conditionally required, so every conditional rule is A and L.
 
 ### `promotion` ("Promotion")
 
-Publishable, translatable, renderable (SEO), online store with URL handle `promotions` (`/pages/promotions/{handle}`, `/en/pages/promotions/{handle}`).
+Publishable, translatable, renderable, Online Store with URL handle `promotions` (`/pages/promotions/{handle}`, `/en/pages/promotions/{handle}`; proofs use a temporary handle such as `promotions-g18`, with `createRedirects: false`).
 
-| Key | Type | Notes |
-| --- | --- | --- |
-| `title`* | single_line_text, max 80, translatable | |
-| `sponsor`* | choices: Location Gamma / STIHL / ECHO / Shindaiwa / Other manufacturer | Badge, MAP rules |
-| `business`* | choices: Equipment sales / Equipment rental / Sales and rental | Index grouping |
-| `summary`* | multi_line_text, max 220, translatable | |
-| `eyebrow`, `intro` | text, rich text, translatable | |
-| `image` | file_reference (image), translatable | French artwork as translation |
-| `starts_at`, `ends_at` | date_time | Inclusive start, exclusive end, store time zone |
-| `paused` | boolean | |
-| `priority` | integer 1–99 | Blank = 50 |
-| `offers` | list → `promotion_offer`, max 12 | Ordered |
-| `button` | link, translatable | |
-| `terms` | rich text, translatable | Campaign fine print |
-| `source` | url, translatable | Official manufacturer page |
+| Key | Type | Required, default, bounds | Enforced |
+| --- | --- | --- | --- |
+| `title` | `single_line_text_field` | Required; max 80 | S |
+| `sponsor` | `single_line_text_field`, choices `location_gamma`, `stihl`, `echo`, `shindaiwa`, `other_manufacturer` | Required | S |
+| `business` | `single_line_text_field`, choices `equipment_sales`, `equipment_rental`, `sales_and_rental` | Required | S |
+| `summary` | `multi_line_text_field` | Required; max 220 | S |
+| `eyebrow` | `single_line_text_field` | | |
+| `intro` | `rich_text_field` | | |
+| `image` | `file_reference` (`Image`) | French artwork as a translation (provisional) | S |
+| `starts_at`, `ends_at` | `date_time` | Blank = unbounded on that side; end after start | A; L (`invalid`) |
+| `paused` | `boolean` | Blank = not paused | |
+| `priority` | `number_integer` | 1–99; blank = 50 | S; L (out of range = 50) |
+| `offers` | `list.metaobject_reference` → `promotion_offer` | Max 12; ordered | S |
+| `button` | `link` | HTTPS | A |
+| `terms` | `rich_text_field` | Campaign fine print | |
+| `source` | `url` | Official manufacturer page; HTTPS | A |
 
 ### `promotion_offer` ("Promotion offer")
 
-Publishable (Draft = offer paused), translatable.
+Publishable (Draft = offer hidden), translatable.
 
-| Key | Type | Notes |
-| --- | --- | --- |
-| `title`*, `summary`*, `label`, `details`, `terms`, `how_to` | text and rich text, translatable | |
-| `benefit`* | choices: Promotional price / Percentage or amount off / Kit or bundle price / Free gift / Manufacturer rebate / Financing / Rental discount or rate / Information | |
-| `redemption`* | choices: Price shown / Automatic at checkout / Discount code / Supplied by Gamma / Manufacturer fulfils / In store / Contact us / No action | Valid pairs enforced by the app (section 7) |
-| `funding`* | choices: Manufacturer program / Location Gamma / Shared | MAP and window rules |
-| `code` | single_line_text, translatable | One discount, a code per language |
-| `action` | link, translatable | Manufacturer claim form or details |
-| `image` | file_reference, translatable | Offer artwork |
-| `starts_at`, `ends_at` | date_time | Within the campaign window |
-| `groups` | list → `promotion_group`, max 8 | Eligibility owners |
-| `gift_availability` | choices: Guaranteed (may be backordered) / Limited quantity | Gift offers only; default Guaranteed |
-| `gift_quantity_limit` | integer | Required for Limited quantity; shown to customers |
-| `gift_supply` | choices: Normal / Currently backordered | Staff-set; changes the notice wording, never hides the promise |
-| `staff_confirmed_terms` | boolean | Conditions the storefront can't check (e.g. professional customers only): notices say "may qualify" |
-| `enforcement_verified_at` | date_time | **App-written**, financial offers only (section 10) |
-| `map_reviewed_at` | date_time | App-written when a reviewer confirms (identity in the audit trail) |
-| `app_config` | json | Financial intent: type, value, targets, schedule, combination, minimums, price plan, fingerprint. Not rendered |
+| Key | Type | Required, default, bounds | Enforced |
+| --- | --- | --- | --- |
+| `title`, `summary` | `single_line_text_field`, `multi_line_text_field` | Required | S |
+| `label` | `single_line_text_field` | | |
+| `details`, `terms`, `how_to` | `rich_text_field` | `how_to` carries manufacturer redemption steps and deadlines | |
+| `benefit` | `single_line_text_field`, choices `promotional_price`, `percent_or_amount_off`, `kit_price`, `free_gift`, `manufacturer_rebate`, `financing`, `rental_rate`, `information` | Required. `financing` is reserved: no supported redemption yet, so it's rejected | S; A; L |
+| `redemption` | `single_line_text_field`, choices `price_shown`, `automatic`, `discount_code`, `supplied_by_gamma`, `manufacturer_fulfils`, `in_store`, `contact_us`, `no_action` | Required; supported pair only (section 7) | S; A; L |
+| `funding` | `single_line_text_field`, choices `manufacturer_program`, `location_gamma`, `shared` | Required | S |
+| `code` | `single_line_text_field` | Required for `discount_code` (a code per language, as a translation) | A; L |
+| `action` | `link` | Manufacturer claim form or details; HTTPS | A |
+| `image` | `file_reference` (`Image`) | Offer artwork | S |
+| `starts_at`, `ends_at` | `date_time` | Within the campaign window | A; L (clamped, reported) |
+| `groups` | `list.metaobject_reference` → `promotion_group` | Max 8; at least one product group for gift offers | S; A; L |
+| `gift_availability` | `single_line_text_field`, choices `guaranteed`, `limited` | Gift offers; blank = `guaranteed` | S; L |
+| `gift_quantity_limit` | `number_integer` | Min 1. Required when `limited`: the **advertised, offer-wide** number of qualifying orders, shown to customers | S; A; L |
+| `gift_supply` | `single_line_text_field`, choices `normal`, `backordered` | Blank = `normal`; changes wording, never hides the promise | S; L |
+| `enforcement_verified_at` | `date_time` | **App-written**, financial offers only (section 10) | L |
+| `map_reviewed_at` | `date_time` | App-written; **not part of the Liquid interface** | A |
+| `app_config` | `json` | App-only financial intent; **not part of the Liquid interface**; storage provisional (see Principles) | A |
+
+`staff_confirmed_terms` moved to `promotion_group`.
 
 ### `promotion_group` ("Promotion group")
 
-Translatable.
+Translatable, not publishable. A **product group** has a `collection`; a group without one is a rental or information group and never matches a product.
 
-| Key | Type | Notes |
-| --- | --- | --- |
-| `heading`* | single_line_text, translatable | Hidden by the theme when the offer has one unnamed group |
-| `note`, `description` | text, rich text, translatable | |
-| `collection` | collection_reference | Qualifying set: app-managed or existing (G12 brand/type, battery-system) |
-| `variants` | list.variant_reference, max 50 | Narrows the collection to listed variants |
-| `min_quantity` | integer ≥ 1, default 1 | Qualifying units per entitlement ("two AS sets" = 2) |
-| `requires_collection` | collection_reference | Companion set ("plus an AP battery") |
-| `requires_quantity` | integer ≥ 1, default 1 | Companion units per entitlement |
-| `requires_label` | single_line_text, translatable | Customer wording for the companion item ("an AP battery") |
-| `reward_label` | single_line_text, translatable | Required for gifts: the gift as customers should read it ("4 Ah battery (AK 30 S) and Wood-Pro kit") |
-| `rewards` | list.variant_reference, max 3 | Optional link, image and staff SKU for the gift(s) |
-| `reward_quantity` | integer ≥ 1, default 1 | Gifts per entitlement |
-| `reward_limit` | integer | Maximum gifts per order; blank = no limit |
-| `rental_items` | list → `rental_item`, max 24 | Rental cards |
-| `link` | link, translatable | Category, rental search or "Shop all" |
+| Key | Type | Required, default, bounds | Enforced |
+| --- | --- | --- | --- |
+| `heading` | `single_line_text_field` | Optional; G19 hides the heading of a lone group when blank | |
+| `note` | `single_line_text_field` | | |
+| `description` | `rich_text_field` | | |
+| `collection` | `collection_reference` | The qualifying set: app-managed or existing (G12 brand/type, battery-system); it must carry the back-link | A; L |
+| `variants_only` | `boolean` | **Required on product groups.** True: only `variants` qualify; false: the whole collection | A; L |
+| `variants` | `list.variant_reference` | Max 50. Nonempty exactly when `variants_only` is true. Deleted variants leave the list silently, so an empty list with `variants_only` true matches nothing. Liquid reads the length through Shopify's documented `count` for reference lists; an uncountable list is unverifiable | S; A; L |
+| `min_quantity` | `number_integer` | Min 1; blank = 1. Qualifying units per entitlement | S; L |
+| `requires_companion` | `boolean` | **Required on product groups.** True: a companion purchase is required | A; L |
+| `requires_collection` | `collection_reference` | Exactly when `requires_companion` is true; a published collection other than `collection`, with no overlapping products | A; L (publication provisional) |
+| `requires_quantity` | `number_integer` | Min 1; blank = 1. Companion units per entitlement | S; L |
+| `requires_label` | `single_line_text_field` | Required when `requires_companion` is true ("an AP battery"); display only | A; L |
+| `staff_confirmed_terms` | `boolean` | Blank = false. Conditions the storefront can't check: notices say "may qualify" | |
+| `reward_label` | `single_line_text_field` | Required on product groups of gift offers ("4 Ah battery (AK 30 S) and Wood-Pro kit") | A; L |
+| `reward_varies` | `boolean` | Blank = false. The gift model depends on the purchase; G20 adds the "model confirmed by Gamma" statement | |
+| `rewards` | `list.variant_reference` | Max 3. Optional image, link and staff SKU; never affects entitlement, stock or purchasability | S; L |
+| `reward_quantity` | `number_integer` | Min 1; blank = 1. Gifts per entitlement | S; L |
+| `reward_limit` | `number_integer` | Min 1; blank = no limit. **Per-order** gift cap, distinct from the offer's advertised `gift_quantity_limit` | S; L |
+| `rental_items` | `list.metaobject_reference` → `rental_item` | Max 24 | S |
+| `link` | `link` | Category, rental search or "Shop all" | A |
 
 **Why reward product references are optional.** A referenced variant gives an image, a link, an automatically translated product title and an exact SKU for staff. But a gift can be a promotion-only item (Wood-Pro kit packs, harnesses) that isn't sold online, or a sold-out battery. The theme therefore always displays `reward_label`, adds the image and link only when the referenced product is published, and **never** makes the gift notice depend on the reward's purchasability or stock. Gift supply is expressed only through `gift_supply`.
 
 ### `rental_item` ("Rental equipment")
 
-Publishable, translatable, reusable: `title`*, `url`* (French URL as translation), `image` (imported into Shopify Files), `note`, `catalogue_ref` (JSON, app-only: English and French WordPress post IDs).
+Publishable, translatable, reusable.
+
+| Key | Type | Required, default, bounds | Enforced |
+| --- | --- | --- | --- |
+| `title` | `single_line_text_field` | Required | S |
+| `url` | `url` | Required. English page; the French page as a translation (provisional). HTTPS on a configured rental origin (see Routes and links) | S; A; G19 L |
+| `image` | `file_reference` (`Image`) | Imported into Shopify Files | S |
+| `note` | `single_line_text_field` | | |
+| `catalogue_ref` | `json` | App-only: English and French WordPress post IDs; not part of the Liquid interface | A |
 
 ### Collection metafields
 
-- `promotion.promotions` (list → `promotion`, max 5): back-link from an eligibility collection to the promotions that use or feature it; drives product and cart lookup and collection-page callouts.
-- `seo.hidden` = 1 on app-created eligibility collections (noindex, sitemap and storefront-search exclusion).
-- `$app:scs.owner` on app-created collections and on discount nodes: owning promotion, offer and group, intent fingerprint, app version.
+| Namespace and key | Type | Rule | Enforced |
+| --- | --- | --- | --- |
+| `promotion.promotions` | `list.metaobject_reference` → `promotion`, max 5 | Merchant-owned definition on `COLLECTION`, public read. The app writes it on every qualifying collection of a live, scheduled or ended (not archived) campaign, including existing G12 collections it doesn't own. It drives the product and cart lookup and collection-page callouts | S; A; L (over 5 suppresses the lookup) |
+| `seo.hidden` | `number_integer` = 1 | On app-created eligibility collections, which stay published to the Online Store. **Provisional:** P-B confirms they still appear in `product.collections` while hidden from search engines, the sitemap and storefront search | A |
+| `$app:scs.owner` | app-owned | Owning promotion, offer and group, intent fingerprint, app version; on app-created collections and discount nodes. Not part of the Liquid interface | A |
 
 ### MariaDB tables (operational state only; no catalogue, content or order data)
 
@@ -254,7 +281,42 @@ JSON values are stored as text columns serialized by the app, which avoids depen
 
 ### Theme contract (stable interface)
 
-The theme reads only the fields above, by key. It never reads `app_config`. App-written fields (`enforcement_verified_at`, `map_reviewed_at`) mean the same whether written by the app or, in the emergency fallback, by staff. New optional fields can be added without theme changes; renaming or removing a field is a coordinated theme and app release. The app never edits theme files.
+The theme reads only the fields above, by key, and never `app_config`, `map_reviewed_at`, `catalogue_ref` or ownership metafields. App-written fields mean the same whether written by the app or, in the emergency fallback, by staff. New optional fields can be added without theme changes; renaming or removing a field is a coordinated theme and app release. The app never edits theme files.
+
+The G18 snippets apply the contract once for every surface. They output fixed codes, IDs, list positions and Unix seconds only (no translated text), take an optional `at` evaluation time in Unix seconds (as `gamma-store-hours-entry` does) and are not rendered on any customer-facing entry point until G19/G20 call them. Each snippet's LiquidDoc header is authoritative for its exact output and diagnostic codes.
+
+| Snippet | Input | Output |
+| --- | --- | --- |
+| `gamma-promotion-state` | `promotion`, `at` | `state\|start\|end\|notes` |
+| `gamma-promotion-offer` | `offer`, the campaign's state output, `at` | `state\|claim\|start\|end\|hide_at\|notes` |
+| `gamma-promotion-lookup` | `product`, the selected `variant`, `at` | `status\|notes\|records` (16 colon-separated fields per record) |
+| `gamma-promotion-group` | Private helper of the lookup | One group's scope result |
+
+**Campaign state,** first match: `unavailable` (blank or wrong type: Draft, archived and deleted look the same) → `invalid` (an unreadable non-blank date, or end ≤ start) → `ended` (at ≥ end) → `paused` → `scheduled` (at < start) → `live`. Start inclusive, end exclusive, absolute instants (DST-safe); a blank boundary is unbounded, which is distinct from an unreadable one. The app owns retention and archival: an ended entry stays `ended` until the app sets it to Draft. G19 displays the end minus one second as the last valid day, omits offers on ended pages and keeps embargoed content out of scheduled pages.
+
+**Offer state and claim.** The effective window is the intersection of the campaign's and the offer's windows; an explicit offer date outside the campaign is clamped and reported, and G22 validates containment. A non-live campaign makes the offer `inactive`; an unreadable or empty window makes it `invalid`. The claim class comes from the supported pair (section 7) and is `none` unless the offer is `live` and its conditional data is present:
+
+| Class | Pairs | Extra gate | `hide_at` |
+| --- | --- | --- | --- |
+| `financial` | `promotional_price`/`kit_price` + `price_shown`; `percent_or_amount_off` + `automatic` or `discount_code` (code required) | `enforcement_verified_at` at or before the evaluation time and, when the effective window has a start, at or after it; a finite effective end | Effective end − 1,800 s (**provisional**, set by P-D). Without a finite end the claim is held pending P-D and a decision |
+| `gift` | `free_gift` + `supplied_by_gamma` | Known `gift_availability` and `gift_supply`; a positive `gift_quantity_limit` when `limited`; per-group gift data (lookup, G19) | Effective end |
+| `instructions` | `free_gift` + `manufacturer_fulfils` or `in_store`; `percent_or_amount_off` + `in_store`; `manufacturer_rebate` + `manufacturer_fulfils`; `rental_rate` + `in_store` or `contact_us` | — | Effective end |
+| `information` | `information` + `no_action` | — | Effective end |
+
+G22 clears `enforcement_verified_at` before changing any enforcement input (targets, value, dates, codes, prices) and writes it again only after a successful read-back. A manufacturer's redemption deadline (`how_to`, `action`) is separate from the purchase window: it never extends eligibility. How customers find redemption instructions after a campaign ends is an open G19/G21 decision.
+
+**Lookup.** `product.collections` (Online Store collections only) → each collection's `promotion.promotions` → each distinct live campaign once → its offers with a claim → every group whose `collection` contains the product. A group matches only through the back-link on its own collection; the lookup keeps which collection supplied each back-link. An offer is evaluated under every live campaign that references it, and within each campaign all of its relevant groups are checked before it's emitted: an invalid group (missing or contradictory scope or gift data), a second eligible group (even with the same reward) or a missing back-link suppresses the offer under that campaign only, so a failure under one campaign never hides a valid match under another. If an offer matches under several campaigns, only its first record in sort order is kept. Separate offers can all match. A product that is only in a companion collection doesn't match. Each record carries the qualifying and companion collection IDs, minimum and companion quantities and the staff flag as independent conditions, so several can apply at once; G20 counts a cart line that is in both sets toward the qualifying set only, and G22 rejects that overlap. Records are ordered by campaign priority (1 first; blank 50), earlier effective end (open-ended last), the offer's authored position in its campaign, then promotion ID and offer ID as a stable tie-break. G20 applies the product notice limit after resolution.
+
+Records give positions from the same render plus the expected IDs, so callers can resolve entries without `metaobjects.TYPE[handle]` lookups (20 per render) or a second traversal, and must confirm each ID. **Provisional:** whether blank and Draft references keep or lose their places in a list is proved on Gamma-Dev before this interface is frozen.
+
+**Lookup budget.** The schema ceilings allow 50 collections × 5 back-links = 250 campaign references, × 12 = 3,000 offers and × 8 = 24,000 groups per product before deduplication, while Shopify loads at most 1,000 unique entries of each metaobject type per page render and errors beyond that. Each lookup counts the references in every list it loads, including the list that triggers suppression and an offer's groups again under each campaign that references it. Before loading a list it reserves that list's ceiling (5, 12 or 8) and stops if the reservation would pass the budget: 30 campaign references, 8 distinct campaigns, 50 offer references and 200 group references. A list stored above its ceiling, a budget reached, or 50 product collections (possibly truncated; warnings from 45) suppresses the whole result with a diagnostic. While the Shopify-enforced ceilings hold, one call therefore loads at most 30 `promotion`, 50 `promotion_offer` and 200 `promotion_group` references, plus the variant lists of relevant groups. Each offer reference yields at most one record, so the lookup's final sort never receives more than 50 records, within Shopify's 50-iteration `for` limit; a result above 50 is suppressed (`records_over_limit`), never truncated. **Provisional:** a list stored above its ceiling (only possible if a `list.max` validation is missing) is detected after its length is read; whether reading the length loads its entries, and when Shopify loads list entries at all, can't be verified locally. Gamma-Dev test: on a disposable definition without `list.max`, give one collection more references than the ceiling and render a scratch probe that only reads the list's length; then repeat with lists whose combined unique entries exceed 1,000 without iterating them. No Liquid error means reading the length doesn't load entries; an error means oversized lists count in full, and the setup must keep every `list.max` validation in place (G22 checks it). **G20** must keep an aggregate across a cart below the per-type limit (the per-call worst case allows only about five lines with disjoint campaigns): count loads across lines, stop resolving further lines when the aggregate reaches its budget and make no claim for unresolved lines. **G19**'s index must read campaign-level fields only (up to 250 per paginated page) and never resolve every campaign's offers and groups.
+
+### Routes and links
+
+- **Campaign pages** link to `promotion.system.url`, never to a hard-coded `promotions` path, so moving the URL handle at cutover needs no theme change. **Provisional:** P-B checks whether `system.url` carries `/en`; a fallback that prefixes `routes.root_url` once is added only if it doesn't.
+- **The index** is the Shopify page with handle `promotions`, assigned the `page.promotions` template (G19); links use that page's URL.
+- **Rental links (G19).** Use `rental_item.url` only when it is HTTPS without credentials, query or fragment surprises and starts with the current language's configured rental site address (`gamma_rental_site_fr` or `gamma_rental_site_en`). When the French address extends the English one on the same host (`https://www.locationgamma.com/fr/`), an English route rejects URLs under the French address. `snippets/gamma-rental-url.liquid` already validates these addresses but outputs nothing when rental search (`gamma_rental_search`) is off; rental cards must not depend on that search toggle, so G19 applies the same address checks without it.
+- Translated artwork, URLs and links follow P-TR (Principles).
 
 ---
 
@@ -272,7 +334,7 @@ The theme reads only the fields above, by key. It never reads `app_config`. App-
 | **R In store / contact** | None | In-store or contact instructions (rental, Fleet Week in store) | Content validation |
 | **I Information** | None | Text only | Content validation |
 
-Valid benefit/redemption pairs: Free gift → Supplied by Gamma, Manufacturer fulfils or In store; Promotional and kit price → Price shown; Percentage or amount off → Automatic, Discount code or In store; Rebate → Manufacturer fulfils; Rental → In store or Contact us; Information → No action. BXGY is not a class; it can be added later as F4 only for a separately approved financial requirement.
+Valid benefit/redemption pairs: Free gift → Supplied by Gamma, Manufacturer fulfils or In store; Promotional and kit price → Price shown; Percentage or amount off → Automatic, Discount code or In store; Rebate → Manufacturer fulfils; Rental → In store or Contact us; Information → No action. Financing has no approved pair yet: it is reserved and rejected until one is agreed. Section 6 lists the stored values and the claim class of each pair (F1–F3 are `financial`, G is `gift`, M and R are `instructions`, I is `information`). BXGY is not a class; it can be added later as F4 only for a separately approved financial requirement.
 
 ### Real offers
 
@@ -281,16 +343,16 @@ Valid benefit/redemption pairs: Free gift → Supplied by Gamma, Manufacturer fu
 | S1(1) AK chainsaw set → 4 Ah battery **and** Wood-Pro kit | Group: collection = 3 sets; `reward_label` "4 Ah battery (AK 30 S) and Wood-Pro kit"; `rewards` both | G (multiple gifts, one entitlement) |
 | S1(2) AK blower set → 4 Ah battery | Group: 2 sets; reward AK 30 S | G |
 | S1(3–4) AP kit special prices | Price plan on kit products; terms "cannot be combined with the extra-battery offer" | F1 |
-| S1(5) AP tool **+** AP battery → extra AP battery, model varies, exclusions | Group: collection = eligible AP tools (exclusions applied by the app-built collection); `requires_collection` = AP batteries, `requires_label` "an AP battery"; `reward_label` "an additional AP battery (model depends on your purchase)"; no reward reference | G (companion condition; reward not fixed) |
+| S1(5) AP tool **+** AP battery → extra AP battery, model varies, exclusions | Group: collection = eligible AP tools (exclusions applied by the app-built collection); `requires_companion` true, `requires_collection` = AP batteries, `requires_label` "an AP battery"; `reward_label` "an additional AP battery (model depends on your purchase)", `reward_varies` true; no reward reference | G (companion condition; reward not fixed) |
 | S1(6) Gas saw → Wood-Pro kit | Group: 6 saws; reward Wood-Pro kit | G |
-| S1(7) Save on power tools | Price plan, 8 products | F1 |
+| S1(7) Save on power tools | Price plan, 8 products. The source states no end date: a financial claim needs an approved finite window before it can appear (open-ended financial claims are held) | F1 |
 | S6 Two AS sets on one receipt → GTA 26 | Group: AS sets, `min_quantity` 2; reward GTA 26 | G if Gamma supplies; M if STIHL redeems |
 | S3 Holiday AS 2 battery by redemption form | Offer with `action` = form, deadline in `how_to` | M |
 | S2/S4 shop.stihl.ca-only offers | Not advertised by Gamma | — |
 | E1 PB-9510, snow thrower | Price plans | F1 |
-| E1 tiered free battery | Three groups (2.5 / 5.0 / 8.0 Ah), each with its kits (variant narrowing where kits are variants of one product) and battery; the two ambiguous kits sit in a fourth group with `reward_label` "a 56V battery (5.0 or 8.0 Ah — we'll confirm the size)" and `staff_confirmed_terms`, until ECHO resolves them | G |
+| E1 tiered free battery | Three groups (2.5 / 5.0 / 8.0 Ah), each with its kits (variant narrowing where kits are variants of one product) and battery; the two ambiguous kits sit in a fourth group with `reward_label` "a 56V battery (5.0 or 8.0 Ah — we'll confirm the size)", `reward_varies` and the group's `staff_confirmed_terms`, until ECHO resolves them; no kit may sit in two groups of the offer | G |
 | E1 harness with any ECHO brushcutter | Group: existing ECHO brushcutter collection; reward harness. No conflict with the battery tiers, because gifts aren't discounts | G |
-| E4 One Day Sale / E5 Fleet Week | In store (R), or online as an automatic 15% discount on an app-built Shindaiwa collection with exclusions (F2) after MAP confirmation; Shindaiwa price plans are suspended that week because the rule is 15% off **MSRP** | R or F2 |
+| E4 One Day Sale / E5 Fleet Week | In store (R), or online as an automatic 15% discount on an app-built Shindaiwa collection with exclusions (F2) after MAP confirmation; Shindaiwa price plans are suspended that week because the rule is 15% off **MSRP**. The data fits either way; the online F2 form also needs the G21/G22 proof that the discount is computed from MSRP rather than a promotional price | R or F2 |
 | Rebates, guarantees | M or I | M, I |
 | Cleaning and sanding rental | Group headings with rental items; In store | R |
 
@@ -306,14 +368,14 @@ Because gifts no longer need to fit BXGY, every researched manufacturer gift off
 | --- | --- | --- |
 | Product or variant in the qualifying set | Reliable (collection membership + variant list) | "Complimentary with this purchase" |
 | Quantity of qualifying units (`min_quantity`) | Reliable in the cart (sum of line quantities in the set) | Qualified when met; otherwise conditional |
-| Companion item (`requires_collection`) | Reliable in the cart | Qualified when present in sufficient quantity; otherwise conditional |
+| Companion item (`requires_companion`, `requires_collection`) | Reliable in the cart when the companion collection is published to the Online Store; an unusable companion collection suppresses the claim | Qualified when present in sufficient quantity; otherwise conditional |
 | Campaign and offer dates, paused, published | Reliable at render time; cached pages guarded (section 11) | — |
 | Exclusions | Reliable when the app builds them into the qualifying collection | — |
-| Reward fixed or variable | Known from data | Variable rewards say the model is confirmed by Gamma |
-| Customer type, registration, in-store-only, regional conditions | **Not verifiable** | "May qualify … subject to the offer conditions; we'll confirm" (`staff_confirmed_terms`) |
+| Reward fixed or variable | Known from data (`reward_varies`) | Variable rewards say the model is confirmed by Gamma |
+| Customer type, registration, in-store-only, regional conditions | **Not verifiable** | "May qualify … subject to the offer conditions; we'll confirm" (group `staff_confirmed_terms`) |
 | Gift stock | Not used | Always the backorder clause; `gift_supply` = Currently backordered makes it explicit |
 
-**Entitlements in the cart.** For each group: `entitlements = floor(qualifying units ÷ min_quantity)`, limited by `floor(companion units ÷ requires_quantity)` when a companion set exists, then gifts = `entitlements × reward_quantity`, capped by `reward_limit`. A cart line never states that a gift is earned unless the whole cart satisfies the group's conditions.
+**Entitlements in the cart.** For each group: `entitlements = floor(qualifying units ÷ min_quantity)`, limited by `floor(companion units ÷ requires_quantity)` when a companion set exists, then gifts = `entitlements × reward_quantity`, capped by `reward_limit`. A cart line never states that a gift is earned unless the whole cart satisfies the group's conditions. A line in both the qualifying and the companion set counts toward the qualifying set only (G22 rejects such overlaps at setup). `reward_limit` caps gifts per order; the offer's `gift_quantity_limit` is the advertised number of qualifying orders and isn't counted in the cart.
 
 ### Placement
 
@@ -382,7 +444,7 @@ Manufacturer claims and reimbursement remain dealer processes outside the SCS. S
 
 ### Validation before publication (blocking)
 
-Invalid or missing dates; offer window outside the campaign; invalid benefit/redemption pair; empty or ambiguous eligibility (a variant in two groups of one offer with different gifts); missing French customer-facing text; missing `reward_label` on a gift; Limited quantity without a quantity; financial conflicts (below); MAP review missing where required; automatic discount budget exceeded; rental URL not HTTPS.
+Invalid or missing dates; offer window outside the campaign; invalid or reserved benefit/redemption pair; a code claim without a code; empty or ambiguous eligibility (a variant in two groups of one offer, whatever their gifts); a product group without explicit `variants_only` and `requires_companion` flags, or whose variant list, companion collection or label contradicts them; products in both a group's qualifying and companion collections; missing French customer-facing text; missing `reward_label` on a gift group; Limited quantity without a quantity; financial conflicts (below); MAP review missing where required; automatic discount budget exceeded; rental URL not HTTPS.
 
 ### Conflict detection
 
@@ -407,6 +469,8 @@ Invalid or missing dates; offer window outside the campaign; invalid benefit/red
 | G gifts | Content, eligibility, French and operational validation at publication; no checkout probe | Health flags unpublished qualifying collections, deleted reward variants, missing gift reference data |
 | M, R, I | Content validation | — |
 
+**Verification field.** The app clears `enforcement_verified_at` before it changes any enforcement input (targets, value, dates, codes, prices) and writes it again only after a successful read-back, so the theme never shows a claim verified against old inputs.
+
 **Ordering.** Activation: discount native start (or price job) → read-back → claim appears. Pause or early end: offer to Draft (claim hidden on next render) → wait the claim margin → deactivate the discount and restore prices. Natural end: claims hidden at `ends_at` minus the claim margin; discounts end at `ends_at`; prices restored by job.
 
 ### Manual Admin changes
@@ -426,17 +490,18 @@ Manufacturer programs reproduced as published are allowed. Store-funded price cl
 | Draft | Draft (or Active + `paused` if POC P-PRE shows Drafts can't be previewed) | Nothing |
 | Scheduled | Active, before `starts_at` | Unavailable notice; no embargoed content |
 | Live | Active, within dates | Offers whose gates pass |
-| Paused | `paused` or offer Draft | Unavailable notice / offer hidden |
-| Ended | Past `ends_at` | Ended notice during retention (default 30 days), no offers |
+| Paused | `paused` or offer Draft | Unavailable notice / offer hidden. HTML only: an Active entry stays readable through the Storefront API |
+| Ended | Past `ends_at` | Ended notice during retention (default 30 days, app-owned: the theme shows `ended` until the app sets the entry to Draft), no offers |
+| Invalid | Active with unreadable, equal or reversed dates | Treated as unavailable |
 | Archived | Draft; app collections unpublished; discounts left expired | Nothing |
 
 - **Dates:** inclusive start, exclusive end, absolute instants, authored in the store time zone (America/New_York); the displayed end is `ends_at` minus one second ("through November 20").
-- **Claim margin:** financial claims hide N minutes before `ends_at` (default 30, tuned by POC P-D); gift notices end at `ends_at`.
-- **Cached pages:** time-limited elements carry `data-gamma-hide-at`; a small script hides them at that instant. Shopify's next render is authoritative.
+- **Claim margin:** financial claims hide 1,800 seconds before the offer's effective end (provisional, tuned by POC P-D; a financial offer without a finite effective end is held until P-D and a decision); gift notices end at the effective end. The G18 offer snippet reports the instant as `hide_at`.
+- **Cached pages:** time-limited elements carry `data-gamma-hide-at` with that instant; a small script hides them then. G19 and G20 each implement this for their own surfaces. Shopify's next render is authoritative.
 - **Jobs:** rows with `dueAt`; an in-process runner checks every minute and claims due rows with an atomic update to a lease column (single process; no queue library). Handlers re-read Shopify before writing, retry with backoff, then raise a Health error and email. Overdue jobs run on restart.
 - **Journal:** a failing plan stops in *partially applied* with exact steps; Health offers *Retry remaining steps* or *Roll back applied steps*, which only touch resources carrying the app's marker.
 - **Reconcile:** webhooks enqueue targeted checks; an hourly job checks live and scheduled offers. A daily digest email lists open errors.
-- **Enumeration:** the index loops `metaobjects.promotion.values` within `paginate … by 250`; archival keeps published counts far lower; Health warns at 200.
+- **Enumeration:** the index loops `metaobjects.promotion.values` within `paginate … by 250` and reads campaign-level fields only (section 6, Lookup budget); archival keeps published counts far lower; Health warns at 200.
 
 ---
 
@@ -447,16 +512,16 @@ Manufacturer programs reproduced as published are allowed. Store-funded price cl
 - Templates `metaobject/promotion` and `page.promotions`; sections for hero and state, offers, and index.
 - A product-page block for financial and gift notices; a collection callout block.
 - A cart gift-notice snippet rendered from `snippets/cart-products.liquid` after the G08 line notice (a reported Gamma change inside an already-modified Horizon snippet).
-- Snippets for state, lookup, redemption panels, gift wording, cards, rental cards and design-mode checks; the expiry guard.
+- G18's contract snippets (`gamma-promotion-state`, `gamma-promotion-offer`, `gamma-promotion-lookup` and its private `gamma-promotion-group` helper; section 6), then G19/G20 snippets for redemption panels, gift wording, cards, rental cards and design-mode checks, and each surface's expiry guard.
 - A small filter in Horizon's `main-collection-list` so hidden eligibility collections don't appear on `/collections`.
 
 ### Lookup
 
-`product.collections` (≤ 50) → each collection's `promotion.promotions` (≤ 5) → for each unique live promotion, compare its groups' collection IDs, then apply variant narrowing. The cost is independent of how many campaigns exist. Membership is Shopify's own and identical to the discount target. The only maintained link (collection → promotion) is written by the app when a campaign changes; a missing link fails closed (no claim).
+`product.collections` (≤ 50) → each collection's `promotion.promotions` (≤ 5) → for each unique live promotion, compare its groups' collection IDs, then apply variant narrowing. The cost is independent of how many campaigns exist, and a per-call work budget keeps it bounded (section 6). Membership is Shopify's own and identical to the discount target. The only maintained link (collection → promotion) is written by the app when a campaign changes; a missing link fails closed (no claim).
 
 A product or variant metafield projection was rejected: it would need to follow membership changes made anywhere in Admin, and a missed update would leave a claim on a product that no longer qualifies.
 
-**Cart:** the lookup runs once per cart render. A first pass records each line's qualifying groups and the group unit counts; a second pass renders notices. Bounds: 50 cart lines (flag beyond), 50 collections per product, 5 promotions per collection, 12 offers, 8 groups, 50 variants.
+**Cart:** the lookup runs once per line per cart render. A first pass records each line's qualifying groups and the group unit counts; a second pass renders notices. Bounds: 50 cart lines (flag beyond), 50 collections per product, 5 promotions per collection, 12 offers, 8 groups, 50 variants, and an aggregate load budget across lines that G20 enforces below Shopify's 1,000 unique entries per metaobject type per render (section 6).
 
 ### Performance budget (targets measured in POC P-B with Theme Inspector, not assumed)
 
@@ -586,8 +651,9 @@ Indefinite maintenance-free operation can't be promised: an app idle past the AP
 | Workstream | Scope | Depends on | Acceptance | Size | Launch |
 | --- | --- | --- | --- | --- | --- |
 | P Proofs of concept and server checks | Section 19 POCs and the section 15 checklist | Authorization | Recorded outcomes | M | Essential, first |
-| Theme: campaign pages | State, templates, hero, offers, groups, gift panels, redemption panels, rental cards, index, callout, collection-list filter | Definitions on gamma-dev | Fixtures S1, E1, rental, informational in both languages | L | Essential |
-| Theme: product and cart notices | Lookup, product block, cart-line gift notices, expiry guard | Campaign pages; P-B | Scenarios A–I, M | M | Essential |
+| Theme: data contract (G18) | Section 6 contract; lifecycle, offer-claim and lookup snippets with no customer-facing output | P-B, P-D, P-TR, P-PRE before the interface is frozen | Fixture desk check locally; Gamma-Dev proofs | S | Essential, first |
+| Theme: campaign pages | State presentation, templates, hero, offers, groups, gift panels, redemption panels, rental cards, index, callout, collection-list filter, campaign-page expiry guard | G18; definitions on gamma-dev | Fixtures S1, E1, rental, informational in both languages | L | Essential |
+| Theme: product and cart notices | Product block and notice limit, cart-line gift notices and gift counting, aggregate lookup budget, native refresh, expiry guard (using G18's lookup) | G18; campaign pages; P-B | Scenarios A–I, M | M | Essential |
 | App foundation and hosting | Scaffold, auth, MariaDB, VPS service, deploy, backups, monitoring, schema setup, webhooks, journal and audit | Server checklist | Installed on gamma-dev; restart, restore and isolation drills | M | Essential |
 | App editor | Campaign and offer editors, groups, gifts, pickers, bilingual editing, artwork, preview, deep duplicate, gift reference, rental library | Foundation; P-TR, P-PRE | Section 13 journeys | L | Essential |
 | App financial orchestration | Validation, conflicts, collections and back-links, discounts, price plans and jobs, read-back, lifecycle actions | Foundation; P-PL (optional) | Scenarios J, K | L | Essential |
@@ -631,10 +697,10 @@ Indefinite maintenance-free operation can't be promised: an app idle past the AP
 
 | POC | Question | If it fails |
 | --- | --- | --- |
-| P-B Rendering | Lookup and cart notices within budget; block re-renders on variant change; nested `/pages/promotions` routes | Tighten bounds; restructure placement |
-| P-D Caching | Delay before cached HTML reflects a boundary | Sets the claim margin |
-| P-TR Translations | `file_reference`, `url`, `link` translations via API and Translate & Adapt | Explicit French fields |
-| P-PRE Preview | Theme editor previews Draft metaobjects | Plan B preview |
+| P-B Rendering | Lookup and cart notices within budget; block re-renders on variant change; nested `/pages/promotions` routes and whether `system.url` carries `/en`; whether blank and Draft list references keep their positions (G18 record positions); hidden (`seo.hidden`) Online Store collections still in `product.collections`; whether an unpublished companion collection still resolves; variant-list `count` on a populated list and on a list emptied by deleting its variants; whether reading a list's length loads its entries, with a control that iterates the same references; the 50/51 offer-reference budget boundary (section 6, Lookup budget); separately, whether 16-offer and 12-group ceilings stay within budget for a full campaign, an overlapping campaign and a 10-line cart | Tighten bounds and budgets; restructure placement; add the single locale-prefix fallback; resolve by traversal instead of positions; drop `seo.hidden`; keep the 12-offer and 8-group ceilings |
+| P-D Caching | Delay before cached HTML reflects a boundary or a Draft/paused change | Sets the claim margin (provisional 1,800 s) and the app's wait after pausing; decides whether open-ended financial claims can appear |
+| P-TR Translations | `file_reference`, `url`, `link` translations via API and Translate & Adapt; whether choice fields are offered for translation | Explicit French fields; the app never translates choices |
+| P-PRE Preview | Theme editor previews Draft metaobjects; the public response (status and body) for a Draft entry's URL | Plan B preview (public-safe content only, since Active entries are publicly readable) |
 | P-PL Price lists | Primary-market promotional price list on Grow, including point of sale | Keep price jobs |
 | P-ORD Order edit | Adding a gift with a 100% line discount: inventory, packing slip, notifications; $0 draft order alternative | Tags and notes only, gift packed manually |
 | P-FLOW Flow | Order-created condition on line-item product membership in `promo-gift-live` | Manual review only; the app doesn't maintain that collection |
@@ -647,7 +713,7 @@ Indefinite maintenance-free operation can't be promised: an app idle past the AP
 
 | Item | Action |
 | --- | --- |
-| `sales_campaigns` / `promo_offers` (one expired, unverified entry each) | Not migrated. The app setup frees the `promotions` URL handle and creates the new definitions on gamma-dev; on Primary at cutover after confirming the published theme. Old definitions are deleted once the new theme is live |
+| `sales_campaigns` / `promo_offers` (one expired, unverified entry each on Primary; Gamma-Dev held two campaigns and three offers on 2026-11-08) | Not migrated. The app setup frees the `promotions` URL handle and creates the new definitions on gamma-dev; on Primary at cutover after confirming the published theme. Old definitions are deleted once the new theme is live |
 | `sales-campaign-manager` | Retired; confirm it isn't installed with write access on Primary; ideas only |
 | `promotions` page | Reassigned to `page.promotions` |
 | Theme | New files plus reported Gamma changes in Horizon areas: the cart-line gift notice call in `cart-products.liquid` and the collection-list filter |
