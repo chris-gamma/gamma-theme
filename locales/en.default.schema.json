@@ -135,7 +135,9 @@
     "badge_other_manufacturer": "Other manufacturer",
     "badge_location_gamma_info": "Uses the theme’s brand colour when left blank. The other defaults are each brand’s logo colour.",
     "show_coming_soon": "Show coming soon",
-    "show_recently_ended": "Show recently ended"
+    "show_recently_ended": "Show recently ended",
+    "callout_name": "Promotion callout",
+    "callout_info": "Lists live promotions linked to this collection. Shows nothing when there are none."
   },
   "categories": {
     "banners": "Banners",

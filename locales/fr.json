@@ -199,6 +199,10 @@
       "big_green_egg": "Big Green Egg",
       "napoleon": "Napoleon",
       "other_manufacturer": "Fabricant"
+    },
+    "callout": {
+      "heading": "Promotions en cours",
+      "over_limit": "Affiché seulement dans l’éditeur de thème : cette collection est liée à plus de 5 promotions; aucune n’est donc affichée."
     }
   },
   "blocks": {

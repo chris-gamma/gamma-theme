@@ -208,6 +208,10 @@
       "big_green_egg": "Big Green Egg",
       "napoleon": "Napoleon",
       "other_manufacturer": "Manufacturer"
+    },
+    "callout": {
+      "heading": "Current promotions",
+      "over_limit": "Shown only in the theme editor: this collection links more than 5 promotions, so none are shown."
     }
   },
   "accessibility": {
