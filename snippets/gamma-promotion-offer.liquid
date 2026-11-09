@@ -1,0 +1,278 @@
+{%- doc -%}
+  Evaluates one `promotion_offer` inside its campaign: its effective window, its lifecycle and which
+  claim, if any, the storefront may make now. It outputs codes only; the sections that render
+  campaigns decide what customers and the theme editor see.
+
+  Output: `state|claim|start|end|hide_at|notes`, without spaces or line breaks.
+
+  - `state`, the first that applies:
+    - `unavailable`: `offer` is blank or isn't a `promotion_offer` entry (Draft, archived or deleted).
+    - `inactive`: the campaign in `parent` isn't `live`; notes include `parent_<state>`.
+    - `invalid`: an offer date is unreadable, or the effective window is empty or reversed.
+    - `scheduled`, `ended` or `live` against the effective window.
+  - `claim`: `financial`, `gift`, `instructions`, `information` or `none`. Anything other than `none`
+    needs a `live` state, a supported benefit/redemption pair, its conditional data and, for
+    financial claims, current verification. Gift groups are checked separately, so `gift` here means
+    only that the offer itself allows a gift claim.
+  - `start`, `end`: the effective window in Unix seconds, the intersection of the campaign's and the
+    offer's windows. Empty when unbounded on that side.
+  - `hide_at`: Unix second at which the claim must disappear, including from pages already loaded.
+    The effective end, or for financial claims the effective end minus a 1,800-second margin, so a
+    cached page doesn't claim a discount after Shopify stops applying it. Empty when `claim` is
+    `none` or the window has no end.
+  - `notes`: comma-separated codes, empty when there are none. Lifecycle: `missing`, `wrong_type`,
+    `parent_<state>`, `start_unreadable`, `end_unreadable`, `start_clamped`, `end_clamped`,
+    `empty_window`, `reversed_window`. Claim: `benefit_missing`, `benefit_unknown`, `benefit_reserved`
+    (financing), `pair_invalid`, `code_missing`, `gift_availability_unknown`, `gift_quantity_missing`,
+    `gift_supply_unknown`, `unverified`, `verification_unreadable`, `verification_future`,
+    `verification_stale`, `financial_open_ended`, `claim_window_short`, `claim_margin`.
+
+  Liquid's `split` drops trailing empty fields, so read a missing position as empty.
+
+  Supported pairs (benefit → redemption → claim): `promotional_price`, `kit_price` → `price_shown` →
+  financial; `percent_or_amount_off` → `automatic`, `discount_code` → financial, `in_store` →
+  instructions; `free_gift` → `supplied_by_gamma` → gift, `manufacturer_fulfils`, `in_store` →
+  instructions; `manufacturer_rebate` → `manufacturer_fulfils` → instructions; `rental_rate` →
+  `in_store`, `contact_us` → instructions; `information` → `no_action` → information. `financing` is
+  reserved until a pair is approved.
+
+  A financial claim needs `enforcement_verified_at` at or before the evaluation time and, when the
+  effective window has a start, at or after it, so verification made before a later start doesn't
+  count. A financial claim also needs a finite effective end, because its margin is measured from it.
+
+  @param {object} offer - The `promotion_offer` metaobject entry.
+  @param {string} parent - The campaign's full gamma-promotion-state output, evaluated at the same time.
+  @param {number} [at] - Evaluation time in Unix seconds. Defaults to the render time; pass the same value given to gamma-promotion-state.
+{%- enddoc -%}
+
+{%- liquid
+  # Financial claims hide this many seconds before the effective end, allowing for cached pages.
+  assign margin = 1800
+
+  if at != blank
+    assign now = at | plus: 0
+  else
+    assign now = 'now' | date: '%s' | plus: 0
+  endif
+
+  assign state = ''
+  assign claim = 'none'
+  assign start = ''
+  assign finish = ''
+  assign hide_at = ''
+  assign notes = ''
+
+  assign parent_parts = parent | split: '|'
+  assign parent_state = parent_parts[0] | default: 'unavailable'
+
+  if offer == blank
+    assign state = 'unavailable'
+    assign notes = ',missing'
+  elsif offer.system.type != 'promotion_offer'
+    assign state = 'unavailable'
+    assign notes = ',wrong_type'
+  elsif parent_state != 'live'
+    assign state = 'inactive'
+    assign notes = ',parent_' | append: parent_state
+  else
+    # Campaign boundaries (already validated by gamma-promotion-state).
+    assign has_start = false
+    assign has_end = false
+    if parent_parts[1] != blank
+      assign start = parent_parts[1] | plus: 0
+      assign has_start = true
+    endif
+    if parent_parts[2] != blank
+      assign finish = parent_parts[2] | plus: 0
+      assign has_end = true
+    endif
+
+    # Offer boundaries narrow the campaign window; an explicit date outside it is clamped.
+    assign value = offer.starts_at.value
+    if value != blank
+      assign converted = value | date: '%s' | append: ''
+      assign seconds = converted | plus: 0
+      assign round_trip = seconds | append: ''
+      if seconds > 0 and round_trip == converted
+        if has_start == false or seconds > start
+          assign start = seconds
+          assign has_start = true
+        elsif seconds < start
+          assign notes = notes | append: ',start_clamped'
+        endif
+      else
+        assign state = 'invalid'
+        assign notes = notes | append: ',start_unreadable'
+      endif
+    endif
+
+    assign value = offer.ends_at.value
+    if value != blank
+      assign converted = value | date: '%s' | append: ''
+      assign seconds = converted | plus: 0
+      assign round_trip = seconds | append: ''
+      if seconds > 0 and round_trip == converted
+        if has_end == false or seconds < finish
+          assign finish = seconds
+          assign has_end = true
+        elsif seconds > finish
+          assign notes = notes | append: ',end_clamped'
+        endif
+      else
+        assign state = 'invalid'
+        assign notes = notes | append: ',end_unreadable'
+      endif
+    endif
+
+    if state == blank and has_start and has_end
+      if finish == start
+        assign state = 'invalid'
+        assign notes = notes | append: ',empty_window'
+      elsif finish < start
+        assign state = 'invalid'
+        assign notes = notes | append: ',reversed_window'
+      endif
+    endif
+
+    if state == blank
+      if has_start and now < start
+        assign state = 'scheduled'
+      elsif has_end and now >= finish
+        assign state = 'ended'
+      else
+        assign state = 'live'
+      endif
+    endif
+
+    # Claim class from the stored (untranslated) choices.
+    assign benefit = offer.benefit.value | append: ''
+    assign redemption = offer.redemption.value | append: ''
+    assign class = 'none'
+    assign benefit_known = true
+
+    case benefit
+      when ''
+        assign benefit_known = false
+        assign notes = notes | append: ',benefit_missing'
+      when 'promotional_price', 'kit_price'
+        if redemption == 'price_shown'
+          assign class = 'financial'
+        endif
+      when 'percent_or_amount_off'
+        case redemption
+          when 'automatic', 'discount_code'
+            assign class = 'financial'
+          when 'in_store'
+            assign class = 'instructions'
+        endcase
+      when 'free_gift'
+        case redemption
+          when 'supplied_by_gamma'
+            assign class = 'gift'
+          when 'manufacturer_fulfils', 'in_store'
+            assign class = 'instructions'
+        endcase
+      when 'manufacturer_rebate'
+        if redemption == 'manufacturer_fulfils'
+          assign class = 'instructions'
+        endif
+      when 'rental_rate'
+        if redemption == 'in_store' or redemption == 'contact_us'
+          assign class = 'instructions'
+        endif
+      when 'information'
+        if redemption == 'no_action'
+          assign class = 'information'
+        endif
+      when 'financing'
+        assign benefit_known = false
+        assign notes = notes | append: ',benefit_reserved'
+      else
+        assign benefit_known = false
+        assign notes = notes | append: ',benefit_unknown'
+    endcase
+
+    if class == 'none' and benefit_known
+      assign notes = notes | append: ',pair_invalid'
+    endif
+
+    # Conditional data the pair requires.
+    if redemption == 'discount_code' and class == 'financial'
+      assign code = offer.code.value | strip
+      if code == blank
+        assign class = 'none'
+        assign notes = notes | append: ',code_missing'
+      endif
+    endif
+
+    if class == 'gift'
+      assign availability = offer.gift_availability.value | default: 'guaranteed'
+      if availability == 'limited'
+        assign quantity = offer.gift_quantity_limit.value | plus: 0
+        if quantity < 1
+          assign class = 'none'
+          assign notes = notes | append: ',gift_quantity_missing'
+        endif
+      elsif availability != 'guaranteed'
+        assign class = 'none'
+        assign notes = notes | append: ',gift_availability_unknown'
+      endif
+
+      assign supply = offer.gift_supply.value | default: 'normal'
+      unless supply == 'normal' or supply == 'backordered'
+        assign class = 'none'
+        assign notes = notes | append: ',gift_supply_unknown'
+      endunless
+    endif
+
+    if class == 'financial'
+      assign value = offer.enforcement_verified_at.value
+      if value == blank
+        assign class = 'none'
+        assign notes = notes | append: ',unverified'
+      else
+        assign converted = value | date: '%s' | append: ''
+        assign seconds = converted | plus: 0
+        assign round_trip = seconds | append: ''
+        if seconds <= 0 or round_trip != converted
+          assign class = 'none'
+          assign notes = notes | append: ',verification_unreadable'
+        elsif seconds > now
+          assign class = 'none'
+          assign notes = notes | append: ',verification_future'
+        elsif has_start and seconds < start
+          assign class = 'none'
+          assign notes = notes | append: ',verification_stale'
+        endif
+      endif
+
+      if class == 'financial'
+        if has_end == false
+          assign class = 'none'
+          assign notes = notes | append: ',financial_open_ended'
+        else
+          assign hide_at = finish | minus: margin
+          if has_start and hide_at <= start
+            assign class = 'none'
+            assign notes = notes | append: ',claim_window_short'
+          elsif now >= hide_at
+            assign class = 'none'
+            assign notes = notes | append: ',claim_margin'
+          endif
+        endif
+      endif
+    elsif class != 'none' and has_end
+      assign hide_at = finish
+    endif
+
+    if state == 'live'
+      assign claim = class
+    endif
+    if claim == 'none'
+      assign hide_at = ''
+    endif
+  endif
+
+  assign notes = notes | remove_first: ','
+  echo state | append: '|' | append: claim | append: '|' | append: start | append: '|' | append: finish | append: '|' | append: hide_at | append: '|' | append: notes
+-%}

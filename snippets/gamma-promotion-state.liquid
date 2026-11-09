@@ -1,0 +1,106 @@
+{%- doc -%}
+  Derives the lifecycle state of one `promotion` entry. It outputs codes only; the sections that
+  render campaigns decide what customers and the theme editor see.
+
+  Output: `state|start|end|notes`, without spaces or line breaks.
+
+  - `state` is the first of these that applies:
+    - `unavailable`: `promotion` is blank or isn't a `promotion` entry. On the storefront a Draft
+      (including archived) entry and a deleted entry are indistinguishable, so this covers all three.
+    - `invalid`: a non-blank date can't be read, or the window is empty or reversed (end <= start).
+    - `ended`: the evaluation time is at or after `ends_at`.
+    - `paused`: `paused` is true.
+    - `scheduled`: the evaluation time is before `starts_at`.
+    - `live`
+  - `start`, `end`: the boundaries in Unix seconds. Empty when the field is blank (no limit on that
+    side) or unreadable.
+  - `notes`: comma-separated codes, empty when there are none: `missing`, `wrong_type`,
+    `start_unreadable`, `end_unreadable`, `empty_window`, `reversed_window`.
+
+  Liquid's `split` drops trailing empty fields, so read a missing position as empty.
+
+  Boundaries are absolute instants: `starts_at` is inclusive and `ends_at` exclusive. A blank date is
+  unbounded; a non-blank date that doesn't convert to a positive Unix time is unreadable, never blank.
+  The app owns retention and archival (it sets ended entries to Draft), so an ended entry stays `ended`.
+
+  @param {object} promotion - The `promotion` metaobject entry, such as a reference's `.value`.
+  @param {number} [at] - Evaluation time in Unix seconds. Defaults to the render time; pass one value to every evaluation in a render so they agree.
+{%- enddoc -%}
+
+{%- liquid
+  if at != blank
+    assign now = at | plus: 0
+  else
+    assign now = 'now' | date: '%s' | plus: 0
+  endif
+
+  assign state = ''
+  assign start = ''
+  assign finish = ''
+  assign notes = ''
+
+  if promotion == blank
+    assign state = 'unavailable'
+    assign notes = ',missing'
+  elsif promotion.system.type != 'promotion'
+    assign state = 'unavailable'
+    assign notes = ',wrong_type'
+  else
+    assign has_start = false
+    assign has_end = false
+
+    # A readable date converts to digits that round-trip through a number.
+    assign value = promotion.starts_at.value
+    if value != blank
+      assign converted = value | date: '%s' | append: ''
+      assign seconds = converted | plus: 0
+      assign round_trip = seconds | append: ''
+      if seconds > 0 and round_trip == converted
+        assign start = seconds
+        assign has_start = true
+      else
+        assign state = 'invalid'
+        assign notes = notes | append: ',start_unreadable'
+      endif
+    endif
+
+    assign value = promotion.ends_at.value
+    if value != blank
+      assign converted = value | date: '%s' | append: ''
+      assign seconds = converted | plus: 0
+      assign round_trip = seconds | append: ''
+      if seconds > 0 and round_trip == converted
+        assign finish = seconds
+        assign has_end = true
+      else
+        assign state = 'invalid'
+        assign notes = notes | append: ',end_unreadable'
+      endif
+    endif
+
+    if state == blank and has_start and has_end
+      if finish == start
+        assign state = 'invalid'
+        assign notes = notes | append: ',empty_window'
+      elsif finish < start
+        assign state = 'invalid'
+        assign notes = notes | append: ',reversed_window'
+      endif
+    endif
+
+    if state == blank
+      if has_end and now >= finish
+        assign state = 'ended'
+      elsif promotion.paused.value == true
+        assign state = 'paused'
+      elsif has_start and now < start
+        assign state = 'scheduled'
+      else
+        assign state = 'live'
+      endif
+    endif
+  endif
+
+  assign notes = notes | remove_first: ','
+  echo state | append: '|' | append: start | append: '|' | append: finish | append: '|' | append: notes
+-%}
