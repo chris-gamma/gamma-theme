@@ -1,0 +1,39 @@
+{%- doc -%}
+  Outputs a campaign or offer's localized date line from Unix-second boundaries (start inclusive, end
+  exclusive), as dates only in the store's time zone. The end shows as the last valid day: the date of
+  the end minus one second, which is the previous day for an end at midnight. Outputs nothing when both
+  are blank.
+
+  @param {number} [start] - Start in Unix seconds; blank is unbounded.
+  @param {number} [end] - End in Unix seconds (exclusive); blank is unbounded.
+  @param {string} [mode] - `period` (default) for "from … through …", `last` for the last valid day
+    alone, `first` for the start date alone.
+{%- enddoc -%}
+
+{%- liquid
+  assign start_text = ''
+  assign end_text = ''
+
+  if start != blank
+    assign start_text = start | plus: 0 | date: format: 'date'
+  endif
+
+  if end != blank
+    assign end_text = end | plus: 0 | minus: 1 | date: format: 'date'
+  endif
+
+  case mode
+    when 'first'
+      echo start_text
+    when 'last'
+      echo end_text
+    else
+      if start_text != blank and end_text != blank
+        echo 'gamma_promotion.dates.from_through' | t: start: start_text, end: end_text
+      elsif end_text != blank
+        echo 'gamma_promotion.dates.through' | t: end: end_text
+      elsif start_text != blank
+        echo 'gamma_promotion.dates.from' | t: start: start_text
+      endif
+  endcase
+-%}

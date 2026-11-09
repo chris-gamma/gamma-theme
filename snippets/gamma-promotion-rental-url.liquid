@@ -1,0 +1,50 @@
+{%- doc -%}
+  Outputs a rental item's address when campaign pages may link to it, otherwise nothing. The address
+  must be HTTPS without credentials, query, fragment, spaces or quotes, and start with the current
+  language's rental site address (gamma-rental-url, whether or not rental search is on). When the
+  French address extends the English one on the same host, an English page rejects French addresses.
+
+  @param {string} url - The rental item's `url` value in the current language.
+{%- enddoc -%}
+
+{%- liquid
+  assign address = url | append: '' | strip
+  assign valid = false
+
+  capture site
+    render 'gamma-rental-url', any_toggle: true
+  endcapture
+  assign site = site | strip
+
+  if site != blank and address != blank
+    assign scheme = address | slice: 0, 8 | downcase
+    assign start = address | slice: 0, site.size
+    if scheme == 'https://' and start == site
+      assign valid = true
+    endif
+    if address contains '?' or address contains '#' or address contains '@' or address contains ' ' or address contains '\' or address contains '"' or address contains '<'
+      assign valid = false
+    endif
+  endif
+
+  if valid
+    assign language = request.locale.iso_code | downcase | split: '-' | first
+    if language == 'en'
+      capture french
+        render 'gamma-rental-url', any_toggle: true, language: 'fr'
+      endcapture
+      assign french = french | strip
+      if french != blank and french != site
+        assign french_start = french | slice: 0, site.size
+        assign address_start = address | slice: 0, french.size
+        if french_start == site and address_start == french
+          assign valid = false
+        endif
+      endif
+    endif
+  endif
+
+  if valid
+    echo address
+  endif
+-%}

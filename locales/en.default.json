@@ -129,6 +129,13 @@
       "missing_image": "Select a static map image. Without one, the map shows only once a customer turns on the interactive map."
     }
   },
+  "gamma_promotion": {
+    "dates": {
+      "from_through": "From {{ start }} through {{ end }}",
+      "through": "Through {{ end }}",
+      "from": "Starting {{ start }}"
+    }
+  },
   "accessibility": {
     "account": "Account",
     "active_filters": "Active filters:",

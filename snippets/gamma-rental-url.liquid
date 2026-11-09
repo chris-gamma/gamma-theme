@@ -1,16 +1,20 @@
 {%- doc -%}
   Outputs the rental site address for the storefront language, from Theme settings > Search.
-  Outputs nothing when rental search is off or that address isn't an https:// folder address
-  (ending with / and without a query, fragment or credentials).
+  Outputs nothing when rental search is off (unless `any_toggle` is true) or that address isn't an
+  https:// folder address (ending with / and without a query, fragment or credentials).
 
   @param {string} [terms] - HTML-escaped search terms, such as `search.terms`. When present, outputs the rental site's search results address for them.
+  @param {boolean} [any_toggle] - When true, outputs the address whether or not rental search is on (campaign rental cards).
+  @param {string} [language] - Language code (`fr` or `en`) to use instead of the storefront's.
 {%- enddoc -%}
 
 {%- liquid
   assign site = ''
 
-  if settings.gamma_rental_search
-    assign language = request.locale.iso_code | downcase | split: '-' | first
+  if settings.gamma_rental_search or any_toggle == true
+    if language == blank
+      assign language = request.locale.iso_code | downcase | split: '-' | first
+    endif
 
     case language
       when 'fr'
