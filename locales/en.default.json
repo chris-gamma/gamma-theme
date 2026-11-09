@@ -141,7 +141,42 @@
     "index_link": "See current promotions",
     "source": "Official manufacturer details",
     "new_tab": "(opens in a new tab)",
-    "editor_diagnostics": "Shown only in the theme editor. State: {{ state }}. Codes: {{ codes }}"
+    "editor_diagnostics": "Shown only in the theme editor. State: {{ state }}. Codes: {{ codes }}",
+    "offers_nav": "Offers in this promotion",
+    "offer_terms": "Offer terms",
+    "terms": "Promotion terms",
+    "card_limit": "Shown only in the theme editor: this page reached its 60-card limit, so further eligible items are listed as links.",
+    "redemption": {
+      "price_shown": "Promotional prices are shown on the eligible products.",
+      "automatic": "Applied automatically at checkout.",
+      "discount_code_html": "Use code <code>{{ code }}</code> at checkout.",
+      "manufacturer": "How to claim",
+      "claim_by": "Submit your claim by {{ date }}.",
+      "claim_link": "Claim form",
+      "in_store": "This offer is available in store.",
+      "contact": "Contact us and store hours"
+    },
+    "gift": {
+      "heading": "How you receive your gift",
+      "how": "No need to add the gift to your cart. Buy the qualifying equipment as usual and Location Gamma supplies the gift with your order. If the gift is backordered, your order may be delayed; we’ll contact you if that happens.",
+      "backordered": "This gift is currently backordered, so your order may be delayed. We’ll contact you with more information.",
+      "limited": "Limited to the first {{ quantity }} qualifying orders.",
+      "label": "Gift: {{ gift }}",
+      "varies": "The gift model depends on your purchase; Location Gamma confirms it."
+    },
+    "conditions": {
+      "quantity": "Buy {{ count }} eligible items for each gift.",
+      "companion": "Buy it with {{ companion }}.",
+      "staff": "Some conditions are confirmed by our team after you order."
+    },
+    "cards": {
+      "eligible_variants": "Eligible: {{ variants }}",
+      "see_all": {
+        "one": "See the eligible product",
+        "other": "See all {{ count }} eligible products"
+      },
+      "more": "More eligible items:"
+    }
   },
   "accessibility": {
     "account": "Account",

@@ -107,7 +107,9 @@
   },
   "gamma_promotion": {
     "campaign_name": "Page de promotion",
-    "campaign_info": "Affiche la promotion à partir du contenu Shopify. Les promotions planifiées, suspendues, terminées ou non offertes affichent un avis au lieu des offres."
+    "campaign_info": "Affiche la promotion à partir du contenu Shopify. Les promotions planifiées, suspendues, terminées ou non offertes affichent un avis au lieu des offres.",
+    "group_card_limit": "Cartes de produits par groupe",
+    "group_card_limit_info": "La page affiche au plus 60 cartes en tout; les autres articles admissibles s’affichent sous forme de liens."
   },
   "names": {
     "404": "404",

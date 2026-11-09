@@ -116,7 +116,9 @@
   },
   "gamma_promotion": {
     "campaign_name": "Promotion page",
-    "campaign_info": "Shows the promotion from Shopify content. Scheduled, paused, ended and unavailable promotions show a notice instead of offers."
+    "campaign_info": "Shows the promotion from Shopify content. Scheduled, paused, ended and unavailable promotions show a notice instead of offers.",
+    "group_card_limit": "Product cards per group",
+    "group_card_limit_info": "The page shows at most 60 cards in all; further eligible items appear as links."
   },
   "categories": {
     "banners": "Banners",

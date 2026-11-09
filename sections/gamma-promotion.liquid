@@ -91,6 +91,355 @@
           </div>
         {%- endif -%}
       </header>
+
+      {%- liquid
+        # Pass 1: which offers may make a claim now. Gift offers also need a valid product group.
+        assign shown_offers = ','
+        assign shown_count = 0
+        for offer in entry.offers.value
+          # An offer listed twice is shown once, as the lookup does (offer_duplicate).
+          assign token = ',' | append: offer.system.id | append: ','
+          if shown_offers contains token
+            continue
+          endif
+          capture offer_result
+            render 'gamma-promotion-offer', offer: offer, parent: state_result, at: at
+          endcapture
+          assign offer_parts = offer_result | strip | split: '|'
+          assign claim = offer_parts[1]
+          if claim == blank or claim == 'none'
+            if request.design_mode and offer_parts[5] != blank
+              assign diagnostics = diagnostics | append: ',' | append: offer.system.handle | append: ':' | append: offer_parts[5]
+            endif
+            continue
+          endif
+          if claim == 'gift'
+            assign gift_groups = 0
+            for group in offer.groups.value
+              capture group_data
+                render 'gamma-promotion-group-data', group: group, claim: claim
+              endcapture
+              assign group_state = group_data | strip | split: '|' | first
+              if group_state == 'valid'
+                assign gift_groups = gift_groups | plus: 1
+              endif
+            endfor
+            if gift_groups == 0
+              if request.design_mode
+                assign diagnostics = diagnostics | append: ',' | append: offer.system.handle | append: ':gift_groups_missing'
+              endif
+              continue
+            endif
+          endif
+          assign shown_offers = shown_offers | append: offer.system.id | append: ','
+          assign shown_count = shown_count | plus: 1
+        endfor
+
+        assign cards_left = 60
+        assign card_cap = section.settings.group_card_limit | plus: 0
+        assign contact_url = pages.contact.url
+      -%}
+
+      {%- if shown_count >= 3 -%}
+        <nav class="gamma-promotion__nav" aria-labelledby="GammaOffersNav-{{ section.id }}" data-gamma-hide-empty>
+          <h2 id="GammaOffersNav-{{ section.id }}" class="gamma-promotion__nav-heading">{{ 'gamma_promotion.offers_nav' | t }}</h2>
+          <ul class="gamma-promotion__nav-list">
+            {%- assign listed_offers = ',' -%}
+            {%- for offer in entry.offers.value -%}
+              {%- assign token = ',' | append: offer.system.id | append: ',' -%}
+              {%- if listed_offers contains token -%}{%- continue -%}{%- endif -%}
+              {%- if shown_offers contains token -%}
+                {%- liquid
+                  assign listed_offers = listed_offers | append: offer.system.id | append: ','
+                  # Each link disappears with its offer section.
+                  capture offer_result
+                    render 'gamma-promotion-offer', offer: offer, parent: state_result, at: at
+                  endcapture
+                  assign link_hide_at = offer_result | strip | split: '|' | slice: 4 | first
+                -%}
+                <li{% if link_hide_at != blank %} data-gamma-hide-at="{{ link_hide_at }}"{% endif %}>
+                  <a href="#GammaOffer-{{ section.id }}-{{ offer.system.id }}">{{ offer.title.value | escape }}</a>
+                </li>
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+        </nav>
+      {%- endif -%}
+
+      {%- assign rendered_offers = ',' -%}
+      {%- for offer in entry.offers.value -%}
+        {%- assign token = ',' | append: offer.system.id | append: ',' -%}
+        {%- unless shown_offers contains token -%}{%- continue -%}{%- endunless -%}
+        {%- if rendered_offers contains token -%}{%- continue -%}{%- endif -%}
+        {%- assign rendered_offers = rendered_offers | append: offer.system.id | append: ',' -%}
+        {%- liquid
+          capture offer_result
+            render 'gamma-promotion-offer', offer: offer, parent: state_result, at: at
+          endcapture
+          assign offer_parts = offer_result | strip | split: '|'
+          assign claim = offer_parts[1]
+          assign offer_end = offer_parts[3]
+          assign hide_at = offer_parts[4]
+          assign offer_id = 'GammaOffer-' | append: section.id | append: '-' | append: offer.system.id
+        -%}
+        <section
+          class="gamma-promotion__offer"
+          id="{{ offer_id }}"
+          aria-labelledby="{{ offer_id }}-title"
+          {% if hide_at != blank %}data-gamma-hide-at="{{ hide_at }}"{% endif %}
+        >
+          <div class="gamma-promotion__offer-intro{% if offer.image.value != blank %} gamma-promotion__offer-intro--media{% endif %}">
+            <div class="gamma-promotion__offer-text">
+              {%- if offer.label.value != blank -%}
+                <p class="gamma-promotion__eyebrow">{{ offer.label.value | escape }}</p>
+              {%- endif -%}
+              <h2 id="{{ offer_id }}-title" class="gamma-promotion__offer-title">{{ offer.title.value | escape }}</h2>
+              {%- if offer.summary.value != blank -%}
+                <p class="gamma-promotion__summary">{{ offer.summary.value | escape | newline_to_br }}</p>
+              {%- endif -%}
+              {%- capture offer_dates -%}
+                {%- render 'gamma-promotion-dates', start: offer_parts[2], end: offer_end -%}
+              {%- endcapture -%}
+              {%- if offer_dates != blank and offer_end != campaign_end -%}
+                <p class="gamma-promotion__dates">{{ offer_dates }}</p>
+              {%- endif -%}
+              {%- if offer.details.value != blank -%}
+                <div class="rte">{{ offer.details | metafield_tag }}</div>
+              {%- endif -%}
+              {%- render 'gamma-promotion-offer-panel', offer: offer, claim: claim, end: offer_end, contact_url: contact_url -%}
+            </div>
+            {%- if offer.image.value != blank -%}
+              {{
+                offer.image.value
+                | image_url: width: 1200
+                | image_tag:
+                  widths: '360, 600, 900, 1200',
+                  sizes: '(min-width: 750px) 40vw, 100vw',
+                  class: 'gamma-promotion__offer-image',
+                  loading: 'lazy',
+                  alt: offer.image.value.alt
+              }}
+            {%- endif -%}
+          </div>
+
+          {%- for group in offer.groups.value -%}
+            {%- liquid
+              capture group_data
+                render 'gamma-promotion-group-data', group: group, claim: claim
+              endcapture
+              assign group_parts = group_data | strip | split: '|'
+              assign group_state = group_parts[0]
+              if group_state == 'invalid'
+                if request.design_mode
+                  assign diagnostics = diagnostics | append: ',' | append: offer.system.handle | append: ':group_' | append: group_parts[6]
+                endif
+                continue
+              endif
+              assign heading = group.heading.value | strip
+              assign rental_items = group.rental_items.value
+            -%}
+            {%- if group_state == 'none' and rental_items == blank and group.note.value == blank and group.description.value == blank and group.link.value == blank -%}
+              {%- continue -%}
+            {%- endif -%}
+            <div class="gamma-promotion__group">
+              {%- if heading != blank -%}
+                <h3 class="gamma-promotion__group-heading">{{ heading | escape }}</h3>
+              {%- endif -%}
+              {%- if group_state == 'valid' -%}
+                {%- liquid
+                  assign min_quantity = group_parts[2] | plus: 0
+                  assign companion_label = group.requires_label.value | strip | escape
+                -%}
+                <ul class="gamma-promotion__conditions">
+                  {%- if claim == 'gift' -%}
+                    {%- assign gift_label = group.reward_label.value | strip | escape -%}
+                    <li><strong>{{ 'gamma_promotion.gift.label' | t: gift: gift_label }}</strong>
+                      {%- assign reward_quantity = group.reward_quantity.value | default: 1 | plus: 0 -%}
+                      {%- if reward_quantity > 1 %} ×{{ reward_quantity }}{% endif -%}
+                    </li>
+                    {%- if group.reward_varies.value == true -%}
+                      <li>{{ 'gamma_promotion.gift.varies' | t }}</li>
+                    {%- endif -%}
+                  {%- endif -%}
+                  {%- if min_quantity > 1 -%}
+                    <li>{{ 'gamma_promotion.conditions.quantity' | t: count: min_quantity }}</li>
+                  {%- endif -%}
+                  {%- if group_parts[3] != blank -%}
+                    <li>{{ 'gamma_promotion.conditions.companion' | t: companion: companion_label }}</li>
+                  {%- endif -%}
+                  {%- if group_parts[5] == '1' -%}
+                    <li>{{ 'gamma_promotion.conditions.staff' | t }}</li>
+                  {%- endif -%}
+                </ul>
+                {%- if claim == 'gift' -%}
+                  {%- assign rewards = group.rewards.value -%}
+                  {%- if rewards != blank -%}
+                    <ul class="gamma-promotion__rewards">
+                      {%- for reward in rewards -%}
+                        {%- if reward.product == blank or reward.product.url == blank -%}{%- continue -%}{%- endif -%}
+                        <li>
+                          <a href="{{ reward.url }}">
+                            {%- if reward.image != blank -%}
+                              {{ reward.image | image_url: width: 160 | image_tag: loading: 'lazy', alt: '', width: 80, height: 80, class: 'gamma-promotion__reward-image' }}
+                            {%- endif -%}
+                            {{ reward.product.title | escape }}
+                          </a>
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                  {%- endif -%}
+                {%- endif -%}
+              {%- endif -%}
+              {%- if group.note.value != blank -%}
+                <p class="gamma-promotion__group-note">{{ group.note.value | escape }}</p>
+              {%- endif -%}
+              {%- if group.description.value != blank -%}
+                <div class="rte">{{ group.description | metafield_tag }}</div>
+              {%- endif -%}
+
+              {%- if group_state == 'valid' -%}
+                {%- liquid
+                  assign collection = group.collection.value
+                  assign take = card_cap | at_most: cards_left
+                  assign shown_products = ','
+                  assign shown_in_group = 0
+                  assign overflow = ''
+                -%}
+                {%- if group.variants_only.value == true -%}
+                  {%- liquid
+                    assign listed = group.variants.value
+                    assign collection_token = ',' | append: collection.id | append: ','
+                  -%}
+                  <ul class="gamma-promotion__cards" role="list">
+                    {%- for listed_variant in listed -%}
+                      {%- liquid
+                        # A listed variant qualifies only while its product is still in the group's collection.
+                        assign listed_product = listed_variant.product
+                        if listed_product == blank or listed_product.url == blank
+                          continue
+                        endif
+                        assign token = ',' | append: listed_product.id | append: ','
+                        if shown_products contains token
+                          continue
+                        endif
+                        assign shown_products = shown_products | append: listed_product.id | append: ','
+                        assign product_collections = listed_product.collections | map: 'id' | join: ','
+                        assign product_collections = ',' | append: product_collections | append: ','
+                        unless product_collections contains collection_token
+                          continue
+                        endunless
+                        assign names = ''
+                        for other in listed
+                          if other.product.id == listed_product.id
+                            assign names = names | append: ', ' | append: other.title
+                          endif
+                        endfor
+                        assign names = names | remove_first: ', '
+                      -%}
+                      {%- if take > 0 -%}
+                        <li class="gamma-promotion__card">
+                          {%- render 'gamma-promotion-variant-card', variant: listed_variant, names: names -%}
+                        </li>
+                        {%- assign take = take | minus: 1 -%}
+                        {%- assign cards_left = cards_left | minus: 1 -%}
+                      {%- else -%}
+                        {%- capture overflow_item -%}<li><a href="{{ listed_variant.url }}">{{ listed_product.title | escape }}</a> ({{ names | escape }})</li>{%- endcapture -%}
+                        {%- assign overflow = overflow | append: overflow_item -%}
+                      {%- endif -%}
+                    {%- endfor -%}
+                  </ul>
+                  {%- if overflow != blank -%}
+                    <p class="gamma-promotion__more">{{ 'gamma_promotion.cards.more' | t }}</p>
+                    <ul class="gamma-promotion__more-list">{{ overflow }}</ul>
+                  {%- endif -%}
+                {%- else -%}
+                  {%- if take > 0 -%}
+                    <ul class="gamma-promotion__cards" role="list">
+                      {%- for product in collection.products limit: take -%}
+                        <li class="gamma-promotion__card">
+                          {%- content_for 'block', type: '_product-card', id: 'static-product-card', closest.product: product -%}
+                        </li>
+                        {%- assign cards_left = cards_left | minus: 1 -%}
+                        {%- assign shown_in_group = shown_in_group | plus: 1 -%}
+                      {%- endfor -%}
+                    </ul>
+                  {%- endif -%}
+                  {%- if collection.products_count > shown_in_group -%}
+                    <p class="gamma-promotion__more">
+                      <a href="{{ collection.url }}">{{ 'gamma_promotion.cards.see_all' | t: count: collection.products_count }}</a>
+                    </p>
+                  {%- endif -%}
+                {%- endif -%}
+              {%- elsif rental_items != blank -%}
+                {%- assign rental_overflow = '' -%}
+                <ul class="gamma-promotion__cards" role="list">
+                  {%- for item in rental_items -%}
+                    {%- liquid
+                      capture item_url
+                        render 'gamma-promotion-rental-url', url: item.url.value
+                      endcapture
+                      assign item_url = item_url | strip
+                      if item_url == blank
+                        continue
+                      endif
+                      assign item_title = item.title.value | escape
+                    -%}
+                    {%- if cards_left > 0 -%}
+                      <li class="gamma-promotion__card gamma-promotion__rental">
+                        <a class="gamma-promotion__rental-link" href="{{ item_url | escape }}" target="_blank" rel="noopener">
+                          {%- if item.image.value != blank -%}
+                            {{ item.image.value | image_url: width: 600 | image_tag: widths: '300, 450, 600', sizes: '(min-width: 750px) 25vw, 50vw', loading: 'lazy', alt: '', class: 'gamma-promotion__rental-image' }}
+                          {%- endif -%}
+                          <span class="gamma-promotion__rental-title">{{ item_title }}</span>
+                          <span class="visually-hidden">{{ 'gamma_promotion.new_tab' | t }}</span>
+                        </a>
+                        {%- if item.note.value != blank -%}
+                          <p class="gamma-promotion__group-note">{{ item.note.value | escape }}</p>
+                        {%- endif -%}
+                      </li>
+                      {%- assign cards_left = cards_left | minus: 1 -%}
+                    {%- else -%}
+                      {%- capture overflow_item -%}<li><a href="{{ item_url | escape }}" target="_blank" rel="noopener">{{ item_title }}<span class="visually-hidden"> {{ 'gamma_promotion.new_tab' | t }}</span></a></li>{%- endcapture -%}
+                      {%- assign rental_overflow = rental_overflow | append: overflow_item -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                </ul>
+                {%- if rental_overflow != blank -%}
+                  <p class="gamma-promotion__more">{{ 'gamma_promotion.cards.more' | t }}</p>
+                  <ul class="gamma-promotion__more-list">{{ rental_overflow }}</ul>
+                {%- endif -%}
+              {%- endif -%}
+
+              {%- liquid
+                assign link_url = group.link.value.url | append: ''
+                assign link_text = group.link.value.text | strip
+              -%}
+              {%- if link_url != blank and link_text != blank -%}
+                <p class="gamma-promotion__more"><a href="{{ link_url | escape }}">{{ link_text | escape }}</a></p>
+              {%- endif -%}
+            </div>
+          {%- endfor -%}
+
+          {%- if offer.terms.value != blank -%}
+            <div class="gamma-promotion__terms rte">
+              <h3 class="gamma-promotion__terms-heading">{{ 'gamma_promotion.offer_terms' | t }}</h3>
+              {{ offer.terms | metafield_tag }}
+            </div>
+          {%- endif -%}
+        </section>
+      {%- endfor -%}
+
+      {%- if entry.terms.value != blank -%}
+        <section class="gamma-promotion__terms rte" aria-labelledby="GammaTerms-{{ section.id }}">
+          <h2 id="GammaTerms-{{ section.id }}" class="gamma-promotion__terms-heading">{{ 'gamma_promotion.terms' | t }}</h2>
+          {{ entry.terms | metafield_tag }}
+        </section>
+      {%- endif -%}
+
+      {%- if request.design_mode and cards_left == 0 -%}
+        <p class="gamma-promotion__diagnostic">{{ 'gamma_promotion.card_limit' | t }}</p>
+      {%- endif -%}
+
     {%- when 'ended' -%}
       <header class="gamma-promotion__state">
         <h1 class="gamma-promotion__title">{{ title }}</h1>
@@ -192,6 +541,201 @@
     border-radius: var(--style-border-radius-md, 0);
   }
 
+.gamma-promotion__nav {
+    padding: var(--padding-md, 1rem);
+    border-radius: var(--style-border-radius-md, 0);
+    background: rgb(var(--color-foreground-rgb) / 5%);
+  }
+
+  .gamma-promotion__nav-heading {
+    margin: 0 0 var(--margin-xs, 0.5rem);
+    font-size: var(--font-h5--size, 1.125rem);
+  }
+
+  .gamma-promotion__nav-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap-xs, 0.5rem) var(--gap-md, 1rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .gamma-promotion__offer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-lg, 1.5rem);
+    padding-block-start: var(--padding-xl, 2rem);
+    border-block-start: var(--style-border-width, 1px) solid rgb(var(--color-foreground-rgb) / var(--opacity-10, 10%));
+    scroll-margin-block-start: var(--header-height, 0);
+  }
+
+  .gamma-promotion__offer-intro {
+    display: grid;
+    gap: var(--gap-lg, 1.5rem);
+    align-items: start;
+  }
+
+  @media screen and (min-width: 750px) {
+    .gamma-promotion__offer-intro--media {
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    }
+  }
+
+  .gamma-promotion__offer-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-sm, 0.75rem);
+    min-width: 0;
+    max-width: 48rem;
+  }
+
+  .gamma-promotion__offer-title,
+  .gamma-promotion__group-heading,
+  .gamma-promotion__terms-heading {
+    margin: 0;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+  }
+
+  .gamma-promotion__offer-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--style-border-radius-md, 0);
+  }
+
+  .gamma-promotion__group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-sm, 0.75rem);
+    min-width: 0;
+  }
+
+  .gamma-promotion__conditions,
+  .gamma-promotion__more-list {
+    margin: 0;
+    padding-inline-start: 1.25em;
+  }
+
+  .gamma-promotion__conditions:empty {
+    display: none;
+  }
+
+  .gamma-promotion__group-note,
+  .gamma-promotion__variants,
+  .gamma-promotion__more {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .gamma-promotion__variant-link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xs, 0.5rem);
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .gamma-promotion__variant-link:hover .gamma-promotion__variant-title,
+  .gamma-promotion__variant-link:focus-visible .gamma-promotion__variant-title {
+    text-decoration: underline;
+  }
+
+  .gamma-promotion__variant-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: contain;
+  }
+
+  .gamma-promotion__variant-title {
+    overflow-wrap: anywhere;
+  }
+
+  .gamma-promotion__variant-price {
+    margin: 0;
+    font-weight: var(--font-weight-bold, 700);
+  }
+
+  .gamma-promotion__variant-compare {
+    margin-inline-end: 0.5em;
+    font-weight: normal;
+  }
+
+  .gamma-promotion__variants {
+    font-size: 0.875rem;
+  }
+
+  .gamma-promotion__rewards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap-sm, 0.75rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .gamma-promotion__rewards a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--gap-xs, 0.5rem);
+  }
+
+  .gamma-promotion__reward-image {
+    width: 3rem;
+    height: 3rem;
+    object-fit: contain;
+  }
+
+  .gamma-promotion__cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 11rem), 1fr));
+    gap: var(--gap-lg, 1.5rem) var(--gap-md, 1rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .gamma-promotion__card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xs, 0.5rem);
+    min-width: 0;
+  }
+
+  .gamma-promotion__rental-link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xs, 0.5rem);
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .gamma-promotion__rental-link:hover .gamma-promotion__rental-title,
+  .gamma-promotion__rental-link:focus-visible .gamma-promotion__rental-title {
+    text-decoration: underline;
+  }
+
+  .gamma-promotion__rental-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: contain;
+    background: rgb(var(--color-foreground-rgb) / 4%);
+    border-radius: var(--style-border-radius-md, 0);
+  }
+
+  .gamma-promotion__rental-title {
+    font-weight: var(--font-weight-bold, 700);
+    overflow-wrap: anywhere;
+  }
+
+  .gamma-promotion__terms {
+    max-width: 48rem;
+    font-size: 0.9375rem;
+  }
+
   .gamma-promotion__diagnostic {
     margin: 0;
     padding: var(--padding-sm, 0.75rem);
@@ -211,6 +755,16 @@
     {
       "type": "paragraph",
       "content": "t:gamma_promotion.campaign_info"
+    },
+    {
+      "type": "range",
+      "id": "group_card_limit",
+      "label": "t:gamma_promotion.group_card_limit",
+      "info": "t:gamma_promotion.group_card_limit_info",
+      "min": 2,
+      "max": 24,
+      "step": 1,
+      "default": 8
     },
     {
       "type": "header",

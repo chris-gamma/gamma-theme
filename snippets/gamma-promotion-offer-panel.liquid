@@ -1,0 +1,152 @@
+{%- doc -%}
+  Renders a live campaign offer's redemption panel: how the customer receives the benefit. Financial
+  wording appears only for a `financial` claim from gamma-promotion-offer, which already requires
+  current enforcement verification. Gift panels never say the gift is added to the cart or at checkout.
+
+  @param {object} offer - The `promotion_offer` entry.
+  @param {string} claim - The offer's claim class from gamma-promotion-offer (not `none`).
+  @param {number} [end] - The offer's effective end in Unix seconds (exclusive).
+  @param {string} [contact_url] - The store's contact page URL, for in-store and contact offers.
+{%- enddoc -%}
+
+{%- liquid
+  assign redemption = offer.redemption.value | append: ''
+  assign kind = ''
+  case claim
+    when 'financial'
+      assign kind = redemption
+    when 'gift'
+      assign kind = 'gift'
+    when 'instructions'
+      if redemption == 'manufacturer_fulfils'
+        assign kind = 'manufacturer'
+      elsif redemption == 'in_store' or redemption == 'contact_us'
+        assign kind = 'store'
+      endif
+  endcase
+-%}
+
+{%- case kind -%}
+  {%- when 'price_shown' -%}
+    <p class="gamma-promotion-panel">{{ 'gamma_promotion.redemption.price_shown' | t }}</p>
+  {%- when 'automatic' -%}
+    <p class="gamma-promotion-panel">{{ 'gamma_promotion.redemption.automatic' | t }}</p>
+  {%- when 'discount_code' -%}
+    {%- assign code = offer.code.value | strip | escape -%}
+    <p class="gamma-promotion-panel">
+      {{- 'gamma_promotion.redemption.discount_code_html' | t: code: code -}}
+    </p>
+  {%- when 'gift' -%}
+    {%- liquid
+      assign availability = offer.gift_availability.value | default: 'guaranteed'
+      assign quantity = offer.gift_quantity_limit.value | plus: 0
+    -%}
+    <div class="gamma-promotion-panel gamma-promotion-panel--gift">
+      <span class="svg-wrapper gamma-promotion-panel__icon" aria-hidden="true">
+        {{- 'icon-gamma-gift.svg' | inline_asset_content -}}
+      </span>
+      <div class="gamma-promotion-panel__text">
+        <p><strong>{{ 'gamma_promotion.gift.heading' | t }}</strong></p>
+        <p>{{ 'gamma_promotion.gift.how' | t }}</p>
+        {%- if offer.gift_supply.value == 'backordered' -%}
+          <p>{{ 'gamma_promotion.gift.backordered' | t }}</p>
+        {%- endif -%}
+        {%- if availability == 'limited' and quantity > 0 -%}
+          <p>{{ 'gamma_promotion.gift.limited' | t: quantity: quantity }}</p>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- when 'manufacturer' -%}
+    {%- liquid
+      assign action_url = offer.action.value.url | append: ''
+      assign action_scheme = action_url | slice: 0, 8 | downcase
+      assign action_text = offer.action.value.text | strip
+      if action_text == blank
+        assign action_text = 'gamma_promotion.redemption.claim_link' | t
+      endif
+      assign deadline_text = ''
+      if end != blank and offer.claim_deadline.value != blank
+        assign deadline = offer.claim_deadline.value | date: '%s' | plus: 0
+        assign effective_end = end | plus: 0
+        if deadline >= effective_end
+          capture deadline_text
+            render 'gamma-promotion-dates', end: deadline, mode: 'last'
+          endcapture
+          assign deadline_text = deadline_text | strip
+        endif
+      endif
+    -%}
+    <div class="gamma-promotion-panel">
+      <p><strong>{{ 'gamma_promotion.redemption.manufacturer' | t }}</strong></p>
+      {%- if offer.how_to.value != blank -%}
+        <div class="rte">{{ offer.how_to | metafield_tag }}</div>
+      {%- endif -%}
+      {%- if deadline_text != blank -%}
+        <p>{{ 'gamma_promotion.redemption.claim_by' | t: date: deadline_text }}</p>
+      {%- endif -%}
+      {%- if action_scheme == 'https://' -%}
+        <p>
+          <a href="{{ action_url | escape }}" target="_blank" rel="noopener">
+            {{- action_text | escape -}}
+            <span class="visually-hidden">{{ 'gamma_promotion.new_tab' | t }}</span>
+          </a>
+        </p>
+      {%- endif -%}
+    </div>
+  {%- when 'store' -%}
+    <div class="gamma-promotion-panel">
+      <p>{{ 'gamma_promotion.redemption.in_store' | t }}</p>
+      {%- if contact_url != blank -%}
+        <p><a href="{{ contact_url }}">{{ 'gamma_promotion.redemption.contact' | t }}</a></p>
+      {%- endif -%}
+      {%- if offer.how_to.value != blank -%}
+        <div class="rte">{{ offer.how_to | metafield_tag }}</div>
+      {%- endif -%}
+    </div>
+{%- endcase -%}
+
+{% stylesheet %}
+  .gamma-promotion-panel {
+    margin: 0;
+    padding: var(--padding-md, 1rem);
+    border-radius: var(--style-border-radius-md, 0);
+    background: rgb(var(--color-foreground-rgb) / 5%);
+    overflow-wrap: anywhere;
+  }
+
+  div.gamma-promotion-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xs, 0.5rem);
+  }
+
+  div.gamma-promotion-panel > p,
+  .gamma-promotion-panel__text > p {
+    margin: 0;
+  }
+
+  .gamma-promotion-panel--gift {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--gap-sm, 0.75rem);
+  }
+
+  .gamma-promotion-panel__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xs, 0.5rem);
+    min-width: 0;
+  }
+
+  .gamma-promotion-panel__icon {
+    flex: none;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .gamma-promotion-panel code {
+    font-weight: var(--font-weight-bold, 700);
+    font-family: inherit;
+    letter-spacing: 0.05em;
+  }
+{% endstylesheet %}

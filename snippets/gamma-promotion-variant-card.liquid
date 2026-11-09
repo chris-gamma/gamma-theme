@@ -1,0 +1,38 @@
+{%- doc -%}
+  Renders a campaign card for a variant-limited group: the product's eligible variant, linked directly,
+  with that variant's image and price. It has no Quick Add, because the native card would add the
+  product's default variant, which may not qualify.
+
+  @param {object} variant - The eligible variant the card links to (the first listed one of its product).
+  @param {string} names - Comma-separated titles of the product's eligible variants.
+{%- enddoc -%}
+
+{%- liquid
+  assign product = variant.product
+  assign image = variant.featured_image | default: product.featured_image
+-%}
+<a class="gamma-promotion__variant-link" href="{{ variant.url }}">
+  {%- if image != blank -%}
+    {{
+      image
+      | image_url: width: 600
+      | image_tag:
+        widths: '240, 360, 480, 600',
+        sizes: '(min-width: 750px) 20vw, 50vw',
+        loading: 'lazy',
+        alt: '',
+        class: 'gamma-promotion__variant-image'
+    }}
+  {%- endif -%}
+  <span class="gamma-promotion__variant-title">{{ product.title | escape }}</span>
+</a>
+<p class="gamma-promotion__variant-price">
+  {%- if variant.compare_at_price > variant.price -%}
+    <s class="gamma-promotion__variant-compare">{% render 'gamma-money', price: variant.compare_at_price %}</s>
+  {% endif -%}
+  {%- render 'gamma-money', price: variant.price -%}
+</p>
+{%- unless variant.available -%}
+  <p class="gamma-promotion__variants">{{ 'blocks.sold_out' | t }}</p>
+{%- endunless -%}
+<p class="gamma-promotion__variants">{{ 'gamma_promotion.cards.eligible_variants' | t: variants: names }}</p>
