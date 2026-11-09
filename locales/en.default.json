@@ -197,18 +197,6 @@
       "next": "Next page",
       "too_many": "Shown only in the theme editor: more than 250 promotions are published, so later pages are sorted separately. Archive ended promotions."
     },
-    "sponsors": {
-      "location_gamma": "Location Gamma",
-      "stihl": "STIHL",
-      "echo": "ECHO",
-      "shindaiwa": "Shindaiwa",
-      "ego": "EGO",
-      "ox_tools": "OX Tools",
-      "hilti": "Hilti",
-      "big_green_egg": "Big Green Egg",
-      "napoleon": "Napoleon",
-      "other_manufacturer": "Manufacturer"
-    },
     "callout": {
       "heading": "Current promotions",
       "over_limit": "Shown only in the theme editor: this collection links more than 5 promotions, so none are shown."
