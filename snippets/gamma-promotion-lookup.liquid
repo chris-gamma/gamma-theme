@@ -1,0 +1,378 @@
+{%- doc -%}
+  Finds the live campaign offers that the selected variant qualifies for, through its collections'
+  `promotion.promotions` back-links, without scanning every campaign. It outputs codes and IDs
+  only; the caller renders the results, limits how many it shows and counts gifts in the cart.
+
+  Output: `status|notes|records`, without spaces or line breaks.
+
+  - `status`:
+    - `ok`: the lookup was complete; `records` lists every match, possibly none.
+    - `suppressed`: completeness can't be guaranteed (a limit or budget was reached); `records` is
+      empty and callers must make no claim for this product.
+    - `invalid`: `product` or `variant` is missing; `records` is empty.
+  - `notes`: comma-separated codes, each listed once: `input_missing`, `collections_near_limit`,
+    `collections_truncated`, `links_over_limit`, `offers_over_limit`, `groups_over_limit`,
+    `link_unavailable`, `link_wrong_type`, `link_duplicate`, `link_missing`, `budget_links`,
+    `budget_promotions`, `budget_offers`, `budget_groups`, `offer_unavailable`, `offer_duplicate`,
+    `offer_shared`, `offer_ambiguous`, `group_invalid`, `records_over_limit`,
+    plus the codes gamma-promotion-state, gamma-promotion-offer and gamma-promotion-group report,
+    prefixed `promotion_`, `offer_` and `group_` (for example `offer_unverified`).
+  - `records`: matches separated by `;`, best first. Each match has 16 fields separated by `:`:
+    1. promotion ID  2. offer ID  3. group ID  4. qualifying collection ID (it supplied the back-link)
+    5. position of that collection in `product.collections`
+    6. position of the campaign in that collection's `promotion.promotions` list
+    7. position of the offer in the campaign's `offers` list
+    8. position of the group in the offer's `groups` list
+    9. claim (`financial`, `gift`, `instructions` or `information`)
+    10. hide_at  11. effective end (Unix seconds; empty when there is none)
+    12. campaign priority (1–99)  13. minimum quantity
+    14. companion collection ID  15. companion quantity (both empty without a companion)
+    16. `1` when staff confirm conditions after the order, else `0`
+    Positions are zero-based loop positions from this render. Reference lists leave out Draft and
+    deleted entries, so later entries move up; a caller resolves an entry by position and must
+    confirm its ID before using it. Quantity, companion and staff conditions are independent; a
+    match with a quantity or companion condition isn't yet a qualified gift.
+
+  Order: campaign priority (1 first; blank or out of range is 50), then earlier effective end
+  (open-ended last), then the offer's authored position in its campaign, then promotion ID and offer
+  ID as a stable tie-break.
+
+  Rules: a group matches only through the back-link on its own qualifying collection. An offer is
+  evaluated under every live campaign that references it. Within one campaign, every group whose
+  collection contains the product is checked before the offer is emitted: an invalid group, a second
+  eligible group (even with the same reward) or a missing back-link suppresses the offer under that
+  campaign only. If an offer matches under several campaigns, only its first record in sort order is
+  kept (`offer_shared`). Separate offers can all match. A product that is only in a companion
+  collection doesn't match.
+
+  Work budget per call. Before loading a list, the lookup reserves that list's schema ceiling (5
+  campaigns, 12 offers or 8 groups) and stops if the reservation would pass the budget; after
+  loading, it adds the list's actual size. Budgets: 30 campaign references, 8 distinct campaigns,
+  50 offer references and 200 group references, counting every list loaded (an offer's groups again
+  under each campaign that references it). A list above its ceiling, a budget reached, or 50 product
+  collections (possibly truncated) suppresses the whole lookup; notes warn from 45 collections. While
+  the ceilings hold, one call loads at most 30 `promotion`, 50 `promotion_offer` and 200
+  `promotion_group` references. Each offer reference yields at most one record, so the final sort
+  receives at most 50 records, within Shopify's 50-iteration `for` limit; more than 50 suppresses
+  the result (`records_over_limit`) rather than dropping any. A list stored above its ceiling is
+  counted as loaded when its size is read, because reading the size may load its entries. Shopify
+  loads at most 1,000 unique entries of each metaobject type per render, so callers that repeat the
+  lookup, such as a cart, must keep their own aggregate below that.
+
+  @param {product} product - The product being shown or bought.
+  @param {variant} variant - The selected variant of that product.
+  @param {number} [at] - Evaluation time in Unix seconds. Defaults to the render time and is passed to every nested evaluation.
+{%- enddoc -%}
+
+{%- liquid
+  # Budgets count references loaded; each list reserves its ceiling before it is read.
+  assign link_ceiling = 5
+  assign offer_ceiling = 12
+  assign group_ceiling = 8
+  assign link_budget = 30
+  assign promotion_budget = 8
+  # At most 50 offer references, so at most 50 records reach the final loop (50-iteration limit).
+  assign offer_budget = 50
+  assign group_budget = 200
+
+  if at != blank
+    assign now = at | plus: 0
+  else
+    assign now = 'now' | date: '%s' | plus: 0
+  endif
+
+  assign status = 'ok'
+  assign notes = ''
+  assign records = ''
+
+  if product == blank or variant == blank
+    assign status = 'invalid'
+    assign notes = ',input_missing'
+  else
+    assign collection_count = product.collections.size
+    if collection_count >= 50
+      assign status = 'suppressed'
+      assign notes = ',collections_truncated'
+    elsif collection_count >= 45
+      assign notes = ',collections_near_limit'
+    endif
+  endif
+
+  # Pass 1: the product's collection IDs and every (campaign, collection) back-link with its positions.
+  assign collection_ids = ','
+  assign links = '|'
+  assign seen_promotions = ','
+  assign link_count = 0
+  assign promotion_count = 0
+
+  if status == 'ok'
+    for collection in product.collections
+      assign c = forloop.index0
+      assign collection_ids = collection_ids | append: collection.id | append: ','
+      if status != 'ok'
+        continue
+      endif
+
+      assign field = collection.metafields.promotion.promotions
+      if field == blank
+        continue
+      endif
+      assign reserved = link_count | plus: link_ceiling
+      if reserved > link_budget
+        assign status = 'suppressed'
+        assign notes = notes | append: ',budget_links'
+        continue
+      endif
+
+      assign campaigns = field.value
+      assign campaign_count = campaigns.size | plus: 0
+      assign link_count = link_count | plus: campaign_count
+      if campaign_count > link_ceiling
+        assign status = 'suppressed'
+        assign notes = notes | append: ',links_over_limit'
+        continue
+      endif
+
+      for promotion in campaigns
+        assign p = forloop.index0
+        if promotion == blank
+          assign notes = notes | append: ',link_unavailable'
+          continue
+        endif
+        if promotion.system.type != 'promotion'
+          assign notes = notes | append: ',link_wrong_type'
+          continue
+        endif
+        assign key = 'P' | append: promotion.system.id | append: 'C' | append: collection.id | append: '='
+        assign search = '|' | append: key
+        if links contains search
+          assign notes = notes | append: ',link_duplicate'
+          continue
+        endif
+        assign links = links | append: key | append: c | append: '.' | append: p | append: '|'
+        assign token = ',' | append: promotion.system.id | append: ','
+        unless seen_promotions contains token
+          assign seen_promotions = seen_promotions | append: promotion.system.id | append: ','
+          assign promotion_count = promotion_count | plus: 1
+        endunless
+      endfor
+
+      if promotion_count > promotion_budget
+        assign status = 'suppressed'
+        assign notes = notes | append: ',budget_promotions'
+      endif
+    endfor
+  endif
+
+  # Pass 2: each distinct live campaign once (lists already counted in pass 1), then every offer it
+  # references, evaluated under that campaign even if another campaign also references it.
+  assign done_promotions = ','
+  assign offer_count = 0
+  assign group_count = 0
+
+  if status == 'ok' and promotion_count > 0
+    for collection in product.collections
+      if status != 'ok'
+        break
+      endif
+      assign field = collection.metafields.promotion.promotions
+      if field == blank
+        continue
+      endif
+
+      for promotion in field.value
+        if status != 'ok'
+          break
+        endif
+        if promotion == blank or promotion.system.type != 'promotion'
+          continue
+        endif
+        assign token = ',' | append: promotion.system.id | append: ','
+        if done_promotions contains token
+          continue
+        endif
+        assign done_promotions = done_promotions | append: promotion.system.id | append: ','
+
+        capture parent
+          render 'gamma-promotion-state', promotion: promotion, at: now
+        endcapture
+        assign parent = parent | strip
+        assign parent_parts = parent | split: '|'
+        if parent_parts[0] != 'live'
+          if parent_parts[3] != blank
+            assign promotion_notes = parent_parts[3] | prepend: ',' | replace: ',', ',promotion_'
+            assign notes = notes | append: promotion_notes
+          endif
+          continue
+        endif
+
+        assign priority = promotion.priority.value | plus: 0
+        if priority < 1 or priority > 99
+          assign priority = 50
+        endif
+
+        assign offers_field = promotion.offers
+        if offers_field == blank
+          continue
+        endif
+        assign reserved = offer_count | plus: offer_ceiling
+        if reserved > offer_budget
+          assign status = 'suppressed'
+          assign notes = notes | append: ',budget_offers'
+          break
+        endif
+        assign offers = offers_field.value
+        assign offers_size = offers.size | plus: 0
+        assign offer_count = offer_count | plus: offers_size
+        if offers_size > offer_ceiling
+          assign status = 'suppressed'
+          assign notes = notes | append: ',offers_over_limit'
+          break
+        endif
+
+        assign seen_offers = ','
+        for offer in offers
+          assign o = forloop.index0
+          if status != 'ok'
+            break
+          endif
+          if offer == blank
+            assign notes = notes | append: ',offer_unavailable'
+            continue
+          endif
+          assign token = ',' | append: offer.system.id | append: ','
+          if seen_offers contains token
+            assign notes = notes | append: ',offer_duplicate'
+            continue
+          endif
+          assign seen_offers = seen_offers | append: offer.system.id | append: ','
+
+          capture offer_result
+            render 'gamma-promotion-offer', offer: offer, parent: parent, at: now
+          endcapture
+          assign offer_parts = offer_result | strip | split: '|'
+          if offer_parts[5] != blank
+            assign offer_notes = offer_parts[5] | prepend: ',' | replace: ',', ',offer_'
+            assign notes = notes | append: offer_notes
+          endif
+          assign claim = offer_parts[1]
+          if claim == blank or claim == 'none'
+            continue
+          endif
+
+          assign groups_field = offer.groups
+          if groups_field == blank
+            continue
+          endif
+          assign reserved = group_count | plus: group_ceiling
+          if reserved > group_budget
+            assign status = 'suppressed'
+            assign notes = notes | append: ',budget_groups'
+            break
+          endif
+          assign groups = groups_field.value
+          assign groups_size = groups.size | plus: 0
+          assign group_count = group_count | plus: groups_size
+          if groups_size > group_ceiling
+            assign status = 'suppressed'
+            assign notes = notes | append: ',groups_over_limit'
+            break
+          endif
+
+          # Every group whose collection holds the product decides whether the offer is emitted.
+          assign eligible = 0
+          assign invalid = false
+          assign match = ''
+          assign match_position = ''
+          for group in groups
+            capture group_result
+              render 'gamma-promotion-group', group: group, variant: variant, collection_ids: collection_ids, claim: claim
+            endcapture
+            assign group_parts = group_result | strip | split: '|'
+            case group_parts[0]
+              when 'eligible'
+                assign eligible = eligible | plus: 1
+                assign match = group_parts
+                assign match_position = forloop.index0
+                assign match_group = group.system.id
+              when 'invalid'
+                assign invalid = true
+            endcase
+            if group_parts[6] != blank
+              assign group_notes = group_parts[6] | prepend: ',' | replace: ',', ',group_'
+              assign notes = notes | append: group_notes
+            endif
+          endfor
+
+          if invalid
+            assign notes = notes | append: ',group_invalid'
+            continue
+          endif
+          if eligible > 1
+            assign notes = notes | append: ',offer_ambiguous'
+            continue
+          endif
+          if eligible == 0
+            continue
+          endif
+
+          # The matching group's own collection must back-link this campaign.
+          assign search = '|P' | append: promotion.system.id | append: 'C' | append: match[1] | append: '='
+          unless links contains search
+            assign notes = notes | append: ',link_missing'
+            continue
+          endunless
+          assign positions = links | split: search | last | split: '|' | first | split: '.'
+
+          # Sort key: priority, effective end, authored offer position, promotion ID, offer ID.
+          assign end_key = offer_parts[3] | default: '99999999999'
+          assign padded_priority = '00' | append: priority | slice: -2, 2
+          assign padded_end = '00000000000' | append: end_key | slice: -11, 11
+          assign padded_position = '00' | append: o | slice: -2, 2
+          assign padded_promotion = '00000000000000000000' | append: promotion.system.id | slice: -20, 20
+          assign padded_offer = '00000000000000000000' | append: offer.system.id | slice: -20, 20
+          assign sort_key = padded_priority | append: padded_end | append: padded_position | append: padded_promotion | append: padded_offer
+
+          assign record = promotion.system.id | append: ':' | append: offer.system.id | append: ':' | append: match_group
+          assign record = record | append: ':' | append: match[1] | append: ':' | append: positions[0] | append: ':' | append: positions[1]
+          assign record = record | append: ':' | append: o | append: ':' | append: match_position | append: ':' | append: claim
+          assign record = record | append: ':' | append: offer_parts[4] | append: ':' | append: offer_parts[3] | append: ':' | append: priority
+          assign record = record | append: ':' | append: match[2] | append: ':' | append: match[3] | append: ':' | append: match[4] | append: ':' | append: match[5]
+          assign records = records | append: ';' | append: sort_key | append: '~' | append: record
+        endfor
+      endfor
+    endfor
+  endif
+
+  # Best first; an offer matched under several campaigns keeps only its first record.
+  # The offer budget keeps this at 50 or fewer; more would be truncated by the loop, so suppress.
+  if status == 'ok' and records != blank
+    assign sorted = records | remove_first: ';' | split: ';' | sort
+    if sorted.size > 50
+      assign status = 'suppressed'
+      assign notes = notes | append: ',records_over_limit'
+    endif
+  endif
+  if status == 'ok' and records != blank
+    assign records = ''
+    assign kept_offers = ','
+    for entry in sorted
+      assign record = entry | split: '~' | last
+      assign record_parts = record | split: ':'
+      assign offer_id = record_parts[1]
+      assign token = ',' | append: offer_id | append: ','
+      if kept_offers contains token
+        assign notes = notes | append: ',offer_shared'
+        continue
+      endif
+      assign kept_offers = kept_offers | append: offer_id | append: ','
+      assign records = records | append: ';' | append: record
+    endfor
+    assign records = records | remove_first: ';'
+  else
+    assign records = ''
+  endif
+
+  assign notes = notes | remove_first: ',' | split: ',' | uniq | join: ','
+  echo status | append: '|' | append: notes | append: '|' | append: records
+-%}

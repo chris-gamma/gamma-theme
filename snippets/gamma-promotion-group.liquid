@@ -1,0 +1,212 @@
+{%- doc -%}
+  Checks one `promotion_group` against a product's collections and its selected variant, for
+  gamma-promotion-lookup only. It keeps the group scope rules in one place.
+
+  Output: `result|collection_id|min_quantity|companion_id|companion_quantity|staff|notes`, without
+  spaces or line breaks.
+
+  - `result`:
+    - `none`: the group has no qualifying collection (a rental or information group), or the product
+      isn't in it. The group plays no part for this product.
+    - `invalid`: the product is in the group's collection, but the group's scope or gift data is
+      missing or contradictory, so its claim can't be verified.
+    - `ineligible`: the group is valid and `variants_only` excludes the variant.
+    - `eligible`: the variant qualifies through this group (other conditions may still apply).
+  - `collection_id`: the qualifying collection's ID. `min_quantity`: units per entitlement (blank is 1).
+    `companion_id`, `companion_quantity`: the companion collection's ID and units per entitlement,
+    empty without a companion. `staff`: `1` when staff confirm conditions after the order, else `0`.
+    These fields are filled for `ineligible` and `eligible` results.
+  - `notes`: comma-separated codes: `group_missing`, `wrong_type`, `variants_flag_missing`,
+    `variants_empty`, `variants_uncountable`, `variants_contradictory`, `companion_flag_missing`,
+    `companion_missing`, `companion_same`, `companion_label_missing`, `companion_contradictory`,
+    `quantity_invalid`, `companion_quantity_invalid`, `gift_label_missing`,
+    `reward_quantity_invalid`, `reward_limit_invalid`, `rewards_over_limit`, `rewards_uncountable`,
+    `companion_overlap`.
+
+  Rules: `variants_only` and `requires_companion` must be stored as true or false on a product group.
+  `variants_only` true needs a nonempty variant list (deleted variants leave the list silently);
+  false with listed variants is contradictory. Variant-reference list lengths use Shopify's documented
+  `count` property; a nonblank list without a count is unverifiable, and a list emptied by deletion
+  suppresses the group whether it reads as blank or as a zero count. `requires_companion` true needs
+  a companion collection other than the qualifying one and a `requires_label`; false with a
+  companion collection is contradictory. An unpublished companion collection reads as blank, so it
+  counts as missing. Labels are display copy and never decide whether a condition exists. Gift
+  groups need a `reward_label`; reward references are optional and never affect eligibility.
+  `companion_overlap` reports a product in both sets: callers count it toward the qualifying set,
+  and the campaign data contract forbids the overlap.
+
+  @param {object} group - The `promotion_group` metaobject entry.
+  @param {object} variant - The selected product variant.
+  @param {string} collection_ids - The product's collection IDs as `,id,id,` (leading and trailing commas).
+  @param {string} claim - The offer's claim class from gamma-promotion-offer.
+{%- enddoc -%}
+
+{%- liquid
+  assign result = ''
+  assign collection_id = ''
+  assign min_quantity = ''
+  assign companion_id = ''
+  assign companion_quantity = ''
+  assign staff = '0'
+  assign notes = ''
+
+  if group == blank
+    assign result = 'invalid'
+    assign notes = ',group_missing'
+  elsif group.system.type != 'promotion_group'
+    assign result = 'invalid'
+    assign notes = ',wrong_type'
+  else
+    assign qualifying = group.collection.value
+    if qualifying == blank
+      assign result = 'none'
+    else
+      assign collection_id = qualifying.id | append: ''
+      assign token = ',' | append: collection_id | append: ','
+      unless collection_ids contains token
+        assign result = 'none'
+      endunless
+    endif
+  endif
+
+  if result == blank
+    # Variant scope.
+    assign variants_only = group.variants_only.value
+    # Reference lists report their length through `count`. A list Shopify can't count can't be verified.
+    assign listed = group.variants.value
+    assign listed_count = 0
+    if listed != blank
+      if listed.count == blank
+        assign result = 'invalid'
+        assign notes = notes | append: ',variants_uncountable'
+      else
+        assign listed_count = listed.count | plus: 0
+      endif
+    endif
+    if variants_only == true
+      if listed_count < 1
+        assign result = 'invalid'
+        assign notes = notes | append: ',variants_empty'
+      endif
+    elsif variants_only == false
+      if listed_count > 0
+        assign result = 'invalid'
+        assign notes = notes | append: ',variants_contradictory'
+      endif
+    else
+      assign result = 'invalid'
+      assign notes = notes | append: ',variants_flag_missing'
+    endif
+
+    assign min_quantity = group.min_quantity.value | default: 1 | plus: 0
+    if min_quantity < 1
+      assign result = 'invalid'
+      assign notes = notes | append: ',quantity_invalid'
+    endif
+
+    # Companion scope.
+    assign requires_companion = group.requires_companion.value
+    assign companion = group.requires_collection.value
+    if requires_companion == true
+      if companion == blank
+        assign result = 'invalid'
+        assign notes = notes | append: ',companion_missing'
+      else
+        assign companion_id = companion.id | append: ''
+        if companion_id == collection_id
+          assign result = 'invalid'
+          assign notes = notes | append: ',companion_same'
+        endif
+      endif
+      assign label = group.requires_label.value | strip
+      if label == blank
+        assign result = 'invalid'
+        assign notes = notes | append: ',companion_label_missing'
+      endif
+      assign companion_quantity = group.requires_quantity.value | default: 1 | plus: 0
+      if companion_quantity < 1
+        assign result = 'invalid'
+        assign notes = notes | append: ',companion_quantity_invalid'
+      endif
+    elsif requires_companion == false
+      if companion != blank
+        assign result = 'invalid'
+        assign notes = notes | append: ',companion_contradictory'
+      endif
+    else
+      assign result = 'invalid'
+      assign notes = notes | append: ',companion_flag_missing'
+    endif
+
+    # Gift data, checked per group.
+    if claim == 'gift'
+      assign label = group.reward_label.value | strip
+      if label == blank
+        assign result = 'invalid'
+        assign notes = notes | append: ',gift_label_missing'
+      endif
+      assign reward_quantity = group.reward_quantity.value | default: 1 | plus: 0
+      if reward_quantity < 1
+        assign result = 'invalid'
+        assign notes = notes | append: ',reward_quantity_invalid'
+      endif
+      if group.reward_limit.value != blank
+        assign reward_limit = group.reward_limit.value | plus: 0
+        if reward_limit < 1
+          assign result = 'invalid'
+          assign notes = notes | append: ',reward_limit_invalid'
+        endif
+      endif
+      assign rewards = group.rewards.value
+      assign reward_count = 0
+      if rewards != blank
+        if rewards.count == blank
+          assign result = 'invalid'
+          assign notes = notes | append: ',rewards_uncountable'
+        else
+          assign reward_count = rewards.count | plus: 0
+        endif
+      endif
+      if reward_count > 3
+        assign result = 'invalid'
+        assign notes = notes | append: ',rewards_over_limit'
+      endif
+    endif
+
+    if group.staff_confirmed_terms.value == true
+      assign staff = '1'
+    endif
+
+    if result == blank
+      assign result = 'eligible'
+      if variants_only == true
+        assign listed_ids = listed | map: 'id' | join: ','
+        assign listed_ids = ',' | append: listed_ids | append: ','
+        assign token = ',' | append: variant.id | append: ','
+        unless listed_ids contains token
+          assign result = 'ineligible'
+        endunless
+      endif
+
+      if companion_id != blank
+        assign token = ',' | append: companion_id | append: ','
+        if collection_ids contains token
+          assign notes = notes | append: ',companion_overlap'
+        endif
+      endif
+    else
+      assign collection_id = ''
+      assign min_quantity = ''
+      assign companion_id = ''
+      assign companion_quantity = ''
+      assign staff = '0'
+    endif
+  endif
+
+  if result == 'none'
+    assign collection_id = ''
+  endif
+
+  assign notes = notes | remove_first: ','
+  echo result | append: '|' | append: collection_id | append: '|' | append: min_quantity | append: '|' | append: companion_id | append: '|' | append: companion_quantity | append: '|' | append: staff | append: '|' | append: notes
+-%}
