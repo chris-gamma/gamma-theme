@@ -125,7 +125,14 @@
       "from_through": "Du {{ start }} au {{ end }} inclusivement",
       "through": "Jusqu’au {{ end }} inclusivement",
       "from": "À compter du {{ start }}"
-    }
+    },
+    "ended": "Cette promotion est terminée.",
+    "unavailable_heading": "Cette promotion n’est pas offerte",
+    "unavailable": "Elle n’a pas encore commencé, elle est suspendue ou elle n’est plus offerte. Consultez nos promotions en cours pour d’autres offres.",
+    "index_link": "Voir les promotions en cours",
+    "source": "Détails officiels du fabricant",
+    "new_tab": "(s’ouvre dans un nouvel onglet)",
+    "editor_diagnostics": "Affiché seulement dans l’éditeur de thème. État : {{ state }}. Codes : {{ codes }}"
   },
   "blocks": {
     "load_video": "Charger la vidéo : {{ description }}",

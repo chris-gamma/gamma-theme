@@ -105,6 +105,10 @@
     "max_width": "Largeur maximale",
     "max_width_info": "Jusqu’à 480 px, ce qui garde les crédits d’uMap sous son bouton ?."
   },
+  "gamma_promotion": {
+    "campaign_name": "Page de promotion",
+    "campaign_info": "Affiche la promotion à partir du contenu Shopify. Les promotions planifiées, suspendues, terminées ou non offertes affichent un avis au lieu des offres."
+  },
   "names": {
     "404": "404",
     "custom_section": "Section personnalisée",

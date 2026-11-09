@@ -18,6 +18,27 @@
   content=""
 >
 
+{%- comment -%}
+  Gamma: campaign pages that aren't live (scheduled, paused, ended, invalid) stay out of search results.
+  Scheduled, paused and invalid campaigns also get neutral titles, descriptions and no image, so the
+  HTML head and social previews don't reveal a campaign that customers can't see yet.
+{%- endcomment -%}
+{%- if request.page_type == 'metaobject' and metaobject.system.type == 'promotion' -%}
+  {%- capture gamma_promotion_state -%}{%- render 'gamma-promotion-state', promotion: metaobject -%}{%- endcapture -%}
+  {%- assign gamma_promotion_state = gamma_promotion_state | strip | split: '|' | first -%}
+  {%- if gamma_promotion_state != 'live' -%}
+    <meta
+      name="robots"
+      content="noindex"
+    >
+  {%- endif -%}
+  {%- if gamma_promotion_state != 'live' and gamma_promotion_state != 'ended' -%}
+    {%- assign page_title = 'gamma_promotion.unavailable_heading' | t -%}
+    {%- assign page_description = 'gamma_promotion.unavailable' | t -%}
+    {%- assign page_image = nil -%}
+  {%- endif -%}
+{%- endif -%}
+
 {%- liquid
   assign og_title = page_title | default: shop.name
   assign og_url = canonical_url | default: request.origin
