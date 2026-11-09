@@ -1,0 +1,136 @@
+{%- doc -%}
+  Renders a campaign offer's post-sale claim instructions, or nothing. Only for a published
+  `manufacturer_fulfils` offer (free gift or rebate) whose purchase window, the campaign window
+  intersected with the offer's, is readable, nonempty, finite and over, with a `claim_deadline` still in
+  the future and at or after that window's end, and an HTTPS claim link. This is independent of the
+  live-offer gate (gamma-promotion-offer) and never shows prices, product cards, gifts or purchase
+  calls to action. The section hides at the deadline on loaded pages.
+
+  @param {object} offer - The `promotion_offer` entry.
+  @param {object} promotion - The offer's `promotion` entry.
+  @param {number} at - Evaluation time in Unix seconds, shared with the page.
+  @param {string} id - Unique ID prefix for this offer on the page.
+  @param {string} [heading_level] - `h2` or `h3` (default) for the offer heading.
+{%- enddoc -%}
+
+{%- liquid
+  assign show = false
+  assign now = at | plus: 0
+  assign benefit = offer.benefit.value | append: ''
+  assign redemption = offer.redemption.value | append: ''
+
+  if offer != blank and offer.system.type == 'promotion_offer' and promotion != blank and redemption == 'manufacturer_fulfils'
+    if benefit == 'free_gift' or benefit == 'manufacturer_rebate'
+      assign show = true
+    endif
+  endif
+
+  # Purchase window: every non-blank date must be readable; blank sides are unbounded.
+  assign start = ''
+  assign finish = ''
+  if show
+    for side in (1..4)
+      case side
+        when 1
+          assign value = promotion.starts_at.value
+        when 2
+          assign value = offer.starts_at.value
+        when 3
+          assign value = promotion.ends_at.value
+        when 4
+          assign value = offer.ends_at.value
+      endcase
+      if value == blank
+        continue
+      endif
+      assign converted = value | date: '%s' | append: ''
+      assign seconds = converted | plus: 0
+      assign round_trip = seconds | append: ''
+      if seconds <= 0 or round_trip != converted
+        assign show = false
+        break
+      endif
+      if side <= 2
+        if start == blank or seconds > start
+          assign start = seconds
+        endif
+      elsif finish == blank or seconds < finish
+        assign finish = seconds
+      endif
+    endfor
+  endif
+
+  if show
+    if finish == blank or finish > now
+      assign show = false
+    elsif start != blank and start >= finish
+      assign show = false
+    endif
+  endif
+
+  if show
+    assign value = offer.claim_deadline.value
+    if value == blank
+      assign show = false
+    else
+      assign converted = value | date: '%s' | append: ''
+      assign deadline = converted | plus: 0
+      assign round_trip = deadline | append: ''
+      if deadline <= 0 or round_trip != converted or deadline <= now or deadline < finish
+        assign show = false
+      endif
+    endif
+  endif
+
+  if show
+    assign action_url = offer.action.value.url | append: '' | strip
+    assign action_scheme = action_url | slice: 0, 8 | downcase
+    if action_scheme != 'https://' or action_url contains ' ' or action_url contains '"' or action_url contains '<' or action_url contains '@'
+      assign show = false
+    endif
+  endif
+-%}
+
+{%- if show -%}
+  {%- liquid
+    assign action_text = offer.action.value.text | strip
+    if action_text == blank
+      assign action_text = 'gamma_promotion.redemption.claim_link' | t
+    endif
+    capture end_text
+      render 'gamma-promotion-dates', end: finish, mode: 'last'
+    endcapture
+    assign end_text = end_text | strip
+    capture deadline_text
+      render 'gamma-promotion-dates', end: deadline, mode: 'last'
+    endcapture
+    assign deadline_text = deadline_text | strip
+    assign level = heading_level | default: 'h3'
+  -%}
+  <section
+    class="gamma-promotion__claim"
+    id="{{ id }}"
+    aria-labelledby="{{ id }}-title"
+    data-gamma-hide-at="{{ deadline }}"
+  >
+    <{{ level }} id="{{ id }}-title" class="gamma-promotion__offer-title">{{ offer.title.value | escape }}</{{ level }}>
+    <p>
+      {%- if start != blank -%}
+        {%- capture start_text -%}{%- render 'gamma-promotion-dates', start: start, mode: 'first' -%}{%- endcapture -%}
+        {{- 'gamma_promotion.post_sale.between' | t: start: start_text, end: end_text -}}
+      {%- else -%}
+        {{- 'gamma_promotion.post_sale.before' | t: end: end_text -}}
+      {%- endif -%}
+    </p>
+    {%- if offer.how_to.value != blank -%}
+      <div class="rte">{{ offer.how_to | metafield_tag }}</div>
+    {%- endif -%}
+    <p>{{ 'gamma_promotion.redemption.claim_by' | t: date: deadline_text }}</p>
+    <p>
+      <a href="{{ action_url | escape }}" target="_blank" rel="noopener">
+        {{- action_text | escape -}}
+        <span class="visually-hidden">{{ 'gamma_promotion.new_tab' | t }}</span>
+      </a>
+    </p>
+  </section>
+{%- endif -%}

@@ -429,6 +429,21 @@
         </section>
       {%- endfor -%}
 
+      {%- capture claims -%}
+        {%- for offer in entry.offers.value -%}
+          {%- assign token = ',' | append: offer.system.id | append: ',' -%}
+          {%- if shown_offers contains token -%}{%- continue -%}{%- endif -%}
+          {%- assign claim_id = 'GammaClaim-' | append: section.id | append: '-' | append: offer.system.id -%}
+          {%- render 'gamma-promotion-redemption', offer: offer, promotion: entry, at: at, id: claim_id, heading_level: 'h3' -%}
+        {%- endfor -%}
+      {%- endcapture -%}
+      {%- if claims != blank -%}
+        <section class="gamma-promotion__claims" aria-labelledby="GammaClaims-{{ section.id }}">
+          <h2 id="GammaClaims-{{ section.id }}" class="gamma-promotion__offer-title">{{ 'gamma_promotion.post_sale.heading' | t }}</h2>
+          {{ claims }}
+        </section>
+      {%- endif -%}
+
       {%- if entry.terms.value != blank -%}
         <section class="gamma-promotion__terms rte" aria-labelledby="GammaTerms-{{ section.id }}">
           <h2 id="GammaTerms-{{ section.id }}" class="gamma-promotion__terms-heading">{{ 'gamma_promotion.terms' | t }}</h2>
@@ -452,6 +467,19 @@
         </p>
         <p><a href="{{ index_url }}">{{ 'gamma_promotion.index_link' | t }}</a></p>
       </header>
+
+      {%- capture claims -%}
+        {%- for offer in entry.offers.value -%}
+          {%- assign claim_id = 'GammaClaim-' | append: section.id | append: '-' | append: offer.system.id -%}
+          {%- render 'gamma-promotion-redemption', offer: offer, promotion: entry, at: at, id: claim_id, heading_level: 'h3' -%}
+        {%- endfor -%}
+      {%- endcapture -%}
+      {%- if claims != blank -%}
+        <section class="gamma-promotion__claims" aria-labelledby="GammaClaims-{{ section.id }}">
+          <h2 id="GammaClaims-{{ section.id }}" class="gamma-promotion__offer-title">{{ 'gamma_promotion.post_sale.heading' | t }}</h2>
+          {{ claims }}
+        </section>
+      {%- endif -%}
     {%- else -%}
       <header class="gamma-promotion__state">
         <h1 class="gamma-promotion__title">{{ 'gamma_promotion.unavailable_heading' | t }}</h1>
@@ -734,6 +762,23 @@
   .gamma-promotion__terms {
     max-width: 48rem;
     font-size: 0.9375rem;
+  }
+
+  .gamma-promotion__claims,
+  .gamma-promotion__claim {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-sm, 0.75rem);
+    max-width: 48rem;
+  }
+
+  .gamma-promotion__claims {
+    padding-block-start: var(--padding-xl, 2rem);
+    border-block-start: var(--style-border-width, 1px) solid rgb(var(--color-foreground-rgb) / var(--opacity-10, 10%));
+  }
+
+  .gamma-promotion__claim > p {
+    margin: 0;
   }
 
   .gamma-promotion__diagnostic {

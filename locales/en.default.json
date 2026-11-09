@@ -176,6 +176,11 @@
         "other": "See all {{ count }} eligible products"
       },
       "more": "More eligible items:"
+    },
+    "post_sale": {
+      "heading": "Claims for eligible past purchases",
+      "between": "For eligible purchases made between {{ start }} and {{ end }}.",
+      "before": "For eligible purchases made on or before {{ end }}."
     }
   },
   "accessibility": {

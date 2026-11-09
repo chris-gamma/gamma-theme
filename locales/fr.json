@@ -167,6 +167,11 @@
         "other": "Voir les {{ count }} produits admissibles"
       },
       "more": "Autres articles admissibles :"
+    },
+    "post_sale": {
+      "heading": "Réclamations pour les achats admissibles déjà effectués",
+      "between": "Pour les achats admissibles effectués entre le {{ start }} et le {{ end }}.",
+      "before": "Pour les achats admissibles effectués au plus tard le {{ end }}."
     }
   },
   "blocks": {
