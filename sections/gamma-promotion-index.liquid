@@ -62,19 +62,13 @@
           assign key = '00000000000' | append: inverted_end | slice: -11, 11 | append: tie
       endcase
 
-      assign sponsor_color_setting = 'badge_color_' | append: promotion.sponsor.value
-      assign badge_color = section.settings[sponsor_color_setting]
-      if promotion.sponsor.value == 'location_gamma' and badge_color == blank
-        assign badge_color = settings.color_palette.brand
-      endif
-
       capture card
         if group == 'live'
           echo '<li class="gamma-promotion-index__item" data-gamma-hide-at="' | append: parts[2] | append: '">'
         else
           echo '<li class="gamma-promotion-index__item">'
         endif
-        render 'gamma-promotion-card', promotion: promotion, state: state, heading_level: 'h3', badge_color: badge_color
+        render 'gamma-promotion-card', promotion: promotion, state: state, heading_level: 'h3'
         echo '</li>'
       endcapture
       assign entry = item_separator | append: key | append: key_separator | append: card
@@ -297,69 +291,6 @@
       "id": "show_recently_ended",
       "label": "t:gamma_promotion.show_recently_ended",
       "default": false
-    },
-    {
-      "type": "header",
-      "content": "t:gamma_promotion.badge_colors"
-    },
-    {
-      "type": "color",
-      "id": "badge_color_location_gamma",
-      "label": "t:gamma_promotion.badge_location_gamma",
-      "info": "t:gamma_promotion.badge_location_gamma_info"
-    },
-    {
-      "type": "color",
-      "id": "badge_color_stihl",
-      "label": "t:gamma_promotion.badge_stihl",
-      "default": "#f37a1f"
-    },
-    {
-      "type": "color",
-      "id": "badge_color_echo",
-      "label": "t:gamma_promotion.badge_echo",
-      "default": "#ff4713"
-    },
-    {
-      "type": "color",
-      "id": "badge_color_shindaiwa",
-      "label": "t:gamma_promotion.badge_shindaiwa",
-      "default": "#c00020"
-    },
-    {
-      "type": "color",
-      "id": "badge_color_ego",
-      "label": "t:gamma_promotion.badge_ego",
-      "default": "#6ec72e"
-    },
-    {
-      "type": "color",
-      "id": "badge_color_ox_tools",
-      "label": "t:gamma_promotion.badge_ox_tools",
-      "default": "#000000"
-    },
-    {
-      "type": "color",
-      "id": "badge_color_hilti",
-      "label": "t:gamma_promotion.badge_hilti",
-      "default": "#d2051e"
-    },
-    {
-      "type": "color",
-      "id": "badge_color_big_green_egg",
-      "label": "t:gamma_promotion.badge_big_green_egg",
-      "default": "#095540"
-    },
-    {
-      "type": "color",
-      "id": "badge_color_napoleon",
-      "label": "t:gamma_promotion.badge_napoleon",
-      "default": "#e4002b"
-    },
-    {
-      "type": "color",
-      "id": "badge_color_other_manufacturer",
-      "label": "t:gamma_promotion.badge_other_manufacturer"
     },
     {
       "type": "header",
