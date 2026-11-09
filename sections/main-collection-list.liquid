@@ -38,6 +38,8 @@
 
   {% capture list_items %}
     {% for collection in section_collections limit: max_items %}
+      {%- comment -%} Gamma: promotion eligibility collections are hidden with seo.hidden. {%- endcomment -%}
+      {%- if collection.metafields.seo.hidden.value == 1 -%}{%- continue -%}{%- endif -%}
       <div class="resource-list__item">
         {% content_for 'block', type: '_collection-card', id: 'static-collection-card', closest.collection: collection %}
       </div>

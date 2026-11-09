@@ -95,6 +95,13 @@
         "padding-block-end": 48
       }
     },
+    "promotions": {
+      "type": "gamma-promotion-callout",
+      "settings": {
+        "padding-block-start": 0,
+        "padding-block-end": 24
+      }
+    },
     "main": {
       "type": "main-collection",
       "blocks": {
@@ -233,6 +240,7 @@
   },
   "order": [
     "section",
+    "promotions",
     "main"
   ]
 }

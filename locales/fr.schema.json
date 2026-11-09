@@ -126,7 +126,9 @@
     "badge_other_manufacturer": "Autre fabricant",
     "badge_location_gamma_info": "Utilise la couleur de marque du thème si aucune couleur n’est sélectionnée. Les autres valeurs par défaut sont la couleur du logo de chaque marque.",
     "show_coming_soon": "Afficher les promotions à venir",
-    "show_recently_ended": "Afficher les promotions récemment terminées"
+    "show_recently_ended": "Afficher les promotions récemment terminées",
+    "callout_name": "Encadré promotionnel",
+    "callout_info": "Présente les promotions en cours liées à cette collection. N’affiche rien s’il n’y en a aucune."
   },
   "names": {
     "404": "404",

@@ -1,0 +1,151 @@
+{%- liquid
+  assign at = 'now' | date: '%s' | plus: 0
+  assign field = collection.metafields.promotion.promotions
+  assign campaigns = field.value
+  assign entries = ''
+  assign separator = '@@gamma-promotion@@'
+  assign key_separator = '~~gamma-key~~'
+  assign title_padding = '                                                                                '
+  assign over_limit = false
+
+  # The definition allows 5 campaigns; a longer list means a missing validation, so nothing is claimed.
+  if campaigns != blank and campaigns.size > 5
+    assign over_limit = true
+  elsif campaigns != blank
+    for promotion in campaigns
+      if promotion == blank or promotion.system.type != 'promotion'
+        continue
+      endif
+      capture state
+        render 'gamma-promotion-state', promotion: promotion, at: at
+      endcapture
+      assign parts = state | strip | split: '|'
+      if parts[0] != 'live'
+        continue
+      endif
+      assign priority = promotion.priority.value | plus: 0
+      if priority < 1 or priority > 99
+        assign priority = 50
+      endif
+      assign padded_priority = '00' | append: priority | slice: -2, 2
+      assign end_key = parts[2] | default: '99999999999'
+      assign padded_end = '00000000000' | append: end_key | slice: -11, 11
+      assign title_key = promotion.title.value | strip | downcase | append: title_padding | slice: 0, 80
+      capture item
+        render 'gamma-promotion-callout-item', promotion: promotion, start: parts[1], end: parts[2]
+      endcapture
+      assign entries = entries | append: separator | append: padded_priority | append: padded_end | append: title_key | append: promotion.system.handle | append: key_separator | append: item
+    endfor
+  endif
+-%}
+
+{%- if entries != blank -%}
+  {%- assign sorted = entries | remove_first: separator | split: separator | sort -%}
+  <div class="section-background"></div>
+  <div
+    class="section section--page-width gamma-promotion-callout spacing-style"
+    style="{% render 'spacing-style', settings: section.settings %} --gamma-promotion-accent: {{ settings.color_palette.brand }};"
+  >
+    <aside class="gamma-promotion-callout__panel" aria-labelledby="GammaCallout-{{ section.id }}">
+      <h2 id="GammaCallout-{{ section.id }}" class="gamma-promotion-callout__heading">{{ 'gamma_promotion.callout.heading' | t }}</h2>
+      <ul class="gamma-promotion-callout__list" role="list">
+        {%- for item in sorted -%}
+          {{- item | split: key_separator | last -}}
+        {%- endfor -%}
+      </ul>
+    </aside>
+  </div>
+  <script src="{{ 'gamma-hide-at.js' | asset_url }}" type="module" fetchpriority="low"></script>
+{%- elsif request.design_mode and over_limit -%}
+  <div class="section section--page-width">
+    <p class="gamma-promotion-callout__diagnostic">{{ 'gamma_promotion.callout.over_limit' | t }}</p>
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .gamma-promotion-callout__panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-sm, 0.75rem);
+    padding: var(--padding-md, 1rem);
+    border-inline-start: 3px solid var(--gamma-promotion-accent);
+    border-radius: var(--style-border-radius-md, 0);
+    background: rgb(var(--color-foreground-rgb) / 5%);
+  }
+
+  .gamma-promotion-callout__heading {
+    margin: 0;
+    font-size: var(--font-h5--size, 1.125rem);
+  }
+
+  .gamma-promotion-callout__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-sm, 0.75rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .gamma-promotion-callout__item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-2xs, 0.25rem);
+    overflow-wrap: anywhere;
+  }
+
+  .gamma-promotion-callout__item[hidden] {
+    display: none;
+  }
+
+  .gamma-promotion-callout__item > * {
+    margin: 0;
+  }
+
+  .gamma-promotion-callout__diagnostic {
+    padding: var(--padding-sm, 0.75rem);
+    border: 1px dashed currentColor;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:gamma_promotion.callout_name",
+  "tag": "section",
+  "class": "section-wrapper",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:gamma_promotion.callout_info"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 24
+    }
+  ],
+  "enabled_on": {
+    "templates": ["collection"]
+  },
+  "presets": [
+    {
+      "name": "t:gamma_promotion.callout_name"
+    }
+  ]
+}
+{% endschema %}

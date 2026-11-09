@@ -1,0 +1,21 @@
+{%- doc -%}
+  Renders one live campaign in a collection's promotion callout: its title linked to the campaign page,
+  its summary and dates. It hides at the campaign's end on loaded pages.
+
+  @param {object} promotion - The live `promotion` entry.
+  @param {number} [start] - Campaign start in Unix seconds.
+  @param {number} [end] - Campaign end in Unix seconds (exclusive).
+{%- enddoc -%}
+
+{%- capture date_line -%}
+  {%- render 'gamma-promotion-dates', start: start, end: end -%}
+{%- endcapture -%}
+<li class="gamma-promotion-callout__item"{% if end != blank %} data-gamma-hide-at="{{ end }}"{% endif %}>
+  <a href="{{ promotion.system.url }}"><strong>{{ promotion.title.value | escape }}</strong></a>
+  {%- if promotion.summary.value != blank -%}
+    <p>{{ promotion.summary.value | escape }}</p>
+  {%- endif -%}
+  {%- if date_line != blank -%}
+    <p>{{ date_line }}</p>
+  {%- endif -%}
+</li>
