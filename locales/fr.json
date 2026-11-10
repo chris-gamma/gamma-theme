@@ -193,6 +193,11 @@
     "index": {
       "empty": "Aucune promotion en ce moment. Revenez bientôt.",
       "cta": "Voir la promotion",
+      "until": "Jusqu’au {{ date }}",
+      "count": {
+        "one": "{{ count }} promotion",
+        "other": "{{ count }} promotions"
+      },
       "groups": {
         "sales": "Vente d’équipement",
         "rental": "Location d’équipement",
