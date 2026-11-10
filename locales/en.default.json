@@ -160,7 +160,10 @@
       "heading": "How you receive your gift",
       "how": "No need to add the gift to your cart. Buy the qualifying equipment as usual and Location Gamma supplies the gift with your order. If the gift is backordered, your order may be delayed; we’ll contact you if that happens.",
       "backordered": "This gift is currently backordered, so your order may be delayed. We’ll contact you with more information.",
-      "limited": "Limited to the first {{ quantity }} qualifying orders.",
+      "limited": {
+        "one": "Limited to the first qualifying order.",
+        "other": "Limited to the first {{ count }} qualifying orders."
+      },
       "label": "Gift: {{ gift }}",
       "varies": "The gift model depends on your purchase; Location Gamma confirms it."
     },

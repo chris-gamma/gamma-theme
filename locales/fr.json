@@ -151,7 +151,10 @@
       "heading": "Comment recevoir votre cadeau",
       "how": "Inutile d’ajouter le cadeau à votre panier. Achetez l’équipement admissible comme d’habitude : Location Gamma fournit le cadeau avec votre commande. Si le cadeau est en rupture de stock, votre commande pourrait être retardée; nous communiquerons alors avec vous.",
       "backordered": "Ce cadeau est présentement en rupture de stock; votre commande pourrait donc être retardée. Nous communiquerons avec vous pour vous donner plus de détails.",
-      "limited": "Offre limitée aux {{ quantity }} premières commandes admissibles.",
+      "limited": {
+        "one": "Offre limitée à la première commande admissible.",
+        "other": "Offre limitée aux {{ count }} premières commandes admissibles."
+      },
       "label": "Cadeau : {{ gift }}",
       "varies": "Le modèle du cadeau dépend de votre achat; Location Gamma le confirme."
     },
