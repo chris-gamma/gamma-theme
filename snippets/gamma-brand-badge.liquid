@@ -1,14 +1,21 @@
 {%- doc -%}
   Renders a text badge for a `brand` metaobject entry, such as a promotion's sponsor. Shopify returns a
   Draft, deleted or missing reference as blank, so the badge then renders nothing. The colour is the
-  theme's brand colour when `use_theme_brand_color` is set, otherwise `badge_color`, otherwise a neutral
-  outline; filled badges use black or white text, whichever contrasts more (at least 4.5:1 for any
-  colour). The entry's `logo` is reserved and not displayed.
+  theme's brand colour when `use_theme_brand_color` is set, otherwise `badge_color`, otherwise none;
+  filled badges use black or white text, whichever contrasts more (at least 4.5:1 for any colour). The
+  entry's `logo` is reserved and not displayed.
+
+  Inline, a badge without a colour is a neutral outline. As an overlay it sits in the top-left corner of
+  its nearest positioned ancestor (artwork or a media tile), inset by `--gamma-badge-inset` (12px unless
+  the ancestor sets it), with a keyline and shadow so it separates from any image; a badge without a
+  colour then becomes an opaque plate in the page's background and text colours. An overlay never takes
+  clicks, so a link under it still works. Use one badge per card or hero.
 
   @param {object} brand - The `brand` metaobject entry, or blank.
+  @param {string} [placement] - `inline` (default) or `overlay`.
 
   @example
-  {% render 'gamma-brand-badge', brand: promotion.sponsor.value %}
+  {% render 'gamma-brand-badge', brand: promotion.sponsor.value, placement: 'overlay' %}
 {%- enddoc -%}
 
 {%- liquid
@@ -35,26 +42,51 @@
 -%}
 {%- if brand_name != blank -%}
   <p
-    class="gamma-brand-badge"
-    {% if badge_color != blank %}
-      style="--gamma-badge-background: {{ badge_color }}; --gamma-badge-text: {{ badge_text_color }};"
-    {% endif %}
+    class="gamma-brand-badge{% if placement == 'overlay' %} gamma-brand-badge--overlay{% endif %}"
+    style="
+      --gamma-badge-radius: {{ settings.badge_corner_radius }}px;
+      {% if badge_color != blank %}
+        --gamma-badge-background: {{ badge_color }}; --gamma-badge-text: {{ badge_text_color }};
+      {% endif %}
+    "
   >
     {{- brand_name | escape -}}
   </p>
 {%- endif -%}
 
 {% stylesheet %}
+  /* The theme's badge radius, with the padding of its product badges from 750px. */
   .gamma-brand-badge {
     align-self: flex-start;
     margin: 0;
-    padding: 0.125rem 0.5rem;
+    padding: 4px 10px;
     border: 1px solid var(--gamma-badge-background, currentColor);
-    border-radius: var(--style-border-radius-pills, 999px);
+    border-radius: var(--gamma-badge-radius);
     background-color: var(--gamma-badge-background, transparent);
     color: var(--gamma-badge-text, inherit);
     font-size: 0.8125rem;
     font-weight: var(--font-weight-bold, 700);
+    line-height: 1.25;
     overflow-wrap: anywhere;
+  }
+
+  /*
+    The keyline and shadow are box shadows, so they take no space; the transparent border of an
+    uncoloured plate still draws an edge in forced-colours mode.
+  */
+  .gamma-brand-badge--overlay {
+    position: absolute;
+    inset-block-start: var(--gamma-badge-inset, 12px);
+    inset-inline-start: var(--gamma-badge-inset, 12px);
+    z-index: var(--layer-flat, 1);
+    max-inline-size: calc(100% - 2 * var(--gamma-badge-inset, 12px));
+    border-color: var(--gamma-badge-background, transparent);
+    background-color: var(--gamma-badge-background, var(--gamma-color-paper, var(--color-background)));
+    box-shadow:
+      0 0 0 2px var(--gamma-color-paper, var(--color-background)),
+      var(--gamma-shadow-badge, 0 1px 5px 2px rgb(0 0 0 / 28%));
+    color: var(--gamma-badge-text, var(--color-foreground));
+    text-wrap: balance;
+    pointer-events: none;
   }
 {% endstylesheet %}
