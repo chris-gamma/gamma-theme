@@ -4,7 +4,8 @@
   has the `gamma-tokens` class; the stylesheet adds the tokens that alias Horizon's variables.
   Colour tokens resolve on the element that declares them, so they follow its colour scheme, and
   rendering this snippet is what loads the stylesheet on a page. A role class changes a heading's
-  size, never its level.
+  size, never its level. The `gamma-media-tile` class shows artwork whole on white at the ratio in
+  `--gamma-media-ratio` (3:2 by default).
 
   @example
   <div class="gamma-tokens" style="{% render 'gamma-tokens' %}"></div>
