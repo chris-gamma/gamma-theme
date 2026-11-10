@@ -99,11 +99,11 @@
 
 <div class="section-background"></div>
 <div
-  class="section section--page-width gamma-promotion-index spacing-style"
-  style="{% render 'spacing-style', settings: section.settings %} --gamma-promotion-accent: {{ settings.color_palette.brand }};"
+  class="section section--page-width gamma-promotion-index gamma-tokens spacing-style"
+  style="{% render 'spacing-style', settings: section.settings %} {% render 'gamma-tokens' %}"
 >
   <header class="gamma-promotion-index__header">
-    <h1 class="gamma-promotion-index__title">{{ page.title | escape }}</h1>
+    <h1 class="gamma-promotion-index__title gamma-type-page">{{ page.title | escape }}</h1>
     {%- if page.content != blank -%}
       <div class="rte">{{ page.content }}</div>
     {%- endif -%}
@@ -134,7 +134,7 @@
       assign group_heading = heading_key | t
     -%}
     <section class="gamma-promotion-index__group" aria-labelledby="{{ group_id }}-title">
-      <h2 id="{{ group_id }}-title" class="gamma-promotion-index__group-title">{{ group_heading }}</h2>
+      <h2 id="{{ group_id }}-title" class="gamma-promotion-index__group-title gamma-type-section">{{ group_heading }}</h2>
       <gamma-promotion-pager
         id="{{ group_id }}"
         data-page-size="{{ page_size }}"

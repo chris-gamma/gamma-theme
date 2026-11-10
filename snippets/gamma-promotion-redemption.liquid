@@ -113,7 +113,7 @@
     aria-labelledby="{{ id }}-title"
     data-gamma-hide-at="{{ deadline }}"
   >
-    <{{ level }} id="{{ id }}-title" class="gamma-promotion__offer-title">{{ offer.title.value | escape }}</{{ level }}>
+    <{{ level }} id="{{ id }}-title" class="gamma-promotion__offer-title gamma-type-group">{{ offer.title.value | escape }}</{{ level }}>
     <p>
       {%- if start != blank -%}
         {%- capture start_text -%}{%- render 'gamma-promotion-dates', start: start, mode: 'first' -%}{%- endcapture -%}

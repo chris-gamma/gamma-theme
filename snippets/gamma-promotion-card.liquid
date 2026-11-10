@@ -29,7 +29,7 @@
   {%- endif -%}
   <div class="gamma-promotion-card__body">
     {%- render 'gamma-brand-badge', brand: promotion.sponsor.value -%}
-    <{{ heading_level }} class="gamma-promotion-card__title">
+    <{{ heading_level }} class="gamma-promotion-card__title gamma-type-group">
       <a class="gamma-promotion-card__link" href="{{ promotion.system.url }}">{{ promotion.title.value | escape }}</a>
     </{{ heading_level }}>
     {%- if promotion.summary.value != blank -%}
@@ -112,6 +112,6 @@
   }
 
   .gamma-promotion-card:hover .gamma-promotion-card__cta {
-    color: var(--gamma-promotion-accent, currentColor);
+    color: var(--gamma-color-accent, currentColor);
   }
 {% endstylesheet %}

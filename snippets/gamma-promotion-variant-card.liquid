@@ -1,7 +1,8 @@
 {%- doc -%}
   Renders a campaign card for a variant-limited group: the product's eligible variant, linked directly,
   with that variant's image and price. It has no Quick Add, because the native card would add the
-  product's default variant, which may not qualify.
+  product's default variant, which may not qualify. The linked variant's status uses the theme's own
+  product badges: sold out, or Gamma's backorder and special-order badges when those are enabled.
 
   @param {object} variant - The eligible variant the card links to (the first listed one of its product).
   @param {string} names - Comma-separated titles of the product's eligible variants.
@@ -10,6 +11,26 @@
 {%- liquid
   assign product = variant.product
   assign image = variant.featured_image | default: product.featured_image
+
+  assign badge = ''
+  assign badge_class = ''
+  if variant.available == false
+    assign badge = 'content.product_badge_sold_out' | t
+    assign badge_class = 'color-custom-badge-sold-out'
+  elsif settings.gamma_availability_badges
+    capture status
+      render 'gamma-availability-status', product: product, variant: variant
+    endcapture
+    assign status = status | strip
+    case status
+      when 'backorder'
+        assign badge = 'gamma_availability.backorder.badge' | t
+        assign badge_class = 'gamma-promotion__status-badge'
+      when 'special_order'
+        assign badge = 'gamma_availability.special_order.label' | t
+        assign badge_class = 'gamma-promotion__status-badge'
+    endcase
+  endif
 -%}
 <a class="gamma-promotion__variant-link" href="{{ variant.url }}">
   {%- if image != blank -%}
@@ -26,13 +47,62 @@
   {%- endif -%}
   <span class="gamma-promotion__variant-title">{{ product.title | escape }}</span>
 </a>
+{%- if badge != blank -%}
+  {%- comment -%} After the link, so the status isn't part of the link's name; it sits over the image. {%- endcomment -%}
+  <div
+    class="product-badges product-badges--{{ settings.badge_position }} gamma-promotion__variant-badges{% if image == blank %} gamma-promotion__variant-badges--inline{% endif %}"
+    style="
+      --badge-border-radius: {{ settings.badge_corner_radius }}px;
+      --badge-font-family: var(--font-{{ settings.badge_font_family }}--family); --badge-font-weight: var(--font-{{ settings.badge_font_family }}--weight); --badge-text-transform: {{ settings.badge_text_transform }};
+    "
+  >
+    <div class="product-badges__badge product-badges__badge--rectangle {{ badge_class }}">
+      {{- badge -}}
+    </div>
+  </div>
+{%- endif -%}
 <p class="gamma-promotion__variant-price">
   {%- if variant.compare_at_price > variant.price -%}
     <s class="gamma-promotion__variant-compare">{% render 'gamma-money', price: variant.compare_at_price %}</s>
   {% endif -%}
   {%- render 'gamma-money', price: variant.price -%}
 </p>
-{%- unless variant.available -%}
-  <p class="gamma-promotion__variants">{{ 'blocks.sold_out' | t }}</p>
+{%- unless product.has_only_default_variant -%}
+  <p class="gamma-promotion__variants">{{ 'gamma_promotion.cards.eligible_variants' | t: variants: names }}</p>
 {%- endunless -%}
-<p class="gamma-promotion__variants">{{ 'gamma_promotion.cards.eligible_variants' | t: variants: names }}</p>
+
+{%- render 'product-badges-styles' -%}
+
+{% stylesheet %}
+  .gamma-promotion__card:has(> .gamma-promotion__variant-badges) {
+    position: relative;
+  }
+
+  /* Horizon positions badges from its card's own properties; the section's padding would offset them here. */
+  .gamma-promotion__card > .gamma-promotion__variant-badges {
+    --border-radius: 0px;
+    --padding-block-start: 0px;
+    --padding-inline-start: 0px;
+    --padding-inline-end: 0px;
+
+    max-inline-size: calc(100% - 2 * var(--badge-inset));
+    pointer-events: none;
+  }
+
+  /* The card, not the image, is the positioning box, so a bottom setting falls back to the top until the Stage 2 card. */
+  .gamma-promotion__card > .gamma-promotion__variant-badges.product-badges--bottom-left {
+    top: var(--badge-inset);
+    bottom: auto;
+  }
+
+  .gamma-promotion__card > .gamma-promotion__variant-badges--inline {
+    position: static;
+    align-self: flex-start;
+  }
+
+  /* The outlined status badge of the native card (gamma-availability-badge). */
+  .gamma-promotion__status-badge {
+    box-shadow: inset 0 0 0 1px currentColor;
+    overflow-wrap: anywhere;
+  }
+{% endstylesheet %}
