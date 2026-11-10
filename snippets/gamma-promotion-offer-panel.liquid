@@ -7,6 +7,8 @@
   @param {string} claim - The offer's claim class from gamma-promotion-offer (not `none`).
   @param {number} [end] - The offer's effective end in Unix seconds (exclusive).
   @param {string} [contact_url] - The store's contact page URL, for in-store and contact offers.
+  @param {boolean} [current_prices] - Whether the offer shows product cards. In-store and code offers
+    then say that the cards' prices are current prices, because neither changes them.
 {%- enddoc -%}
 
 {%- liquid
@@ -38,7 +40,12 @@
       assign code = offer.code.value | strip | escape
       assign message = 'gamma_promotion.redemption.discount_code_html' | t: code: code
     -%}
-    {%- render 'gamma-notice', message: message -%}
+    {%- capture content -%}
+      {%- if current_prices -%}
+        <p class="gamma-notice__note">{{ 'gamma_promotion.redemption.current_prices_code' | t }}</p>
+      {%- endif -%}
+    {%- endcapture -%}
+    {%- render 'gamma-notice', message: message, content: content -%}
   {%- when 'gift' -%}
     {%- liquid
       assign availability = offer.gift_availability.value | default: 'guaranteed'
@@ -96,6 +103,9 @@
   {%- when 'store' -%}
     {%- assign message = 'gamma_promotion.redemption.in_store' | t -%}
     {%- capture content -%}
+      {%- if current_prices and redemption == 'in_store' -%}
+        <p class="gamma-notice__note">{{ 'gamma_promotion.redemption.current_prices_in_store' | t }}</p>
+      {%- endif -%}
       {%- if contact_url != blank -%}
         <p><a href="{{ contact_url }}">{{ 'gamma_promotion.redemption.contact' | t }}</a></p>
       {%- endif -%}

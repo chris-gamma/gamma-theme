@@ -145,6 +145,8 @@
       "claim_by": "Soumettez votre réclamation au plus tard le {{ date }}.",
       "claim_link": "Formulaire de réclamation",
       "in_store": "Cette offre est offerte en magasin.",
+      "current_prices_in_store": "Les prix affichés sont les prix courants; l’offre s’applique en magasin.",
+      "current_prices_code": "Les prix affichés sont les prix courants; le rabais s’applique au paiement, avec le code.",
       "contact": "Nous joindre et heures d’ouverture"
     },
     "gift": {
@@ -164,12 +166,24 @@
       "staff": "Certaines conditions sont confirmées par notre équipe après votre commande."
     },
     "cards": {
-      "eligible_variants": "Admissibles : {{ variants }}",
+      "eligible_variants": {
+        "one": "Variante admissible : {{ variants }}",
+        "other": "Variantes admissibles : {{ variants }}"
+      },
       "see_all": {
         "one": "Voir le produit admissible",
         "other": "Voir les {{ count }} produits admissibles"
       },
-      "more": "Autres articles admissibles :"
+      "more": "Autres articles admissibles :",
+      "product_count": {
+        "one": "{{ count }} produit admissible",
+        "other": "{{ count }} produits admissibles"
+      },
+      "rental_count": {
+        "one": "{{ count }} article en location",
+        "other": "{{ count }} articles en location"
+      },
+      "rental_link": "Voir dans le catalogue de location"
     },
     "post_sale": {
       "heading": "Réclamations pour les achats admissibles déjà effectués",
@@ -179,6 +193,11 @@
     "index": {
       "empty": "Aucune promotion en ce moment. Revenez bientôt.",
       "cta": "Voir la promotion",
+      "until": "Jusqu’au {{ date }}",
+      "count": {
+        "one": "{{ count }} promotion",
+        "other": "{{ count }} promotions"
+      },
       "groups": {
         "sales": "Vente d’équipement",
         "rental": "Location d’équipement",

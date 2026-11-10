@@ -30,9 +30,20 @@
 >
   {%- case state -%}
     {%- when 'live' -%}
-      <header class="gamma-promotion__hero">
+      {%- liquid
+        assign artwork = entry.image.value
+        if artwork != blank
+          # The tile follows the artwork's shape between 4:3 and 16:9: a banner fills it, and square or
+          # tall artwork is shown whole without stretching the hero.
+          assign artwork_ratio = artwork.aspect_ratio | default: 1.5 | at_least: 1.3333 | at_most: 1.7778
+        endif
+      -%}
+      <header class="gamma-promotion__hero{% if artwork != blank %} gamma-promotion__hero--media{% endif %}">
         <div class="gamma-promotion__hero-text">
-          {%- render 'gamma-brand-badge', brand: entry.sponsor.value -%}
+          {%- comment -%} One badge: over the artwork, or here when there is none. {%- endcomment -%}
+          {%- if artwork == blank -%}
+            {%- render 'gamma-brand-badge', brand: entry.sponsor.value -%}
+          {%- endif -%}
           {%- if entry.eyebrow.value != blank -%}
             <p class="gamma-promotion__eyebrow gamma-type-label">{{ entry.eyebrow.value | escape }}</p>
           {%- endif -%}
@@ -78,16 +89,18 @@
             </p>
           {%- endif -%}
         </div>
-        {%- if entry.image.value != blank -%}
-          <div class="gamma-promotion__hero-media">
+        {%- if artwork != blank -%}
+          <div class="gamma-promotion__hero-media gamma-media-tile" style="--gamma-media-ratio: {{ artwork_ratio }};">
+            {%- render 'gamma-brand-badge', brand: entry.sponsor.value, placement: 'overlay' -%}
             {{
-              entry.image.value
+              artwork
               | image_url: width: 1600
               | image_tag:
                 widths: '480, 720, 960, 1200, 1600',
-                sizes: '(min-width: 990px) 50vw, 100vw',
-                class: 'gamma-promotion__hero-image',
-                alt: entry.image.value.alt
+                sizes: '(min-width: 990px) 40vw, 100vw',
+                loading: 'eager',
+                fetchpriority: 'high',
+                alt: artwork.alt
             }}
           </div>
         {%- endif -%}
@@ -189,177 +202,54 @@
           aria-labelledby="{{ offer_id }}-title"
           {% if hide_at != blank %}data-gamma-hide-at="{{ hide_at }}"{% endif %}
         >
-          <div class="gamma-promotion__offer-intro{% if offer.image.value != blank %} gamma-promotion__offer-intro--media{% endif %}">
-            <div class="gamma-promotion__offer-text">
-              {%- if offer.label.value != blank -%}
-                <p class="gamma-promotion__eyebrow gamma-type-label">{{ offer.label.value | escape }}</p>
-              {%- endif -%}
-              <h2 id="{{ offer_id }}-title" class="gamma-promotion__offer-title gamma-type-section">{{ offer.title.value | escape }}</h2>
-              {%- if offer.summary.value != blank -%}
-                <p class="gamma-promotion__summary gamma-type-reading">{{ offer.summary.value | escape | newline_to_br }}</p>
-              {%- endif -%}
-              {%- capture offer_dates -%}
-                {%- render 'gamma-promotion-dates', start: offer_parts[2], end: offer_end -%}
-              {%- endcapture -%}
-              {%- if offer_dates != blank and offer_end != campaign_end -%}
-                <p class="gamma-promotion__dates">{{ offer_dates }}</p>
-              {%- endif -%}
-              {%- if offer.details.value != blank -%}
-                <div class="rte">{{ offer.details | metafield_tag }}</div>
-              {%- endif -%}
-              {%- render 'gamma-promotion-offer-panel', offer: offer, claim: claim, end: offer_end, contact_url: contact_url -%}
-            </div>
-            {%- if offer.image.value != blank -%}
-              {{
-                offer.image.value
-                | image_url: width: 1200
-                | image_tag:
-                  widths: '360, 600, 900, 1200',
-                  sizes: '(min-width: 750px) 40vw, 100vw',
-                  class: 'gamma-promotion__offer-image',
-                  loading: 'lazy',
-                  alt: offer.image.value.alt
-              }}
-            {%- endif -%}
-          </div>
-
-          {%- for group in offer.groups.value -%}
-            {%- liquid
-              capture group_data
-                render 'gamma-promotion-group-data', group: group, claim: claim
-              endcapture
-              assign group_parts = group_data | strip | split: '|'
-              assign group_state = group_parts[0]
-              if group_state == 'invalid'
-                if request.design_mode
-                  assign diagnostics = diagnostics | append: ',' | append: offer.system.handle | append: ':group_' | append: group_parts[6]
+          {%- comment -%}
+            Groups are resolved before the offer's introduction, which they are printed after: its notice
+            says that card prices are current prices only when the offer shows product cards.
+          {%- endcomment -%}
+          {%- assign offer_has_products = false -%}
+          {%- capture groups_html -%}
+            {%- for group in offer.groups.value -%}
+              {%- liquid
+                capture group_data
+                  render 'gamma-promotion-group-data', group: group, claim: claim
+                endcapture
+                assign group_parts = group_data | strip | split: '|'
+                assign group_state = group_parts[0]
+                if group_state == 'invalid'
+                  if request.design_mode
+                    assign diagnostics = diagnostics | append: ',' | append: offer.system.handle | append: ':group_' | append: group_parts[6]
+                  endif
+                  continue
                 endif
-                continue
-              endif
-              assign heading = group.heading.value | strip
-              assign rental_items = group.rental_items.value
-            -%}
-            {%- if group_state == 'none' and rental_items == blank and group.note.value == blank and group.description.value == blank and group.link.value == blank -%}
-              {%- continue -%}
-            {%- endif -%}
-            {%- liquid
-              # A rental group with no displayable item is omitted, so its cards are resolved before its heading.
-              assign rental_cards = ''
-              assign rental_overflow = ''
-            -%}
-            {%- if group_state == 'none' and rental_items != blank -%}
-              {%- capture rental_cards -%}
-                {%- for item in rental_items -%}
-                  {%- liquid
-                    capture item_url
-                      render 'gamma-promotion-rental-url', url: item.url.value
-                    endcapture
-                    assign item_url = item_url | strip
-                    if item_url == blank
-                      continue
-                    endif
-                    assign item_title = item.title.value | escape
-                  -%}
-                  {%- if cards_left > 0 -%}
-                    <li class="gamma-promotion__card gamma-promotion__rental">
-                      <a class="gamma-promotion__rental-link" href="{{ item_url | escape }}" target="_blank" rel="noopener">
-                        {%- if item.image.value != blank -%}
-                          {{ item.image.value | image_url: width: 600 | image_tag: widths: '300, 450, 600', sizes: '(min-width: 750px) 25vw, 50vw', loading: 'lazy', alt: '', class: 'gamma-promotion__rental-image' }}
-                        {%- endif -%}
-                        <span class="gamma-promotion__rental-title">{{ item_title }}</span>
-                        <span class="visually-hidden">{{ 'gamma_promotion.new_tab' | t }}</span>
-                      </a>
-                      {%- if item.note.value != blank -%}
-                        <p class="gamma-promotion__group-note">{{ item.note.value | escape }}</p>
-                      {%- endif -%}
-                    </li>
-                    {%- assign cards_left = cards_left | minus: 1 -%}
-                  {%- else -%}
-                    {%- capture overflow_item -%}<li><a href="{{ item_url | escape }}" target="_blank" rel="noopener">{{ item_title }}<span class="visually-hidden"> {{ 'gamma_promotion.new_tab' | t }}</span></a></li>{%- endcapture -%}
-                    {%- assign rental_overflow = rental_overflow | append: overflow_item -%}
-                  {%- endif -%}
-                {%- endfor -%}
-              {%- endcapture -%}
-              {%- if rental_cards == blank and rental_overflow == blank -%}
+                assign heading = group.heading.value | strip
+                assign rental_items = group.rental_items.value
+              -%}
+              {%- if group_state == 'none' and rental_items == blank and group.note.value == blank and group.description.value == blank and group.link.value == blank -%}
                 {%- continue -%}
               {%- endif -%}
-            {%- endif -%}
-            <div class="gamma-promotion__group">
-              {%- if heading != blank -%}
-                <h3 class="gamma-promotion__group-heading gamma-type-group">{{ heading | escape }}</h3>
-              {%- endif -%}
+              {%- liquid
+                # Cards are resolved before the heading: a rental group with no displayable item is omitted, and
+                # the number of cards decides whether the group gets the label rail.
+                assign cards = ''
+                assign overflow = ''
+                assign card_count = 0
+                assign item_count = 0
+                assign see_all = false
+                assign group_kind = 'text'
+              -%}
               {%- if group_state == 'valid' -%}
                 {%- liquid
-                  assign min_quantity = group_parts[2] | plus: 0
-                  assign companion_label = group.requires_label.value | strip | escape
-                -%}
-                <ul class="gamma-promotion__conditions">
-                  {%- if claim == 'gift' -%}
-                    {%- assign gift_label = group.reward_label.value | strip | escape -%}
-                    <li><strong>{{ 'gamma_promotion.gift.label' | t: gift: gift_label }}</strong>
-                      {%- assign reward_quantity = group.reward_quantity.value | default: 1 | plus: 0 -%}
-                      {%- if reward_quantity > 1 %} ×{{ reward_quantity }}{% endif -%}
-                    </li>
-                    {%- if group.reward_varies.value == true -%}
-                      <li>{{ 'gamma_promotion.gift.varies' | t }}</li>
-                    {%- endif -%}
-                  {%- endif -%}
-                  {%- if min_quantity > 1 -%}
-                    <li>{{ 'gamma_promotion.conditions.quantity' | t: count: min_quantity }}</li>
-                  {%- endif -%}
-                  {%- if group_parts[3] != blank -%}
-                    <li>{{ 'gamma_promotion.conditions.companion' | t: companion: companion_label }}</li>
-                  {%- endif -%}
-                  {%- if group_parts[5] == '1' -%}
-                    <li>{{ 'gamma_promotion.conditions.staff' | t }}</li>
-                  {%- endif -%}
-                </ul>
-                {%- if claim == 'gift' -%}
-                  {%- comment -%} The gift is named once, by its label above; a referenced reward adds only its linked image. {%- endcomment -%}
-                  {%- capture reward_images -%}
-                    {%- for reward in group.rewards.value -%}
-                      {%- liquid
-                        if reward.product == blank or reward.product.url == blank
-                          continue
-                        endif
-                        assign reward_image = reward.featured_image | default: reward.product.featured_image
-                        if reward_image == blank
-                          continue
-                        endif
-                      -%}
-                      <li>
-                        <a href="{{ reward.url }}">
-                          {{- reward_image | image_url: width: 160 | image_tag: loading: 'lazy', alt: reward.product.title, width: 80, height: 80, class: 'gamma-promotion__reward-image' -}}
-                        </a>
-                      </li>
-                    {%- endfor -%}
-                  {%- endcapture -%}
-                  {%- if reward_images != blank -%}
-                    <ul class="gamma-promotion__rewards" role="list">{{ reward_images }}</ul>
-                  {%- endif -%}
-                {%- endif -%}
-              {%- endif -%}
-              {%- if group.note.value != blank -%}
-                <p class="gamma-promotion__group-note">{{ group.note.value | escape }}</p>
-              {%- endif -%}
-              {%- if group.description.value != blank -%}
-                <div class="rte">{{ group.description | metafield_tag }}</div>
-              {%- endif -%}
-
-              {%- if group_state == 'valid' -%}
-                {%- liquid
+                  assign group_kind = 'products'
                   assign collection = group.collection.value
                   assign take = card_cap | at_most: cards_left
-                  assign shown_products = ','
-                  assign shown_in_group = 0
-                  assign overflow = ''
                 -%}
                 {%- if group.variants_only.value == true -%}
                   {%- liquid
                     assign listed = group.variants.value
                     assign collection_token = ',' | append: collection.id | append: ','
+                    assign shown_products = ','
                   -%}
-                  <ul class="gamma-promotion__cards" role="list">
+                  {%- capture cards -%}
                     {%- for listed_variant in listed -%}
                       {%- liquid
                         # A listed variant qualifies only while its product is still in the group's collection.
@@ -378,66 +268,233 @@
                           continue
                         endunless
                         assign names = ''
+                        assign name_count = 0
                         for other in listed
                           if other.product.id == listed_product.id
                             assign names = names | append: ', ' | append: other.title
+                            assign name_count = name_count | plus: 1
                           endif
                         endfor
                         assign names = names | remove_first: ', '
+                        assign item_count = item_count | plus: 1
                       -%}
                       {%- if take > 0 -%}
                         <li class="gamma-promotion__card">
-                          {%- render 'gamma-promotion-variant-card', variant: listed_variant, names: names -%}
+                          {%- render 'gamma-promotion-variant-card', variant: listed_variant, names: names, count: name_count -%}
                         </li>
-                        {%- assign take = take | minus: 1 -%}
-                        {%- assign cards_left = cards_left | minus: 1 -%}
+                        {%- liquid
+                          assign take = take | minus: 1
+                          assign cards_left = cards_left | minus: 1
+                          assign card_count = card_count | plus: 1
+                        -%}
                       {%- else -%}
                         {%- capture overflow_item -%}<li><a href="{{ listed_variant.url }}">{{ listed_product.title | escape }}</a>{% unless listed_product.has_only_default_variant %} ({{ names | escape }}){% endunless %}</li>{%- endcapture -%}
                         {%- assign overflow = overflow | append: overflow_item -%}
                       {%- endif -%}
                     {%- endfor -%}
-                  </ul>
-                  {%- if overflow != blank -%}
-                    <p class="gamma-promotion__more">{{ 'gamma_promotion.cards.more' | t }}</p>
-                    <ul class="gamma-promotion__more-list">{{ overflow }}</ul>
-                  {%- endif -%}
+                  {%- endcapture -%}
                 {%- else -%}
                   {%- if take > 0 -%}
-                    <ul class="gamma-promotion__cards" role="list">
+                    {%- capture cards -%}
                       {%- for product in collection.products limit: take -%}
                         <li class="gamma-promotion__card">
                           {%- content_for 'block', type: '_product-card', id: 'static-product-card', closest.product: product -%}
                         </li>
-                        {%- assign cards_left = cards_left | minus: 1 -%}
-                        {%- assign shown_in_group = shown_in_group | plus: 1 -%}
+                        {%- liquid
+                          assign cards_left = cards_left | minus: 1
+                          assign card_count = card_count | plus: 1
+                        -%}
                       {%- endfor -%}
-                    </ul>
+                    {%- endcapture -%}
                   {%- endif -%}
-                  {%- if collection.products_count > shown_in_group -%}
-                    <p class="gamma-promotion__more">
-                      <a href="{{ collection.url }}">{{ 'gamma_promotion.cards.see_all' | t: count: collection.products_count }}</a>
-                    </p>
-                  {%- endif -%}
+                  {%- liquid
+                    assign item_count = collection.products_count
+                    if item_count > card_count
+                      assign see_all = true
+                    endif
+                  -%}
                 {%- endif -%}
               {%- elsif rental_items != blank -%}
-                {%- if rental_cards != blank -%}
-                  <ul class="gamma-promotion__cards" role="list">{{ rental_cards }}</ul>
-                {%- endif -%}
-                {%- if rental_overflow != blank -%}
-                  <p class="gamma-promotion__more">{{ 'gamma_promotion.cards.more' | t }}</p>
-                  <ul class="gamma-promotion__more-list">{{ rental_overflow }}</ul>
+                {%- assign group_kind = 'rental' -%}
+                {%- capture cards -%}
+                  {%- for item in rental_items -%}
+                    {%- liquid
+                      capture item_url
+                        render 'gamma-promotion-rental-url', url: item.url.value
+                      endcapture
+                      assign item_url = item_url | strip
+                      if item_url == blank
+                        continue
+                      endif
+                      assign item_title = item.title.value | escape
+                      assign item_count = item_count | plus: 1
+                    -%}
+                    {%- if cards_left > 0 -%}
+                      <li class="gamma-promotion__card">
+                        {%- render 'gamma-rental-card', url: item_url, title: item.title.value, image: item.image.value, note: item.note.value -%}
+                      </li>
+                      {%- liquid
+                        assign cards_left = cards_left | minus: 1
+                        assign card_count = card_count | plus: 1
+                      -%}
+                    {%- else -%}
+                      {%- capture overflow_item -%}<li><a href="{{ item_url | escape }}" target="_blank" rel="noopener">{{ item_title }}<span class="visually-hidden"> {{ 'gamma_promotion.new_tab' | t }}</span></a></li>{%- endcapture -%}
+                      {%- assign overflow = overflow | append: overflow_item -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                {%- endcapture -%}
+                {%- if item_count == 0 -%}
+                  {%- continue -%}
                 {%- endif -%}
               {%- endif -%}
-
               {%- liquid
-                assign link_url = group.link.value.url | append: ''
-                assign link_text = group.link.value.text | strip
+                # From 1200px a group of five or more cards has its label beside the grid; smaller groups
+                # stack it above a grid identical to collection pages.
+                assign group_class = 'gamma-promotion__group'
+                if card_count >= 5
+                  assign group_class = group_class | append: ' gamma-promotion__group--rail'
+                endif
+                if group_kind == 'rental'
+                  assign group_class = group_class | append: ' gamma-promotion__group--rental'
+                endif
               -%}
-              {%- if link_url != blank and link_text != blank -%}
-                <p class="gamma-promotion__more"><a href="{{ link_url | escape }}">{{ link_text | escape }}</a></p>
+              <div class="{{ group_class }}">
+                <div class="gamma-promotion__group-label">
+                  {%- if item_count > 0 -%}
+                    <p class="gamma-promotion__group-count gamma-type-label">
+                      {%- if group_kind == 'rental' -%}
+                        {{- 'gamma_promotion.cards.rental_count' | t: count: item_count -}}
+                      {%- else -%}
+                        {{- 'gamma_promotion.cards.product_count' | t: count: item_count -}}
+                      {%- endif -%}
+                    </p>
+                  {%- endif -%}
+                  {%- if heading != blank -%}
+                    <h3 class="gamma-promotion__group-heading gamma-type-group">{{ heading | escape }}</h3>
+                  {%- endif -%}
+                  {%- if group_state == 'valid' -%}
+                    {%- liquid
+                      assign min_quantity = group_parts[2] | plus: 0
+                      assign companion_label = group.requires_label.value | strip | escape
+                    -%}
+                    <ul class="gamma-promotion__conditions">
+                      {%- if claim == 'gift' -%}
+                        {%- assign gift_label = group.reward_label.value | strip | escape -%}
+                        <li><strong>{{ 'gamma_promotion.gift.label' | t: gift: gift_label }}</strong>
+                          {%- assign reward_quantity = group.reward_quantity.value | default: 1 | plus: 0 -%}
+                          {%- if reward_quantity > 1 %} ×{{ reward_quantity }}{% endif -%}
+                        </li>
+                        {%- if group.reward_varies.value == true -%}
+                          <li>{{ 'gamma_promotion.gift.varies' | t }}</li>
+                        {%- endif -%}
+                      {%- endif -%}
+                      {%- if min_quantity > 1 -%}
+                        <li>{{ 'gamma_promotion.conditions.quantity' | t: count: min_quantity }}</li>
+                      {%- endif -%}
+                      {%- if group_parts[3] != blank -%}
+                        <li>{{ 'gamma_promotion.conditions.companion' | t: companion: companion_label }}</li>
+                      {%- endif -%}
+                      {%- if group_parts[5] == '1' -%}
+                        <li>{{ 'gamma_promotion.conditions.staff' | t }}</li>
+                      {%- endif -%}
+                    </ul>
+                    {%- if claim == 'gift' -%}
+                      {%- comment -%} The gift is named once, by its label above; a referenced reward adds only its linked image. {%- endcomment -%}
+                      {%- capture reward_images -%}
+                        {%- for reward in group.rewards.value -%}
+                          {%- liquid
+                            if reward.product == blank or reward.product.url == blank
+                              continue
+                            endif
+                            assign reward_image = reward.featured_image | default: reward.product.featured_image
+                            if reward_image == blank
+                              continue
+                            endif
+                          -%}
+                          <li>
+                            <a href="{{ reward.url }}">
+                              {{- reward_image | image_url: width: 160 | image_tag: loading: 'lazy', alt: reward.product.title, width: 80, height: 80, class: 'gamma-promotion__reward-image' -}}
+                            </a>
+                          </li>
+                        {%- endfor -%}
+                      {%- endcapture -%}
+                      {%- if reward_images != blank -%}
+                        <ul class="gamma-promotion__rewards" role="list">{{ reward_images }}</ul>
+                      {%- endif -%}
+                    {%- endif -%}
+                  {%- endif -%}
+                  {%- if group.note.value != blank -%}
+                    <p class="gamma-promotion__group-note">{{ group.note.value | escape }}</p>
+                  {%- endif -%}
+                  {%- if group.description.value != blank -%}
+                    <div class="rte">{{ group.description | metafield_tag }}</div>
+                  {%- endif -%}
+                  {%- if see_all -%}
+                    <p class="gamma-promotion__more">
+                      <a href="{{ collection.url }}">{{ 'gamma_promotion.cards.see_all' | t: count: item_count }}</a>
+                    </p>
+                  {%- endif -%}
+                  {%- liquid
+                    assign link_url = group.link.value.url | append: ''
+                    assign link_text = group.link.value.text | strip
+                  -%}
+                  {%- if link_url != blank and link_text != blank -%}
+                    <p class="gamma-promotion__more"><a href="{{ link_url | escape }}">{{ link_text | escape }}</a></p>
+                  {%- endif -%}
+                </div>
+                {%- if card_count > 0 and group_kind == 'products' -%}
+                  {%- assign offer_has_products = true -%}
+                {%- endif -%}
+                {%- if card_count > 0 or overflow != blank -%}
+                  <div class="gamma-promotion__group-items">
+                    {%- if card_count > 0 -%}
+                      <ul class="gamma-promotion__cards" role="list">{{ cards }}</ul>
+                    {%- endif -%}
+                    {%- if overflow != blank -%}
+                      <p class="gamma-promotion__more">{{ 'gamma_promotion.cards.more' | t }}</p>
+                      <ul class="gamma-promotion__more-list">{{ overflow }}</ul>
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
+              </div>
+            {%- endfor -%}
+          {%- endcapture -%}
+
+          <div class="gamma-promotion__offer-intro{% if offer.image.value != blank %} gamma-promotion__offer-intro--media{% endif %}">
+            <div class="gamma-promotion__offer-text">
+              {%- if offer.label.value != blank -%}
+                <p class="gamma-promotion__eyebrow gamma-type-label">{{ offer.label.value | escape }}</p>
               {%- endif -%}
+              <h2 id="{{ offer_id }}-title" class="gamma-promotion__offer-title gamma-type-section">{{ offer.title.value | escape }}</h2>
+              {%- if offer.summary.value != blank -%}
+                <p class="gamma-promotion__summary gamma-type-reading">{{ offer.summary.value | escape | newline_to_br }}</p>
+              {%- endif -%}
+              {%- capture offer_dates -%}
+                {%- render 'gamma-promotion-dates', start: offer_parts[2], end: offer_end -%}
+              {%- endcapture -%}
+              {%- if offer_dates != blank and offer_end != campaign_end -%}
+                <p class="gamma-promotion__dates">{{ offer_dates }}</p>
+              {%- endif -%}
+              {%- if offer.details.value != blank -%}
+                <div class="rte">{{ offer.details | metafield_tag }}</div>
+              {%- endif -%}
+              {%- render 'gamma-promotion-offer-panel', offer: offer, claim: claim, end: offer_end, contact_url: contact_url, current_prices: offer_has_products -%}
             </div>
-          {%- endfor -%}
+            {%- if offer.image.value != blank -%}
+              {{
+                offer.image.value
+                | image_url: width: 1200
+                | image_tag:
+                  widths: '360, 600, 900, 1200',
+                  sizes: '(min-width: 750px) 40vw, 100vw',
+                  class: 'gamma-promotion__offer-image',
+                  loading: 'lazy',
+                  alt: offer.image.value.alt
+              }}
+            {%- endif -%}
+          </div>
+
+          {{ groups_html }}
 
           {%- if offer.terms.value != blank -%}
             <div class="gamma-promotion__terms gamma-fine-print rte">
@@ -527,14 +584,43 @@
   }
 
   .gamma-promotion__hero {
+    --gamma-badge-inset: 12px;
+
     display: grid;
     gap: var(--gamma-space-inner);
-    align-items: start;
+    align-items: center;
+    padding: var(--gamma-space-inner);
+    border-radius: var(--gamma-radius-card);
+    background: var(--gamma-color-panel);
+  }
+
+  .gamma-promotion__hero .gamma-promotion__rte {
+    max-inline-size: var(--gamma-measure-text);
+    color: var(--gamma-color-muted);
+  }
+
+  /* The artwork comes first until the text sits beside it. */
+  .gamma-promotion__hero-media {
+    order: -1;
+  }
+
+  @media screen and (min-width: 750px) {
+    .gamma-promotion__hero {
+      --gamma-badge-inset: 16px;
+    }
+
+    .gamma-promotion__hero-text {
+      padding: var(--gamma-space-inner);
+    }
   }
 
   @media screen and (min-width: 990px) {
-    .gamma-promotion__hero:has(.gamma-promotion__hero-media) {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    .gamma-promotion__hero--media {
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    }
+
+    .gamma-promotion__hero-media {
+      order: 0;
     }
   }
 
@@ -575,14 +661,6 @@
     align-items: center;
     gap: var(--gap-sm, 0.75rem) var(--gap-md, 1rem);
     margin: 0;
-  }
-
-  /* Manufacturer artwork often carries text, so it is never cropped. */
-  .gamma-promotion__hero-image {
-    display: block;
-    width: 100%;
-    height: auto;
-    border-radius: var(--gamma-radius-media);
   }
 
 .gamma-promotion__nav {
@@ -650,10 +728,40 @@
   }
 
   .gamma-promotion__group {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--gamma-space-inner);
+    align-items: start;
+    min-width: 0;
+  }
+
+  /* 1360px of content less the rail and its gap leaves four 256px cards, against 259px on collection pages. */
+  @media screen and (min-width: 1200px) {
+    .gamma-promotion__group--rail {
+      grid-template-columns: var(--gamma-rail-size) minmax(0, 1fr);
+    }
+  }
+
+  .gamma-promotion__group--rental + .gamma-promotion__group--rental {
+    padding-block-start: var(--gamma-space-group);
+    border-block-start: var(--style-border-width, 1px) solid var(--gamma-color-rule);
+  }
+
+  .gamma-promotion__group-label,
+  .gamma-promotion__group-items {
     display: flex;
     flex-direction: column;
     gap: var(--gap-sm, 0.75rem);
     min-width: 0;
+  }
+
+  .gamma-promotion__group-label {
+    max-inline-size: var(--gamma-measure-text);
+  }
+
+  .gamma-promotion__group-count {
+    margin: 0;
+    color: var(--gamma-color-muted);
   }
 
   .gamma-promotion__conditions,
@@ -667,48 +775,9 @@
   }
 
   .gamma-promotion__group-note,
-  .gamma-promotion__variants,
   .gamma-promotion__more {
     margin: 0;
     overflow-wrap: anywhere;
-  }
-
-  .gamma-promotion__variant-link {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-xs, 0.5rem);
-    color: inherit;
-    text-decoration: none;
-  }
-
-  .gamma-promotion__variant-link:hover .gamma-promotion__variant-title,
-  .gamma-promotion__variant-link:focus-visible .gamma-promotion__variant-title {
-    text-decoration: underline;
-  }
-
-  .gamma-promotion__variant-image {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 1;
-    object-fit: contain;
-  }
-
-  .gamma-promotion__variant-title {
-    overflow-wrap: anywhere;
-  }
-
-  .gamma-promotion__variant-price {
-    margin: 0;
-    font-weight: var(--font-weight-bold, 700);
-  }
-
-  .gamma-promotion__variant-compare {
-    margin-inline-end: 0.5em;
-    font-weight: normal;
-  }
-
-  .gamma-promotion__variants {
-    font-size: 0.875rem;
   }
 
   .gamma-promotion__rewards {
@@ -732,13 +801,20 @@
     object-fit: contain;
   }
 
+  /* The collection grid: its minimum card width and gaps come from the collection template's settings. */
   .gamma-promotion__cards {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 11rem), 1fr));
-    gap: var(--gap-lg, 1.5rem) var(--gap-md, 1rem);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--gamma-grid-gap);
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+
+  @media screen and (min-width: 750px) {
+    .gamma-promotion__cards {
+      grid-template-columns: repeat(auto-fill, minmax(var(--gamma-grid-card-min), 1fr));
+    }
   }
 
   .gamma-promotion__card {
@@ -746,33 +822,6 @@
     flex-direction: column;
     gap: var(--gap-xs, 0.5rem);
     min-width: 0;
-  }
-
-  .gamma-promotion__rental-link {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-xs, 0.5rem);
-    color: inherit;
-    text-decoration: none;
-  }
-
-  .gamma-promotion__rental-link:hover .gamma-promotion__rental-title,
-  .gamma-promotion__rental-link:focus-visible .gamma-promotion__rental-title {
-    text-decoration: underline;
-  }
-
-  .gamma-promotion__rental-image {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 4 / 3;
-    object-fit: contain;
-    background: rgb(var(--color-foreground-rgb) / 4%);
-    border-radius: var(--gamma-radius-media);
-  }
-
-  .gamma-promotion__rental-title {
-    font-weight: var(--font-weight-bold, 700);
-    overflow-wrap: anywhere;
   }
 
   .gamma-promotion__claims,
