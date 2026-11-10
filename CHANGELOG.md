@@ -33,6 +33,7 @@ Location Gamma's storefront theme is based on Shopify Horizon 4.4.0.
 
 - French contact and newsletter forms say “Courriel” instead of “E-mail”, and the password page sign-up button reads “Subscribe”. Long email addresses in text wrap instead of widening narrow layouts.
 - French backorders read “En rupture de stock” (“En rupture” on product-card badges) instead of “Épuisé”, which is reserved for sold-out items.
+- Promotion pages follow the first stage of the storefront's new design language: a 56 px campaign title (36 px on phones), smaller offer and group headings, a larger opening summary, and terms as quiet fine print under small labels instead of headings louder than the offers. Redemption and gift explanations share one notice style, with the gift icon in Gamma Red beside its lead-in. A gift is named once, with a linked picture of the gift product when one is set; cards for specific eligible models show the theme's “Sold out”, backorder and special-order badges and name the eligible models only when a product has several; a limited gift offer reads correctly for a single qualifying order; and a rental group with no equipment to show is left out.
 
 - Updated the Horizon foundation from 4.3.0 to 4.4.0, retaining Gamma's customizations and English/French locales. Primary buttons now use the Accent font's weight, as configured.
 
