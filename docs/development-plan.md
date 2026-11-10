@@ -60,7 +60,7 @@ Measure affected pages against the native theme using comparable data and condit
 The storefront uses one visual language, the approved "Spec sheet" design language, piloted on the SCS campaign pages (G19) and then extended to the rest of the theme (G25–G31). It builds on the *Gamma Brand Display Guidelines v1.0* and was approved on 2026-11-09 after the design review at revision `4d34b54`; that review's screenshots, research and concept mock-ups are kept outside this repository in `gamma-scs-handoff/design-review/2026-11-09-4d34b54-visual-direction/`. Where the review's document or mock-ups differ from this plan, this plan records the approved decisions. A page should read like a well-set equipment specification sheet: a label, a title, the facts, then the equipment.
 
 - **Type roles.** Display (Oswald Medium, 56 px, 36 px on phones) for one page-defining title; page title 48/36; section and offer titles 32/26; group headings 24/20; label (Inter SemiBold, 12 px, uppercase) for eyebrows, counts and fine-print headings; lede 18/16; body 14, with 16 for reading text such as summaries. A role changes a heading's size, never its semantic level.
-- **Colour roles.** Coal text on Paper; Concrete for panels, notices and alternating bands; Gamma Red only for the primary action, notice icons and sale badges, with Deep Gamma Red for hover and pressed states. Manufacturer colours appear only inside Brand badges.
+- **Colour roles.** Coal text on Paper; Concrete for panels, notices and alternating bands; Gamma Red only for the primary action, notice icons and sale badges, with Deep Gamma Red for hover and pressed states. Manufacturer colours appear only inside Brand badges. Signal Yellow (`#F6C700`, the brand guidelines' alert colour) is an approved addition for the announcement bar only, with Coal text (2026-11-10); it isn't used for low stock, notices or badges. Gamma Red is also approved for input boundaries, component dividers and the secondary button's hover text and border, in the form settled by Q20.
 - **Surfaces and rhythm.** Corner radii come from the theme settings (cards 16 px, media tiles and notices 12 px, buttons and badges 14 px). Hairline rules at 12% Coal separate sections. Text measures stay within 60–68 characters. Section spacing steps 56, 36 and 24 px, and 40, 28 and 16 px on phones.
 - **Imagery.** Artwork that may contain text is shown whole in a white media tile. Each context has one tile ratio (campaign cards 3:2, rental cards 4:5, product cards as the native card). Text is never baked into images.
 - **Cards and grids.** Products always use the native product card on the collection grid (250 px minimum card width, two columns below 750 px). A card carries at most one overlay and never shows a discount that Shopify's own price doesn't show.
@@ -68,7 +68,7 @@ The storefront uses one visual language, the approved "Spec sheet" design langua
 - **Notices.** One shell: a Concrete panel, an icon in Gamma Red, a bold lead-in and the message, with an inline line variant for dense lists such as cart lines. No coloured edges, and the meaning never depends on colour.
 - **Actions.** At most one red primary button per view, and none in the phone hero; secondary outline buttons for onward and external actions; text links with an arrow elsewhere. External links say where they lead.
 - **Fine print.** Terms stay visible as muted 14 px text under a label; they are never collapsed and never set larger than the content they qualify.
-- **Motion and phones.** Hover and focus changes only, respecting reduced-motion preferences. On phones, imagery comes first, cards sit two per row and primary buttons span the width.
+- **Motion and phones.** Hover and focus changes only, respecting reduced-motion preferences; the one hover transform is Horizon's subtle card zoom (G04), which applies only with a fine pointer and no reduced-motion preference and never crops artwork that is shown whole. On phones, imagery comes first, cards sit two per row and primary buttons span the width.
 
 Tokens start inside the feature that first needs them, as `--gamma-*` custom properties that alias Horizon's variables where one exists, and move to `assets/gamma-branding.css` when a second feature shares them (G25). Since G19's Stage 1 they live in `snippets/gamma-tokens.liquid` with the type-role classes, scoped to elements with the `gamma-tokens` class so that colour tokens follow the element's colour scheme, and the notice shell is `snippets/gamma-notice.liquid`. Since Stages 2 and 3 the same file holds the collection-grid, label-rail and media-ratio tokens and the `gamma-media-tile` class, and `snippets/gamma-rental-card-styles.liquid` holds the rental card's media rules, which rental search also renders. Shopify loads `{% stylesheet %}` CSS only for the files in a page's render tree, so a surface that uses the tokens or the shell renders those snippets. Shared pieces are `gamma-` snippets beside Horizon's blocks; `assets/base.css` and native blocks aren't restyled in place. A change to a shared component (product card, header, footer, cart, notice or badge) needs its own rendered before-and-after review in French and English at 320, 390, 768 and 1440 px before integration. The 18/16 px lede, the 16 px offer summaries and the 36 px campaign title on phones are approved additions to the *Gamma Brand Display Guidelines* (2026-11-09), to be carried into the guidelines' next revision.
 
@@ -116,6 +116,7 @@ Priorities are P0 for shared prerequisites, P1 for purchasing/browsing/discovery
 | 2. Shared storefront presentation | G04 | Gamma branding | P1 | G02, G03 | Implemented |
 | 2. Shared storefront presentation | G05 | Native privacy presentation | P1 | G03, G04 | Implemented |
 | 2. Shared storefront presentation | G06 | Bilingual CAD presentation | P1 | G02, G03 | Implemented |
+| 2. Shared storefront presentation | G32 | Quebec French storefront and checkout wording | P1 | G03; the approved French terms of G08, G11 and G13–G19; Q18 | Planned |
 | 3. Products and purchasing | G07 | Product information and scoped updates | P1 | G02, G03 | Implemented |
 | 3. Products and purchasing | G08 | Availability and fulfillment information | P1 | G02, G03, G07 | Implemented |
 | 3. Products and purchasing | G09 | Battery systems and recommendations | P1 | G02, G03, G07 | Implemented |
@@ -164,6 +165,8 @@ The remaining work is divided into the branches below. Each is one reviewable in
 | S2 | Campaign fixtures | G19 Stage 0 on Gamma-Dev | Rendered checks of T1–T3 (French rental cards and artwork that contains text) and T6 | Opus 5.5 · medium |
 | S3 | Server checks | Q11 and the SCS section 15 checklist (P-VPS) | A2 | Opus 5.5 · medium |
 | S4 | Operations proofs | P-PL, P-ORD, P-FLOW and P-RENT | A6 (P-PL), A8 (P-ORD, P-FLOW), A9 (P-RENT) | Opus 5.5 · medium |
+| S5 | Pickup availability proof | Gamma-Dev fixtures and the rendered `store_availabilities` values (`available`, `pick_up_enabled`, `pick_up_time`) with the native pickup output for G08's pickup increment: tracked in-stock, continue-selling at zero and below zero, untracked, service-managed and sold-out variants, a variant stocked at only one of two pickup locations and a location with pickup turned off; whether checkout offers pickup for the backordered variant. Needs inventory and location changes on Gamma-Dev | T18 | Opus 5.5 · medium |
+| S6 | Primary checkout wording check | Read-only on Primary: the published theme's `shopify.*` and `customer_accounts.*` keys in every locale file, compared with the eight French keys known from the prototype and with Shopify's default text for each; the French checkout's own term for shipping | T17's checkout keys; the Primary cutover | Opus 5.5 · medium |
 
 **Theme track (this repository).**
 
@@ -183,8 +186,13 @@ The remaining work is divided into the branches below. Each is one reviewable in
 | T14 | `feature/utm-referral` | G23, or a recorded non-applicability decision | Q10 | Soft launch if required | Opus 5.5 · medium |
 | T15 | `feature/leaf-blower-chart` | The deferred G15 comparison chart | The other theme branches | Optional | Opus 5.5 · medium |
 | T16 | `feature/storefront-acceptance` | G24: candidate reconciliation, connected journeys and the SCS scenarios; defects return to their owning branch, and this branch records only status and verification notes | All required features; A1–A8; cutover | Final gate (scope per Q17) | Fable 5.2 · high |
+| T17 | `feature/quebec-french-wording` | G32: the approved glossary applied to Horizon's strings in `locales/fr.json`, French typographic spacing, the versioned French checkout overrides and the Horizon-update review step | Q18; S6 for the checkout keys. Shares `locales/fr.json` with T4–T6 and T18, key by key | Soft launch | Opus 5.5 · medium |
+| T18 | `feature/availability-pickup` | G08's pickup increment: status-aware pickup summary and dialog rows for backordered and special-order variants | S5; Q19; T17 for the French pickup term. Uses G08's resolver and icons as they stand, or T7's shared pieces if T7 is integrated first | Soft launch | Opus 5.5 · medium |
+| T19 | `feature/branding-carryover` | G04's carry-over increment, one commit per item: Signal Yellow announcement bar, transparent home header, product-page price role, card hover zoom, Gamma Red input boundary and secondary-button hover, password-page logo | Q20, Q21. Precedes T8, T9 and T12, which inherit its result; adds one scoped rule to `assets/gamma-branding.css`, where T7 moves the shared tokens, so whichever is integrated second is rebased | Soft launch | Opus 5.5 · high |
 
 T6 and T14 can run whenever their prerequisites are ready. G02 has no branch of its own: its acceptance is recorded as each feature's data contract is verified and reconciled in G24, and a gap found there becomes a branch for the owning feature. Stages 1–3 share one branch because they share the tokens, the notice shell and the card and media rules. Stage 1 was integrated into `dev` on 2026-11-10 from `feature/scs-refinement-foundations` (`2573294`, recorded in `05f809e`), before the stages were combined; `feature/scs-refinement-foundations-artwork` adds its token follow-up and Stages 2 and 3. Where T4–T6 name T1 as a dependency, they mean that integrated Stage 1, although T4 edits the same section as Stages 2 and 3 and is best started once T1–T3 is integrated. S1 and S2 are still open (their Gamma-Dev state on that date is recorded under G18 and G19's Stage 0).
+
+T17–T19 were added on 2026-11-10 from the prototype carry-over review and keep those numbers although they come before T16, which still closes the track. They are independent of the SCS branches and can run whenever their prerequisites are ready; T19 is best integrated before T8 so the design-language branches review one baseline. The Primary cutover's publication is followed by the French checkout wording check described under G32.
 
 **App track (`gamma-promotions-app`, a new repository; SCS proposal, section 16).**
 
@@ -364,6 +372,61 @@ Local implementation (`42b9649`, `39f6d86`): Gamma artwork references, native fo
 
 `config/settings_data.json` configured Gamma logos, 60px header logos, fonts, colors and component preferences. `assets/custom.css`, `sections/header.liquid` and `_header-menu.liquid` added spacing, a 5.55px centering offset, text wrapping and menu emphasis. These locations explain the visual intent; positional patches and low-contrast color pairings need reconsideration rather than direct adoption.
 
+#### Prototype appearance carry-overs
+
+**Status:** Planned (T19). **Decisions:** Q20, Q21. Six appearance choices that are live on Primary's published prototype theme were approved for carry-over on 2026-11-10. G04's Implemented status describes the earlier work; this increment is tracked by the criteria below. Each item is a theme-setting or template-setting change unless stated. Because they change shared components, each has its own rendered before-and-after review in French and English at 320, 390, 768 and 1440 px, with 200% zoom where text or controls change. The mechanisms below were read from the Horizon 4.4.0 source in this repository; rendered behaviour is unverified until that review.
+
+**a. Signal Yellow announcement bar.** The store-wide announcement should stand apart from the header and the page, as it does on Primary.
+
+- Horizon 4.4.0 has no colour schemes. `sections/header-announcements.liquid` has a native `background_color` setting, and `snippets/contrast-override.liquid` then uses the page text colour when it reaches 4.5:1 against that background. Add a `signal` role (`#F6C700`) to the `color_palette` setting's default and current values, as G04 added `brand` and `brand_accessible`, and point the section's `background_color` at it in `sections/header-group.json`. No CSS is needed.
+- Text is the page text colour: `#000000` on `#F6C700` computes to 13.1:1 (the prototype's 81% black to 9.5:1). Gamma Red is never used on the yellow (2.65:1).
+- Set the announcement block in the label role (Inter SemiBold, 12 px, `case: uppercase`), with 12 px block padding. G21's content rule stands: one short line with a link and no conditions; the prototype's launch-sale text isn't carried over.
+- Links: the block's `link` covers the whole line and is named by the announcement text; inline rich-text links stay underlined in the text colour. The focus ring must reach 3:1 against the yellow.
+- Rotation happens only with more than one announcement block. Horizon then advances every `speed` seconds (7, carried over), suspends while the pointer is over the bar or the tab is hidden and offers previous and next buttons, but `assets/announcement-bar.js` has no pause control, doesn't suspend on keyboard focus and doesn't check the reduced-motion preference. That is an upstream limitation for auto-updating content (WCAG 2.2.2). Gamma publishes one announcement at a time, so nothing rotates; a second block isn't added until a pause mechanism is separately authorized.
+- Edge cases: a long French line wrapping at 320 px and at 200% zoom, the bar with no announcement (the section is disabled, not left as an empty band), and the divider beneath it.
+
+**b. Transparent header on the home page.** The home hero runs behind the header until the visitor scrolls.
+
+- Settings in `sections/header.liquid`: `enable_transparent_header_home`, `home_inverse_logo` and `text_color_transparent_home` set to Paper. The prototype's `home_color_scheme` and `color_scheme_transparent` don't exist in 4.4.0. The state applies only to the `index` template. With the sticky header it is `not-sticky`: transparent at the top of the page, the normal Paper header once stuck, and normal row colours while a menu link is hovered or a menu is open. `layout/theme.liquid` offsets the first section when it must not sit under the header.
+- Legibility is measured against the actual pixels behind each element over both G13 hero images, by G13's method: logo, menu links, language selector and action icons, text at 4.5:1 or better and icons and the focus ring at 3:1 or better. A shortfall is corrected through the hero's image or overlay settings, not header CSS; if it can't pass, the setting stays off and the result is reported.
+- The announcement bar stays in normal flow above the header, which overlays the hero only. The change to the stuck state moves no hero content. The mobile drawer, menus and search dialog open on their own surfaces with normal colours. G13's search field and the hero heading stay clear of the header at 320 px and at 200% zoom.
+- Edge cases: the hero removed or moved from first position in the theme editor, the bar disabled, long French menu labels, and keyboard focus moving through the transparent header.
+
+**c. Larger product-page price.** The price carries more emphasis than body text; the title is unchanged.
+
+- `snippets/typography-style.liquid` emits a block's `font` and `font_size` only for the `custom` preset, in Horizon 3.4.0 as in 4.4.0. The prototype's price block (`type_preset: h3`, accent font, `1.5rem`) therefore rendered as a heading 3, Oswald Medium at 32 px and the same size as the title; its font and size values never applied.
+- Set the header price block in `templates/product.json` to the role settled by Q21 (recommended: the group-heading role, `type_preset: h4`, 24 px and 20 px on phones). G06 formatting is unchanged, and the hierarchy holds: the current price leads, the compare-at price is visibly secondary, and the unit price, volume pricing, tax and instalment lines stay in body sizes.
+- Quick Add copies the product page's own price block (`assets/quick-add.js`), so it changes with it. Product cards and recommendation cards have their own price blocks and are out of scope.
+- Edge cases: a sale price with compare-at and unit price in French format at 320 px, a price range, volume pricing, and the price updating on a variant change without shifting the purchase controls.
+
+**d. Subtle zoom on card hover.** Set `card_hover_effect` to `subtle-zoom` (Theme settings, Animations).
+
+- `snippets/card-hover-effect-styles.liquid` scales the image tile of product cards (`.card-gallery`, `.product-card__image`) and collection cards (`.collection-card__image`) by 1.5%, and scales predictive-search result cards whole, including the rental results that `assets/gamma-rental-search.js` builds. It applies only inside `@media (any-pointer: fine) and (prefers-reduced-motion: no-preference)`, so touch-only devices and reduced-motion visitors get no movement, and keyboard focus keeps its focus ring as the cue.
+- It reaches every native product card: collections, search, recommendations, the home featured collection and campaign product grids. Campaign index cards, rental cards and variant-limited campaign cards (`snippets/gamma-promotion-card.liquid`, `gamma-rental-card.liquid`, `gamma-promotion-variant-card.liquid`) carry none of the targeted classes and don't move. For parity with the native card (G19), the variant-limited card gets the same effect through a scoped rule under the same media query.
+- The tile itself is scaled, so artwork shown whole is never cropped. G10's hover image swap keeps working with the zoom, and a zoomed tile isn't clipped by a carousel or grid edge and doesn't cover a neighbouring card's text.
+
+**e. Gamma Red input boundary and secondary-button hover.** In the prototype the default scheme's general border and the secondary scheme's border and input border were Gamma Red at 60% (`#ee262299`), and secondary buttons hovered to Gamma Red text and border on white. Variant option borders weren't red and are out of scope.
+
+- Horizon 4.4.0 has one global input palette (`palette_input_border`, now `#333333`), no setting for the general border (`--color-border` is the page text colour in `snippets/color-palette.liquid`) and no hover settings: hover colours are computed by `snippets/util-palette-hover-shift.liquid`. No theme code reads `brand_accessible` yet.
+- Contrast: Gamma Red at 60% on Paper is about `#f57d7a`, 2.59:1, below the 3:1 that WCAG 1.4.11 requires of an input boundary; full Gamma Red is 4.25:1. The approved brand exception covers the primary colour, not tints. The form is Q20. Recommended: full Gamma Red for the input boundary through `palette_input_border`, the tint nowhere, and red dividers only where a component has a colour setting (G07's accordion and G15's policy rows already use full Gamma Red); the design language's 12% Coal section hairlines stay.
+- Secondary hover needs CSS: one rule in `assets/gamma-branding.css`, scoped to secondary buttons on Paper surfaces, that sets the hover text and border to Gamma Red and the pressed state to Deep Gamma Red, reading both from custom properties supplied by the theme settings and never from literals. This is a recorded Gamma exception to retaining Horizon's computed interaction colours; primary buttons, and secondary buttons on inverse surfaces and in the transparent header, keep the native behaviour.
+- A red boundary must not read as an error. On the contact, newsletter, password, cart note, discount and search fields, an invalid state is identified by its message and icon and by `aria-invalid` with a described-by message where Horizon provides them (the newsletter block does), never by border colour. T19 records each field's native error presentation; a field that signals an error by colour alone is reported as an upstream finding, and the red boundary isn't enabled while one remains. The focus ring stays distinguishable from the boundary.
+
+**f. Password-page logo.** Set the logo block's `pixel_height` to 120 in `templates/password.json` (24 at present). `custom_mobile_size` is off, so check the size that results on phones: the logo fits a 320 px viewport inside the page gutters and at 200% zoom, with a custom mobile width enabled only if it doesn't. Verify that the primary artwork is sharp at that size and that it reads against the password page's background.
+
+**Acceptance criteria (this increment).**
+
+- [ ] The announcement bar renders on `#F6C700` with text at 4.5:1 or better and a focus ring at 3:1 or better (measured), in the label role, in both languages; one announcement shows with no rotation, and its link is reachable and named by keyboard and screen reader.
+- [ ] On the home page in both languages at the four widths, every transparent-header element meets the measured thresholds over both hero images; the header becomes the normal Paper header when stuck without moving hero content; the announcement bar, drawer, menus and search dialog are unaffected; other templates keep the normal header.
+- [ ] With the hero removed or reordered in the theme editor, the header stays legible and nothing is hidden beneath it, or the limitation is recorded as a composition rule for the home template.
+- [ ] The product-page price renders in the role approved under Q21 on the page and in Quick Add; compare-at, unit-price, volume-pricing and tax lines keep their order and G06 format; no line overflows at 320 px or at 200% zoom, and a variant change doesn't shift the purchase controls.
+- [ ] With a fine pointer, native product and collection cards zoom on hover on collection, search, recommendation, home and campaign surfaces, and the variant-limited campaign card matches them; with reduced motion or touch nothing moves; no artwork is cropped and G10's hover image still swaps.
+- [ ] Input boundaries measure 3:1 or better against their background in the form approved under Q20; each listed field's invalid state is identifiable without colour; the secondary button's hover and pressed states show the approved colours on Paper surfaces only, with visible focus.
+- [ ] The password-page logo renders at 120 px on desktop and fits the viewport at 320 px and at 200% zoom in both languages.
+- [ ] Every setting survives a theme-editor save and reload; the before-and-after review is recorded for each item; `npm run check:all` reports no new findings.
+
+**Prototype reference.** `sections/header-group.json` (the announcement section on `scheme-3`, `case: uppercase`, `speed: 7`, padding 12/12; the header's `enable_transparent_header_home`, `home_color_scheme: inverse`, `color_scheme_transparent: scheme-6`), `templates/product.json` (the header price block), `config/settings_data.json` (`card_hover_effect: subtle-zoom`; `color_schemes` `scheme-1` and `scheme-2`) and `templates/password.json` (`pixel_height: 120`), all at `6bf3a38`. The brand guidelines list Signal Yellow `#F6C700` for alerts and low stock; only the announcement bar is approved here. The settings show the intent; colour-scheme IDs, the 60% tint on inputs and the price block's ineffective font values aren't carried over.
+
 ### G05 — Native privacy presentation
 
 **Priority:** P1. **Status:** Implemented. **Dependencies:** G03, G04.
@@ -457,6 +520,72 @@ Local verification (`feature/money-formatting`, based on `58c6403`): shared Liqu
 #### Prototype reference
 
 `snippets/qc-money.liquid` used native French money output and an English CAD string transformation. Callers include price/cart/filter/quantity/volume snippets, buy buttons and `templates/gift_card.liquid`. The gift-card template output a raw balance, `meta-tags.liquid` used display text for an amount, and a facet fallback mixed cents with major-unit input. A shared display concern is valid; string assumptions and numeric-contract changes are not suitable production defaults.
+
+### G32 — Quebec French storefront and checkout wording
+
+**Priority:** P1. **Status:** Planned. **Dependencies:** G03; the approved French terms of G08, G11 and G13–G19; Q18. **Branch:** T17, with S6 before its checkout keys.
+
+#### Purpose
+
+Customers reading French should meet the vocabulary Quebec retailers use (rabais, livraison, ramassage en magasin, courriel) from the storefront through checkout. Horizon's French file is written for international French. The prototype had revised 101 of its strings, and that revision was lost when the theme was rebuilt on Horizon 4.x; the French checkout overrides on Primary's published theme would likewise disappear at the cutover.
+
+#### Expected behaviour and functional requirements
+
+- Maintain one approved glossary (Q18) and apply it to every Horizon string in `locales/fr.json`: the prototype's revisions that still apply, and the strings Horizon added or changed between 3.4.0 and 4.4.0 (30 added and 7 changed, among them the fourteen `…_with_fees…` cart lines, `actions.log_in`, `actions.log_out` and `gift_cards.issued.how_to_use_gift_card`).
+
+| Horizon's French | Gamma's Quebec French | Notes |
+| --- | --- | --- |
+| réduction, code de réduction | rabais, code promo | |
+| Promotion (sale badge), prix promotionnel | Rabais, prix en rabais | “Promotion” stays the word for SCS campaigns |
+| expédition, frais d’expédition | livraison, frais de livraison | The charge and the method; Gamma's approved notices keep “expédier” and “délai d’expédition” for the act of shipping |
+| retrait | ramassage en magasin | Supplies the term for G08's pickup increment |
+| e-mail | courriel | |
+| blog, article de blog | blogue, article de blogue | |
+| se connecter, se déconnecter | ouvrir une session, fermer la session | The two account actions are new in 4.4.0 and weren't in the prototype |
+| s’inscrire | créer un compte | |
+| soumettre | envoyer | |
+| boutique (the premises) | magasin | “Boutique” stays for the online store |
+| informations | renseignements (store), détails (product) | |
+| frais de douane | droits de douane | |
+| conditions générales | modalités | |
+| tarification basée sur la quantité | tarification dégressive | |
+| afficher (view actions) | voir | |
+
+- Exclusions: `blocks.sold_out`, `content.product_badge_sold_out` and `products.product.sold_out` keep “Épuisé”, because the prototype's “Rupture de stock” would collide with G08's “En rupture de stock” for a purchasable backorder. No sentence approved under Q02 changes without Chris's approval. Where 4.4.0 changed a string the prototype had revised, 4.4.0's text is the starting point (`actions.remove` is now “Retirer”, so the prototype's “Tout supprimer” isn't re-applied).
+- Gamma's own French strings follow the same glossary. A conflict is listed for Chris, not edited; the one known is “frais d’expédition supplémentaires” in G11's cart notices beside “frais de livraison” in the cart totals (Q18).
+- Version the approved French checkout overrides as `shopify.*` keys in `locales/fr.json`, so that every theme published from this repository carries them. Keep only keys whose approved text differs from Shopify's default (S6). English gets none unless S6 finds one on Primary.
+- English strings and `locales/fr.schema.json` are unchanged. Merchant content, menus, metaobjects and notifications are translated in Admin (G02), not in the theme.
+
+#### Appearance and placement
+
+No layout changes. The longer French labels (“Ramassage en magasin”, “Ouvrir une session”) must fit their controls in the header, cart totals, pickup line and buttons at 320 px and at 200% zoom.
+
+#### Technical requirements and compatibility
+
+- Shopify's storefront locale file documentation states that checkout and system strings are Shopify's own, under the reserved `shopify` and `customer_accounts` top-level keys, that such a key in a theme locale file overrides the default and that removing it restores the default. Prototype commit `c8a6f67` shows the language editor writing these keys into the theme's `locales/fr.json`. It follows, as an inference that S6 and the post-publication check confirm, that overrides belong to one theme and a newly published theme without them shows Shopify's defaults.
+- Not settled by the documentation: which surfaces besides checkout read the keys (Shopify lists customer accounts as a separate category and applies only some edits to Shop Pay), and Shopify's default French for the eight known keys. S6 records both.
+- Theme Check's `MatchingTranslations` skips `shopify.` and `customer_accounts.` paths (theme-tools source), so French-only override keys shouldn't raise findings; T17 confirms with `npm run check:all`.
+- Edit values only. Key names, `{{ interpolation }}` names, HTML tags and attributes and plural categories stay exactly as they are. French spacing follows Q18: a no-break space before a colon and inside guillemets, and no space before `?`, `!` and `;`. Six Horizon strings put a no-break space before `?`, `!` or `;`, and sixteen of Gamma's own strings have a breaking space before a colon; both are corrected here.
+- `locales/fr.json` is a vendor file carrying Gamma edits. At each Horizon update, compare the incoming file with the previous vendor copy, re-apply the glossary to new and changed keys, and keep Gamma's text where Horizon's source string didn't change. T17 adds this step to the locale review in `AGENTS.md`.
+- Other branches add `gamma_*` keys to the same file. T17 changes only Horizon keys, the spacing of existing Gamma strings and `shopify.*` keys, and is rebased when another branch lands first.
+
+#### Edge cases and quality
+
+Cover plural strings at 0, 1, 2 and 1,000 or more; strings with links; strings seen only in error states (discount code, quantity maximum, forms); screen-reader-only labels; the gift-card and password pages; Quick Add and the cart drawer; a term that appears in both the theme and checkout, where Shopify's own checkout wording may differ; and an override key that Shopify later renames, which would silently stop applying.
+
+#### Acceptance criteria
+
+- [ ] Chris has approved the glossary and every changed string (Q18, Q16) from a list of keys with their previous and new text, kept outside this repository.
+- [ ] Every Horizon string in `locales/fr.json` conforms to the glossary, including keys added or changed since 3.4.0; the three sold-out keys still read “Épuisé” and no Q02 sentence changed without approval.
+- [ ] A comparison of the changed keys shows the same interpolation names, HTML and plural categories before and after; `en.default.json` and `fr.schema.json` are unchanged; `npm run check:all` reports only the known Horizon warnings.
+- [ ] Rendered French pages (home, collection, product, Quick Add, cart drawer and page, search, contact, newsletter, password, gift card and the header account link) show the approved terms with no clipped or overflowing label at 320, 390, 768 and 1440 px and at 200% zoom; the English routes under `/en` are unchanged.
+- [ ] S6's record lists Primary's override keys with Shopify's default beside each, the retained keys are in `locales/fr.json`, and a French Gamma-Dev checkout shows the approved pickup stock line and split-delivery messages.
+- [ ] After publication on Primary, the French checkout shows the same approved wording (G24 and the cutover).
+- [ ] `AGENTS.md` carries the glossary step for Horizon updates.
+
+#### Prototype reference
+
+`locales/fr.json`: compare Horizon 3.4.0 at `df79657` with `origin/dev` at `c8a6f67`. The prototype revised 101 Horizon strings. At this plan's base, 5 survive (`blocks.email_signup.label` and `.placeholder`, `blocks.contact_form.email`, `actions.continue_shopping`, `content.pagination.nav_label`), `accessibility.open_hotspot` no longer exists and 95 differ. `c8a6f67` ("Update from Shopify for theme gamma-shopify-theme/dev", 2026-11-05) also added `shopify.checkout.local_pickup.stock_details.in_stock` (“En stock”) and seven `shopify.checkout.split_delivery.delivery_updated_toast.*` messages; the audit (`location-gamma-audit/CURRENT_STATE.md`, 2026-10-29) found that theme published on Primary. English wasn't revised. The vocabulary is the reference; the sold-out wording, a breaking space before a colon in `content.price_filter_html` and “Tout supprimer” aren't carried over.
 
 ## Phase 3 — Products and purchasing
 
@@ -559,6 +688,55 @@ Local implementation (`feature/availability`, based on `2da2f90`): a shared reso
 #### Prototype reference
 
 `snippets/inventory-status.liquid` fed `blocks/availability-notice.liquid`, card gallery, cart products and cart summary. The product template placed the notice between picker and purchase controls; the block used a pale highlighted panel with distinct backorder/special-order icons beside text. `buy-buttons.liquid` modified pickup wording using aggregate inventory. Untracked items could be labeled backordered, mixed sold-out/delayed products could lose badges, and the cart assumed ship-together policy. The informational overlay is useful; its truth table and operational claims need independent validation.
+
+#### Pickup information for backordered and special-order items
+
+**Status:** Planned (T18). **Prerequisite:** S5. **Decision:** Q19. Approved for carry-over on 2026-11-10 as a new increment; the rest of G08, including its Implemented status, is unchanged.
+
+**Purpose.** Stop the native pickup line from contradicting the availability notice. Horizon's `local-pickup` component in `blocks/buy-buttons.liquid` shows a green check, "Pickup available at …" and a ready time whenever a pickup location reports `available`. Shopify documents the Storefront API's `StoreAvailability.available` as true for untracked or oversellable inventory, even at a quantity of zero or less; the Liquid `store_availability` reference says only that the variant "has available inventory at the location". If Liquid behaves as the Storefront API does, which is an inference until S5, a backordered or special-order variant shows G08's notice above a line saying it is ready for pickup.
+
+**Behaviour.** The status comes from the same resolver call as the notice: `snippets/gamma-availability-status.liquid` for the selected variant at its minimum order quantity. As today, the product page doesn't resolve again when the quantity field changes; the cart line does. Each location contributes only its native `pick_up_enabled`, `available` and `pick_up_time`. Liquid exposes no stock per location, and the resolver's `inventory_quantity` is never used to say which location holds stock.
+
+| Resolver token | Location `available` | Pickup summary and dialog row |
+| --- | --- | --- |
+| `in_stock`, `quantity_limited`, `untracked`, `service_managed` | true | Native, unchanged |
+| Any | false | Native "Pickup currently not available", unchanged |
+| `backorder`, `partial_backorder` | true | Backorder icon and wording, no ready time |
+| `special_order` | true | Special-order icon and wording, no ready time |
+| `unavailable` | Any | Native: the component shows nothing |
+
+- The summary uses the first pickup-enabled location that reports `available`, as Horizon does; the dialog gives every pickup-enabled location its own row state. A location with pickup turned off stays omitted, and a variant with no pickup location hides the component.
+- With more than one location, an `in_stock` token reflects total stock, so a location holding none can still show the native ready line. Liquid can't tell them apart, and the output stays native as G08 requires. S5 records how `available` behaves for a variant stocked at one of two locations; a finding there returns to Q19.
+- If S5 shows that Liquid reports `available` as false for a continue-selling variant without stock, the native "not available" line is already truthful and this increment is recorded as not needed.
+
+**Appearance.** `icon-gamma-backorder.svg` or `icon-gamma-special-order.svg` in the notice's accent colour replaces the green check, and the status is always named in the text. The summary keeps its two lines, type sizes and "View store information" button. No panel is added.
+
+**Draft wording (Q19).** Chris reviews all wording (Q16). The keys sit under `gamma_availability.pickup` in both locale files, with a no-break space before each French colon; Horizon's `content.pickup_*` strings keep their native role.
+
+| Key | English | French |
+| --- | --- | --- |
+| `backorder_html` | Backordered: not yet ready for pickup at <b>{{ location }}</b> | En rupture de stock : pas encore prêt pour le ramassage à <b>{{ location }}</b> |
+| `special_order_html` | Special order: not yet ready for pickup at <b>{{ location }}</b> | En commande spéciale : pas encore prêt pour le ramassage à <b>{{ location }}</b> |
+| `timing` | Pickup timing depends on supplier availability. | Le moment du ramassage dépend de la disponibilité chez le fournisseur. |
+| `backorder_row` | Backordered: pickup timing depends on supplier availability | En rupture de stock : ramassage selon la disponibilité chez le fournisseur |
+| `special_order_row` | Special order: pickup timing depends on supplier availability | En commande spéciale : ramassage selon la disponibilité chez le fournisseur |
+
+These state a condition, give no lead time or pickup date and make no commitment to contact the customer. The prototype's "Pickup will be available at …" and "we'll let you know" are not carried over: Q02 allows no pickup promise, and the 2026-11-05 G11 decision removed the prototype's pickup claim.
+
+**Technical requirements.** Keep the `local-pickup` element, its `data-variant-id` and `data-section-id`, its `ref` and the sibling `theme-drawer.pickup-drawer` as they are, so that `assets/local-pickup.js` needs no change. That script listens for `StandardEvents.productSelect` on the closest section or dialog, ignores product cards, fetches the product URL for the new variant (the new product's URL in a combined listing), aborts a superseded request and morphs both the summary and the portaled drawer from the response. The wording is therefore rendered by Shopify for each selection and never computed from client state. Put the Gamma branch in one `gamma-` snippet rendered from the summary and the dialog row, capture the resolver once per render, and report the edit as a Gamma change to a Horizon file.
+
+**Edge cases.** Cover zero, negative and positive stock under both inventory policies; untracked and service-managed variants; a `special order` product with stock; a minimum quantity above the stock; several pickup locations with one unavailable; pickup turned off everywhere; the block's pickup setting off; long location names in French at 320 px and at 200% zoom; desktop and mobile Quick Add; a combined listing that changes product; rapid option changes; and a failed request, where Horizon hides the component. Two native behaviours stay and are reported, not changed: the previous variant's pickup line remains until the response arrives while G08's notice clears at once, and `local-pickup.js` matches the response by section and variant, not by block.
+
+**Acceptance criteria (this increment).**
+
+- [ ] S5's record shows what `available`, `pick_up_enabled` and `pick_up_time` return for each fixture, and the state table is confirmed or corrected against it before implementation.
+- [ ] For each row of the state table, the summary and every dialog row show the specified icon and wording in English and French; a backordered or special-order variant shows no green check or ready time, and the other states render as native Horizon does.
+- [ ] After a variant change on the product page, in desktop and mobile Quick Add and across a combined listing, the summary, the dialog and the availability notice describe the same selected variant once the response settles; rapid changes never leave an earlier variant's wording, and a failed request hides the component.
+- [ ] Two pickup locations with different availability each show their own row state, a location with pickup turned off is absent, and nothing renders when the block's pickup setting is off.
+- [ ] The status is identifiable without colour, the icons are hidden from assistive technology with the status in text, the dialog keeps its focus behaviour, and the lines reflow without clipping at 320, 390, 768 and 1440 px and at 200% zoom.
+- [ ] The wording is the version approved under Q19; `npm run check:all` reports no new findings and the English and French keys match.
+
+**Prototype reference.** `blocks/buy-buttons.liquid` (`git diff df79657 6bf3a38`) replaced the summary and dialog icon with `assets/icon-backordered.svg` or `icon-special-order.svg` and the text with `content.pickup_available_at_backordered_html`, `pickup_ready_in_backordered` and `pickup_ready_in_special_order`, deciding by the variant's total `inventory_quantity > 0` and the `special order` tag. The status icon and the absence of a ready time are the useful part. Its aggregate test treated untracked variants as backordered and ignored inventory policy and quantity rules, and its wording promised pickup and a follow-up.
 
 ### G09 — Battery systems and recommendations
 
@@ -1312,6 +1490,8 @@ Most shopping happens on collection and search pages. Their cards and headers sh
 
 Follow the visual design language. On 2026-11-09 collection cards measured 259 px in five columns at 1440 px and two per row on phones; that grid is the reference the campaign pages match and it doesn't change here. Card rows currently vary in height when product photographs differ in shape, and the collection list mixes tile shapes.
 
+The subtle card zoom on hover from G04's carry-over increment (T19) is part of the card baseline this feature starts from and keeps.
+
 #### Technical requirements and compatibility
 
 The product card is Horizon's native `_product-card` block, configured per template. Change it through its settings and scoped Gamma styles; keep pagination, the zoomed-out grid view, filters (G12) and browser-history behaviour native. The rental-search behaviour, toggle and request rules of G14 are unchanged.
@@ -1345,6 +1525,8 @@ The product page is where a purchase is decided. Its title, price, system, promo
 #### Appearance and placement
 
 Follow the visual design language. The product title stays at the section-title size, not the display size, because the page's emphasis belongs to the price and purchase controls.
+
+The price's type role comes from G04's carry-over increment (T19, Q21) and is this feature's baseline.
 
 #### Technical requirements and compatibility
 
@@ -1447,6 +1629,8 @@ The header and footer frame every page. They should carry the same type and acti
 
 Follow the visual design language on the inverse footer surface as well as on Paper. Language-specific menus, footer menu headings from menu titles and the sticky header keep their G03, G04 and G15 behaviour.
 
+The Signal Yellow announcement bar and the transparent home header come from G04's carry-over increment (T19) and are this feature's baseline: the bar keeps its colour and label role, and the transparent state's measured legibility is checked again after any navigation change.
+
 #### Technical requirements and compatibility
 
 Header and footer are Horizon section groups; change them through settings, blocks and scoped Gamma styles. Keep language switching, cart-count announcements, the map activation rules and store-hours selection unchanged.
@@ -1498,7 +1682,7 @@ Cover long tables on phones, pages with no lede, documents in one language only,
 
 ### G24 — Complete storefront verification
 
-**Priority:** Required final gate. **Status:** Planned. **Dependencies:** All required G01–G23 and G25–G31 outcomes and their applicable merchant decisions.
+**Priority:** Required final gate. **Status:** Planned. **Dependencies:** All required G01–G23 and G25–G32 outcomes and their applicable merchant decisions.
 
 #### Purpose
 
@@ -1535,6 +1719,8 @@ Include combined product changes, incomplete data, cached pages, overlapping pro
 - [ ] The visual design language is applied consistently across campaign, product, cart, collection, search, home, navigation and business-information surfaces, and every shared-component change has its recorded review.
 - [ ] SCS scenarios — dealer-gift offers (STIHL battery, ECHO tiers, multiple gifts, conditional tool-plus-battery and two-unit offers, backordered gift, incomplete carts), mixed and multiple offers, expiry and pause, real automatic and code discounts, scheduled price changes and rollback, rental and product-free campaigns, English and French — pass on Gamma-Dev with actual Shopify behavior.
 - [ ] App and VPS outage, restart and backup-restore drills leave storefront, cart and checkout unaffected.
+- [ ] Pickup information agrees with the availability notice for in-stock, backordered, special-order, untracked and sold-out variants after variant changes on the product page and in Quick Add, in both languages (G08).
+- [ ] French storefront and checkout wording follows the approved glossary on the candidate theme, and after publication on Primary the French checkout still shows the approved overrides (G32).
 - [ ] The result is reviewable before any separately authorized deployment/publication decision.
 
 ### Connected-journey matrix
@@ -1543,13 +1729,13 @@ Include combined product changes, incomplete data, cached pages, overlapping pro
 | --- | --- |
 | Home → search → product | Immediate typing/paste/IME, recently viewed initialization, native/rental results, localized links/media and selected product information |
 | Collection → filter/sort → Quick Add → cart | Correct specialized filters, numeric bounds, availability/media, later pages, swatches, quantities and back navigation |
-| Product → variant → pickup → cart | Details, price, media, campaign and availability agree; location information and added line identity remain native |
+| Product → variant → pickup → cart | Details, price, media, campaign and availability agree; the pickup summary and dialog match the selected variant's status (in stock, backordered, special order, untracked, sold out) with no earlier variant's wording left behind; location information and added line identity remain native |
 | Campaign index → campaign page → product → cart | Lifecycle, ordering, offer and group membership, gift and redemption panels, product-page notices for the selected variant and matching cart-line gift notices, including incomplete conditions |
 | Active campaign → expiry/pause → existing page/cart | Known-expiry presentation, claim margin, actual discount and price boundaries, app lifecycle actions and documented cache freshness limits |
 | App edit → publication → storefront | Validation, preview, publication, owned discount and price creation, read-back before financial claims, drift detection after a manual Admin change |
 | Qualifying order → staff gift record → fulfilment | Gift reference, optional Flow review tag, verification against the published offer version, tags and order edit, backorder contact, cancellation and return handling |
 | App or VPS unavailable → storefront | Published campaigns, notices, prices, discounts, cart and checkout unaffected; jobs catch up after restart |
-| Cart → checkout → confirmation | Mixed fulfillment, note, quantities, discounts, eligibility and supported language/terms/account/notification continuity |
+| Cart → checkout → confirmation | Mixed fulfillment, note, quantities, discounts, eligibility and supported language/terms/account/notification continuity; French checkout wording (pickup stock line, split-delivery messages) as approved, before and after publication |
 | Contact → hours → map → directions | Current exception/override, translated notice, static fallback, activation, timeout/retry/disable and privacy withdrawal |
 | Privacy choice → attribution/external media/search | Correct processing/activation conditions, revocation and useful native shopping when an integration is unavailable |
 | Theme editor → storefront update | Add/reorder/remove/save/reset where applicable; settings, content ownership and lifecycle cleanup across multiple instances |
@@ -1595,6 +1781,10 @@ Independent local work can proceed while these are resolved. Resolve each before
 | Q15 | Visual design language choices on the campaign pages: a label rail with four columns from 1200 px or a full-width five-column grid for qualifying groups; the placeholder tile and feature card on the index; the lede, 16 px reading text and 36 px phone display size as additions to the brand type scale; the badge overlay details (keyline, Paper plate, a small covered corner of the artwork); the offer overview from two offers | G19, G20, G25 | Resolved 2026-11-09: "Spec sheet" is the approved design language. From 1200 px the label rail applies only to groups of five or more cards; smaller groups, and every group below 1200 px, stack above a grid identical to collection pages. Rental groups are separated by hairline rules, without panels, and a reused group renders its cards in full. Index cards without artwork use a neutral Concrete tile from 750 px and a slim band below it, and the first campaign in the existing order is a two-column feature card with no new field. The 18/16 px lede, 16 px offer summaries and 36 px phone campaign title are additions to the brand guidelines. The badge overlay is as specified under G19. The offer overview shows from two offers, and the red hero button from 750 px up only |
 | Q16 | New bilingual wording: the offer-overview and navigation labels, the in-store notice lead-in, the current-price line for in-store and code offers, the eligible-variant line, the rental-catalogue link text and singular limited-quantity wording | G19, G20 | Resolved 2026-11-09: Chris reviews all new French and English wording, including the current-price line |
 | Q17 | Scope and order of G25–G31: which must precede the February 2027 soft launch; the product-card image tile (ratio and background); whether body text rises above 14 px storewide | G24–G31 | Open; recommended: G25 alongside the campaign refinement, G26 and G27 before the soft launch and the others after it, with the card tile and body size settled in each feature's design review |
+| Q18 | Quebec French glossary and conventions: the term table under G32; “livraison” for the charge and method while G08 and G11's approved notices keep “expédier” and “délai d’expédition”; “Rabais” for the sale badge beside “promotion” for campaigns; “Ouvrir une session” and “Fermer la session” for the account links; spacing (no space before `?`, `!` and `;`, a no-break space before a colon); and whether the French checkout overrides are versioned in `locales/fr.json` | G32, G08, G11, G24 | Open; recommended: approve the table as drafted, version the overrides in the repository, and change the one phrase “frais d’expédition supplémentaires” in G11's notices to “frais de livraison supplémentaires” so the charge has a single name. The trade-off is one change to wording approved under Q02, and S6 may show that Shopify's own French checkout says “Expédition”, which Chris then accepts or overrides |
+| Q19 | Pickup wording for backordered and special-order variants (drafts under G08): a neutral status line with no ready time, or the prototype's "Pickup will be available … we'll let you know" | G08, G24 | Open; recommended: the neutral drafts, which fit Q02 and the 2026-11-05 G11 decision. The trade-off is that customers aren't told Gamma will contact them. The increment is dropped if S5 shows Shopify already reports these variants as unavailable for pickup |
+| Q20 | The form of the Gamma Red borders in Horizon 4.4.0, which has one input palette for every field, no general border setting and computed hover colours | G04, G25–G31 | Open; recommended: full Gamma Red (4.25:1) for the input boundary, never the 60% tint (2.59:1, below 3:1); red dividers only where a component has a colour setting, leaving the 12% Coal section hairlines; Gamma Red text and border on secondary-button hover through one scoped rule. The trade-off is that every field gets a red boundary, where on Primary only the secondary scheme's fields did (the default scheme's were `#dfdfdf`), so errors rely on their message and icon. The alternative keeps inputs at `#333333` and carries over only the hover |
+| Q21 | The product-page price's type role | G04, G27 | Open; recommended: the group-heading role (`h4`, 24 px and 20 px on phones), one step under the 32 px title and the size the prototype's settings intended. The alternative, `h3`, reproduces what Primary renders: 32 px, the same size as the title |
 
 ### Material requirement and architecture decisions
 
@@ -1617,6 +1807,8 @@ Independent local work can proceed while these are resolved. Resolve each before
 | 2026-11-09 | G19–G22, G25–G31 | "Spec sheet" is the approved visual design language, piloted on the SCS campaign pages and then extended to the rest of the theme. It is presentation only and builds on the brand guidelines, to which it adds an 18/16 px lede, 16 px offer summaries and a 36 px campaign title on phones; shared-component changes are reviewed individually. At most one red primary button appears per view, and none in the phone hero. An immersive photographic hero and a large benefit figure remain optional extensions | Gives every remaining surface one reference. G19 returns to In progress for its visual refinement (Stage 0 fixtures, then five stages), G20–G22 are specified against the language, and G25–G31 are added before G24 |
 | 2026-11-09 | G19 | Qualifying products use the theme's standard product card and collection grid; from 1200 px a label rail accompanies only groups of five or more cards, and smaller groups stack above a grid identical to collection pages. Variant-limited cards match the native card, link to the eligible variant and have no Quick Add. Rental cards follow the rental-search card without prices, in groups separated by hairline rules; a reused group renders in full. Sponsor badges overlay campaign artwork, top-left and fully inside it, with a Paper keyline and shadow and a Paper plate for Brands without a colour. Index cards without artwork use a neutral Concrete tile, and the first campaign is a two-column feature card. The offer overview shows from two offers and the red hero button from 750 px up only | Customers recognise what qualifies, no card implies a discount that isn't applied, and badges stay legible on any artwork without changing Brand data |
 | 2026-11-09 | G18, G19 | `/pages/promotions` is the canonical promotions index and campaign pages belong beneath it; the Gamma-Dev proof handle `promotions-g18` is retired through the redirecting migration recorded under G18 | One index address in each language for menus, campaign links and notices; the theme needs no change because every link derives from `system.url` |
+| 2026-11-10 | G04, G08, G24, G26, G27, G30, G32 | After the 2026-11-09 prototype review, these items from Primary's published prototype theme are carried over: status-aware pickup information for backordered and special-order variants (G08); the Quebec French revision of Horizon's strings and the French checkout overrides (new G32); and, under G04, a Signal Yellow announcement bar, a transparent home header, a larger product-page price, the subtle card hover zoom, Gamma Red input boundaries and secondary-button hover, and a 120 px password-page logo. Signal Yellow is limited to the announcement bar, and the red secondary hover is a Gamma exception to Horizon's computed interaction colours | Keeps what customers see on Primary where it was deliberate. Each item is specified again for Horizon 4.4.0 and this plan's accessibility rules instead of copied, with its form pending Q18–Q21; T17–T19 and S5–S6 are added |
+| 2026-11-10 | G03, G04, G10, G11, G26, G27 | Reviewed in the prototype and not carried over: the five-column mega menu and parent-link emphasis; the large first gallery image, mobile thumbnails, the product gallery's 12 px media and 8 px thumbnail radii and the h2 product title; 20 px pills, the cart-thumbnail radius and border and the drawer border; the larger card price; justified paragraphs | Recorded once so later reviews don't reopen them; the current settings and the visual design language stand |
 
 ## Optional extensions
 
