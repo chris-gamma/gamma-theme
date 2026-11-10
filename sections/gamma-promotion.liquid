@@ -189,7 +189,11 @@
           aria-labelledby="{{ offer_id }}-title"
           {% if hide_at != blank %}data-gamma-hide-at="{{ hide_at }}"{% endif %}
         >
-          {%- comment -%} Groups are resolved before the offer's introduction, which they are printed after. {%- endcomment -%}
+          {%- comment -%}
+            Groups are resolved before the offer's introduction, which they are printed after: its notice
+            says that card prices are current prices only when the offer shows product cards.
+          {%- endcomment -%}
+          {%- assign offer_has_products = false -%}
           {%- capture groups_html -%}
             {%- for group in offer.groups.value -%}
               {%- liquid
@@ -425,6 +429,9 @@
                     <p class="gamma-promotion__more"><a href="{{ link_url | escape }}">{{ link_text | escape }}</a></p>
                   {%- endif -%}
                 </div>
+                {%- if card_count > 0 and group_kind == 'products' -%}
+                  {%- assign offer_has_products = true -%}
+                {%- endif -%}
                 {%- if card_count > 0 or overflow != blank -%}
                   <div class="gamma-promotion__group-items">
                     {%- if card_count > 0 -%}
@@ -458,7 +465,7 @@
               {%- if offer.details.value != blank -%}
                 <div class="rte">{{ offer.details | metafield_tag }}</div>
               {%- endif -%}
-              {%- render 'gamma-promotion-offer-panel', offer: offer, claim: claim, end: offer_end, contact_url: contact_url -%}
+              {%- render 'gamma-promotion-offer-panel', offer: offer, claim: claim, end: offer_end, contact_url: contact_url, current_prices: offer_has_products -%}
             </div>
             {%- if offer.image.value != blank -%}
               {{
