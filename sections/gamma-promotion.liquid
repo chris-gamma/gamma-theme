@@ -30,9 +30,20 @@
 >
   {%- case state -%}
     {%- when 'live' -%}
-      <header class="gamma-promotion__hero">
+      {%- liquid
+        assign artwork = entry.image.value
+        if artwork != blank
+          # The tile follows the artwork's shape between 4:3 and 16:9: a banner fills it, and square or
+          # tall artwork is shown whole without stretching the hero.
+          assign artwork_ratio = artwork.aspect_ratio | default: 1.5 | at_least: 1.3333 | at_most: 1.7778
+        endif
+      -%}
+      <header class="gamma-promotion__hero{% if artwork != blank %} gamma-promotion__hero--media{% endif %}">
         <div class="gamma-promotion__hero-text">
-          {%- render 'gamma-brand-badge', brand: entry.sponsor.value -%}
+          {%- comment -%} One badge: over the artwork, or here when there is none. {%- endcomment -%}
+          {%- if artwork == blank -%}
+            {%- render 'gamma-brand-badge', brand: entry.sponsor.value -%}
+          {%- endif -%}
           {%- if entry.eyebrow.value != blank -%}
             <p class="gamma-promotion__eyebrow gamma-type-label">{{ entry.eyebrow.value | escape }}</p>
           {%- endif -%}
@@ -78,16 +89,18 @@
             </p>
           {%- endif -%}
         </div>
-        {%- if entry.image.value != blank -%}
-          <div class="gamma-promotion__hero-media">
+        {%- if artwork != blank -%}
+          <div class="gamma-promotion__hero-media gamma-media-tile" style="--gamma-media-ratio: {{ artwork_ratio }};">
+            {%- render 'gamma-brand-badge', brand: entry.sponsor.value, placement: 'overlay' -%}
             {{
-              entry.image.value
+              artwork
               | image_url: width: 1600
               | image_tag:
                 widths: '480, 720, 960, 1200, 1600',
-                sizes: '(min-width: 990px) 50vw, 100vw',
-                class: 'gamma-promotion__hero-image',
-                alt: entry.image.value.alt
+                sizes: '(min-width: 990px) 40vw, 100vw',
+                loading: 'eager',
+                fetchpriority: 'high',
+                alt: artwork.alt
             }}
           </div>
         {%- endif -%}
@@ -571,14 +584,43 @@
   }
 
   .gamma-promotion__hero {
+    --gamma-badge-inset: 12px;
+
     display: grid;
     gap: var(--gamma-space-inner);
-    align-items: start;
+    align-items: center;
+    padding: var(--gamma-space-inner);
+    border-radius: var(--gamma-radius-card);
+    background: var(--gamma-color-panel);
+  }
+
+  .gamma-promotion__hero .gamma-promotion__rte {
+    max-inline-size: var(--gamma-measure-text);
+    color: var(--gamma-color-muted);
+  }
+
+  /* The artwork comes first until the text sits beside it. */
+  .gamma-promotion__hero-media {
+    order: -1;
+  }
+
+  @media screen and (min-width: 750px) {
+    .gamma-promotion__hero {
+      --gamma-badge-inset: 16px;
+    }
+
+    .gamma-promotion__hero-text {
+      padding: var(--gamma-space-inner);
+    }
   }
 
   @media screen and (min-width: 990px) {
-    .gamma-promotion__hero:has(.gamma-promotion__hero-media) {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    .gamma-promotion__hero--media {
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    }
+
+    .gamma-promotion__hero-media {
+      order: 0;
     }
   }
 
@@ -619,14 +661,6 @@
     align-items: center;
     gap: var(--gap-sm, 0.75rem) var(--gap-md, 1rem);
     margin: 0;
-  }
-
-  /* Manufacturer artwork often carries text, so it is never cropped. */
-  .gamma-promotion__hero-image {
-    display: block;
-    width: 100%;
-    height: auto;
-    border-radius: var(--gamma-radius-media);
   }
 
 .gamma-promotion__nav {
