@@ -169,7 +169,15 @@
         "one": "Voir le produit admissible",
         "other": "Voir les {{ count }} produits admissibles"
       },
-      "more": "Autres articles admissibles :"
+      "more": "Autres articles admissibles :",
+      "product_count": {
+        "one": "{{ count }} produit admissible",
+        "other": "{{ count }} produits admissibles"
+      },
+      "rental_count": {
+        "one": "{{ count }} article en location",
+        "other": "{{ count }} articles en location"
+      }
     },
     "post_sale": {
       "heading": "Réclamations pour les achats admissibles déjà effectués",

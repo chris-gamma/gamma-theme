@@ -178,7 +178,15 @@
         "one": "See the eligible product",
         "other": "See all {{ count }} eligible products"
       },
-      "more": "More eligible items:"
+      "more": "More eligible items:",
+      "product_count": {
+        "one": "{{ count }} eligible product",
+        "other": "{{ count }} eligible products"
+      },
+      "rental_count": {
+        "one": "{{ count }} rental item",
+        "other": "{{ count }} rental items"
+      }
     },
     "post_sale": {
       "heading": "Claims for eligible past purchases",
