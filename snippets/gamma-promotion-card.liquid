@@ -1,6 +1,9 @@
 {%- doc -%}
   Renders one campaign card for the promotions index from campaign-level fields only (never offers or
-  groups). The title link covers the whole card, and the visible call to action is part of it.
+  groups): a 3:2 media tile that shows the artwork whole with the sponsor badge over its corner, then the
+  title, a three-line summary and the date with an arrow. A live card shows only its last day. Without
+  artwork the tile is a plain panel from 750px, so rows stay even, and a slim band for the badge below
+  that. The title link covers the whole card.
 
   @param {object} promotion - The `promotion` entry.
   @param {string} state - The campaign's gamma-promotion-state output.
@@ -10,38 +13,54 @@
 {%- liquid
   assign parts = state | split: '|'
   assign status = parts[0]
+  assign artwork = promotion.image.value
   capture date_line
-    render 'gamma-promotion-dates', start: parts[1], end: parts[2]
+    if status == 'live'
+      render 'gamma-promotion-dates', end: parts[2], mode: 'last'
+    else
+      render 'gamma-promotion-dates', start: parts[1], end: parts[2]
+    endif
   endcapture
+  assign date_line = date_line | strip
+  if status == 'live' and date_line != blank
+    assign date_line = 'gamma_promotion.index.until' | t: date: date_line
+  endif
 -%}
 <article class="gamma-promotion-card">
-  {%- if promotion.image.value != blank -%}
-    {{
-      promotion.image.value
-      | image_url: width: 900
-      | image_tag:
-        widths: '300, 450, 600, 900',
-        sizes: '(min-width: 990px) 33vw, (min-width: 750px) 50vw, 100vw',
-        loading: 'lazy',
-        alt: '',
-        class: 'gamma-promotion-card__image'
-    }}
-  {%- endif -%}
+  <div class="gamma-promotion-card__media gamma-media-tile{% if artwork == blank %} gamma-promotion-card__media--empty{% endif %}">
+    {%- render 'gamma-brand-badge', brand: promotion.sponsor.value, placement: 'overlay' -%}
+    {%- if artwork != blank -%}
+      {{
+        artwork
+        | image_url: width: 900
+        | image_tag:
+          widths: '300, 450, 600, 900',
+          sizes: '(min-width: 1200px) 25vw, (min-width: 990px) 33vw, (min-width: 750px) 50vw, 100vw',
+          loading: 'lazy',
+          alt: ''
+      }}
+    {%- endif -%}
+  </div>
   <div class="gamma-promotion-card__body">
-    {%- render 'gamma-brand-badge', brand: promotion.sponsor.value -%}
     <{{ heading_level }} class="gamma-promotion-card__title gamma-type-group">
       <a class="gamma-promotion-card__link" href="{{ promotion.system.url }}">{{ promotion.title.value | escape }}</a>
     </{{ heading_level }}>
     {%- if promotion.summary.value != blank -%}
       <p class="gamma-promotion-card__summary">{{ promotion.summary.value | escape }}</p>
     {%- endif -%}
-    {%- if date_line != blank -%}
-      <p class="gamma-promotion-card__dates">
-        {%- if status == 'ended' -%}{{ 'gamma_promotion.ended' | t }} {% endif -%}
-        {{- date_line | strip -}}
-      </p>
-    {%- endif -%}
-    <p class="gamma-promotion-card__cta" aria-hidden="true">{{ 'gamma_promotion.index.cta' | t }}</p>
+    <p class="gamma-promotion-card__footer">
+      {%- if date_line != blank -%}
+        <span>
+          {%- if status == 'ended' -%}{{ 'gamma_promotion.ended' | t }} {% endif -%}
+          {{- date_line -}}
+        </span>
+      {%- else -%}
+        <span aria-hidden="true">{{ 'gamma_promotion.index.cta' | t }}</span>
+      {%- endif -%}
+      <span class="svg-wrapper gamma-promotion-card__arrow" aria-hidden="true">
+        {{- 'icon-arrow.svg' | inline_asset_content -}}
+      </span>
+    </p>
   </div>
 </article>
 
@@ -52,17 +71,36 @@
     flex-direction: column;
     height: 100%;
     overflow: hidden;
-    border: var(--style-border-width, 1px) solid rgb(var(--color-foreground-rgb) / var(--opacity-10, 10%));
-    border-radius: var(--style-border-radius-md, 0);
+    border: var(--style-border-width, 1px) solid var(--gamma-color-rule);
+    border-radius: var(--gamma-radius-card);
   }
 
-  .gamma-promotion-card__image {
-    display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 16 / 9;
-    object-fit: contain;
-    background: rgb(var(--color-foreground-rgb) / 4%);
+  /* The card clips its tile, and a rule separates white artwork from the text. */
+  .gamma-promotion-card .gamma-promotion-card__media {
+    flex: none;
+    border-block-end: var(--style-border-width, 1px) solid var(--gamma-color-rule);
+    border-radius: 0;
+  }
+
+  .gamma-promotion-card .gamma-promotion-card__media--empty {
+    background-color: var(--gamma-color-panel);
+  }
+
+  @media screen and (max-width: 749px) {
+    .gamma-promotion-card .gamma-promotion-card__media--empty {
+      display: flex;
+      aspect-ratio: auto;
+      padding: var(--gamma-badge-inset, 12px);
+    }
+
+    .gamma-promotion-card .gamma-promotion-card__media--empty:not(:has(.gamma-brand-badge)) {
+      display: none;
+    }
+
+    .gamma-promotion-card__media--empty > .gamma-brand-badge--overlay {
+      position: static;
+      max-inline-size: 100%;
+    }
   }
 
   .gamma-promotion-card__body {
@@ -70,6 +108,7 @@
     flex: 1;
     flex-direction: column;
     gap: var(--gap-xs, 0.5rem);
+    min-width: 0;
     padding: var(--padding-md, 1rem);
   }
 
@@ -84,11 +123,15 @@
     text-decoration: none;
   }
 
-  /* The title link covers the card, so the visible call to action is clickable without a second link. */
+  /* The title link covers the card, so the date and arrow are clickable without a second link. */
   .gamma-promotion-card__link::after {
     content: '';
     position: absolute;
     inset: 0;
+  }
+
+  .gamma-promotion-card:hover .gamma-promotion-card__link {
+    text-decoration: underline;
   }
 
   .gamma-promotion-card__link:focus-visible {
@@ -100,18 +143,33 @@
     outline-offset: var(--focus-outline-offset, 3px);
   }
 
-  .gamma-promotion-card__dates {
-    font-weight: var(--font-weight-bold, 700);
+  .gamma-promotion-card__summary {
+    display: -webkit-box;
+    overflow: hidden;
+    color: var(--gamma-color-muted);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
   }
 
-  .gamma-promotion-card__cta {
+  .gamma-promotion-card__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--gap-sm, 0.75rem);
     margin-block-start: auto;
     padding-block-start: var(--padding-xs, 0.5rem);
     font-weight: var(--font-weight-bold, 700);
-    text-decoration: underline;
   }
 
-  .gamma-promotion-card:hover .gamma-promotion-card__cta {
-    color: var(--gamma-color-accent, currentColor);
+  .gamma-promotion-card__arrow {
+    flex-shrink: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .gamma-promotion-card__arrow svg {
+    width: 100%;
+    height: 100%;
   }
 {% endstylesheet %}

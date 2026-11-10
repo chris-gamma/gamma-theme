@@ -202,6 +202,11 @@
     "index": {
       "empty": "There are no promotions right now. Come back soon.",
       "cta": "See the promotion",
+      "until": "Through {{ date }}",
+      "count": {
+        "one": "{{ count }} promotion",
+        "other": "{{ count }} promotions"
+      },
       "groups": {
         "sales": "Equipment sales",
         "rental": "Equipment rental",

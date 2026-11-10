@@ -113,6 +113,7 @@
     <p class="gamma-promotion-index__empty">{{ 'gamma_promotion.index.empty' | t }}</p>
   {%- endunless -%}
 
+  {%- assign featured = false -%}
   {%- for name in groups -%}
     {%- liquid
       case name
@@ -132,9 +133,21 @@
       assign heading_key = 'gamma_promotion.index.groups.' | append: name
       assign group_id = 'GammaPromotions-' | append: section.id | append: '-' | append: name
       assign group_heading = heading_key | t
+
+      # The first campaign of the first live group, in the order above, is the two-column feature card.
+      assign group_class = 'gamma-promotion-index__group'
+      if featured == false
+        if name == 'sales' or name == 'rental'
+          assign group_class = group_class | append: ' gamma-promotion-index__group--feature'
+          assign featured = true
+        endif
+      endif
     -%}
-    <section class="gamma-promotion-index__group" aria-labelledby="{{ group_id }}-title">
-      <h2 id="{{ group_id }}-title" class="gamma-promotion-index__group-title gamma-type-section">{{ group_heading }}</h2>
+    <section class="{{ group_class }}" aria-labelledby="{{ group_id }}-title">
+      <div class="gamma-promotion-index__group-header">
+        <h2 id="{{ group_id }}-title" class="gamma-promotion-index__group-title gamma-type-section">{{ group_heading }}</h2>
+        <p class="gamma-promotion-index__count">{{ 'gamma_promotion.index.count' | t: count: sorted.size }}</p>
+      </div>
       <gamma-promotion-pager
         id="{{ group_id }}"
         data-page-size="{{ page_size }}"
@@ -199,10 +212,25 @@
     gap: var(--gap-md, 1rem);
   }
 
+  .gamma-promotion-index__group-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--gap-2xs, 0.3rem) var(--gap-md, 1rem);
+    padding-block-end: var(--padding-sm, 0.75rem);
+    border-block-end: var(--style-border-width, 1px) solid var(--gamma-color-rule);
+  }
+
+  .gamma-promotion-index__count {
+    margin: 0;
+    color: var(--gamma-color-muted);
+  }
+
+  /* One, two, three and four columns. */
   .gamma-promotion-index__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
-    gap: var(--gap-lg, 1.5rem);
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--gamma-space-inner);
     margin: 0;
     padding: 0;
     list-style: none;
@@ -210,6 +238,60 @@
 
   .gamma-promotion-index__item {
     min-width: 0;
+  }
+
+  @media screen and (min-width: 750px) {
+    .gamma-promotion-index__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* The feature card: two columns wide, with its media tile beside the text. */
+    .gamma-promotion-index__group--feature .gamma-promotion-index__item:first-child {
+      grid-column: span 2;
+
+      .gamma-promotion-card {
+        flex-direction: row;
+      }
+
+      .gamma-promotion-card__media {
+        flex: 0 0 50%;
+        aspect-ratio: auto;
+        min-block-size: 14rem;
+        border-block-end: 0;
+        border-inline-end: var(--style-border-width, 1px) solid var(--gamma-color-rule);
+      }
+
+      /* Out of flow, so tall artwork is fitted to the row instead of setting its height. */
+      .gamma-promotion-card__media > img {
+        position: absolute;
+        inset: 0;
+      }
+
+      .gamma-promotion-card__body {
+        justify-content: center;
+        padding: var(--gamma-space-inner);
+      }
+
+      .gamma-promotion-card__title {
+        font-size: var(--gamma-type-section-size);
+      }
+
+      .gamma-promotion-card__footer {
+        margin-block-start: 0;
+      }
+    }
+  }
+
+  @media screen and (min-width: 990px) {
+    .gamma-promotion-index__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media screen and (min-width: 1200px) {
+    .gamma-promotion-index__grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
   }
 
   .gamma-promotion-index__diagnostic {
