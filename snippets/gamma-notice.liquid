@@ -6,7 +6,8 @@
 
   @param {string} [lead] - Bold lead-in.
   @param {string} [message] - Text that follows the lead-in on the same line.
-  @param {string} [content] - Further HTML blocks below the first line (panel only).
+  @param {string} [content] - Further HTML blocks below the first line (panel only). A paragraph with
+    the `gamma-notice__note` class is set as a quieter qualifying line.
   @param {string} [icon] - Icon asset, such as `icon-gamma-gift.svg`.
   @param {string} [variant] - `panel` (default) or `line`.
   @param {string} [hide_at] - Unix seconds at which gamma-hide-at.js hides the notice.
@@ -99,6 +100,12 @@
 
   .gamma-notice__body > * {
     margin: 0;
+  }
+
+  /* A quieter qualifying line inside `content`. */
+  .gamma-notice__note {
+    color: var(--gamma-color-muted);
+    font-size: var(--font-size--sm);
   }
 
   .gamma-notice code {
