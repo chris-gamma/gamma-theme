@@ -164,7 +164,10 @@
       "staff": "Certaines conditions sont confirmées par notre équipe après votre commande."
     },
     "cards": {
-      "eligible_variants": "Admissibles : {{ variants }}",
+      "eligible_variants": {
+        "one": "Variante admissible : {{ variants }}",
+        "other": "Variantes admissibles : {{ variants }}"
+      },
       "see_all": {
         "one": "Voir le produit admissible",
         "other": "Voir les {{ count }} produits admissibles"
