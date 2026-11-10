@@ -1,6 +1,6 @@
 # Sales Campaign System — selected architecture (custom app)
 
-Location Gamma · revised 2026-11-09 · section 6 pinned as the G18 contract, with its theme snippets implemented locally; `promotion.sponsor` now references the shared `brand` definition (section 6). The rest is planning. Of the definitions described here, only `brand` exists in Shopify (Gamma-Dev); the four SCS definitions don't.
+Location Gamma · revised 2026-11-09 · section 6 pinned as the G18 contract, with its theme snippets implemented locally; `promotion.sponsor` now references the shared `brand` definition (section 6). The rest is planning. On Gamma-Dev, `brand`, the four SCS definitions and test campaigns exist (set up in Admin on 2026-11-09). Storefront presentation follows the visual design language defined in the [development plan](development-plan.md); section 12 summarises what it means for the SCS.
 
 This document describes the selected architecture for the Sales Campaign System (SCS): a purpose-built custom Shopify app, self-hosted on the VPS that already serves the WordPress rental catalogue, administering campaign content and Shopify-native financial promotions for a Liquid storefront that never depends on the app at runtime. It incorporates the decisions approved on 2026-11-08 (section 2) and supersedes this document's earlier recommendations, which assumed managed hosting, PostgreSQL, automatic free-gift cart insertion and a phased no-app launch. The companion [no-app proposal](scs-redesign-proposal-no-app.md) remains as a read-only comparison and emergency fallback reference; it is not the selected design.
 
@@ -333,7 +333,7 @@ Records give positions from the same render plus the expected IDs, so callers ca
 ### Routes and links
 
 - **Campaign pages** link to `promotion.system.url`, never to a hard-coded `promotions` path, so moving the URL handle at cutover needs no theme change. Gamma-Dev showed that `system.url` already carries `/en` on English routes, so no prefix fallback is used. A detail route whose entry is Draft, deleted or missing returns the parent page (the index) with status 200 and no entry content; Liquid can't change that status.
-- **The index** is the Shopify page with handle `promotions`, assigned the `page.promotions` template (G19); links use that page's URL.
+- **The index** is the Shopify page with handle `promotions`, assigned the `page.promotions` template (G19); links use that page's URL. `/pages/promotions` is the canonical index in each language; the Gamma-Dev proof handle `promotions-g18` is retired through the migration recorded under G18 in the development plan.
 - **Rental links (G19).** Use `rental_item.url` only when it is HTTPS without credentials, query or fragment surprises and starts with the current language's configured rental site address (`gamma_rental_site_fr` or `gamma_rental_site_en`). When the French address extends the English one on the same host (`https://www.locationgamma.com/fr/`), an English route rejects URLs under the French address. `snippets/gamma-rental-url.liquid` already validates these addresses but outputs nothing when rental search (`gamma_rental_search`) is off; rental cards must not depend on that search toggle, so G19 applies the same address checks without it.
 - Translated artwork, URLs and links follow P-TR (Principles).
 
@@ -398,9 +398,9 @@ Because gifts no longer need to fit BXGY, every researched manufacturer gift off
 
 ### Placement
 
-- **Campaign page.** Within each gift offer: the gift (label, image if referenced), qualifying equipment (cards), conditions, the panel "How you receive your gift", the backorder statement, manufacturer terms and exclusions. Never "added at checkout".
-- **Product page** (block after the battery row, before the options): for the selected variant, "Complimentary with this purchase: {gift}" when the product alone qualifies; for quantity or companion conditions, the conditional wording; a link to the offer's conditions. Re-renders through Horizon's native variant updates (G07).
-- **Cart.** A compact notice inside each qualifying line's details, rendered immediately after the existing G08 availability line (`gamma-availability-line` in `snippets/cart-products.liquid`), using the same notice styling with a gift icon. Because it is Liquid inside the native cart sections, it re-renders with every quantity change, removal, variant change, Quick Add and drawer or page update, and works without JavaScript. Multi-line conditions show the full notice under the first qualifying line of the group and "Counts toward the gift offer above" under the other participating lines, so nothing is duplicated.
+- **Campaign page.** Within each gift offer: a "How you receive your gift" notice that names the gift once, with its image when a gift product is referenced; a facts list for the backorder statement, any limited quantity and staff-confirmed conditions; the qualifying equipment as cards in labelled groups; then manufacturer terms and exclusions as visible fine print. Never "added at checkout".
+- **Product page** (block after the battery row, before the options): for the selected variant, "Complimentary with this purchase: {gift}" when the product alone qualifies; for quantity or companion conditions, the conditional wording; a link to the offer's conditions. It is a compact notice in the shared shell, with no sponsor badge, and stays quieter than the G08 availability notice. Re-renders through Horizon's native variant updates (G07).
+- **Cart.** A compact notice inside each qualifying line's details, rendered immediately after the existing G08 availability line (`gamma-availability-line` in `snippets/cart-products.liquid`), as the notice shell's inline line with a gift icon. Because it is Liquid inside the native cart sections, it re-renders with every quantity change, removal, variant change, Quick Add and drawer or page update, and works without JavaScript. Multi-line conditions show the full notice under the first qualifying line of the group and "Counts toward the gift offer above" under the other participating lines, so nothing is duplicated.
 
 ### Customer wording (recommended; subject to legal review and the manufacturer's actual terms)
 
@@ -534,6 +534,19 @@ Manufacturer programs reproduced as published are allowed. Store-funded price cl
 - G18's contract snippets (`gamma-promotion-state`, `gamma-promotion-offer`, `gamma-promotion-lookup` and its private `gamma-promotion-group` helper; section 6), then G19/G20 snippets for redemption panels, gift wording, cards, rental cards and design-mode checks, and each surface's expiry guard.
 - A small filter in Horizon's `main-collection-list` so hidden eligibility collections don't appear on `/collections`.
 
+### Presentation (visual design language)
+
+Campaign pages, product notices and cart notices follow the storefront's approved "Spec sheet" design language, which is defined project-wide in the development plan and piloted on the campaign pages (G19's visual refinement). For the SCS it means:
+
+- **Sponsor badges** sit over the campaign artwork on index cards and in the hero, top-left and fully inside it (12 px inset on cards, 16 px in the hero, 12 px on phones), once per card or hero, with a 2 px Paper keyline and a soft shadow. They move to the text area only when there is no artwork. A Brand without a colour shows on an opaque Paper plate with Coal text over artwork and keeps its outline inline. Brand data and its colour rules don't change.
+- **Offers** open with an overview that links to each offer (from two offers), then one section per offer: a label chip, the title, a summary and a facts list beside the redemption or gift notice. The hero's red "Voir les offres" / "See the offers" button appears from 750 px up; on phones it is hidden and the overview follows the hero directly.
+- **Qualifying products** use the theme's standard product card on the collection grid. From 1200 px a label rail accompanies only groups of five or more cards; smaller groups, and every group below 1200 px, stack their heading, count, note and "see all" link above a grid identical to collection pages. A group reused by a later offer renders its cards again in full. Variant-limited cards look the same, show the eligible variant's image and price, link to that variant and have no Quick Add. No card shows a discount that Shopify's own price doesn't show; in-store and code offers say that displayed prices are current prices.
+- **Rental equipment** uses the rental-search card (4:5 white image box, name, a link to the rental-catalogue page), without prices. Rental groups follow the same heading and rail rules and are separated by a hairline rule, without panels. A small shared snippet renders it; rental search keeps its own JavaScript and shares only class names and media rules.
+- **Notices** (gift, redemption, claim, lifecycle, product page, cart line and collection callout) use one shell with an inline line variant.
+- **Terms** stay fully visible as fine print.
+
+None of this changes the theme contract in section 6, the lookup, lifecycle, verification or claim rules. The stages and acceptance criteria are in the development plan (G19, G20), and the presentation choices were approved on 2026-11-09 (its Q15 and Q16).
+
 ### Lookup
 
 `product.collections` (≤ 50) → each collection's `promotion.promotions` (≤ 5) → for each unique live promotion, compare its groups' collection IDs, then apply variant narrowing. The cost is independent of how many campaigns exist, and a per-call work budget keeps it bounded (section 6). Membership is Shopify's own and identical to the discount target. The only maintained link (collection → promotion) is written by the app when a campaign changes; a missing link fails closed (no claim).
@@ -570,6 +583,8 @@ G07 variant updates; G08 notice styling and order of messages; G09 block positio
 - **Rental equipment:** reusable cards; optional catalogue picker (section 14).
 - **Health:** findings in plain language with actions; **Activity:** who did what and when.
 - **Settings:** MAP rules per Brand, claim margin, retention, discount budget reserve, rental origins, alert email, optional second approver for financial offers.
+- **Content guidance:** recommended artwork shapes (16:9 or 3:2) for each language, with a named top-left keep-clear zone where the sponsor badge sits; offer labels short enough for a chip and titles led by the benefit; a preview of the index card and hero in both languages. Publication is blocked when a rental item lacks a valid rental-catalogue address in either language or the campaign's Brand isn't Active.
+- **Interface conventions:** Polaris components and status tones for lifecycle and health, exact instants with the store time zone, and no storefront styling. A Brand's colour appears only as a reference swatch.
 - **Preview:** Plan A: the theme editor previews Draft entries (POC P-PRE); Plan B: Active + `paused`, with the full page rendered in theme design mode only.
 
 **Journeys:** informational campaign ≈ 10 minutes; in-store rental rate; cleaning and sanding cards; STIHL seven-offer campaign by duplicating last season (estimated 1–2 hours, mostly checking manufacturer lists and French copy); pause; drift repair from Health.
@@ -583,6 +598,8 @@ No screens exist for cart rewards, gift fulfilment, orders or inventory.
 Product-free campaigns are promotions with no groups or with rental groups. Weekend and holiday rates are *Rental discount or rate* offers with instructions; the business examples (weekend Saturday to Monday 9:00 AM as one day; holiday 1.5 or 2 days) need confirmation before publication. Nothing calculates rates.
 
 The optional **catalogue picker** queries the existing G14 endpoints server-side (`wp-json/wp/v2/products?search=` under the English and French sites). The API exposes no translation mapping and IDs differ by language, so **staff pair** the English and French items. It stores titles and URLs (French as translations) and both post IDs in `catalogue_ref`, and imports the featured image into Shopify Files (POC P-RENT). Rendering never calls WordPress. The rental boundary is one app module and one theme snippet.
+
+Rental cards on campaign pages follow the rental-search card and never show rental prices or rates; campaigns state promotional terms, not quoted rates. Because the theme links only to addresses under the current language's rental site, every rental item needs an English and a French address, or its card is omitted in the language that lacks one.
 
 ---
 
@@ -665,20 +682,25 @@ Indefinite maintenance-free operation can't be promised: an app idle past the AP
 
 ---
 
-## 18. Roadmap (high-level workstreams; branch structure to be decided separately)
+## 18. Roadmap (high-level workstreams)
+
+The theme and app branches that implement these workstreams, their order and the recommended model and effort for each are in the development plan's [branch sequence](development-plan.md#branch-sequence-and-model-guidance): proofs and server checks are sessions S1–S4, the theme workstreams are T1–T6 (with T16 for end-to-end validation) and the app workstreams are A1–A9 in the `gamma-promotions-app` repository.
 
 | Workstream | Scope | Depends on | Acceptance | Size | Launch |
 | --- | --- | --- | --- | --- | --- |
 | P Proofs of concept and server checks | Section 19 POCs and the section 15 checklist | Authorization | Recorded outcomes | M | Essential, first |
 | Theme: data contract (G18) | Section 6 contract; lifecycle, offer-claim and lookup snippets with no customer-facing output | P-B, P-D, P-TR, P-PRE before the interface is frozen | Fixture desk check locally; Gamma-Dev proofs | S | Essential, first |
 | Theme: campaign pages | State presentation, templates, hero, offers, groups, gift panels, redemption panels, rental cards, index, callout, collection-list filter, campaign-page expiry guard | G18; definitions on gamma-dev | Fixtures S1, E1, rental, informational in both languages | L | Essential |
-| Theme: product and cart notices | Product block and notice limit, cart-line gift notices and gift counting, aggregate lookup budget, native refresh, expiry guard (using G18's lookup) | G18; campaign pages; P-B | Scenarios A–I, M | M | Essential |
+| Theme: campaign visual refinement | Stage 0 fixtures on Gamma-Dev, then five stages following the approved design language: foundations and the six rendering defects; cards and grids; artwork and badges; offer anatomy and navigation; states and callout | Campaign pages; Stage 0 on Gamma-Dev (French rental addresses, collection back-links, a three-offer campaign with 16:9 artwork containing text, a button and a source link, an ended campaign with an open claim deadline, a scheduled and a paused campaign, a French title for the GTA 40 set) | Development plan G19 stage checks in both languages at 320, 390, 768 and 1440 px | M | Essential |
+| Theme: product and cart notices | Product block and notice limit, cart-line gift notices and gift counting, aggregate lookup budget, native refresh, expiry guard (using G18's lookup) | G18; campaign pages and refinement stages 1 and 4 (notice shell, wording); P-B | Scenarios A–I, M | M | Essential |
 | App foundation and hosting | Scaffold, auth, MariaDB, VPS service, deploy, backups, monitoring, schema setup, webhooks, journal and audit | Server checklist | Installed on gamma-dev; restart, restore and isolation drills | M | Essential |
-| App editor | Campaign and offer editors, groups, gifts, pickers, bilingual editing, artwork, preview, deep duplicate, gift reference, rental library | Foundation; P-TR, P-PRE | Section 13 journeys | L | Essential |
+| App editor | Campaign and offer editors, groups, gifts, pickers, bilingual editing, artwork, preview, deep duplicate, gift reference, rental library, artwork and content guidance, rental-address and Brand validation | Foundation; P-TR, P-PRE | Section 13 journeys | L | Essential |
 | App financial orchestration | Validation, conflicts, collections and back-links, discounts, price plans and jobs, read-back, lifecycle actions | Foundation; P-PL (optional) | Scenarios J, K | L | Essential |
 | App health and reconciliation | Webhooks, hourly reconcile, findings, digest | Orchestration | Seeded drift cases | M | Essential |
 | Operations | Gift procedure, saved views, optional Flow, legal wording review, MAP reviewer, staff training, emergency manual procedure | — | Walkthrough on gamma-dev orders | S | Essential |
 | Catalogue picker | WordPress search, pairing, image import | Editor; P-RENT | Paired items render | S | Desirable |
+
+Extending the visual design language to the rest of the storefront (G25–G31 in the development plan) is outside these SCS workstreams.
 
 **Removed from the earlier design:** the cart-rewards theme workstream (automatic insertion and removal, `_gamma_offer` line properties, reward-line rendering, buy-now suppression, checkout-button disabling), BXGY orchestration and conflict rules for gifts, Storefront cart probes, the free-item POCs, the `auto_add` field and all gift-related jobs. Bundles remain only as an optional kit-price structure.
 
@@ -732,10 +754,11 @@ Indefinite maintenance-free operation can't be promised: an app idle past the AP
 
 | Item | Action |
 | --- | --- |
-| `sales_campaigns` / `promo_offers` (one expired, unverified entry each on Primary; Gamma-Dev held two campaigns and three offers on 2026-11-08) | Not migrated. The app setup frees the `promotions` URL handle and creates the new definitions on gamma-dev; on Primary at cutover after confirming the published theme. Old definitions are deleted once the new theme is live |
+| `sales_campaigns` / `promo_offers` (one expired, unverified entry each on Primary; Gamma-Dev held two campaigns and three offers on 2026-11-08, and neither definition existed there on 2026-11-09) | Not migrated. The app setup frees the `promotions` URL handle; on Gamma-Dev it verifies and adopts the four SCS definitions created there in Admin on 2026-11-09, and creates them on Primary at cutover after confirming the published theme. Old definitions are deleted once the new theme is live |
 | Sponsor choices (`location_gamma` … `other_manufacturer`) | Replaced by the `brand` reference before any `promotion` entry exists, so nothing is migrated. Each sponsor needs an Active Brand entry on the store; `other_manufacturer` has no equivalent and becomes the actual manufacturer's Brand. The index section's per-sponsor colour settings and the theme's sponsor names were removed |
 | `sales-campaign-manager` | Retired; confirm it isn't installed with write access on Primary; ideas only |
 | `promotions` page | Reassigned to `page.promotions` |
+| `promotions-g18` proof handle and page (Gamma-Dev) | Retired. The `promotion` definition's URL handle moves to `promotions` with Shopify's automatic redirects, the `promotions-g18` page is deleted and redirected to `/pages/promotions`, and links are re-checked in both languages (development plan, G18). The theme needs no change |
 | Theme | New files plus reported Gamma changes in Horizon areas: the cart-line gift notice call in `cart-products.liquid` and the collection-list filter |
 | Completed features | G07, G08, G09, G10, G11, G12, G14, G16 reused without changing their scope |
 

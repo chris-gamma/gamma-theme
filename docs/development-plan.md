@@ -55,6 +55,23 @@ Check representative widths of 320, 375, 768 and 1440 pixels, 200% text/zoom sce
 
 Measure affected pages against the native theme using comparable data and conditions. Keep initial content useful, load enhancements only where needed, and bound third-party requests. Agree measurable performance budgets from representative fixtures before accepting expensive scans or integrations; do not invent a catalog-size limit or performance guarantee without evidence.
 
+### Visual design language
+
+The storefront uses one visual language, the approved "Spec sheet" design language, piloted on the SCS campaign pages (G19) and then extended to the rest of the theme (G25–G31). It builds on the *Gamma Brand Display Guidelines v1.0* and was approved on 2026-11-09 after the design review at revision `4d34b54`; that review's screenshots, research and concept mock-ups are kept outside this repository in `gamma-scs-handoff/design-review/2026-11-09-4d34b54-visual-direction/`. Where the review's document or mock-ups differ from this plan, this plan records the approved decisions. A page should read like a well-set equipment specification sheet: a label, a title, the facts, then the equipment.
+
+- **Type roles.** Display (Oswald Medium, 56 px, 36 px on phones) for one page-defining title; page title 48/36; section and offer titles 32/26; group headings 24/20; label (Inter SemiBold, 12 px, uppercase) for eyebrows, counts and fine-print headings; lede 18/16; body 14, with 16 for reading text such as summaries. A role changes a heading's size, never its semantic level.
+- **Colour roles.** Coal text on Paper; Concrete for panels, notices and alternating bands; Gamma Red only for the primary action, notice icons and sale badges, with Deep Gamma Red for hover and pressed states. Manufacturer colours appear only inside Brand badges.
+- **Surfaces and rhythm.** Corner radii come from the theme settings (cards 16 px, media tiles and notices 12 px, buttons and badges 14 px). Hairline rules at 12% Coal separate sections. Text measures stay within 60–68 characters. Section spacing steps 56, 36 and 24 px, and 40, 28 and 16 px on phones.
+- **Imagery.** Artwork that may contain text is shown whole in a white media tile. Each context has one tile ratio (campaign cards 3:2, rental cards 4:5, product cards as the native card). Text is never baked into images.
+- **Cards and grids.** Products always use the native product card on the collection grid (250 px minimum card width, two columns below 750 px). A card carries at most one overlay and never shows a discount that Shopify's own price doesn't show.
+- **Badges.** One badge family using the theme's badge radius and padding. Product badges report status; Brand badges identify a campaign's sponsor on campaign artwork and callouts only.
+- **Notices.** One shell: a Concrete panel, an icon in Gamma Red, a bold lead-in and the message, with an inline line variant for dense lists such as cart lines. No coloured edges, and the meaning never depends on colour.
+- **Actions.** At most one red primary button per view, and none in the phone hero; secondary outline buttons for onward and external actions; text links with an arrow elsewhere. External links say where they lead.
+- **Fine print.** Terms stay visible as muted 14 px text under a label; they are never collapsed and never set larger than the content they qualify.
+- **Motion and phones.** Hover and focus changes only, respecting reduced-motion preferences. On phones, imagery comes first, cards sit two per row and primary buttons span the width.
+
+Tokens start inside the feature that first needs them, as `--gamma-*` custom properties that alias Horizon's variables where one exists, and move to `assets/gamma-branding.css` when a second feature shares them (G25). Shared pieces are `gamma-` snippets beside Horizon's blocks; `assets/base.css` and native blocks aren't restyled in place. A change to a shared component (product card, header, footer, cart, notice or badge) needs its own rendered before-and-after review in French and English at 320, 390, 768 and 1440 px before integration. The 18/16 px lede, the 16 px offer summaries and the 36 px campaign title on phones are approved additions to the *Gamma Brand Display Guidelines* (2026-11-09), to be carried into the guidelines' next revision.
+
 ### External services and operating boundaries
 
 Use supported Shopify app integrations and native services where appropriate. External failures must leave unaffected shopping functions usable. Validate external destinations, avoid unnecessary data transmission and respect the approved privacy behavior.
@@ -89,7 +106,7 @@ Useful starting points are Shopify's [theme architecture](https://shopify.dev/do
 
 ## Roadmap and feature index
 
-Priorities are P0 for shared prerequisites, P1 for purchasing/browsing/discovery and P2 for complete business-information and promotional workflows. G24 is a required final gate. G01's foundation is established; its compatibility requirements continue throughout development. An **Implemented** status records local code; feature acceptance remains pending until its criteria are verified.
+Priorities are P0 for shared prerequisites, P1 for purchasing/browsing/discovery, P2 for complete business-information and promotional workflows and P3 for extending the visual design language beyond the campaign pages (G25–G31; their place relative to the soft launch is Q17). G24 is a required final gate. G01's foundation is established; its compatibility requirements continue throughout development. An **Implemented** status records local code; feature acceptance remains pending until its criteria are verified.
 
 | Phase | ID | Feature | Priority | Dependencies | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -111,18 +128,81 @@ Priorities are P0 for shared prerequisites, P1 for purchasing/browsing/discovery
 | 5. Business content and location | G16 | Regular and holiday hours | P2 | G02, G03, G15 | Implemented |
 | 5. Business content and location | G17 | Maps, directions and activation | P2 | G02, G05, G15 | Implemented |
 | 6. Promotions and integrations | G18 | Campaign data model, lifecycle and theme contract | P2 | G02, G03, G06, G10, G12, G14 | Implemented |
-| 6. Promotions and integrations | G19 | Campaign pages and index | P2 | G10, G12, G14, G18 | Implemented |
-| 6. Promotions and integrations | G20 | Product and cart promotional notices | P2 | G07, G08, G09, G11, G18, G19 | Planned |
+| 6. Promotions and integrations | G19 | Campaign pages and index | P2 | G10, G12, G14, G18 | In progress |
+| 6. Promotions and integrations | G20 | Product and cart promotional notices | P2 | G07, G08, G09, G11, G18, G19 (including visual refinement stages 1 and 4) | Planned |
 | 6. Promotions and integrations | G21 | Financial promotions and dealer-gift operations | P2 | G11, G18, G20, G22 | Planned |
 | 6. Promotions and integrations | G22 | Campaign administration app | P2 | G02, G18; Q11 | Planned |
 | 6. Promotions and integrations | G23 | UTM and referral integration | P2 | G02, G05, G11 | Planned |
-| 7. Integrated acceptance | G24 | Complete storefront verification | Required gate | All required features | Planned |
+| 7. Storefront design language | G25 | Design language foundation | P3 | G04, G19 | Planned |
+| 7. Storefront design language | G26 | Product cards, collections and search | P3 | G12, G14, G25 | Planned |
+| 7. Storefront design language | G27 | Product page | P3 | G07, G08, G09, G10, G20, G25 | Planned |
+| 7. Storefront design language | G28 | Cart | P3 | G11, G20, G25 | Planned |
+| 7. Storefront design language | G29 | Home and editorial sections | P3 | G13, G15, G19, G25 | Planned |
+| 7. Storefront design language | G30 | Header, footer and navigation | P3 | G03, G04, G05, G15, G16, G17, G25 | Planned |
+| 7. Storefront design language | G31 | Business-information pages | P3 | G15, G16, G17, G25 | Planned |
+| 8. Integrated acceptance | G24 | Complete storefront verification | Required gate | All required features | Planned |
 
 Phases group related work; they need not be rigidly sequential. Once language and data contracts are settled, branding and money presentation can proceed independently. Product details, media and home search can also proceed independently when their dependencies are ready. Hours and map development can run alongside campaigns after shared content/privacy requirements are established. Coordinate changes to shared product templates, cards, cart snippets and locale files before local integration.
 
 Use coherent feature branches following the repository workflow, typically one feature or independently useful increment at a time. Implementation research, local work, merchant setup and rendered acceptance can progress separately. A blocked external prerequisite should not stop unrelated development.
 
-The Sales Campaign System (G18–G22) is one system developed in two repositories: theme features G18–G20 in this repository and the G22 campaign administration app in a separate app repository, with G21's operating procedures spanning both and Shopify Admin. G18's data contract comes first; the VPS checks (Q11) and the SCS proofs of concept should run before G22 development, because they are the only items that could change the hosting or data-model decisions. The proofs of concept cover rendering cost and block re-rendering, cache delay at boundaries (which sets the claim margin), translated images and URLs, previewing Draft entries in the theme editor, a promotional price list on the primary market, adding a gift by order editing, the optional Flow review condition and rental image import. Theme and app work then proceed together toward the February 2027 soft launch. If the app cannot be ready, the theme and data contract launch unchanged and staff operate campaigns in Shopify Admin as an emergency contingency, not the plan. The selected architecture is described in [the SCS proposal](scs-redesign-proposal-with-app.md); the companion [no-app proposal](scs-redesign-proposal-no-app.md) is retained only as a comparison and as the reference for those emergency manual procedures. The branch sequence for the remaining work is decided separately.
+The Sales Campaign System (G18–G22) is one system developed in two repositories: theme features G18–G20 in this repository and the G22 campaign administration app in a separate app repository, with G21's operating procedures spanning both and Shopify Admin. G18's data contract comes first; the VPS checks (Q11) and the SCS proofs of concept should run before G22 development, because they are the only items that could change the hosting or data-model decisions. The proofs of concept cover rendering cost and block re-rendering, cache delay at boundaries (which sets the claim margin), translated images and URLs, previewing Draft entries in the theme editor, a promotional price list on the primary market, adding a gift by order editing, the optional Flow review condition and rental image import. Theme and app work then proceed together toward the February 2027 soft launch. If the app cannot be ready, the theme and data contract launch unchanged and staff operate campaigns in Shopify Admin as an emergency contingency, not the plan. The selected architecture is described in [the SCS proposal](scs-redesign-proposal-with-app.md); the companion [no-app proposal](scs-redesign-proposal-no-app.md) is retained only as a comparison and as the reference for those emergency manual procedures. The branch sequence for the remaining work is set out under [Branch sequence and model guidance](#branch-sequence-and-model-guidance).
+
+The visual design language is delivered in this order: G19's visual refinement on the campaign pages, stage by stage; G25 once two features share a pattern; then G26–G31, one surface at a time. G20 is built on the refined notice shell from the start, so it is never restyled afterwards, and G22 guides campaign content toward the same language while keeping Shopify Admin conventions for its own interface. These features change presentation only; none alters eligibility, pricing, lifecycle or checkout behaviour.
+
+### Branch sequence and model guidance
+
+The remaining work is divided into the branches below. Each is one reviewable increment, started from current `dev` in its repository and developed in its own focused session. Store and server work that changes no repository (fixtures, proofs, server checks, migrations and installation) runs in separately authorized sessions, listed first as prerequisites. Within each track, numbers give the order; the theme and app tracks run in parallel and meet at the Primary cutover and G24. A branch can be implemented once its dependencies are integrated, and its rendered acceptance follows when the matching store session is authorized. Launch placement follows Q17's recommendation until Q17 is resolved.
+
+**Model guidance (November 2026).** Claude Opus 5.5 at medium effort is the default for every branch and session. High effort is recommended where a branch sets a shared foundation, carries pricing, eligibility, security or data-integrity correctness, or needs demanding design judgment. Claude Fable 5.2, at high effort, is reserved for the few long, consequential branches in which a mistake could advertise a price Shopify doesn't charge or leave a promotional price live: the app's resource and price orchestration and the G24 acceptance review. Raise Fable to xhigh only where high has demonstrably fallen short. Sonnet 5.5 suits bounded subagent work inside a branch, such as rendered screenshot sweeps at the four widths or documentation lookups. These are recommendations; the model selected for a session applies, and review of a shared-component or financial diff uses at least high effort.
+
+**Prerequisite sessions (no branch).**
+
+| ID | Session | Scope | Needed before | Model and effort |
+| --- | --- | --- | --- | --- |
+| S1 | SCS proofs | G18 Gamma-Dev proofs and the `promotions-g18` route migration; P-B, P-D, P-TR and P-PRE (SCS proposal, section 19) | T5 (P-B), A3 (P-TR), A4 (P-PRE); the claim margin (P-D) | Opus 5.5 · high |
+| S2 | Campaign fixtures | G19 Stage 0 on Gamma-Dev | Rendered checks of T2 and T6 | Opus 5.5 · medium |
+| S3 | Server checks | Q11 and the SCS section 15 checklist (P-VPS) | A2 | Opus 5.5 · medium |
+| S4 | Operations proofs | P-PL, P-ORD, P-FLOW and P-RENT | A6 (P-PL), A8 (P-ORD, P-FLOW), A9 (P-RENT) | Opus 5.5 · medium |
+
+**Theme track (this repository).**
+
+| # | Branch | Scope | Depends on | Launch | Model and effort |
+| --- | --- | --- | --- | --- | --- |
+| T1 | `feature/scs-refinement-foundations` | G19 Stage 1: scoped tokens, heading roles, lede and summaries, fine print, the notice shell and the six rendering defects | — | Soft launch | Opus 5.5 · high |
+| T2 | `feature/scs-refinement-cards` | G19 Stage 2: collection grid, label rail, variant-card parity, shared rental card | T1; S2 for French rental cards | Soft launch | Opus 5.5 · medium |
+| T3 | `feature/scs-refinement-artwork` | G19 Stage 3: badges over artwork, hero panel, index card media and feature card | T1 | Soft launch | Opus 5.5 · medium |
+| T4 | `feature/scs-refinement-offers` | G19 Stage 4: label chip, facts list, store and gift notices, offer overview and navigation | T1 | Soft launch | Opus 5.5 · medium |
+| T5 | `feature/scs-promotion-notices` | G20: product notice block, cart-line gift notices and entitlement counting, aggregate lookup budget, expiry guard | T1, T4; S1 (P-B) | Soft launch | Opus 5.5 · high |
+| T6 | `feature/scs-refinement-states` | G19 Stage 5: ended, claim, scheduled, paused, invalid and empty views; compact callout | T1; S2 | Soft launch | Opus 5.5 · medium |
+| T7 | `feature/design-foundation` | G25: shared tokens, notice shell and badge family adopted by G08, G11 and the SCS notices; campaign-page copies removed | T1–T5 | Soft launch | Opus 5.5 · high |
+| T8 | `feature/design-collections` | G26: product card tile, collection headers and list, search dialog and page | T7 | Soft launch | Opus 5.5 · high |
+| T9 | `feature/design-product-page` | G27: product header order, accordion and specification table, recommendations | T5, T8 | Soft launch | Opus 5.5 · medium |
+| T10 | `feature/design-cart` | G28: line notices, summary panel, empty cart, recommendations | T5, T8 | After soft launch | Opus 5.5 · medium |
+| T11 | `feature/design-home` | G29: hero, featured collections, current-promotions section, editorial panels | T8 | After soft launch | Opus 5.5 · medium |
+| T12 | `feature/design-header-footer` | G30: announcement bar, navigation, drawer, footer groups, privacy banner alignment | T7 | After soft launch | Opus 5.5 · medium |
+| T13 | `feature/design-business-pages` | G31: titles, reading column, contact panels, tables and the shared disclosure style | T7, T9 | After soft launch | Opus 5.5 · medium |
+| T14 | `feature/utm-referral` | G23, or a recorded non-applicability decision | Q10 | Soft launch if required | Opus 5.5 · medium |
+| T15 | `feature/leaf-blower-chart` | The deferred G15 comparison chart | The other theme branches | Optional | Opus 5.5 · medium |
+| T16 | `feature/storefront-acceptance` | G24: candidate reconciliation, connected journeys and the SCS scenarios; defects return to their owning branch, and this branch records only status and verification notes | All required features; A1–A8; cutover | Final gate (scope per Q17) | Fable 5.2 · high |
+
+T6 and T14 can run whenever their prerequisites are ready. G02 has no branch of its own: its acceptance is recorded as each feature's data contract is verified and reconciled in G24, and a gap found there becomes a branch for the owning feature.
+
+**App track (`gamma-promotions-app`, a new repository; SCS proposal, section 16).**
+
+| # | Branch | Scope | Depends on | Model and effort |
+| --- | --- | --- | --- | --- |
+| A1 | `feature/foundation` | React Router scaffold, App Bridge authentication and token exchange, approved scopes, Prisma 7 with MariaDB, session storage, compliance webhooks, journal and audit; setup that verifies and adopts the definitions already on Gamma-Dev | Authorized repository and app creation | Opus 5.5 · high |
+| A2 | `feature/vps-hosting` | systemd service, nginx server block, versioned releases with symlink rollback, migrations, backups, monitoring and alerts; restart, restore and isolation drills | A1; S3 | Opus 5.5 · high |
+| A3 | `feature/campaign-editor` | Campaign, offer and group editors, gifts, pickers, side-by-side French and English, artwork per language, content guidance and blocking validation of the G18 contract | A1; S1 (P-TR) | Opus 5.5 · high |
+| A4 | `feature/campaign-publishing` | Preview, publication and lifecycle actions for content-only campaigns, immutable term versions, deep duplication, gift reference and rental library | A3; S1 (P-PRE) | Opus 5.5 · medium |
+| A5 | `feature/promotion-resources` | Owned-resource markers, eligibility collections and back-links, automatic and code discounts, read-back and `enforcement_verified_at`, ordered activation, pause and end, conflict detection and the discount budget | A4 | Fable 5.2 · high |
+| A6 | `feature/price-plans` | Promotional price plans or a price list (P-PL), jobs with snapshots and safe restore, scheduler leases and catch-up, MAP rules per Brand | A5; S4 (P-PL) | Fable 5.2 · high |
+| A7 | `feature/health-reconciliation` | Owned-resource webhooks, hourly reconcile, drift findings that hide broken claims, recovery actions and the daily digest | A5, A6 | Opus 5.5 · high |
+| A8 | `feature/gift-operations` | G21's app side: the `promo-gift-live` collection for the optional Flow review, gift reference refinements, staff and emergency manual procedures | A5; S4 (P-ORD, P-FLOW); Q12–Q14 | Opus 5.5 · medium |
+| A9 | `feature/catalogue-picker` | Optional WordPress catalogue picker, pairing and image import | A4; S4 (P-RENT) | Opus 5.5 · medium |
+
+A1 and S3 start first because app readiness is the SCS's highest-ranked risk. After A7, a separately authorized cutover session (Opus 5.5 · high) installs the app on Primary, creates the definitions and moves the `promotions` handle as described in the SCS proposal (section 20), before T16's end-to-end checks.
 
 ## Phase 1 — Foundation and data
 
@@ -931,13 +1011,17 @@ Local implementation (`feature/scs-data-contract`): section 6 of the SCS proposa
 
 Static checks only so far: `npm run check:all` reports the seven known Horizon warnings plus one `OrphanedSnippet` warning for each new snippet, which is expected while G19/G20 haven't connected them; `git diff --check dev...HEAD` passes. The fixture matrix was desk-checked against the snippet rules. Nothing has been rendered by Shopify. Pending Gamma-Dev proofs, each separately authorized: read-only preflight (A0); then, with the four definitions, disposable `g18-proof-*` entries and collections, a temporary route such as `promotions-g18` and an uncommitted scratch preview, French `/` and English `/en` routes and language switching, `system.url`, list visibility and positions of blank and Draft references, variant-list `count` on a populated list and on one emptied by deleting its variants, whether reading a list's length loads its entries (with a control that iterates the same references), the 50/51 offer-reference budget boundary, whether an unpublished companion collection still resolves, hidden collections in `product.collections`, Draft public response and editor preview, translated artwork and links, cache delay at real boundaries, and baseline/candidate median server time on a product and a 10-line cart against the 10% budget. The real `promotions` page and legacy handles stay out of that round. Raising the list ceilings to 16 offers and 12 groups is a separate proof target (a full campaign, an overlapping campaign and a 10-line cart); the 12-offer and 8-group ceilings stand until it passes. The route, list-visibility, Draft, translation and 12/8 results from the G19 prerequisite round are recorded under G19; the lookup, cart and 16/12 experiments remain pending for G20.
 
+Canonical index and route migration (decided 2026-11-09): `/pages/promotions` and `/en/pages/promotions` are the canonical promotions index, campaign pages belong at `/pages/promotions/{handle}`, and the Gamma-Dev proof handle `promotions-g18` is retired. A read-only check that day found no dependency on either handle in the theme: the index section renders on whichever page uses the `page.promotions` template; campaign cards, the collection callout and the campaign page's index link all derive from `system.url`; G18's lookup returns IDs only, so G20's links will come from `system.url` too; and the `noindex` rule reads the campaign's state. On Gamma-Dev, the `promotion` definition's URL handle is `promotions-g18`, with redirect creation available; the legacy `sales_campaigns` and `promo_offers` definitions no longer exist; a `promotions` page and the `promotions-g18` page both use the `page.promotions` template and list the same nine campaigns; every campaign link, and each campaign page's index link, therefore leads under `/pages/promotions-g18`; the "Promotions" menu items are Page links to the `promotions` page, rendered as `/pages/promotions` in French and `/en/pages/promotions` in English (the Admin API reports only the primary-language URL); and no URL redirect mentions either handle. A child path that matches no entry returns its parent page with status 200 and a canonical URL of the requested path, so `/pages/promotions/{handle}` returns the index today, and old paths have to be redirected rather than left to fall through.
+
+Migration on Gamma-Dev, each step separately authorized: (1) change the `promotion` definition's URL handle to `promotions` with Shopify's automatic redirects for published entries, confirming that the handle is accepted beside the existing `promotions` page; (2) delete the `promotions-g18` page and add a redirect from `/pages/promotions-g18` to `/pages/promotions`, because while that page exists an old campaign URL is expected to keep returning it with status 200 instead of redirecting; (3) confirm in French and English that campaign cards, callouts and campaign pages link under `/pages/promotions/`, and that each old `/pages/promotions-g18/{handle}` URL redirects once to its new URL; (4) check that Draft and unknown handles still return the index, that `noindex` and the titles of non-live campaigns are unchanged, and that menu links and language alternates use the canonical paths. Shopify redirects only the entries published when the handle changes; later entries never had an old URL. The same order applies at the production cutover, where the legacy definitions still hold the handle (SCS proposal, section 20). G22's setup creates or adopts the definition with the `promotions` handle and doesn't change it afterwards.
+
 #### Prototype reference
 
 `docs/metaobjects/sales_campaigns.definition.json`, `docs/metaobjects/promo_offers.definition.json`, SCS lifecycle/ended-window/URL helpers and `templates/page.promotions.json` establish the contract. The prototype used an inclusive end boundary and detail grace of `end + (end - start)`. Grouped and ungrouped product membership differed; the exported campaign definition required a collection. `banner_priority` was unused. These are important decisions to evaluate explicitly, not reasons to copy every rendering assumption.
 
 ### G19 — Campaign pages and index
 
-**Priority:** P2. **Status:** Implemented. **Dependencies:** G10, G12, G14, G18.
+**Priority:** P2. **Status:** In progress (campaign pages implemented; visual refinement planned). **Dependencies:** G10, G12, G14, G18.
 
 #### Purpose
 
@@ -946,8 +1030,11 @@ Give customers a place to browse promotions and understand offers whose conditio
 #### Expected behaviour and functional requirements
 
 - Provide a promotions index of live campaigns grouped by business (equipment sales, rentals), ordered by priority, then end date (open-ended last), then title, with an empty state. Optional "Coming soon" and "Recently ended" groups stay off by default.
-- Provide campaign pages with a hero (eyebrow, title, artwork in the current language, summary, introduction, dates, button, official manufacturer link), offer navigation when there are three or more offers, offer sections and campaign terms.
-- Each offer section shows its benefit heading, artwork, details, a redemption panel matching its redemption mode, inline terms, and either native product cards for each group or rental cards. Group notes and eligible-variant lines appear under cards; collection-based groups show a bounded number of products and a link to the native collection page.
+- Provide campaign pages with a link back to the index, a hero (sponsor badge, eyebrow, title, artwork in the current language, dates, number of offers, summary, introduction, a primary link to the offers on desktop only, and the merchant's button and the official manufacturer link as secondary actions), an offer overview that summarises and links to each offer when there are two or more, offer sections, campaign terms and a closing link to all promotions.
+- Each offer section shows its label, title and summary, its artwork and details, a facts list of its conditions, a notice matching its redemption mode, inline terms, and each qualifying group as a labelled grid of native product cards, variant-limited cards or rental cards. Collection-based groups show a bounded number of products and a link to the native collection page; a rental group with no displayable item is omitted; and when a later offer reuses a group already shown, its cards are rendered again in full.
+- Collection-based groups use the theme's standard product card on the collection grid, with its native images, titles, prices, availability and sale badges and Quick Add. Variant-limited groups use a card that looks the same, shows the eligible variant's image and price, links to that variant, names the eligible variants only when the product has more than one, and has no Quick Add. No card shows an offer tag, struck price or percentage unless Shopify's own price shows it; in-store and code offers state that displayed prices are current prices.
+- Rental groups use the rental-search card: the item's image in a 4:5 white box, its name, and a link to its rental-catalogue page that says so. Rental cards show no prices or rates. Rental groups are separated by a hairline rule, not panels.
+- Sponsor badges sit over the artwork on index cards and in the hero, once per card or hero, and move to the text area only when there is no artwork.
 - A free-gift offer prominently names the gift and the qualifying equipment, states the conditions and exclusions, explains that no gift needs to be added to the cart and that Location Gamma supplies it with the order, and includes the backorder statement (G20 wording). It never implies the gift is added at checkout.
 - Financial offers show native prices on cards and the approved redemption wording ("Applied automatically at checkout", "Use code … at checkout"); their claims render only after G21/G22 verification. Manufacturer-redeemed offers show the claim link and deadline; in-store offers show store contact and hours links.
 - Provide a collection-page callout for live promotions linked through the collection's `promotion.promotions`.
@@ -955,7 +1042,11 @@ Give customers a place to browse promotions and understand offers whose conditio
 
 #### Appearance and placement
 
-Present the index as a responsive card grid beneath its heading and optional introduction; each card has its artwork, sponsor text badge (also shown in the campaign hero and collection callouts), title, summary, date line and a visibly actionable link, and remains useful without artwork. On campaign pages, place the hero before the offers, uncropped so manufacturer artwork with text stays readable. Each offer is a headed section (h2) with artwork beside the text at larger widths and stacked on mobile, followed by its redemption or gift panel, terms and grids (group headings h3). Gift panels reuse the G08 notice language: a softly highlighted panel with a gift icon and text that does not rely on color. Terms are HTML text, never only inside artwork.
+Follow the visual design language. Present the index as a card grid (four, three, two and one columns) beneath its title and optional introduction, with a counted heading for each business group. Each card has a 3:2 media tile showing its artwork whole, with the sponsor badge over the tile's top-left corner, then its title, a three-line summary, its end date and an arrow. A card without artwork shows a neutral Concrete tile from 750 px up, with no Brand tint or pattern and the badge in its usual corner, so rows stay even, and a slim band below 750 px. The first campaign in the index's existing order is a two-column feature card; there is no separate "featured" field.
+
+On campaign pages, the hero is a Concrete panel with the text beside a white tile that holds the artwork uncropped, so manufacturer artwork with text stays readable; on phones the artwork comes first, and without artwork the badge sits above the eyebrow. The campaign title is 56 px, and 36 px on phones. From 750 px up, the hero's red primary button ("Voir les offres" / "See the offers") leads to the offers; on phones it is hidden and the offer overview follows the hero directly. The overview appears from two offers and lists each offer with an icon, its label and its title. Each offer is a headed section (h2 at the offer-title size) with a neutral label chip, its summary and facts on one side and its redemption or gift notice on the other at larger widths, stacked on phones. Its qualifying groups follow (h3). From 1200 px, a group with five or more cards has a label rail (count, heading, note and "see all" link) beside its grid; a group with one to four cards, and every group below 1200 px, stacks those above a grid identical to collection pages. Rental groups follow the same heading and rail rules and are separated by a hairline rule (12% Coal), without panels. Gift and redemption notices use the shared notice shell and name the gift once, with its image when one is referenced. Offer and campaign terms are fully visible fine print under label-size headings, as HTML text, never only inside artwork. Scheduled, paused, ended, unavailable and empty views are neutral notices with a button to the index; an ended campaign's claim deadline is its first, bold line. The collection callout is one compact notice with a line per campaign.
+
+The sponsor badge sits over the artwork, top-left and fully inside it: 12 px inset on index cards, 16 px in the hero and 12 px on phones. There is one badge per card or hero, never a second one in the text. Over artwork it keeps its Brand colour and its black or white text chosen by contrast, and gains a 2 px Paper keyline and a soft shadow so it separates from any image. A Brand without a colour shows on an opaque Paper plate with Coal text over artwork and keeps its outline when inline. The badge uses the theme's badge radius (14 px) and padding (4 by 10 px) at 13 px bold, may use the card's width less the insets, wraps to two lines instead of truncating and isn't interactive. A missing or Draft Brand renders nothing.
 
 #### Technical requirements and compatibility
 
@@ -972,6 +1063,10 @@ Cover no campaigns, offers with no products, empty or deleted collections, overl
 - [ ] Financial claims appear only when verified; native prices match Shopify.
 - [ ] Native cards, Quick Add, no-JS links and theme-editor settings work; IDs are unique.
 - [ ] Ended, scheduled, paused and unavailable views, accessibility, long French copy and responsive layouts pass rendered review.
+- [ ] Qualifying products use native cards on the collection grid, two per row below 750 px; groups of one to four cards match collection pages exactly, and groups of five or more use the label rail from 1200 px; variant-limited cards match native cards, link to the eligible variant, carry the theme's availability badges and have no Quick Add; a reused group shows its cards in full; no card implies an unapplied discount.
+- [ ] Rental cards match the rental-search card without prices and link to the rental catalogue in both languages; rental groups are separated by hairline rules, without panels.
+- [ ] Sponsor badges overlay campaign artwork once per card or hero at the specified insets, with the keyline and shadow, unchanged Brand colours and text contrast, and the Paper plate for Brands without a colour; long French names wrap at 320 px; cards without artwork show the neutral tile or slim band, and a hero without artwork shows the badge inline; a missing or Draft Brand shows nothing.
+- [ ] Heading roles (campaign title 36 px on phones), the offer overview from two offers, the red hero button from 750 px up only, offer facts and notices, fine print, the feature card and quiet states follow the visual design language in French and English at 320, 390, 768 and 1440 px.
 
 Local implementation (`feature/scs-campaign-pages`): `templates/metaobject/promotion.json` renders `sections/gamma-promotion.liquid` with one evaluation time per render. Live campaigns show the hero (eyebrow, title, uncropped artwork, dates (without times) in the store time zone, the end shown as the last valid day, summary, introduction, HTTPS button and official source), offer navigation from three shown offers (each link hides with its offer, and an emptied navigation disappears), and an h2 section per offer whose G18 claim isn't `none`; a gift offer also needs a valid product group. Redemption panels (`gamma-promotion-offer-panel`) cover price shown, automatic, code, gift (G08-style panel with a gift icon, the "How you receive your gift" text, backorder and limited-quantity statements), manufacturer claim (steps, deadline, HTTPS link) and in-store/contact offers. Groups are checked with `gamma-promotion-group-data`, the product-free data check now shared with the lookup's `gamma-promotion-group` (whose output is unchanged); invalid groups are skipped. Collection-wide groups show native `_product-card` cards (Quick Add from the theme setting) and a "See all" link to the collection; variant-limited groups show `gamma-promotion-variant-card` only for products still in the qualifying collection, linked to the first eligible variant with its image and price, listing the eligible variants and without Quick Add (which would add the default variant); rental groups show cards only for addresses that pass `gamma-promotion-rental-url` (the rental site checks of `gamma-rental-url`, whatever the rental-search toggle, and no French addresses on English pages). A page-wide counter stops cards at 60, then lists the remaining items as links. Scheduled, paused, invalid and ended pages show an h1 and notice without offers, and `snippets/meta-tags.liquid` (a reported Gamma change in a Horizon file) adds `noindex` to every promotion page that isn't live, and gives scheduled, paused and invalid campaigns a neutral title, description and social preview without their image. Ended pages, and live pages for offers whose own window has ended, show `gamma-promotion-redemption`: the post-sale claim view of section 6 of the SCS proposal, with its purchase window validated apart from the live gate. `templates/page.promotions.json` renders `sections/gamma-promotion-index.liquid`, which reads campaign-level fields from one `paginate … by 250` block, sorts each business group as a whole by priority, end (open-ended last), title and handle, and prints every card; sponsor badges come from `snippets/gamma-brand-badge.liquid` (see the Brand note below); `assets/gamma-promotion-pager.js` shows 24 per page with numbered buttons and a hash for each page, and without JavaScript every campaign stays listed. More than 250 published campaigns fall back to Shopify's pagination with a theme-editor warning. `sections/gamma-promotion-callout.liquid`, placed before the products on the six collection templates, lists a collection's live linked campaigns (at most 5). Horizon's `main-collection-list` skips collections with `seo.hidden` = 1 (a reported Gamma change; Horizon's 20-collection limit still counts them). `assets/gamma-hide-at.js` hides offers, claims, index cards and callout items at their `data-gamma-hide-at` instant on loaded pages.
 
@@ -981,13 +1076,24 @@ Brand badges (`feature/scs-sponsor-brands`): `promotion.sponsor` changed from fi
 
 Rendered G19 checks on that theme: both languages; 60 cards exactly on the 12-offer, 8-group campaign; the verified financial offer with a blank offer end inherits the campaign end and hides 1,800 s before it, while an unverified one and a genuinely open-ended one stay hidden; scheduled, paused, invalid and ended views and `noindex`; the claim view with an open deadline (with and without a start date) and none after the deadline; index order identical to the expected order across 57 sales campaigns (boundaries 24/25, 48/49, 50/51), pages 1–3, hash links and focus; keyboard focus and outline on index cards; Quick Add from a campaign card; the loaded-page guard hiding only the financial offer after its `hide_at`; the collection callout; the collection-list filter; no horizontal overflow at 320 px; and rich text in introductions, terms and claim steps; and the old and new group helpers giving identical output in 216 combinations. Translate & Adapt saved the French title, summary, image, source URL and button on the informational fixture, and both languages rendered as expected. In the theme editor, the merchant reported that the Draft campaign URL showed the parent index, so the editor can't preview Draft campaigns (P-PRE Plan A fails); the proposal's Plan B, an Active and paused campaign rendered in full only in the theme editor, is not implemented yet and is to be settled with G22. Still open: legal review of gift wording (Q12), manufacturer confirmations (Q13), and the cache delay at real boundaries (P-D).
 
+Design review (2026-11-09, revision `4d34b54`; live Gamma-Dev theme 190287544556, verified identical to that revision; three `g19v-*` test campaigns with six offers, six groups and four rental items, set up in Admin outside this repository): every offer and card rendered once the fixtures were complete, and before that the theme showed no cards and hid the gift and code offers, as intended. The review found a 768 px text column on a 1,360 px page; offer titles at 48 px beside a 56 px page title and louder headings on terms than on offers; campaign product cards 182 px wide in seven columns and one per row on phones, against 259 px in five columns and two per row on collection pages; variant-limited cards without the image tile or the theme's availability badges; letterboxed rental cards; a hero 670 px tall for about 280 px of text; and uneven index rows when cards with and without artwork mix. Six rendering defects are corrected in Stage 1 (numbers are the review's screenshots): (1) the gift icon sits on its own row above the notice text (201, offer 1); (2) single-variant products show "Default Title" in the eligible-variant line (201, offer 1; 204); (3) the limited-quantity wording has no singular form (201, offer 1); (4) the gift is named twice, followed by a stray reward line (201, offer 1); (5) the variant-limited card has no backorder badge and shows sold-out as plain text (201; 214, offer 2; against the native cards in 231); and (6) a rental group with no valid card still shows its heading and note (221). Not rendered: the offer navigation, code and automatic wording, the claim panel and the lifecycle views.
+
+Visual refinement (approved 2026-11-09; one reviewable branch per stage, each checked in French and English at 320, 390, 768 and 1440 px, plus 1024 px for grids, on a theme verified against its commit). No stage changes eligibility, lifecycle, verification, claim or rental-address behaviour, and Chris reviews all new French and English wording. G20 follows as its own feature.
+
+- **Stage 0, fixtures (Gamma-Dev only; production is out of scope; applied in a separate session).** French translations of the rental items' addresses; `promotion.promotions` back-links on `stihl-as-system` and `gamma-dev-platform-b18`; a three-offer campaign with 16:9 artwork containing text in French and English, a hero button and a source link; an ended campaign with an open claim deadline; a scheduled campaign and a paused campaign; and a French title for the GTA 40 set. The French "Promotions" menu link was also approved for correction, but a rendered check on 2026-11-09 found that it already leads to `/pages/promotions` on French pages and `/en/pages/promotions` on English pages (G18), so it needs no change.
+- **Stage 1, foundations and defects.** Scope: scoped tokens; heading roles; the lede and 16 px summaries; fine print; one notice shell; the six rendering defects. Checks: the campaign title is 56 px at 1440 px and 36 px at 390 and 320 px, offer titles 32/26, group headings 24/20, terms headings in the label role; "TEST — Journées du détaillant Gamma" takes at most three lines at 320 px; the gift icon sits beside its heading in Gamma Red; no "Default Title"; singular wording at a limit of 1; the gift is named once; the variant-limited card shows the theme's backorder and sold-out badges; an empty rental group is omitted; the heading order is unchanged.
+- **Stage 2, cards and grids.** Scope: the collection grid (250 px minimum, 16 and 24 px gaps, two columns below 750 px); the label rail from 1200 px for groups of five or more cards, with smaller groups and every group below 1200 px stacked above the grid; variant-card parity; the shared rental card (`snippets/gamma-rental-card.liquid`, sharing class names and media rules with rental search rather than code paths); rental groups separated by hairline rules; reused groups rendered in full; the current-price line. Checks: cards in groups of one to four measure the same as collection cards (259 px in five columns at 1440 px), cards in rail groups are within 4 px of them, and every grid has two columns at 390 and 320 px; variant-limited cards match a native card side by side, open the eligible variant, name the variant only on multi-variant products and have no Quick Add; Quick Add from a native card works as on a collection page; rental cards show a 4:5 white box without grey bars or prices, two per row on phones, with the whole card focusable and announced with the catalogue and new-tab notice; Sanding and Cleaning are separated by a hairline, without panels, and Cleaning appears in full under both offers; French rental cards appear once Stage 0 is applied; no card shows a discount that Shopify's price doesn't show; the dealer campaign is under 3,800 px tall at 390 px.
+- **Stage 3, artwork and badges.** Scope: the badge over artwork at its insets, with keyline, shadow and Paper plate; the hero panel and artwork tile; index card media, the neutral Concrete tile from 750 px and slim band below it, the end-only date and the two-column feature card. Checks: one badge per card or hero, never also in the text; text contrast unchanged (STIHL black, Shindaiwa white, Location Gamma black) and the keyline visible on the STIHL artwork; a Brand without a colour shows the plate over artwork and the outline inline; "G19 Démonstration — Marque française" wraps to two lines at 320 px inside its card; a Draft Brand shows nothing; index rows are even at 1440 and 768 px; the tile for missing artwork has no tint or pattern; the feature card is the first campaign in the existing order; hero artwork is uncropped, comes before the title at 390 and 320 px and isn't lazy-loaded; a click anywhere on an index card, including its badge, opens the campaign.
+- **Stage 4, offer anatomy and navigation.** Scope: the label chip and icon; the facts list; store and gift notices with the reward image; the offer overview from two offers; the red hero button from 750 px up only; the back and closing links. Checks: every campaign with two or more offers shows the overview, each row jumps to its offer and focus follows; the red button is present at 1440 and 768 px as the only red primary in view, and absent at 390 and 320 px, where the overview follows the hero directly; each offer shows its chip and how to get it; in-store offers show the current-price line; the gift notice names the reward once with its image; touch targets are at least 44 px high on phones.
+- **Stage 5, states and callout.** Scope: the ended and claim view, scheduled, paused, invalid and empty-index views, and the compact callout. Checks: an ended campaign shows a neutral notice with the claim deadline as its first bold line, no prices or cards, and stays `noindex`; scheduled and paused campaigns show a neutral notice with a button to the index; the empty index shows a notice and a button; the callout has one line per campaign with an underlined link and is under 110 px tall at 390 px with one campaign.
+
 #### Prototype reference
 
 `sections/scs-sales-index.liquid`, `sections/scs-sales-campaign.liquid`, campaign-card/richtext snippets and campaign templates implemented these surfaces. Grouped mode rendered offer products before a paginated collection remainder; pagination was conditional on nonempty remainder output. Index sorting reloaded objects by handle, and the visible CTA text was not itself linked. The offer presentation is useful, while membership, limits, links and pagination require a complete current design.
 
 ### G20 — Product and cart promotional notices
 
-**Priority:** P2. **Status:** Planned. **Dependencies:** G07, G08, G09, G11, G18; G19 for the offer-conditions pages the notices link to.
+**Priority:** P2. **Status:** Planned. **Dependencies:** G07, G08, G09, G11, G18; G19 for the offer-conditions pages the notices link to and for the notice shell and wording roles of its visual refinement (stages 1 and 4).
 
 #### Purpose
 
@@ -1004,7 +1110,7 @@ Explain a relevant offer while the customer is deciding whether to buy, and agai
 
 #### Appearance and placement
 
-Place the product-page block in the product header after the battery-system row and before the option picker, as a compact padded panel that doesn't compete with purchase controls; text-only output must look intentional and long French copy must reflow. In the cart, render the gift notice inside the line's details immediately after the G08 availability line, using the same notice style with a gift icon, so it is visibly associated with that line; it adds no cart-wide summary message.
+Follow the visual design language. Place the product-page block in the product header after the battery-system row and before the option picker, as a compact notice in the shared shell: an icon for the kind of offer in Gamma Red, a bold first line naming the benefit, the supply or redemption sentence, then the end date and a link to the offer's conditions on one small line. The notices carry no sponsor badge, chip, struck price or percentage, stay quieter than the G08 availability notice and never move the purchase controls; text-only output must look intentional and long French copy must reflow. In the cart, render the gift notice as the inline line variant inside the line's details immediately after the G08 availability line, with a gift icon, so it is visibly associated with that line; other participating lines show the short "counts toward" note without an icon. It adds no cart-wide summary message and never sits beside G11's ship-together notice.
 
 #### Technical requirements and compatibility
 
@@ -1020,6 +1126,7 @@ Cover a product alone versus incomplete multi-product conditions, quantity chang
 - [ ] No notice implies that a gift is in the cart or applied at checkout, and none contradicts G11's notices.
 - [ ] Notices update with variant, quantity and line changes in the drawer, page and Quick Add, and render without JavaScript.
 - [ ] Placement, accessibility, mobile layouts and long French copy pass rendered review; lookup cost stays within the agreed budget.
+- [ ] Notices use the shared notice shell and inline line, show end dates without times and no sponsor badge, and pass review in French and English at 320, 390, 768 and 1440 px beside the G08 and G11 notices.
 
 #### Prototype reference
 
@@ -1046,7 +1153,7 @@ Keep every promotional promise true. Shopify must actually apply the prices and 
 
 #### Appearance and placement
 
-Use the native header announcement area only for an approved store-wide promotion or code; detailed conditions belong on campaign, product and cart surfaces (G19, G20). This feature adds no checkout layout or second promotional overlay.
+Use the native header announcement area only for an approved store-wide promotion or code; detailed conditions belong on campaign, product and cart surfaces (G19, G20). An approved announcement is one short line with a link to its campaign page, set in the visual design language's label and body roles; it repeats no conditions. This feature adds no checkout layout or second promotional overlay.
 
 #### Technical requirements and compatibility
 
@@ -1083,6 +1190,8 @@ Make campaign creation, translation, scheduling and Shopify-native discount mana
 - Provide a Shopify-native embedded experience: campaign list with lifecycle and health status; guided creation from templates (manufacturer seasonal, store sale, rental, information) and deep duplication; multi-offer editing with groups, gifts and conditions; product, variant and collection pickers; English and French side by side through Shopify translations; artwork per language; preview; validation with blocking errors and warnings; publish, pause, resume, end and archive with clear confirmations; a read-only gift reference for staff; a reusable rental-equipment library (an optional WordPress catalogue picker); health findings; concise activity history; settings.
 - Create, read back and reconcile owned Shopify resources (eligibility collections with back-links, discounts, price plans), marking them with app-owned metafields and never modifying resources it doesn't own. Detect manual Admin changes through webhooks and an hourly reconcile, and hide affected financial claims when intent is broken.
 - Use Shopify's shared `brand` entries as the only source of sponsors and brand data (sponsor picker, filters, MAP rules keyed to Brand IDs); never keep a separate brand registry, and never create, change or delete the `brand` definition or the battery-system and policy references to it.
+- Guide campaign content toward the storefront's visual design language: recommend 16:9 or 3:2 artwork for each language and name the top-left keep-clear zone that the sponsor badge covers; keep offer labels short enough for a chip and titles led by the benefit; preview the index card and the hero in both languages; and block publication when a rental item lacks a valid rental-catalogue address in either language or the campaign's Brand isn't Active. Brand colours appear in the app only as a reference swatch.
+- Follow Shopify Admin conventions for the app's own interface: Polaris components, Polaris status tones for lifecycle and health, exact instants with the store time zone, and no storefront styling.
 - Keep immutable published versions of campaign terms so gift entitlements remain auditable after edits or expiry.
 - Archive an ended campaign (set it to Draft and unpublish its app-created collections) after the later of normal retention and the last `claim_deadline` of its manufacturer-redeemed offers, and require each `claim_deadline` to be at or after its offer's effective end.
 
@@ -1142,11 +1251,252 @@ Cover absent parameters, repeated/changed visits, long or malformed values, loca
 
 `config/settings_data.json` enabled the Checkout Blocks app embed with `utm_id`, `utm_source`, `utm_medium`, `utm_campaign`, `utm_term` and `ref`. Shopify documents this integration as storing eligible URL parameters in cart attributes. Repository configuration alone does not establish current installation, plan support, consent behavior or downstream content rules.
 
-## Phase 7 — Integrated acceptance
+## Phase 7 — Storefront design language
+
+These features extend the visual design language from the campaign pages to the rest of the storefront. They change presentation only: Shopify stays authoritative for prices, availability, cart and checkout, and the behaviour, merchant settings, schema IDs and section ownership specified in G03–G23 are preserved. Each feature starts from a rendered review of its surface as it stands, in French and English at 320, 390, 768 and 1440 px, and integrates one shared component at a time with a before-and-after record kept outside this repository. Untranslated theme content and raw menu titles seen on Gamma-Dev on 2026-11-09 ("Welcome to our store", "Newsletter", "Footer - Shop FR", English collection titles on French pages) are content setup under G02 and G15, not design work.
+
+### G25 — Design language foundation
+
+**Priority:** P3. **Status:** Planned. **Dependencies:** G04; G19's visual refinement (stages 1–4) as the pilot.
+
+#### Purpose
+
+Give every later feature one source for type, colour, surface and component rules, so that the campaign pages, product pages, cart and business pages look like parts of one storefront, and so that a change to a shared rule is made once.
+
+#### Expected behaviour and functional requirements
+
+- Move the tokens proven on the campaign pages (type roles, colour roles, surfaces, radii, spacing steps and text measures) to `assets/gamma-branding.css` as `--gamma-*` custom properties that alias Horizon's variables and the theme settings where one exists.
+- Provide the shared notice shell and its inline line variant, and adopt them in G08's product notice and cart line, G11's summary notice and the SCS notices without changing their wording, order, announcements or update behaviour.
+- Bring product badges and Brand badges into one badge family (radius, padding and type), keeping status distinguishable without colour.
+- Provide the remaining shared pieces as small classes or `gamma-` snippets: the section heading with a count and rule, the label rail beside a grid of five or more cards, the media tile rules, fine print, and the button hierarchy mapped onto the native primary and secondary button settings.
+- Remove the campaign pages' local copies of anything that becomes shared.
+
+#### Appearance and placement
+
+As defined in the visual design language section. This feature adds no new surface; its visible effect is that notices and badges across the storefront share one treatment.
+
+#### Technical requirements and compatibility
+
+Keep the theme buildless. Don't edit `assets/base.css` or restyle native blocks in place; scope additions to Gamma assets and snippets. Fonts, colours and radii stay merchant-controlled in Theme settings, and the tokens read those settings. Re-check the aliases after each Horizon update. A structural change inside a Horizon file is reported as a Gamma change.
+
+#### Edge cases and quality
+
+Cover the inverse footer and any non-default colour scheme, 200% zoom, long French labels, several notices stacked together, reduced motion and the theme editor.
+
+#### Acceptance criteria
+
+- [ ] Tokens are defined once and used by the campaign pages and at least one other feature, with no visual regression on the campaign pages.
+- [ ] G08, G11 and SCS notices share one shell; their wording, order, announcements and update behaviour are unchanged.
+- [ ] Product and Brand badges share their geometry; status stays readable without colour and contrast rules are met.
+- [ ] Rendered before-and-after review passes in French and English at 320, 390, 768 and 1440 px; local checks report no new findings.
+
+### G26 — Product cards, collections and search
+
+**Priority:** P3. **Status:** Planned. **Dependencies:** G12, G14, G25.
+
+#### Purpose
+
+Most shopping happens on collection and search pages. Their cards and headers should be as considered as the campaign pages that now link to them, and a product card should look the same wherever it appears.
+
+#### Expected behaviour and functional requirements
+
+- Give collection pages a header in the page-title role with the description as a lede of bounded width and the product count, a tidy filter and sort bar, and the campaign callout as a compact notice (G19).
+- Settle the product card's image tile (ratio and background) so mixed photography gives even rows (Q17), and set its title, price and badges in the shared roles. Keep swatches, localized media (G10), availability badges (G08), money formatting (G06) and Quick Add.
+- Apply the same card configuration wherever the native card is used: the six collection templates, search, product recommendations, the home featured collection and the campaign pages.
+- Give the collection list fixed tile ratios, even rows and titles in the group-heading role. Hidden eligibility collections stay excluded.
+- Use the same cards and section headings in the search dialog and on the search page. Rental results use the shared rental card from G19, the onward rental link is a secondary button, and empty and failed states are quiet notices.
+
+#### Appearance and placement
+
+Follow the visual design language. On 2026-11-09 collection cards measured 259 px in five columns at 1440 px and two per row on phones; that grid is the reference the campaign pages match and it doesn't change here. Card rows currently vary in height when product photographs differ in shape, and the collection list mixes tile shapes.
+
+#### Technical requirements and compatibility
+
+The product card is Horizon's native `_product-card` block, configured per template. Change it through its settings and scoped Gamma styles; keep pagination, the zoomed-out grid view, filters (G12) and browser-history behaviour native. The rental-search behaviour, toggle and request rules of G14 are unchanged.
+
+#### Edge cases and quality
+
+Cover missing images, long French titles, sale and availability badges together, combined listings, two columns at 320 px, active filters, later pages and the rental service being unavailable.
+
+#### Acceptance criteria
+
+- [ ] Product cards are identical in structure and metrics on collection, search, recommendation, home and campaign surfaces, with even rows across mixed photography.
+- [ ] Collection headers, the filter bar, the callout and the collection list follow the type and notice roles.
+- [ ] Search dialog and search page results, including rental cards and their states, follow the same cards and headings; G14 behaviour is unchanged.
+- [ ] Quick Add, swatches, filters, sorting, pagination and localized media work as before; rendered review passes in both languages at the four widths.
+
+### G27 — Product page
+
+**Priority:** P3. **Status:** Planned. **Dependencies:** G07, G08, G09, G10, G20, G25.
+
+#### Purpose
+
+The product page is where a purchase is decided. Its title, price, system, promotional and availability information and purchase controls should read in a clear order, and its long-form information should be as easy to scan as a campaign's facts.
+
+#### Expected behaviour and functional requirements
+
+- Order the product header as title, price, battery-system row (G09), promotional notices (G20), option picker, availability notice (G08), purchase controls and pickup, with consistent spacing and one primary button.
+- Set the description as reading text of bounded width, and the information accordion (G07) with label-role row titles, hairline dividers and a specification table with label-role headings and hairline rows.
+- Give complementary and related products counted section headings and the standard product card (G26).
+- Keep the media gallery's native behaviour, with thumbnail, video and zoom controls aligned to the shared radii and spacing.
+
+#### Appearance and placement
+
+Follow the visual design language. The product title stays at the section-title size, not the display size, because the page's emphasis belongs to the price and purchase controls.
+
+#### Technical requirements and compatibility
+
+Keep G07's scoped variant updates, G08's notice element and announcements, G09's block position and G10's media rules. Blocks stay reorderable in the theme editor; the specified order is the default composition, not a lock.
+
+#### Edge cases and quality
+
+Cover products with no battery system, no promotions or no availability notice, two promotional notices with a backorder notice, long French titles and option names, sold-out and special-order states, Quick Add dialogs and combined listings.
+
+#### Acceptance criteria
+
+- [ ] The header order and spacing hold for every combination of battery row, promotional notices and availability notice, and the purchase controls don't shift when a variant changes.
+- [ ] Accordion rows, the specification table and recommendations follow the type roles and standard card.
+- [ ] Variant, price, media, availability and promotional updates behave as before in the page and in Quick Add.
+- [ ] Rendered review passes in both languages at the four widths.
+
+### G28 — Cart
+
+**Priority:** P3. **Status:** Planned. **Dependencies:** G11, G20, G25.
+
+#### Purpose
+
+The cart confirms what the customer is buying and what it earns. Line notices, the order summary and the checkout action should be unambiguous on the page and in the drawer.
+
+#### Expected behaviour and functional requirements
+
+- Set each line with an image tile, title, options and unit price in the shared roles, and its line notices as inline lines in a fixed order: availability (G08), then gift (G20).
+- Present the order summary as a Concrete panel with the ship-together explanation (G11) in the notice shell, the note area visible, totals in a clear hierarchy and checkout as the only primary button.
+- Give the empty cart a quiet notice with links to the main collections and the promotions index.
+- Use the counted section heading and the standard product card for cart recommendations.
+
+#### Appearance and placement
+
+Follow the visual design language on the cart page and in the drawer. Line notices stay with their line; no second cart-wide panel is added.
+
+#### Technical requirements and compatibility
+
+Keep the native cart sections, section re-rendering, quantity rules, discounts display, note field and accelerated checkout. No new cart state, attributes or line properties.
+
+#### Edge cases and quality
+
+Cover mixed in-stock and backordered lines, several notices on one line, discounts and compare-at prices, long French product and option names, more than 50 lines, and the drawer at 320 px.
+
+#### Acceptance criteria
+
+- [ ] Line notices appear in the fixed order under their own line on the page and in the drawer, at every width.
+- [ ] The summary panel, ship-together notice, note area and totals follow the shared roles, with checkout as the only primary button.
+- [ ] Quantity changes, removal, discounts, notes, Quick Add into the cart and checkout handoff behave as before.
+- [ ] Rendered review passes in both languages at the four widths.
+
+### G29 — Home and editorial sections
+
+**Priority:** P3. **Status:** Planned. **Dependencies:** G13, G15, G19, G25.
+
+#### Purpose
+
+The home page should say within one screen that Location Gamma sells and rents equipment, show what's current, and lead to shopping, rental and store information with the same hierarchy as the campaign pages.
+
+#### Expected behaviour and functional requirements
+
+- Keep the hero's heading and search entry (G13), with the heading in the display role and verified contrast over its imagery.
+- Give featured collections counted section headings with a "view all" link and the standard product card (G26).
+- Provide a current-promotions section that reuses the index's campaign cards for a merchant-chosen number of live campaigns, in the index's order, and disappears when none is live.
+- Present the business introduction and rental entry points as editorial panels: a lede, a bounded text measure, optional imagery in a media tile, and one secondary action each.
+- Alternate Paper and Concrete bands to separate sections instead of adding rules or decoration.
+
+#### Appearance and placement
+
+Follow the visual design language. Sections remain merchant-ordered in the theme editor; the specified composition is the default.
+
+#### Technical requirements and compatibility
+
+The promotions section reads campaign-level fields only, with the same lifecycle rules, loaded-page expiry guard and enumeration limits as the index (G18, G19). Home content stays in theme and merchant content, translated as in G15.
+
+#### Edge cases and quality
+
+Cover no live campaigns, one campaign, campaigns without artwork, long French headings, missing hero imagery and a slow or unavailable rental service.
+
+#### Acceptance criteria
+
+- [ ] The hero, featured collections, promotions section and editorial panels follow the type, surface and action roles.
+- [ ] The promotions section shows only live campaigns in the index's order, hides expired ones on loaded pages and disappears when none is live.
+- [ ] Search entry, product cards and editor reordering behave as before; rendered review passes in both languages at the four widths.
+
+### G30 — Header, footer and navigation
+
+**Priority:** P3. **Status:** Planned. **Dependencies:** G03, G04, G05, G15, G16, G17, G25.
+
+#### Purpose
+
+The header and footer frame every page. They should carry the same type and action roles as the content between them, and the footer's contact, hours and map information should be as legible as it is on the contact page.
+
+#### Expected behaviour and functional requirements
+
+- Set the announcement bar in the label role, the primary navigation with one consistent active-link treatment, and the mobile drawer with touch targets of at least 44 px.
+- Organise the footer into clearly headed groups in the group-heading role: contact details, hours (G16), map and directions (G17), navigation menus, newsletter, and social and payment marks, with the hours table and map actions aligned to the shared roles.
+- Align the native privacy banner and preferences (G05) with the button hierarchy without hiding or weakening the decline and preference controls.
+
+#### Appearance and placement
+
+Follow the visual design language on the inverse footer surface as well as on Paper. Language-specific menus, footer menu headings from menu titles and the sticky header keep their G03, G04 and G15 behaviour.
+
+#### Technical requirements and compatibility
+
+Header and footer are Horizon section groups; change them through settings, blocks and scoped Gamma styles. Keep language switching, cart-count announcements, the map activation rules and store-hours selection unchanged.
+
+#### Edge cases and quality
+
+Cover long French menu labels, nested menus, the sticky and inverse header states, a holiday-hours notice, maps turned off, and the footer at 320 px.
+
+#### Acceptance criteria
+
+- [ ] Header, drawer, announcement bar and footer follow the type, action and surface roles on light and inverse surfaces.
+- [ ] Navigation, language switching, hours, map activation, newsletter and privacy controls behave as before, with all privacy choices equally reachable.
+- [ ] Rendered review passes in both languages at the four widths.
+
+### G31 — Business-information pages
+
+**Priority:** P3. **Status:** Planned. **Dependencies:** G15, G16, G17, G25.
+
+#### Purpose
+
+About, contact, service, warranty, policy and rental-terms pages build trust and answer practical questions. They should be comfortable to read and consistent with one another.
+
+#### Expected behaviour and functional requirements
+
+- Set page titles in the display role with an optional lede, body text in a reading column of bounded width, and headings in the section and group roles.
+- On the contact page, present contact details, hours and the map as aligned panels, departments as Concrete cards, and the form with one primary button.
+- Present warranty, policy and rental-terms content with readable tables, document links as secondary actions and legal text in the fine-print style where it qualifies other content.
+- Use one disclosure style for frequently asked questions and the product information accordion (G27).
+
+#### Appearance and placement
+
+Follow the visual design language. On 2026-11-09 these pages already used a centred reading column and rounded department cards; the work is to align their headings, spacing and panels with the shared roles, not to recompose them.
+
+#### Technical requirements and compatibility
+
+Page bodies remain merchant content; styles apply to the rich-text output and the existing G15–G17 blocks. The leaf-blower comparison page keeps its authored content.
+
+#### Edge cases and quality
+
+Cover long tables on phones, pages with no lede, documents in one language only, a holiday-hours notice and maps turned off.
+
+#### Acceptance criteria
+
+- [ ] About, contact, service, warranty, policy, rental-terms and FAQ pages share title, lede, heading, table, panel and fine-print treatments.
+- [ ] Hours, map, directions and the contact form behave as before.
+- [ ] Rendered review passes in both languages at the four widths.
+
+## Phase 8 — Integrated acceptance
 
 ### G24 — Complete storefront verification
 
-**Priority:** Required final gate. **Status:** Planned. **Dependencies:** All required G01–G23 outcomes and their applicable merchant decisions.
+**Priority:** Required final gate. **Status:** Planned. **Dependencies:** All required G01–G23 and G25–G31 outcomes and their applicable merchant decisions.
 
 #### Purpose
 
@@ -1180,6 +1530,7 @@ Include combined product changes, incomplete data, cached pages, overlapping pro
 - [ ] No unresolved critical purchasing, financial, navigation, localization or accessibility defect is accepted.
 - [ ] Performance and metadata meet agreed requirements, and available/unavailable verification is reported accurately.
 - [ ] Required visual hierarchies and responsive layouts are verified with real content, including long French labels, missing artwork, zoom and dynamically replaced output.
+- [ ] The visual design language is applied consistently across campaign, product, cart, collection, search, home, navigation and business-information surfaces, and every shared-component change has its recorded review.
 - [ ] SCS scenarios — dealer-gift offers (STIHL battery, ECHO tiers, multiple gifts, conditional tool-plus-battery and two-unit offers, backordered gift, incomplete carts), mixed and multiple offers, expiry and pause, real automatic and code discounts, scheduled price changes and rollback, rental and product-free campaigns, English and French — pass on Gamma-Dev with actual Shopify behavior.
 - [ ] App and VPS outage, restart and backup-restore drills leave storefront, cart and checkout unaffected.
 - [ ] The result is reviewable before any separately authorized deployment/publication decision.
@@ -1239,6 +1590,9 @@ Independent local work can proceed while these are resolved. Resolve each before
 | Q12 | Dealer-gift legal and policy wording: bilingual gift and backorder notices, gift return terms when a qualifying item is returned, limited-quantity gifts (stated quantity required under Quebec guidance), wrong-claim policy | G19–G21 | Open; recommended defaults in the SCS proposal; legal review before publication |
 | Q13 | Manufacturer confirmations: Gamma's online sales qualify for each program, pre-approval of Gamma-authored campaign pages, treatment of prices shown only in the cart, MAP reviewer | G19–G21 | Open; confirm with STIHL and ECHO before publishing the affected offers |
 | Q14 | SCS operating options: the optional Shopify Flow `gift-review` workflow and an optional second approver for financial offers | G21, G22 | Open; recommended: adopt the Flow workflow if its proof of concept passes, and leave the second approver off |
+| Q15 | Visual design language choices on the campaign pages: a label rail with four columns from 1200 px or a full-width five-column grid for qualifying groups; the placeholder tile and feature card on the index; the lede, 16 px reading text and 36 px phone display size as additions to the brand type scale; the badge overlay details (keyline, Paper plate, a small covered corner of the artwork); the offer overview from two offers | G19, G20, G25 | Resolved 2026-11-09: "Spec sheet" is the approved design language. From 1200 px the label rail applies only to groups of five or more cards; smaller groups, and every group below 1200 px, stack above a grid identical to collection pages. Rental groups are separated by hairline rules, without panels, and a reused group renders its cards in full. Index cards without artwork use a neutral Concrete tile from 750 px and a slim band below it, and the first campaign in the existing order is a two-column feature card with no new field. The 18/16 px lede, 16 px offer summaries and 36 px phone campaign title are additions to the brand guidelines. The badge overlay is as specified under G19. The offer overview shows from two offers, and the red hero button from 750 px up only |
+| Q16 | New bilingual wording: the offer-overview and navigation labels, the in-store notice lead-in, the current-price line for in-store and code offers, the eligible-variant line, the rental-catalogue link text and singular limited-quantity wording | G19, G20 | Resolved 2026-11-09: Chris reviews all new French and English wording, including the current-price line |
+| Q17 | Scope and order of G25–G31: which must precede the February 2027 soft launch; the product-card image tile (ratio and background); whether body text rises above 14 px storewide | G24–G31 | Open; recommended: G25 alongside the campaign refinement, G26 and G27 before the soft launch and the others after it, with the card tile and body size settled in each feature's design review |
 
 ### Material requirement and architecture decisions
 
@@ -1258,10 +1612,13 @@ Independent local work can proceed while these are resolved. Resolve each before
 | 2026-11-08 | G18–G21 | Free gifts are dealer-fulfilled promotional benefits: no automatic cart insertion, no Buy X Get Y for gifts, no reward lines and no app-managed fulfilment; campaign, product and cart-line notices explain the gift and that a backordered gift may delay the order; staff record gifts on orders with native Shopify tools | Faithfully presents every researched manufacturer gift offer, including conditional ones, without cart manipulation; replaces the earlier automatic-gift design |
 | 2026-11-08 | G18–G22 | The G18 contract moves `staff_confirmed_terms` to groups and adds explicit `variants_only`, `requires_companion` and `reward_varies` group flags; stores choices as untranslated `snake_case` values; reserves `financing`; separates the advertised `gift_quantity_limit` from the per-order `reward_limit`; and keeps `app_config`, `map_reviewed_at` and ownership fields outside the theme interface | Deleted variants or companion collections and translated labels can't widen eligibility; claims fail closed on missing or contradictory data; the interface stays provisional until the Gamma-Dev proofs |
 | 2026-11-08 | G18–G20 | Campaign content lives in merchant-owned metaobjects rendered by generic theme sections; eligibility uses collections with back-links for bounded product and cart lookup; financial claims require app read-back verification | One membership definition shared by display and discounts; the storefront never depends on the app at runtime |
+| 2026-11-09 | G19–G22, G25–G31 | "Spec sheet" is the approved visual design language, piloted on the SCS campaign pages and then extended to the rest of the theme. It is presentation only and builds on the brand guidelines, to which it adds an 18/16 px lede, 16 px offer summaries and a 36 px campaign title on phones; shared-component changes are reviewed individually. At most one red primary button appears per view, and none in the phone hero. An immersive photographic hero and a large benefit figure remain optional extensions | Gives every remaining surface one reference. G19 returns to In progress for its visual refinement (Stage 0 fixtures, then five stages), G20–G22 are specified against the language, and G25–G31 are added before G24 |
+| 2026-11-09 | G19 | Qualifying products use the theme's standard product card and collection grid; from 1200 px a label rail accompanies only groups of five or more cards, and smaller groups stack above a grid identical to collection pages. Variant-limited cards match the native card, link to the eligible variant and have no Quick Add. Rental cards follow the rental-search card without prices, in groups separated by hairline rules; a reused group renders in full. Sponsor badges overlay campaign artwork, top-left and fully inside it, with a Paper keyline and shadow and a Paper plate for Brands without a colour. Index cards without artwork use a neutral Concrete tile, and the first campaign is a two-column feature card. The offer overview shows from two offers and the red hero button from 750 px up only | Customers recognise what qualifies, no card implies a discount that isn't applied, and badges stay legible on any artwork without changing Brand data |
+| 2026-11-09 | G18, G19 | `/pages/promotions` is the canonical promotions index and campaign pages belong beneath it; the Gamma-Dev proof handle `promotions-g18` is retired through the redirecting migration recorded under G18 | One index address in each language for menus, campaign links and notices; the theme needs no change because every link derives from `system.url` |
 
 ## Optional extensions
 
-The following require separate scope and acceptance decisions: directional product-to-kit links beyond G09's core battery/recommendation feature; catalog import/normalization tooling; PoR status or resale-quantity synchronization; additional analytics; campaign spreadsheet import; the G22 WordPress catalogue picker; and broader reward/volume programs. Automatic gift insertion and app-managed gift fulfilment are out of scope (G20, G21, G22).
+The following require separate scope and acceptance decisions: directional product-to-kit links beyond G09's core battery/recommendation feature; catalog import/normalization tooling; PoR status or resale-quantity synchronization; additional analytics; campaign spreadsheet import; an immersive photographic campaign hero as an optional hero style, only once Gamma has its own campaign photography; a large benefit figure per offer, deferred because it needs a new optional offer field and so changes the data contract; a rental rate table and the presentation of a future Shopify rental catalogue; the G22 WordPress catalogue picker; and broader reward/volume programs. Automatic gift insertion and app-managed gift fulfilment are out of scope (G20, G21, G22).
 
 These extensions must not become hidden prerequisites for required storefront behavior. Their absence does not justify omitting required rental discovery, product information, location content, promotional browsing or a truthful supported discount workflow. Any future extension must respect the same native authority, localization, accessibility, privacy and operational requirements.
 
