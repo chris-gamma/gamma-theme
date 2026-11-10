@@ -180,7 +180,8 @@
       "rental_count": {
         "one": "{{ count }} article en location",
         "other": "{{ count }} articles en location"
-      }
+      },
+      "rental_link": "Voir dans le catalogue de location"
     },
     "post_sale": {
       "heading": "Réclamations pour les achats admissibles déjà effectués",

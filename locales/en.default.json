@@ -189,7 +189,8 @@
       "rental_count": {
         "one": "{{ count }} rental item",
         "other": "{{ count }} rental items"
-      }
+      },
+      "rental_link": "View in the rental catalogue"
     },
     "post_sale": {
       "heading": "Claims for eligible past purchases",

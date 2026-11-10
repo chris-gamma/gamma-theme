@@ -93,6 +93,8 @@
   </gamma-rental-search>
 {%- endif -%}
 
+{%- render 'gamma-rental-card-styles' -%}
+
 {% stylesheet %}
   .gamma-rental-search {
     display: block;
@@ -246,36 +248,13 @@
     color: rgb(var(--color-foreground-rgb) / var(--opacity-subdued-text));
   }
 
-  /* Rental photos vary in shape, so they're scaled to fit a white box rather than cropped. */
-  .gamma-rental-search__media {
-    --resource-card-aspect-ratio: 4 / 5;
-
-    aspect-ratio: 4 / 5;
-    overflow: hidden;
-    border-radius: var(--resource-card-corner-radius);
-    background-color: rgb(255 255 255);
-  }
-
-  .gamma-rental-search .gamma-rental-search__image {
-    display: block;
-    width: 100%;
-    height: 100%;
-    aspect-ratio: auto;
-    object-fit: contain;
-  }
-
+  /* The result cards' white image box and unclamped title are in gamma-rental-card-styles. */
   .gamma-rental-search__placeholder {
     padding: 0;
   }
 
   .gamma-rental-search__spacer::before {
     content: '\00a0';
-  }
-
-  /* Rental titles often differ only at the end (size, power source), so they aren't clamped. */
-  .gamma-rental-search .resource-card__title {
-    display: block;
-    overflow: visible;
   }
 
   .gamma-rental-search__actions {
