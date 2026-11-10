@@ -145,6 +145,8 @@
       "claim_by": "Soumettez votre réclamation au plus tard le {{ date }}.",
       "claim_link": "Formulaire de réclamation",
       "in_store": "Cette offre est offerte en magasin.",
+      "current_prices_in_store": "Les prix affichés sont les prix courants; l’offre s’applique en magasin.",
+      "current_prices_code": "Les prix affichés sont les prix courants; le rabais s’applique au paiement, avec le code.",
       "contact": "Nous joindre et heures d’ouverture"
     },
     "gift": {

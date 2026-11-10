@@ -154,6 +154,8 @@
       "claim_by": "Submit your claim by {{ date }}.",
       "claim_link": "Claim form",
       "in_store": "This offer is available in store.",
+      "current_prices_in_store": "Prices shown are current prices; the offer is applied in store.",
+      "current_prices_code": "Prices shown are current prices; the discount is applied at checkout with the code.",
       "contact": "Contact us and store hours"
     },
     "gift": {
