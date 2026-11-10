@@ -1,0 +1,109 @@
+{%- doc -%}
+  Renders a rental equipment card for campaign pages, after the rental search result card: the item's
+  image shown whole in a 4:5 white box, its name, and one link over the whole card to the item's page
+  in the rental catalogue, which opens in a new tab. It shows no price or rate. Rental search builds
+  its own cards in JavaScript; the two share only the rules in gamma-rental-card-styles.
+
+  @param {string} url - The item's rental-catalogue address, already validated by the caller.
+  @param {string} title - The item's name.
+  @param {object} [image] - The item's image.
+  @param {string} [note] - A short note shown under the name.
+{%- enddoc -%}
+
+{%- assign action = 'gamma_promotion.cards.rental_link' | t -%}
+<div class="gamma-rental-card">
+  <a class="gamma-rental-card__link" href="{{ url | escape }}" target="_blank" rel="noopener">
+    <span class="visually-hidden">{{ title | escape }}. {{ action }} {{ 'gamma_promotion.new_tab' | t }}</span>
+  </a>
+  <div class="gamma-rental-card__media{% if image == blank %} gamma-rental-card__media--empty{% endif %}">
+    {%- if image != blank -%}
+      {{
+        image
+        | image_url: width: 832
+        | image_tag:
+          widths: '240, 352, 480, 832',
+          sizes: '(min-width: 750px) 260px, 50vw',
+          loading: 'lazy',
+          alt: '',
+          class: 'gamma-rental-card__image'
+      }}
+    {%- endif -%}
+  </div>
+  <p class="gamma-rental-card__title">{{ title | escape }}</p>
+  <p class="gamma-rental-card__action" aria-hidden="true">
+    {{- action -}}
+    <span class="svg-wrapper gamma-rental-card__icon">
+      {{- 'icon-external.svg' | inline_asset_content -}}
+    </span>
+  </p>
+  {%- if note != blank -%}
+    <p class="gamma-rental-card__note">{{ note | escape }}</p>
+  {%- endif -%}
+</div>
+
+{%- render 'gamma-rental-card-styles' -%}
+
+{% stylesheet %}
+  .gamma-rental-card {
+    position: relative;
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: var(--padding-xs, 0.5rem);
+  }
+
+  .gamma-rental-card > p {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .gamma-rental-card__link {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: var(--gamma-radius-media);
+  }
+
+  .gamma-rental-card__link:focus-visible {
+    outline: var(--focus-outline-width, 2px) solid currentColor;
+    outline-offset: var(--focus-outline-offset, 3px);
+  }
+
+  .gamma-rental-card .gamma-rental-card__media--empty {
+    background-color: var(--gamma-color-panel);
+  }
+
+  /* Scoped to this card: search result titles carry the same class and keep Horizon's own rules. */
+  .gamma-rental-card > .gamma-rental-card__title {
+    line-height: 1.3;
+  }
+
+  .gamma-rental-card__action {
+    display: flex;
+    align-items: center;
+    gap: 0.35em;
+    color: var(--gamma-color-muted);
+    font-size: var(--font-size--sm);
+    text-decoration: underline;
+  }
+
+  .gamma-rental-card:hover .gamma-rental-card__action {
+    color: var(--color-foreground);
+  }
+
+  .gamma-rental-card__icon {
+    flex-shrink: 0;
+    width: 1.1em;
+    height: 1.1em;
+  }
+
+  .gamma-rental-card__icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .gamma-rental-card__note {
+    color: var(--gamma-color-muted);
+    font-size: var(--font-size--sm);
+  }
+{% endstylesheet %}

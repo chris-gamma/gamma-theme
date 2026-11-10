@@ -820,9 +820,10 @@ class GammaRentalSearch extends Component {
     const card = element('div', 'resource-card');
     const link = element('a', 'resource-card__link');
     const name = element('span', 'visually-hidden');
-    const media = element('div', 'resource-card__media gamma-rental-search__media');
+    // The gamma-rental-card classes carry the rules shared with campaign pages' rental cards.
+    const media = element('div', 'resource-card__media gamma-rental-card__media');
     const content = element('div', 'resource-card__content');
-    const title = element('p', 'resource-card__title paragraph');
+    const title = element('p', 'resource-card__title paragraph gamma-rental-card__title');
     // Keeps the line native cards use for the price, so card heights match.
     const spacer = element('p', 'resource-card__subtext paragraph gamma-rental-search__spacer');
 
@@ -871,7 +872,7 @@ function createImage(image) {
   if (!image || (images.loaded === 0 && images.failed >= IMAGE_FAILURE_LIMIT)) return createPlaceholder();
 
   const img = document.createElement('img');
-  img.className = 'resource-card__image gamma-rental-search__image';
+  img.className = 'resource-card__image gamma-rental-card__image';
   img.alt = '';
   img.width = image.width;
   img.height = image.height;

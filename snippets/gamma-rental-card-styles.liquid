@@ -1,0 +1,34 @@
+{%- doc -%}
+  The media and title rules shared by rental equipment cards: the campaign card
+  (gamma-rental-card) and the rental search results that gamma-rental-search.js builds. The two
+  share these class names, not markup or code.
+
+  @example
+  {% render 'gamma-rental-card-styles' %}
+{%- enddoc -%}
+
+{% stylesheet %}
+  /* Rental photos vary in shape, so they're scaled to fit a white box rather than cropped. */
+  .gamma-rental-card__media {
+    --resource-card-aspect-ratio: 4 / 5;
+
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: var(--resource-card-corner-radius, var(--gamma-radius-media));
+    background-color: rgb(255 255 255);
+  }
+
+  .gamma-rental-card__media .gamma-rental-card__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+    object-fit: contain;
+  }
+
+  /* Rental titles often differ only at the end (size, power source), so they aren't clamped. */
+  :is(.resource-card, .gamma-rental-card) .gamma-rental-card__title {
+    display: block;
+    overflow: visible;
+  }
+{% endstylesheet %}
