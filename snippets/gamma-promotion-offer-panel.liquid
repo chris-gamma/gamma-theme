@@ -28,34 +28,33 @@
 
 {%- case kind -%}
   {%- when 'price_shown' -%}
-    <p class="gamma-promotion-panel">{{ 'gamma_promotion.redemption.price_shown' | t }}</p>
+    {%- assign message = 'gamma_promotion.redemption.price_shown' | t -%}
+    {%- render 'gamma-notice', message: message -%}
   {%- when 'automatic' -%}
-    <p class="gamma-promotion-panel">{{ 'gamma_promotion.redemption.automatic' | t }}</p>
+    {%- assign message = 'gamma_promotion.redemption.automatic' | t -%}
+    {%- render 'gamma-notice', message: message -%}
   {%- when 'discount_code' -%}
-    {%- assign code = offer.code.value | strip | escape -%}
-    <p class="gamma-promotion-panel">
-      {{- 'gamma_promotion.redemption.discount_code_html' | t: code: code -}}
-    </p>
+    {%- liquid
+      assign code = offer.code.value | strip | escape
+      assign message = 'gamma_promotion.redemption.discount_code_html' | t: code: code
+    -%}
+    {%- render 'gamma-notice', message: message -%}
   {%- when 'gift' -%}
     {%- liquid
       assign availability = offer.gift_availability.value | default: 'guaranteed'
       assign quantity = offer.gift_quantity_limit.value | plus: 0
+      assign lead = 'gamma_promotion.gift.heading' | t
     -%}
-    <div class="gamma-promotion-panel gamma-promotion-panel--gift">
-      <span class="svg-wrapper gamma-promotion-panel__icon" aria-hidden="true">
-        {{- 'icon-gamma-gift.svg' | inline_asset_content -}}
-      </span>
-      <div class="gamma-promotion-panel__text">
-        <p><strong>{{ 'gamma_promotion.gift.heading' | t }}</strong></p>
-        <p>{{ 'gamma_promotion.gift.how' | t }}</p>
-        {%- if offer.gift_supply.value == 'backordered' -%}
-          <p>{{ 'gamma_promotion.gift.backordered' | t }}</p>
-        {%- endif -%}
-        {%- if availability == 'limited' and quantity > 0 -%}
-          <p>{{ 'gamma_promotion.gift.limited' | t: quantity: quantity }}</p>
-        {%- endif -%}
-      </div>
-    </div>
+    {%- capture content -%}
+      <p>{{ 'gamma_promotion.gift.how' | t }}</p>
+      {%- if offer.gift_supply.value == 'backordered' -%}
+        <p>{{ 'gamma_promotion.gift.backordered' | t }}</p>
+      {%- endif -%}
+      {%- if availability == 'limited' and quantity > 0 -%}
+        <p>{{ 'gamma_promotion.gift.limited' | t: count: quantity }}</p>
+      {%- endif -%}
+    {%- endcapture -%}
+    {%- render 'gamma-notice', icon: 'icon-gamma-gift.svg', lead: lead, content: content -%}
   {%- when 'manufacturer' -%}
     {%- liquid
       assign action_url = offer.action.value.url | append: ''
@@ -75,9 +74,9 @@
           assign deadline_text = deadline_text | strip
         endif
       endif
+      assign lead = 'gamma_promotion.redemption.manufacturer' | t
     -%}
-    <div class="gamma-promotion-panel">
-      <p><strong>{{ 'gamma_promotion.redemption.manufacturer' | t }}</strong></p>
+    {%- capture content -%}
       {%- if offer.how_to.value != blank -%}
         <div class="rte">{{ offer.how_to | metafield_tag }}</div>
       {%- endif -%}
@@ -92,61 +91,17 @@
           </a>
         </p>
       {%- endif -%}
-    </div>
+    {%- endcapture -%}
+    {%- render 'gamma-notice', lead: lead, content: content -%}
   {%- when 'store' -%}
-    <div class="gamma-promotion-panel">
-      <p>{{ 'gamma_promotion.redemption.in_store' | t }}</p>
+    {%- assign message = 'gamma_promotion.redemption.in_store' | t -%}
+    {%- capture content -%}
       {%- if contact_url != blank -%}
         <p><a href="{{ contact_url }}">{{ 'gamma_promotion.redemption.contact' | t }}</a></p>
       {%- endif -%}
       {%- if offer.how_to.value != blank -%}
         <div class="rte">{{ offer.how_to | metafield_tag }}</div>
       {%- endif -%}
-    </div>
+    {%- endcapture -%}
+    {%- render 'gamma-notice', message: message, content: content -%}
 {%- endcase -%}
-
-{% stylesheet %}
-  .gamma-promotion-panel {
-    margin: 0;
-    padding: var(--padding-md, 1rem);
-    border-radius: var(--style-border-radius-md, 0);
-    background: rgb(var(--color-foreground-rgb) / 5%);
-    overflow-wrap: anywhere;
-  }
-
-  div.gamma-promotion-panel {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-xs, 0.5rem);
-  }
-
-  div.gamma-promotion-panel > p,
-  .gamma-promotion-panel__text > p {
-    margin: 0;
-  }
-
-  .gamma-promotion-panel--gift {
-    flex-direction: row;
-    align-items: flex-start;
-    gap: var(--gap-sm, 0.75rem);
-  }
-
-  .gamma-promotion-panel__text {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-xs, 0.5rem);
-    min-width: 0;
-  }
-
-  .gamma-promotion-panel__icon {
-    flex: none;
-    width: 1.5rem;
-    height: 1.5rem;
-  }
-
-  .gamma-promotion-panel code {
-    font-weight: var(--font-weight-bold, 700);
-    font-family: inherit;
-    letter-spacing: 0.05em;
-  }
-{% endstylesheet %}
