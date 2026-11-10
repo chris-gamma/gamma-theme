@@ -23,6 +23,11 @@
     --gamma-color-muted: var(--color-foreground-muted);
     --gamma-color-panel: rgb(var(--color-foreground-rgb) / var(--opacity-5, 0.05));
     --gamma-color-rule: rgb(var(--color-foreground-rgb) / 12%);
+    --gamma-color-paper: var(--color-background);
+
+    /* Artwork is prepared for a white ground, whatever the colour scheme. */
+    --gamma-color-tile: rgb(255 255 255);
+    --gamma-shadow-badge: 0 1px 4px rgb(0 0 0 / 30%);
 
     /* Phone sizes have no Horizon variable; from 750px the roles follow the theme's heading presets. */
     --gamma-type-display-size: 2.25rem;
@@ -40,10 +45,19 @@
 
     --gamma-measure-lede: 60ch;
     --gamma-measure-text: 68ch;
+
+    /* The collection grid: two columns on phones, then as many 250px cards as fit. */
+    --gamma-grid-card-min: 250px;
+    --gamma-grid-gap: 12px;
+    --gamma-rail-size: 264px;
+
+    --gamma-ratio-campaign: 3 / 2;
   }
 
   @media screen and (min-width: 750px) {
     .gamma-tokens {
+      --gamma-grid-gap: 24px 16px;
+
       --gamma-type-display-size: var(--font-h1--size);
       --gamma-type-section-size: var(--font-h3--size);
       --gamma-type-group-size: var(--font-h4--size);
@@ -135,5 +149,21 @@
     line-height: inherit;
     letter-spacing: normal;
     text-transform: none;
+  }
+
+  /* Artwork may contain text, so a media tile shows it whole on white at the context's ratio. */
+  .gamma-media-tile {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: var(--gamma-media-ratio, var(--gamma-ratio-campaign));
+    border-radius: var(--gamma-radius-media);
+    background-color: var(--gamma-color-tile);
+  }
+
+  .gamma-media-tile > img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
   }
 {% endstylesheet %}
