@@ -14,7 +14,8 @@
     `collections_truncated`, `links_over_limit`, `offers_over_limit`, `groups_over_limit`,
     `link_unavailable`, `link_wrong_type`, `link_duplicate`, `link_missing`, `budget_links`,
     `budget_promotions`, `budget_offers`, `budget_groups`, `offer_unavailable`, `offer_duplicate`,
-    `offer_shared`, `offer_ambiguous`, `group_invalid`, `records_over_limit`,
+    `offer_shared`, `offer_ambiguous`, `group_invalid`, `records_over_limit`, `list_empty`,
+    `promotion_groups_over_limit`,
     plus the codes gamma-promotion-state, gamma-promotion-offer and gamma-promotion-group report,
     prefixed `promotion_`, `offer_` and `group_` (for example `offer_unverified`).
   - `records`: matches separated by `;`, best first. Each match has 16 fields separated by `:`:
@@ -56,8 +57,12 @@
   receives at most 50 records, within Shopify's 50-iteration `for` limit; more than 50 suppresses
   the result (`records_over_limit`) rather than dropping any. A list stored above its ceiling is
   counted as loaded when its size is read, because reading the size may load its entries. Shopify
-  loads at most 1,000 unique entries of each metaobject type per render, so callers that repeat the
-  lookup, such as a cart, must keep their own aggregate below that.
+  loads at most 1,000 unique entries of each metaobject type per render and silently returns the
+  list that crosses that limit as empty, so a list whose size is positive but which iterates nothing
+  suppresses the whole lookup (`list_empty`). A campaign whose offers reference more than 12 groups
+  in all, a rule Shopify can't enforce, gives no record (`promotion_groups_over_limit`); other
+  campaigns still match. The cart shares one lookup across its lines (gamma-promotion-cart) instead
+  of repeating this one.
 
   @param {product} product - The product being shown or bought.
   @param {variant} variant - The selected variant of that product.
@@ -74,6 +79,8 @@
   # At most 50 offer references, so at most 50 records reach the final loop (50-iteration limit).
   assign offer_budget = 50
   assign group_budget = 200
+  # A campaign's offers may reference 12 groups in all.
+  assign campaign_group_limit = 12
 
   if at != blank
     assign now = at | plus: 0
@@ -133,8 +140,10 @@
         continue
       endif
 
+      assign links_read = 0
       for promotion in campaigns
         assign p = forloop.index0
+        assign links_read = links_read | plus: 1
         if promotion == blank
           assign notes = notes | append: ',link_unavailable'
           continue
@@ -157,6 +166,10 @@
         endunless
       endfor
 
+      if campaign_count > 0 and links_read == 0
+        assign status = 'suppressed'
+        assign notes = notes | append: ',list_empty'
+      endif
       if promotion_count > promotion_budget
         assign status = 'suppressed'
         assign notes = notes | append: ',budget_promotions'
@@ -230,6 +243,23 @@
           break
         endif
 
+        # Sizes alone decide the campaign's group limit and whether Shopify emptied its offer list.
+        assign campaign_groups = 0
+        assign offers_read = 0
+        for offer in offers
+          assign offers_read = offers_read | plus: 1
+          assign campaign_groups = campaign_groups | plus: offer.groups.value.size
+        endfor
+        if offers_size > 0 and offers_read == 0
+          assign status = 'suppressed'
+          assign notes = notes | append: ',list_empty'
+          break
+        endif
+        if campaign_groups > campaign_group_limit
+          assign notes = notes | append: ',promotion_groups_over_limit'
+          continue
+        endif
+
         assign seen_offers = ','
         for offer in offers
           assign o = forloop.index0
@@ -284,7 +314,9 @@
           assign invalid = false
           assign match = ''
           assign match_position = ''
+          assign groups_read = 0
           for group in groups
+            assign groups_read = groups_read | plus: 1
             capture group_result
               render 'gamma-promotion-group', group: group, variant: variant, collection_ids: collection_ids, claim: claim
             endcapture
@@ -304,6 +336,11 @@
             endif
           endfor
 
+          if groups_size > 0 and groups_read == 0
+            assign status = 'suppressed'
+            assign notes = notes | append: ',list_empty'
+            break
+          endif
           if invalid
             assign notes = notes | append: ',group_invalid'
             continue
