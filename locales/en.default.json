@@ -139,10 +139,17 @@
     "unavailable_heading": "This promotion isn’t available",
     "unavailable": "It hasn’t started yet, it’s paused, or it’s no longer offered. See our current promotions for other offers.",
     "index_link": "See current promotions",
+    "all_link": "See all promotions",
+    "back": "All promotions",
+    "see_offers": "See the offers",
+    "offer_count": {
+      "one": "{{ count }} offer",
+      "other": "{{ count }} offers"
+    },
     "source": "Official manufacturer details",
     "new_tab": "(opens in a new tab)",
     "editor_diagnostics": "Shown only in the theme editor. State: {{ state }}. Codes: {{ codes }}",
-    "offers_nav": "Offers in this promotion",
+    "offers_nav": "In this promotion",
     "offer_terms": "Offer terms",
     "terms": "Promotion terms",
     "card_limit": "Shown only in the theme editor: this page reached its 60-card limit, so further eligible items are listed as links.",
@@ -153,7 +160,10 @@
       "manufacturer": "How to claim",
       "claim_by": "Submit your claim by {{ date }}.",
       "claim_link": "Claim form",
-      "in_store": "This offer is available in store.",
+      "in_store_lead": "Available in store.",
+      "in_store": "Visit the Location Gamma counter to take advantage of this offer.",
+      "contact_lead": "Contact us.",
+      "contact_us": "Call or write to Location Gamma to take advantage of this offer.",
       "current_prices_in_store": "Prices shown are current prices; the offer is applied in store.",
       "current_prices_code": "Prices shown are current prices; the discount is applied at checkout with the code.",
       "contact": "Contact us and store hours"
@@ -169,8 +179,17 @@
       "label": "Gift: {{ gift }}",
       "varies": "The gift model depends on your purchase; Location Gamma confirms it."
     },
+    "facts": {
+      "period": "Offer period",
+      "availability": "Availability",
+      "quantity": "Quantity",
+      "purchase": "Required purchase",
+      "gift_model": "Gift model",
+      "confirmation": "To be confirmed"
+    },
     "conditions": {
       "quantity": "Buy {{ count }} eligible items for each gift.",
+      "quantity_offer": "Buy {{ count }} eligible items to get this offer.",
       "companion": "Buy it with {{ companion }}.",
       "staff": "Some conditions are confirmed by our team after you order."
     },
