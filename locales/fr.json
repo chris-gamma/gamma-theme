@@ -130,10 +130,17 @@
     "unavailable_heading": "Cette promotion n’est pas offerte",
     "unavailable": "Elle n’a pas encore commencé, elle est suspendue ou elle n’est plus offerte. Consultez nos promotions en cours pour d’autres offres.",
     "index_link": "Voir les promotions en cours",
+    "all_link": "Voir toutes les promotions",
+    "back": "Toutes les promotions",
+    "see_offers": "Voir les offres",
+    "offer_count": {
+      "one": "{{ count }} offre",
+      "other": "{{ count }} offres"
+    },
     "source": "Détails officiels du fabricant",
     "new_tab": "(s’ouvre dans un nouvel onglet)",
     "editor_diagnostics": "Affiché seulement dans l’éditeur de thème. État : {{ state }}. Codes : {{ codes }}",
-    "offers_nav": "Offres de cette promotion",
+    "offers_nav": "Dans cette promotion",
     "offer_terms": "Conditions de l’offre",
     "terms": "Conditions de la promotion",
     "card_limit": "Affiché seulement dans l’éditeur de thème : cette page a atteint sa limite de 60 cartes; les autres articles admissibles sont présentés sous forme de liens.",
@@ -144,7 +151,10 @@
       "manufacturer": "Comment réclamer",
       "claim_by": "Soumettez votre réclamation au plus tard le {{ date }}.",
       "claim_link": "Formulaire de réclamation",
-      "in_store": "Cette offre est offerte en magasin.",
+      "in_store_lead": "Offert en magasin.",
+      "in_store": "Présentez-vous au comptoir de Location Gamma pour profiter de cette offre.",
+      "contact_lead": "Communiquez avec nous.",
+      "contact_us": "Appelez-nous ou écrivez-nous pour profiter de cette offre.",
       "current_prices_in_store": "Les prix affichés sont les prix courants; l’offre s’applique en magasin.",
       "current_prices_code": "Les prix affichés sont les prix courants; le rabais s’applique au paiement, avec le code.",
       "contact": "Nous joindre et heures d’ouverture"
@@ -160,8 +170,17 @@
       "label": "Cadeau : {{ gift }}",
       "varies": "Le modèle du cadeau dépend de votre achat; Location Gamma le confirme."
     },
+    "facts": {
+      "period": "Période de l’offre",
+      "availability": "Disponibilité",
+      "quantity": "Quantité",
+      "purchase": "Achat requis",
+      "gift_model": "Modèle du cadeau",
+      "confirmation": "À confirmer"
+    },
     "conditions": {
       "quantity": "Achetez {{ count }} articles admissibles pour chaque cadeau.",
+      "quantity_offer": "Achetez {{ count }} articles admissibles pour profiter de cette offre.",
       "companion": "Achetez-le avec {{ companion }}.",
       "staff": "Certaines conditions sont confirmées par notre équipe après votre commande."
     },

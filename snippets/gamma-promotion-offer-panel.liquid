@@ -1,7 +1,9 @@
 {%- doc -%}
-  Renders a live campaign offer's redemption panel: how the customer receives the benefit. Financial
-  wording appears only for a `financial` claim from gamma-promotion-offer, which already requires
-  current enforcement verification. Gift panels never say the gift is added to the cart or at checkout.
+  Renders a live campaign offer's redemption notice: how the customer receives the benefit, with an icon
+  for the way it is redeemed. Financial wording appears only for a `financial` claim from
+  gamma-promotion-offer, which already requires current enforcement verification. Gift notices never
+  say the gift is added to the cart or at checkout; the offer's facts list carries a gift's backorder and
+  limited-quantity statements.
 
   @param {object} offer - The `promotion_offer` entry.
   @param {string} claim - The offer's claim class from gamma-promotion-offer (not `none`).
@@ -9,6 +11,8 @@
   @param {string} [contact_url] - The store's contact page URL, for in-store and contact offers.
   @param {boolean} [current_prices] - Whether the offer shows product cards. In-store and code offers
     then say that the cards' prices are current prices, because neither changes them.
+  @param {string} [gift] - The gift named by gamma-promotion-gift, for the gift notice of an offer with
+    one group. Offers with several groups name each gift beside its group instead.
 {%- enddoc -%}
 
 {%- liquid
@@ -31,10 +35,10 @@
 {%- case kind -%}
   {%- when 'price_shown' -%}
     {%- assign message = 'gamma_promotion.redemption.price_shown' | t -%}
-    {%- render 'gamma-notice', message: message -%}
+    {%- render 'gamma-notice', icon: 'icon-discount.svg', message: message -%}
   {%- when 'automatic' -%}
     {%- assign message = 'gamma_promotion.redemption.automatic' | t -%}
-    {%- render 'gamma-notice', message: message -%}
+    {%- render 'gamma-notice', icon: 'icon-discount.svg', message: message -%}
   {%- when 'discount_code' -%}
     {%- liquid
       assign code = offer.code.value | strip | escape
@@ -45,21 +49,12 @@
         <p class="gamma-notice__note">{{ 'gamma_promotion.redemption.current_prices_code' | t }}</p>
       {%- endif -%}
     {%- endcapture -%}
-    {%- render 'gamma-notice', message: message, content: content -%}
+    {%- render 'gamma-notice', icon: 'icon-discount.svg', message: message, content: content -%}
   {%- when 'gift' -%}
-    {%- liquid
-      assign availability = offer.gift_availability.value | default: 'guaranteed'
-      assign quantity = offer.gift_quantity_limit.value | plus: 0
-      assign lead = 'gamma_promotion.gift.heading' | t
-    -%}
+    {%- assign lead = 'gamma_promotion.gift.heading' | t -%}
     {%- capture content -%}
+      {{- gift -}}
       <p>{{ 'gamma_promotion.gift.how' | t }}</p>
-      {%- if offer.gift_supply.value == 'backordered' -%}
-        <p>{{ 'gamma_promotion.gift.backordered' | t }}</p>
-      {%- endif -%}
-      {%- if availability == 'limited' and quantity > 0 -%}
-        <p>{{ 'gamma_promotion.gift.limited' | t: count: quantity }}</p>
-      {%- endif -%}
     {%- endcapture -%}
     {%- render 'gamma-notice', icon: 'icon-gamma-gift.svg', lead: lead, content: content -%}
   {%- when 'manufacturer' -%}
@@ -99,19 +94,27 @@
         </p>
       {%- endif -%}
     {%- endcapture -%}
-    {%- render 'gamma-notice', lead: lead, content: content -%}
+    {%- render 'gamma-notice', icon: 'icon-info.svg', lead: lead, content: content -%}
   {%- when 'store' -%}
-    {%- assign message = 'gamma_promotion.redemption.in_store' | t -%}
+    {%- liquid
+      if redemption == 'in_store'
+        assign lead = 'gamma_promotion.redemption.in_store_lead' | t
+        assign message = 'gamma_promotion.redemption.in_store' | t
+      else
+        assign lead = 'gamma_promotion.redemption.contact_lead' | t
+        assign message = 'gamma_promotion.redemption.contact_us' | t
+      endif
+    -%}
     {%- capture content -%}
       {%- if current_prices and redemption == 'in_store' -%}
         <p class="gamma-notice__note">{{ 'gamma_promotion.redemption.current_prices_in_store' | t }}</p>
       {%- endif -%}
-      {%- if contact_url != blank -%}
-        <p><a href="{{ contact_url }}">{{ 'gamma_promotion.redemption.contact' | t }}</a></p>
-      {%- endif -%}
       {%- if offer.how_to.value != blank -%}
         <div class="rte">{{ offer.how_to | metafield_tag }}</div>
       {%- endif -%}
+      {%- if contact_url != blank -%}
+        <p><a class="button-secondary" href="{{ contact_url }}">{{ 'gamma_promotion.redemption.contact' | t }}</a></p>
+      {%- endif -%}
     {%- endcapture -%}
-    {%- render 'gamma-notice', message: message, content: content -%}
+    {%- render 'gamma-notice', icon: 'icon-gamma-store.svg', lead: lead, message: message, content: content -%}
 {%- endcase -%}

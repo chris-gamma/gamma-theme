@@ -1,0 +1,111 @@
+{%- doc -%}
+  Renders a live campaign's hero: a panel with the sponsor badge, eyebrow, title, dates, number of
+  offers, summary and introduction beside a white tile that shows the artwork whole. The badge sits over
+  the artwork, or above the eyebrow when there is none. The page's one red button leads to the offers
+  and shows from 750px only; the merchant's HTTPS button and the official source are secondary actions.
+  The campaign section styles it.
+
+  @param {object} promotion - The live `promotion` entry.
+  @param {string} [start] - Campaign start in Unix seconds.
+  @param {string} [end] - Campaign end in Unix seconds (exclusive); the actions hide then on loaded pages.
+  @param {number} [offers] - Number of offers the page shows; the count is printed from two.
+  @param {string} [offers_target] - ID of the element the offers button leads to.
+  @param {string} [count_hide_at] - Unix seconds at which the first offer hides, and the count with it.
+{%- enddoc -%}
+
+{%- liquid
+  assign artwork = promotion.image.value
+  if artwork != blank
+    # The tile follows the artwork's shape between 4:3 and 16:9: a banner fills it, and square or
+    # tall artwork is shown whole without stretching the hero.
+    assign artwork_ratio = artwork.aspect_ratio | default: 1.5 | at_least: 1.3333 | at_most: 1.7778
+  endif
+-%}
+<header class="gamma-promotion__hero{% if artwork != blank %} gamma-promotion__hero--media{% endif %}">
+  <div class="gamma-promotion__hero-text">
+    {%- comment -%} One badge: over the artwork, or here when there is none. {%- endcomment -%}
+    {%- if artwork == blank -%}
+      {%- render 'gamma-brand-badge', brand: promotion.sponsor.value -%}
+    {%- endif -%}
+    {%- if promotion.eyebrow.value != blank -%}
+      <p class="gamma-promotion__eyebrow gamma-type-label">{{ promotion.eyebrow.value | escape }}</p>
+    {%- endif -%}
+    <h1 class="gamma-promotion__title gamma-type-display">{{ promotion.title.value | escape }}</h1>
+    {%- capture date_line -%}
+      {%- render 'gamma-promotion-dates', start: start, end: end -%}
+    {%- endcapture -%}
+    {%- if date_line != blank or offers >= 2 -%}
+      <p class="gamma-promotion__meta">
+        {%- if date_line != blank -%}
+          <span>{{ date_line }}</span>
+        {%- endif -%}
+        {%- if offers >= 2 -%}
+          <span{% if count_hide_at != blank %} data-gamma-hide-at="{{ count_hide_at }}"{% endif %}>
+            {{- 'gamma_promotion.offer_count' | t: count: offers -}}
+          </span>
+        {%- endif -%}
+      </p>
+    {%- endif -%}
+    {%- if promotion.summary.value != blank -%}
+      <p class="gamma-promotion__summary gamma-type-lede">{{ promotion.summary.value | escape | newline_to_br }}</p>
+    {%- endif -%}
+    {%- if promotion.intro.value != blank -%}
+      <div class="gamma-promotion__rte rte">{{ promotion.intro | metafield_tag }}</div>
+    {%- endif -%}
+    {%- liquid
+      assign button_url = promotion.button.value.url | append: ''
+      assign button_text = promotion.button.value.text | strip
+      assign button_scheme = button_url | slice: 0, 8 | downcase
+      assign source_url = promotion.source.value | append: ''
+      assign source_scheme = source_url | slice: 0, 8 | downcase
+      assign show_button = false
+      if button_scheme == 'https://' and button_text != blank
+        assign show_button = true
+      endif
+      assign show_source = false
+      if source_scheme == 'https://'
+        assign show_source = true
+      endif
+    -%}
+    {%- if offers > 0 or show_button or show_source -%}
+      {%- comment -%}
+        The page's one red button leads to the offers and shows from 750px only; on phones the
+        overview follows the hero directly. The merchant's button and the source are secondary.
+      {%- endcomment -%}
+      <p
+        class="gamma-promotion__actions{% unless show_button or show_source %} gamma-promotion__actions--offers-only{% endunless %}"
+        data-gamma-hide-at="{{ end }}"
+      >
+        {%- if offers > 0 -%}
+          <a class="button gamma-promotion__offers-button" href="#{{ offers_target }}">
+            {{- 'gamma_promotion.see_offers' | t -}}
+          </a>
+        {%- endif -%}
+        {%- if show_button -%}
+          <a class="button-secondary" href="{{ button_url | escape }}">{{ button_text | escape }}</a>
+        {%- endif -%}
+        {%- if show_source -%}
+          <a class="gamma-promotion__source" href="{{ source_url | escape }}" target="_blank" rel="noopener">
+            {{- 'gamma_promotion.source' | t -}}
+            <span class="visually-hidden">{{ 'gamma_promotion.new_tab' | t }}</span>
+          </a>
+        {%- endif -%}
+      </p>
+    {%- endif -%}
+  </div>
+  {%- if artwork != blank -%}
+    <div class="gamma-promotion__hero-media gamma-media-tile" style="--gamma-media-ratio: {{ artwork_ratio }};">
+      {%- render 'gamma-brand-badge', brand: promotion.sponsor.value, placement: 'overlay' -%}
+      {{
+        artwork
+        | image_url: width: 1600
+        | image_tag:
+          widths: '480, 720, 960, 1200, 1600',
+          sizes: '(min-width: 990px) 40vw, 100vw',
+          loading: 'eager',
+          fetchpriority: 'high',
+          alt: artwork.alt
+      }}
+    </div>
+  {%- endif -%}
+</header>

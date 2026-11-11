@@ -1,0 +1,49 @@
+{%- doc -%}
+  Outputs a valid product group's conditions as rows for a campaign facts list (`gamma-promotion__facts`):
+  the purchase it requires (a minimum quantity, a companion item), a gift whose model varies, and
+  conditions that staff confirm. The conditions come from gamma-promotion-group-data; translated labels
+  are display copy only. Outputs nothing when the group has none of them.
+
+  @param {object} group - The `promotion_group` entry.
+  @param {string} claim - The offer's claim class from gamma-promotion-offer.
+  @param {string} [min_quantity] - Qualifying units per entitlement, from the group data.
+  @param {string} [companion] - The companion collection's ID from the group data, blank when none is required.
+  @param {string} [staff] - `1` when staff confirm some conditions, from the group data.
+
+  @example
+  <dl class="gamma-promotion__facts">{% render 'gamma-promotion-group-facts', group: group, claim: claim %}</dl>
+{%- enddoc -%}
+
+{%- liquid
+  assign quantity = min_quantity | plus: 0
+  assign companion_label = group.requires_label.value | strip | escape
+-%}
+{%- if quantity > 1 or companion != blank -%}
+  <div class="gamma-promotion__fact">
+    <dt>{{ 'gamma_promotion.facts.purchase' | t }}</dt>
+    {%- if quantity > 1 -%}
+      <dd>
+        {%- if claim == 'gift' -%}
+          {{- 'gamma_promotion.conditions.quantity' | t: count: quantity -}}
+        {%- else -%}
+          {{- 'gamma_promotion.conditions.quantity_offer' | t: count: quantity -}}
+        {%- endif -%}
+      </dd>
+    {%- endif -%}
+    {%- if companion != blank -%}
+      <dd>{{ 'gamma_promotion.conditions.companion' | t: companion: companion_label }}</dd>
+    {%- endif -%}
+  </div>
+{%- endif -%}
+{%- if claim == 'gift' and group.reward_varies.value == true -%}
+  <div class="gamma-promotion__fact">
+    <dt>{{ 'gamma_promotion.facts.gift_model' | t }}</dt>
+    <dd>{{ 'gamma_promotion.gift.varies' | t }}</dd>
+  </div>
+{%- endif -%}
+{%- if staff == '1' -%}
+  <div class="gamma-promotion__fact">
+    <dt>{{ 'gamma_promotion.facts.confirmation' | t }}</dt>
+    <dd>{{ 'gamma_promotion.conditions.staff' | t }}</dd>
+  </div>
+{%- endif -%}

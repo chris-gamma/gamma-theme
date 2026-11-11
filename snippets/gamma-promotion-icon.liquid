@@ -1,0 +1,21 @@
+{%- doc -%}
+  Outputs the icon for a kind of campaign offer, chosen from the offer's stored `benefit` value: a gift
+  for free gifts, a price tag for prices, discounts, rebates and rental rates, and an information mark
+  for anything else. The icon is decorative; the text beside it carries the meaning.
+
+  @param {string} [benefit] - The offer's `benefit` value, such as `free_gift`.
+
+  @example
+  <span class="svg-wrapper" aria-hidden="true">{% render 'gamma-promotion-icon', benefit: offer.benefit.value %}</span>
+{%- enddoc -%}
+
+{%- liquid
+  case benefit
+    when 'free_gift'
+      echo 'icon-gamma-gift.svg' | inline_asset_content
+    when 'promotional_price', 'percent_or_amount_off', 'kit_price', 'manufacturer_rebate', 'rental_rate'
+      echo 'icon-discount.svg' | inline_asset_content
+    else
+      echo 'icon-info.svg' | inline_asset_content
+  endcase
+-%}

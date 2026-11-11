@@ -18,7 +18,7 @@
 
 {%- capture first_line -%}
   {%- if lead != blank -%}<strong>{{ lead }}</strong>{%- endif -%}
-  {%- if lead != blank and message != blank %} {% endif -%}
+  {%- if lead != blank and message != blank -%}{{ ' ' }}{%- endif -%}
   {{- message -}}
 {%- endcapture -%}
 {%- capture icon_html -%}

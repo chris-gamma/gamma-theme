@@ -1,0 +1,77 @@
+{%- doc -%}
+  Names a gift group's reward once: the image of each referenced reward whose product is published,
+  linked to it, then the gift's label with its quantity when a qualifying purchase earns more than one.
+  The label always shows; a reward reference only adds its image and link and never affects the claim.
+  Outputs nothing without a label.
+
+  @param {object} group - The `promotion_group` entry of a gift offer.
+
+  @example
+  {% render 'gamma-promotion-gift', group: group %}
+{%- enddoc -%}
+
+{%- liquid
+  assign gift_label = group.reward_label.value | strip | escape
+  assign reward_quantity = group.reward_quantity.value | default: 1 | plus: 0
+-%}
+{%- if gift_label != blank -%}
+  <div class="gamma-promotion-gift">
+    {%- for reward in group.rewards.value -%}
+      {%- liquid
+        if reward.product == blank or reward.product.url == blank
+          continue
+        endif
+        assign reward_image = reward.featured_image | default: reward.product.featured_image
+        if reward_image == blank
+          continue
+        endif
+      -%}
+      <a class="gamma-promotion-gift__media" href="{{ reward.url }}">
+        {{-
+          reward_image
+          | image_url: width: 160
+          | image_tag: loading: 'lazy', alt: reward.product.title, width: 56, height: 56, class: 'gamma-promotion-gift__image'
+        -}}
+      </a>
+    {%- endfor -%}
+    <p class="gamma-promotion-gift__label">
+      <strong>{{ 'gamma_promotion.gift.label' | t: gift: gift_label }}</strong>
+      {%- if reward_quantity > 1 %} ×{{ reward_quantity }}{% endif -%}
+    </p>
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  /* A plate in the page's background, so it reads on a notice panel and beside a group's heading. */
+  .gamma-promotion-gift {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    align-self: flex-start;
+    gap: var(--gap-xs, 0.5rem) var(--gap-sm, 0.75rem);
+    max-inline-size: 100%;
+    padding: var(--padding-xs, 0.5rem) var(--padding-sm, 0.75rem);
+    border: var(--style-border-width, 1px) solid var(--gamma-color-rule);
+    border-radius: var(--gamma-radius-media);
+    background: var(--gamma-color-paper);
+  }
+
+  .gamma-promotion-gift__media {
+    display: block;
+    flex: none;
+  }
+
+  .gamma-promotion-gift__image {
+    display: block;
+    width: 3.5rem;
+    height: 3.5rem;
+    object-fit: contain;
+  }
+
+  .gamma-promotion-gift__label {
+    flex: 1 1 8rem;
+    min-width: 0;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+{% endstylesheet %}
