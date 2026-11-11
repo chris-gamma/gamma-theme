@@ -4,7 +4,9 @@
   intersected with the offer's, is readable, nonempty, finite and over, with a `claim_deadline` still in
   the future and at or after that window's end, and an HTTPS claim link. This is independent of the
   live-offer gate (gamma-promotion-offer) and never shows prices, product cards, gifts or purchase
-  calls to action. The section hides at the deadline on loaded pages.
+  calls to action. The claim is a notice under the offer's title whose first, bold line is the deadline,
+  followed by the purchases it covers, the manufacturer's steps and the claim link. The section hides at
+  the deadline on loaded pages.
 
   @param {object} offer - The `promotion_offer` entry.
   @param {object} promotion - The offer's `promotion` entry.
@@ -114,23 +116,26 @@
     data-gamma-hide-at="{{ deadline }}"
   >
     <{{ level }} id="{{ id }}-title" class="gamma-promotion__offer-title gamma-type-group">{{ offer.title.value | escape }}</{{ level }}>
-    <p>
-      {%- if start != blank -%}
-        {%- capture start_text -%}{%- render 'gamma-promotion-dates', start: start, mode: 'first' -%}{%- endcapture -%}
-        {{- 'gamma_promotion.post_sale.between' | t: start: start_text, end: end_text -}}
-      {%- else -%}
-        {{- 'gamma_promotion.post_sale.before' | t: end: end_text -}}
+    {%- assign lead = 'gamma_promotion.redemption.claim_by' | t: date: deadline_text -%}
+    {%- capture content -%}
+      <p>
+        {%- if start != blank -%}
+          {%- capture start_text -%}{%- render 'gamma-promotion-dates', start: start, mode: 'first' -%}{%- endcapture -%}
+          {{- 'gamma_promotion.post_sale.between' | t: start: start_text, end: end_text -}}
+        {%- else -%}
+          {{- 'gamma_promotion.post_sale.before' | t: end: end_text -}}
+        {%- endif -%}
+      </p>
+      {%- if offer.how_to.value != blank -%}
+        <div class="rte">{{ offer.how_to | metafield_tag }}</div>
       {%- endif -%}
-    </p>
-    {%- if offer.how_to.value != blank -%}
-      <div class="rte">{{ offer.how_to | metafield_tag }}</div>
-    {%- endif -%}
-    <p>{{ 'gamma_promotion.redemption.claim_by' | t: date: deadline_text }}</p>
-    <p>
-      <a href="{{ action_url | escape }}" target="_blank" rel="noopener">
-        {{- action_text | escape -}}
-        <span class="visually-hidden">{{ 'gamma_promotion.new_tab' | t }}</span>
-      </a>
-    </p>
+      <p>
+        <a class="button-secondary" href="{{ action_url | escape }}" target="_blank" rel="noopener">
+          {{- action_text | escape -}}
+          <span class="visually-hidden">{{ 'gamma_promotion.new_tab' | t }}</span>
+        </a>
+      </p>
+    {%- endcapture -%}
+    {%- render 'gamma-notice', icon: 'icon-info.svg', lead: lead, content: content -%}
   </section>
 {%- endif -%}

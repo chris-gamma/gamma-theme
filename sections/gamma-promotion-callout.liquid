@@ -32,7 +32,7 @@
       assign padded_end = '00000000000' | append: end_key | slice: -11, 11
       assign title_key = promotion.title.value | strip | downcase | append: title_padding | slice: 0, 80
       capture item
-        render 'gamma-promotion-callout-item', promotion: promotion, start: parts[1], end: parts[2]
+        render 'gamma-promotion-callout-item', promotion: promotion, end: parts[2]
       endcapture
       assign entries = entries | append: separator | append: padded_priority | append: padded_end | append: title_key | append: promotion.system.handle | append: key_separator | append: item
     endfor
@@ -42,17 +42,23 @@
 {%- if entries != blank -%}
   {%- assign sorted = entries | remove_first: separator | split: separator | sort -%}
   <div class="section-background"></div>
+  {%- liquid
+    assign heading = 'gamma_promotion.callout.heading' | t
+    capture lines
+      echo '<ul class="gamma-promotion-callout__list" role="list">'
+      for item in sorted
+        echo item | split: key_separator | last
+      endfor
+      echo '</ul>'
+    endcapture
+  -%}
   <div
     class="section section--page-width gamma-promotion-callout spacing-style"
-    style="{% render 'spacing-style', settings: section.settings %} --gamma-promotion-accent: {{ settings.color_palette.brand }};"
+    style="{% render 'spacing-style', settings: section.settings %}"
   >
-    <aside class="gamma-promotion-callout__panel" aria-labelledby="GammaCallout-{{ section.id }}">
-      <h2 id="GammaCallout-{{ section.id }}" class="gamma-promotion-callout__heading">{{ 'gamma_promotion.callout.heading' | t }}</h2>
-      <ul class="gamma-promotion-callout__list" role="list">
-        {%- for item in sorted -%}
-          {{- item | split: key_separator | last -}}
-        {%- endfor -%}
-      </ul>
+    {%- comment -%} One compact notice with a line per campaign; it goes when its last line does. {%- endcomment -%}
+    <aside class="gamma-promotion-callout__panel" aria-label="{{ heading | escape }}" data-gamma-hide-empty>
+      {%- render 'gamma-notice', icon: 'icon-discount.svg', lead: heading, content: lines -%}
     </aside>
   </div>
   <script src="{{ 'gamma-hide-at.js' | asset_url }}" type="module" fetchpriority="low"></script>
@@ -63,43 +69,31 @@
 {%- endif -%}
 
 {% stylesheet %}
-  .gamma-promotion-callout__panel {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-sm, 0.75rem);
-    padding: var(--padding-md, 1rem);
-    border-inline-start: 3px solid var(--gamma-promotion-accent);
-    border-radius: var(--style-border-radius-md, 0);
-    background: rgb(var(--color-foreground-rgb) / 5%);
-  }
-
-  .gamma-promotion-callout__heading {
-    margin: 0;
-    font-size: var(--font-h5--size, 1.125rem);
-  }
-
   .gamma-promotion-callout__list {
     display: flex;
     flex-direction: column;
-    gap: var(--gap-sm, 0.75rem);
-    margin: 0;
+    gap: var(--gap-2xs, 0.3rem);
     padding: 0;
     list-style: none;
   }
 
   .gamma-promotion-callout__item {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-2xs, 0.25rem);
     overflow-wrap: anywhere;
   }
 
-  .gamma-promotion-callout__item[hidden] {
-    display: none;
+  .gamma-promotion-callout__item .gamma-brand-badge {
+    display: inline-block;
+    margin-inline-end: var(--gap-2xs, 0.3rem);
+    vertical-align: middle;
   }
 
-  .gamma-promotion-callout__item > * {
-    margin: 0;
+  .gamma-promotion-callout__item a {
+    text-decoration-color: currentcolor;
+  }
+
+  .gamma-promotion-callout__date {
+    color: var(--gamma-color-muted);
+    white-space: nowrap;
   }
 
   .gamma-promotion-callout__diagnostic {

@@ -564,35 +564,48 @@
       {%- endif -%}
 
     {%- when 'ended' -%}
-      <header class="gamma-promotion__state">
-        <h1 class="gamma-promotion__title gamma-type-display">{{ title }}</h1>
-        <p class="gamma-promotion__notice">
-          {{- 'gamma_promotion.ended' | t -}}
-          {%- capture date_line -%}
-            {%- render 'gamma-promotion-dates', start: campaign_start, end: campaign_end -%}
-          {%- endcapture -%}
-          {%- if date_line != blank %} {{ date_line }}.{% endif -%}
-        </p>
-        <p><a href="{{ index_url }}">{{ 'gamma_promotion.index_link' | t }}</a></p>
-      </header>
-
+      {%- liquid
+        capture date_line
+          render 'gamma-promotion-dates', start: campaign_start, end: campaign_end
+        endcapture
+        assign ended_message = 'gamma_promotion.ended' | t
+        if date_line != blank
+          assign ended_message = ended_message | append: ' ' | append: date_line | append: '.'
+        endif
+      -%}
       {%- capture claims -%}
         {%- for offer in entry.offers.value -%}
           {%- assign claim_id = 'GammaClaim-' | append: section.id | append: '-' | append: offer.system.id -%}
           {%- render 'gamma-promotion-redemption', offer: offer, promotion: entry, at: at, id: claim_id, heading_level: 'h3' -%}
         {%- endfor -%}
       {%- endcapture -%}
+      {%- capture index_button -%}
+        <p class="gamma-promotion__end">
+          <a class="button-secondary" href="{{ index_url }}">{{ 'gamma_promotion.index_link' | t }}</a>
+        </p>
+      {%- endcapture -%}
+      <header class="gamma-promotion__state">
+        <h1 class="gamma-promotion__title gamma-type-display">{{ title }}</h1>
+        {%- render 'gamma-notice', icon: 'icon-info.svg', message: ended_message -%}
+        {%- if claims == blank -%}
+          {{- index_button -}}
+        {%- endif -%}
+      </header>
       {%- if claims != blank -%}
         <section class="gamma-promotion__claims" aria-labelledby="GammaClaims-{{ section.id }}">
           <h2 id="GammaClaims-{{ section.id }}" class="gamma-promotion__offer-title gamma-type-section">{{ 'gamma_promotion.post_sale.heading' | t }}</h2>
           {{ claims }}
         </section>
+        {{- index_button -}}
       {%- endif -%}
     {%- else -%}
+      {%- assign unavailable_message = 'gamma_promotion.unavailable' | t -%}
       <header class="gamma-promotion__state">
         <h1 class="gamma-promotion__title gamma-type-display">{{ 'gamma_promotion.unavailable_heading' | t }}</h1>
-        <p class="gamma-promotion__notice">{{ 'gamma_promotion.unavailable' | t }}</p>
-        <p><a href="{{ index_url }}">{{ 'gamma_promotion.index_link' | t }}</a></p>
+        {%- render 'gamma-notice', icon: 'icon-info.svg', message: unavailable_message -%}
+        <p class="gamma-promotion__end">
+          <a class="button-secondary" href="{{ index_url }}">{{ 'gamma_promotion.index_link' | t }}</a>
+        </p>
       </header>
   {%- endcase -%}
 
@@ -711,8 +724,7 @@
 
   .gamma-promotion__title,
   .gamma-promotion__summary,
-  .gamma-promotion__meta,
-  .gamma-promotion__notice {
+  .gamma-promotion__meta {
     margin: 0;
     overflow-wrap: anywhere;
     hyphens: auto;
@@ -723,11 +735,6 @@
     flex-wrap: wrap;
     gap: var(--gap-2xs, 0.3rem) var(--gap-lg, 1.25rem);
     font-weight: var(--font-weight-bold, 700);
-  }
-
-  .gamma-promotion__notice {
-    padding-inline-start: var(--padding-xs, 0.5rem);
-    border-inline-start: 3px solid var(--gamma-color-accent);
   }
 
   .gamma-promotion__actions {
@@ -1072,8 +1079,13 @@
     border-block-start: var(--style-border-width, 1px) solid var(--gamma-color-rule);
   }
 
-  .gamma-promotion__claim > p {
-    margin: 0;
+  /* Once every claim has passed its deadline on a loaded page, their heading goes with them. */
+  .gamma-promotion__claims:not(:has(.gamma-promotion__claim:not([hidden]))) {
+    display: none;
+  }
+
+  .gamma-promotion__state .gamma-promotion__end {
+    margin-block-start: var(--gap-xs, 0.5rem);
   }
 
   .gamma-promotion__diagnostic {

@@ -110,7 +110,11 @@
   </header>
 
   {%- unless has_live -%}
-    <p class="gamma-promotion-index__empty">{{ 'gamma_promotion.index.empty' | t }}</p>
+    {%- assign empty_message = 'gamma_promotion.index.empty' | t -%}
+    <div class="gamma-promotion-index__empty">
+      {%- render 'gamma-notice', icon: 'icon-info.svg', message: empty_message -%}
+      <a class="button-secondary" href="{{ routes.all_products_collection_url }}">{{ 'actions.continue_shopping' | t }}</a>
+    </div>
   {%- endunless -%}
 
   {%- assign featured = false -%}
@@ -200,10 +204,23 @@
   }
 
   .gamma-promotion-index__title,
-  .gamma-promotion-index__group-title,
-  .gamma-promotion-index__empty {
+  .gamma-promotion-index__group-title {
     margin: 0;
     overflow-wrap: anywhere;
+  }
+
+  .gamma-promotion-index__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--gamma-space-inner);
+    max-width: 48rem;
+  }
+
+  @media screen and (max-width: 749px) {
+    .gamma-promotion-index__empty .button-secondary {
+      width: 100%;
+    }
   }
 
   .gamma-promotion-index__group {
