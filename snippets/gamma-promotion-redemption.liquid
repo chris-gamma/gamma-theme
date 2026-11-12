@@ -121,7 +121,11 @@
       <p>
         {%- if start != blank -%}
           {%- capture start_text -%}{%- render 'gamma-promotion-dates', start: start, mode: 'first' -%}{%- endcapture -%}
-          {{- 'gamma_promotion.post_sale.between' | t: start: start_text, end: end_text -}}
+          {%- if start_text == end_text -%}
+            {{- 'gamma_promotion.post_sale.on' | t: date: end_text -}}
+          {%- else -%}
+            {{- 'gamma_promotion.post_sale.between' | t: start: start_text, end: end_text -}}
+          {%- endif -%}
         {%- else -%}
           {{- 'gamma_promotion.post_sale.before' | t: end: end_text -}}
         {%- endif -%}
