@@ -1,0 +1,219 @@
+{%- doc -%}
+  Works out the gift notices for every cart line in one shared lookup, outputting `@@gamma-line-N@@`, the HTML and `@@gamma-line-end@@` per notice.
+
+  @param {object} cart - The cart.
+
+  @example
+  {% capture notices %}{% render 'gamma-promotion-cart', cart: cart %}{% endcapture %}
+{%- enddoc -%}
+
+{%- liquid
+  assign at = 'now' | date: '%s' | plus: 0
+  assign record_separator = '@@gamma-group@@'
+  assign field_separator = '@@f@@'
+  assign records = ''
+  assign rows = ''
+  assign links = '|'
+  assign seen_collections = ','
+  assign seen_promotions = ','
+  assign promotion_count = 0
+
+  # Pass 1: one row per line, every (campaign, collection) back-link, and each campaign once. Each
+  # product's collections are read once, however many lines it has.
+  assign product_sets = '|'
+  if cart.items.size <= 50
+    for item in cart.items
+      assign product = item.product
+      assign collection_ids = ''
+      assign product_key = '|' | append: product.id | append: '='
+      if product == blank or item.variant == blank
+        assign collection_ids = ''
+      elsif product_sets contains product_key
+        assign collection_ids = product_sets | split: product_key | last | split: '|' | first
+      elsif product.collections.size < 50
+        for collection in product.collections
+          assign collection_ids = collection_ids | append: collection.id | append: ','
+          assign token = ',' | append: collection.id | append: ','
+          if seen_collections contains token
+            continue
+          endif
+          assign seen_collections = seen_collections | append: collection.id | append: ','
+          assign field = collection.metafields.promotion.promotions
+          if field == blank
+            continue
+          endif
+          assign campaigns = field.value
+          assign campaign_count = campaigns.size | plus: 0
+          if campaign_count > 5
+            continue
+          endif
+
+          for promotion in campaigns
+            if promotion == blank or promotion.system.type != 'promotion'
+              continue
+            endif
+            assign links = links | append: 'P' | append: promotion.system.id | append: 'C' | append: collection.id | append: '|'
+            assign token = ',' | append: promotion.system.id | append: ','
+            if seen_promotions contains token
+              continue
+            endif
+            assign seen_promotions = seen_promotions | append: promotion.system.id | append: ','
+            assign promotion_count = promotion_count | plus: 1
+            if promotion_count > 8
+              continue
+            endif
+            capture campaign_records
+              render 'gamma-promotion-cart-campaign', promotion: promotion, at: at
+            endcapture
+            assign records = records | append: campaign_records | strip
+          endfor
+        endfor
+        assign product_sets = product_sets | append: product.id | append: '=' | append: collection_ids | append: '|'
+      endif
+      assign rows = rows | append: forloop.index0 | append: '~' | append: item.variant.id | append: '~' | append: item.quantity | append: '~,' | append: collection_ids | append: ';'
+    endfor
+  endif
+
+  assign groups = records | split: record_separator
+  assign line_rows = rows | split: ';'
+
+  # Lines an offer can't claim for: those in an invalid group's collection or whose variant fits two
+  # of its groups. An offer shared by campaigns keeps the first whose group collection links back.
+  assign eligible = '|'
+  assign blocked = '|'
+  assign offer_owners = '|'
+  for record in groups
+    assign fields = record | split: field_separator
+    if fields.size < 5
+      continue
+    endif
+    assign link = '|P' | append: fields[1] | append: 'C' | append: fields[4] | append: '|'
+    if fields[0] == 'G' and links contains link
+      assign owner = 'O' | append: fields[2] | append: '='
+      assign owner_search = '|' | append: owner
+      unless offer_owners contains owner_search
+        assign offer_owners = offer_owners | append: owner | append: fields[1] | append: '|'
+      endunless
+    endif
+    assign collection_token = ',' | append: fields[4] | append: ','
+    for row in line_rows
+      assign line = row | split: '~'
+      unless line[3] contains collection_token
+        continue
+      endunless
+      assign key = 'P' | append: fields[1] | append: 'O' | append: fields[2] | append: 'L' | append: line[0] | append: '|'
+      assign search = '|' | append: key
+      if fields[0] == 'X'
+        assign blocked = blocked | append: key
+        continue
+      endif
+      if fields[5] != blank
+        assign variant_token = ',' | append: line[1] | append: ','
+        unless fields[5] contains variant_token
+          continue
+        endunless
+      endif
+      if eligible contains search
+        assign blocked = blocked | append: key
+      else
+        assign eligible = eligible | append: key
+      endif
+    endfor
+  endfor
+
+  # Pass 2: count each group's units across the whole cart, then render its notices.
+  for record in groups
+    assign fields = record | split: field_separator
+    if fields[0] != 'G'
+      continue
+    endif
+    assign link = '|P' | append: fields[1] | append: 'C' | append: fields[4] | append: '|'
+    unless links contains link
+      continue
+    endunless
+    assign owner = '|O' | append: fields[2] | append: '=' | append: fields[1] | append: '|'
+    unless offer_owners contains owner
+      continue
+    endunless
+
+    assign collection_token = ',' | append: fields[4] | append: ','
+    assign companion_token = ''
+    if fields[7] != blank
+      assign companion_token = ',' | append: fields[7] | append: ','
+    endif
+    assign qualifying_units = 0
+    assign companion_units = 0
+    assign first_line = ''
+    assign other_lines = ''
+    for row in line_rows
+      assign line = row | split: '~'
+      assign qualifies = false
+      if line[3] contains collection_token
+        assign key = '|P' | append: fields[1] | append: 'O' | append: fields[2] | append: 'L' | append: line[0] | append: '|'
+        if blocked contains key
+          continue
+        endif
+        assign qualifies = true
+        if fields[5] != blank
+          assign variant_token = ',' | append: line[1] | append: ','
+          unless fields[5] contains variant_token
+            assign qualifies = false
+          endunless
+        endif
+      endif
+      if qualifies
+        assign qualifying_units = qualifying_units | plus: line[2]
+        if first_line == blank
+          assign first_line = line[0]
+        else
+          assign other_lines = other_lines | append: line[0] | append: ','
+        endif
+      elsif companion_token != blank and line[3] contains companion_token
+        assign companion_units = companion_units | plus: line[2]
+        assign other_lines = other_lines | append: line[0] | append: ','
+      endif
+    endfor
+    if qualifying_units == 0
+      continue
+    endif
+
+    assign min_quantity = fields[6] | plus: 0 | at_least: 1
+    assign entitlements = qualifying_units | divided_by: min_quantity
+    if companion_token != blank
+      assign companion_quantity = fields[8] | plus: 0 | at_least: 1
+      assign companion_entitlements = companion_units | divided_by: companion_quantity
+      assign entitlements = entitlements | at_most: companion_entitlements
+    endif
+    assign reward_quantity = fields[10] | plus: 0 | at_least: 1
+    assign gifts = entitlements | times: reward_quantity
+    if fields[11] != blank
+      assign reward_limit = fields[11] | plus: 0
+      assign gifts = gifts | at_most: reward_limit
+    endif
+
+    # The cart must prove the gift before a notice says it is earned.
+    assign state = 'conditional'
+    assign quantity = reward_quantity
+    if entitlements > 0
+      assign state = 'earned'
+      assign quantity = gifts
+      if fields[9] == '1'
+        assign state = 'unconfirmed'
+      endif
+    endif
+
+    echo '@@gamma-line-' | append: first_line | append: '@@'
+    render 'gamma-promotion-gift-notice', state: state, gift: fields[13], quantity: quantity, companion: fields[14], min_quantity: min_quantity, staff: fields[9], backordered: fields[15], url: fields[16], variant: 'line', hide_at: fields[12]
+    echo '@@gamma-line-end@@'
+
+    if other_lines != blank
+      assign note = 'gamma_promotion.notice.counts_toward_html' | t: gift: fields[13]
+      assign note_lines = other_lines | split: ','
+      for note_line in note_lines
+        echo '@@gamma-line-' | append: note_line | append: '@@'
+        render 'gamma-notice', variant: 'line', message: note, hide_at: fields[12]
+        echo '@@gamma-line-end@@'
+      endfor
+    endif
+  endfor
+-%}
