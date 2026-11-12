@@ -3,7 +3,18 @@
 {%- liquid
   assign block_settings = block.settings
   assign product_resource = closest.product
-  assign selected_variant = product_resource.selected_or_first_available_variant
+  # Gamma: on a campaign page, a card limited to listed variants shows the first of them, not the
+  # product's default variant (gamma-card-variant). Empty everywhere else.
+  assign gamma_variant = nil
+  capture gamma_variant_id
+    render 'gamma-card-variant', product: product_resource
+  endcapture
+  assign gamma_variant_id = gamma_variant_id | strip
+  if gamma_variant_id != blank
+    assign gamma_variant_id = gamma_variant_id | plus: 0
+    assign gamma_variant = product_resource.variants | where: 'id', gamma_variant_id | first
+  endif
+  assign selected_variant = gamma_variant | default: product_resource.selected_or_first_available_variant
 -%}
 
 {% liquid
@@ -54,7 +65,8 @@
   {% render 'price',
     show_unit_price: true,
     product_resource: product_resource,
-    show_sale_price_first: block_settings.show_sale_price_first
+    show_sale_price_first: block_settings.show_sale_price_first,
+    gamma_variant: gamma_variant
   %}
 
   {% if block_settings.show_tax_info %}

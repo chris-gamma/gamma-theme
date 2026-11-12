@@ -1,0 +1,30 @@
+{%- doc -%}
+  Outputs the ID of the variant a product card must show, or nothing. On a campaign page whose offer
+  group is limited to listed variants, and where only some of the product's variants are listed, the
+  card shows the first listed one instead of the default variant. Elsewhere the output is empty.
+  Callers capture the output, strip it and find the variant among `product.variants`.
+
+  @param {object} product - The product the card renders.
+
+  @example
+  {% capture variant_id %}{% render 'gamma-card-variant', product: product %}{% endcapture %}
+{%- enddoc -%}
+
+{%- liquid
+  assign group = closest.metaobject.promotion_group
+  if product != blank and group != blank and group.variants_only.value == true
+    assign first_listed = ''
+    assign listed_count = 0
+    for listed in group.variants.value
+      if listed.product.id == product.id
+        assign listed_count = listed_count | plus: 1
+        if first_listed == blank
+          assign first_listed = listed.id
+        endif
+      endif
+    endfor
+    if first_listed != blank and listed_count < product.variants_count
+      echo first_listed
+    endif
+  endif
+-%}
