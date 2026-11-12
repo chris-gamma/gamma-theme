@@ -1,0 +1,142 @@
+{%- doc -%}
+  Renders the live campaign offers that apply to a product's selected variant, best first, as compact
+  notices: an icon for the kind of offer, a bold first line naming the benefit, how it is received when
+  that takes an action or happens elsewhere, then the last day and a link to the offer's conditions,
+  which hold everything else. It finds them with gamma-promotion-lookup, resolves
+  each record by its positions, confirms every ID and applies the limit after that; a record that no
+  longer resolves is skipped. A gift that needs another purchase or a quantity gets conditional wording,
+  because a product page can't know the cart. Notices carry no sponsor badge, price or percentage.
+
+  @param {object} product - The product being shown.
+  @param {object} variant - Its selected variant.
+  @param {number} [limit] - Most notices to show (default 2).
+{%- enddoc -%}
+
+{%- liquid
+  assign at = 'now' | date: '%s' | plus: 0
+  assign most = limit | default: 2 | plus: 0
+  assign shown = 0
+  capture lookup
+    render 'gamma-promotion-lookup', product: product, variant: variant, at: at
+  endcapture
+  assign lookup_parts = lookup | strip | split: '|'
+  assign records = lookup_parts[2] | split: ';'
+-%}
+
+{%- for record in records -%}
+  {%- liquid
+    if shown >= most
+      break
+    endif
+    assign fields = record | split: ':'
+    assign collection_position = fields[4] | plus: 0
+    assign promotion_position = fields[5] | plus: 0
+    assign offer_position = fields[6] | plus: 0
+    assign group_position = fields[7] | plus: 0
+
+    # Positions come from the same render; every ID is confirmed before anything is claimed. A
+    # reference list has no index access, so each entry is reached by a one-step loop.
+    assign collection = product.collections[collection_position]
+    assign promotion = nil
+    assign offer = nil
+    assign group = nil
+    for entry in collection.metafields.promotion.promotions.value limit: 1 offset: promotion_position
+      assign promotion = entry
+    endfor
+    for entry in promotion.offers.value limit: 1 offset: offer_position
+      assign offer = entry
+    endfor
+    for entry in offer.groups.value limit: 1 offset: group_position
+      assign group = entry
+    endfor
+    assign found = collection.id | append: ':' | append: promotion.system.id | append: ':' | append: offer.system.id | append: ':' | append: group.system.id
+    assign expected = fields[3] | append: ':' | append: fields[0] | append: ':' | append: fields[1] | append: ':' | append: fields[2]
+    if found != expected
+      continue
+    endif
+    assign shown = shown | plus: 1
+
+    assign claim = fields[8]
+    assign hide_at = fields[9]
+    assign min_quantity = fields[12] | plus: 0
+    assign companion = ''
+    if fields[13] != blank
+      assign companion = group.requires_label.value | strip | escape
+    endif
+    assign staff = fields[15]
+    assign url = promotion.system.url | append: '#offer-' | append: offer.system.id
+    assign until = ''
+    if fields[10] != blank
+      capture last_day
+        render 'gamma-promotion-dates', end: fields[10], mode: 'last'
+      endcapture
+      assign until = 'gamma_promotion.index.until' | t: date: last_day
+    endif
+  -%}
+  {%- if claim == 'gift' -%}
+    {%- liquid
+      assign state = 'earned'
+      if min_quantity > 1 or companion != blank
+        assign state = 'conditional'
+      elsif staff == '1'
+        assign state = 'unconfirmed'
+      endif
+      assign gift = group.reward_label.value | strip | escape
+      assign backordered = '0'
+      if offer.gift_supply.value == 'backordered'
+        assign backordered = '1'
+      endif
+      render 'gamma-promotion-gift-notice', state: state, gift: gift, quantity: group.reward_quantity.value, companion: companion, min_quantity: min_quantity, staff: staff, backordered: backordered, url: url, until: until, hide_at: hide_at
+    -%}
+  {%- else -%}
+    {%- liquid
+      assign offer_title = offer.title.value | strip | escape
+      assign lead = offer_title
+      assign redemption = offer.redemption.value | append: ''
+      assign message = ''
+      case redemption
+        when 'automatic'
+          assign message = 'gamma_promotion.redemption.automatic' | t
+        when 'discount_code'
+          assign code = offer.code.value | strip | escape
+          assign message = 'gamma_promotion.redemption.discount_code_html' | t: code: code
+        when 'manufacturer_fulfils'
+          assign message = 'gamma_promotion.notice.manufacturer' | t
+        when 'in_store'
+          assign message = 'gamma_promotion.redemption.in_store_lead' | t
+        when 'contact_us'
+          assign message = 'gamma_promotion.redemption.contact_lead' | t
+      endcase
+      if min_quantity > 1
+        assign sentence = 'gamma_promotion.conditions.quantity_offer' | t: count: min_quantity
+        assign message = message | append: ' ' | append: sentence
+      endif
+      if companion != blank
+        assign sentence = 'gamma_promotion.conditions.companion' | t: companion: companion
+        assign message = message | append: ' ' | append: sentence
+      endif
+      assign message = message | strip
+      if message != blank
+        assign lead = 'gamma_promotion.notice.offer_lead_html' | t: offer: offer_title
+      endif
+      assign link_text = 'gamma_promotion.notice.conditions_link' | t
+      capture icon
+        render 'gamma-promotion-icon', benefit: offer.benefit.value, output: 'name'
+      endcapture
+    -%}
+    {%- capture content -%}
+      <p class="gamma-notice__note">
+        {{- until -}}
+        {%- if until != blank %} · {% endif -%}
+        <a href="{{ url }}">{{ link_text }}</a>
+      </p>
+    {%- endcapture -%}
+    {%- render 'gamma-notice', icon: icon, lead: lead, message: message, content: content, hide_at: hide_at -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- if request.design_mode and lookup_parts[0] != 'ok' -%}
+  <p class="gamma-promotion-notices__diagnostic">
+    {{- 'gamma_promotion.editor_diagnostics' | t: state: lookup_parts[0], codes: lookup_parts[1] -}}
+  </p>
+{%- endif -%}

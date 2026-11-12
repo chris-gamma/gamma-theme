@@ -124,6 +124,9 @@
     "page_size": "Promotions per page",
     "show_coming_soon": "Show coming soon",
     "show_recently_ended": "Show recently ended",
+    "notices_name": "Promotion notices",
+    "notices_info": "Shows the live promotions that apply to the selected variant, from Shopify content. Shows nothing when there are none.",
+    "notices_limit": "Notices to show",
     "callout_name": "Promotion callout",
     "callout_info": "Lists live promotions linked to this collection. Shows nothing when there are none."
   },

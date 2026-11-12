@@ -115,6 +115,9 @@
     "page_size": "Promotions par page",
     "show_coming_soon": "Afficher les promotions à venir",
     "show_recently_ended": "Afficher les promotions récemment terminées",
+    "notices_name": "Avis de promotion",
+    "notices_info": "Présente les promotions en cours qui s’appliquent à la variante sélectionnée, à partir du contenu Shopify. N’affiche rien s’il n’y en a aucune.",
+    "notices_limit": "Nombre d’avis à afficher",
     "callout_name": "Encadré promotionnel",
     "callout_info": "Présente les promotions en cours liées à cette collection. N’affiche rien s’il n’y en a aucune."
   },

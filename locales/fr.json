@@ -203,6 +203,19 @@
       },
       "rental_link": "Voir dans le catalogue de location"
     },
+    "notice": {
+      "gift_label": "Cadeau :",
+      "gift_label_staff": "Cadeau à confirmer :",
+      "gift_with_companion_html": "{{ gift }}, à l’achat avec {{ companion }}",
+      "gift_with_quantity_html": "{{ gift }}, à l’achat de {{ count }} articles admissibles",
+      "gift_with_both_html": "{{ gift }}, à l’achat de {{ count }} articles admissibles avec {{ companion }}",
+      "gift_backordered": "(en rupture)",
+      "counts_toward_html": "Compte pour l’offre de cadeau : {{ gift }}.",
+      "offer_lead_html": "{{ offer }} :",
+      "manufacturer": "À réclamer auprès du fabricant après votre achat.",
+      "conditions_link": "Conditions de l’offre",
+      "conditions_link_short": "Conditions"
+    },
     "post_sale": {
       "heading": "Réclamations pour les achats admissibles déjà effectués",
       "between": "Pour les achats admissibles effectués entre le {{ start }} et le {{ end }}.",

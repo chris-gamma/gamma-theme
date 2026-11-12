@@ -1,0 +1,134 @@
+{%- liquid
+  assign product_resource = closest.product
+  assign variant = product_resource.selected_or_first_available_variant
+-%}
+
+{%- if product_resource != blank and variant != blank -%}
+  {%- comment -%}
+    The element is always present, so choosing a variant can show, change or clear its notices; it takes
+    no space while it has none.
+  {%- endcomment -%}
+  <gamma-promotion-notices
+    class="gamma-promotion-notices spacing-style"
+    data-section-id="{{ section.id }}"
+    data-block-id="{{ block.id }}"
+    data-product-id="{{ product_resource.id }}"
+    data-variant-id="{{ variant.id }}"
+    style="{% render 'spacing-style', settings: block.settings %}"
+    {{ block.shopify_attributes }}
+  >
+    <div ref="panel" class="gamma-promotion-notices__list">
+      {%- render 'gamma-promotion-product-notices', product: product_resource, variant: variant, limit: block.settings.limit -%}
+    </div>
+  </gamma-promotion-notices>
+  <script src="{{ 'gamma-promotion-notices.js' | asset_url }}" type="module" fetchpriority="low"></script>
+  <script src="{{ 'gamma-hide-at.js' | asset_url }}" type="module" fetchpriority="low"></script>
+{%- endif -%}
+
+{% stylesheet %}
+  gamma-promotion-notices {
+    display: block;
+    width: 100%;
+  }
+
+  gamma-promotion-notices:not(:has(.gamma-notice, .gamma-promotion-notices__diagnostic)) {
+    display: none;
+  }
+
+  .gamma-promotion-notices__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xs, 0.5rem);
+  }
+
+  .gamma-promotion-notices__list[hidden] {
+    display: none;
+  }
+
+  /* Quieter than the availability notice near the buy buttons: smaller text, a smaller icon, less padding. */
+  .gamma-promotion-notices .gamma-notice {
+    gap: var(--gap-xs, 0.5rem);
+    padding: var(--padding-sm, 0.75rem);
+    font-size: var(--font-size--sm);
+    line-height: 1.4;
+  }
+
+  .gamma-promotion-notices .gamma-notice__icon {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .gamma-promotion-notices .gamma-notice__body {
+    gap: var(--gap-2xs, 0.25rem);
+  }
+
+  /* The last day and the conditions link, a step below the notice's own small text (12px). */
+  .gamma-promotion-notices .gamma-notice__note {
+    font-size: var(--font-size--2xs);
+  }
+
+  .gamma-promotion-notices a {
+    text-decoration-color: currentcolor;
+  }
+
+  .gamma-promotion-notices__diagnostic {
+    margin: 0;
+    padding: var(--padding-sm, 0.75rem);
+    border: 1px dashed currentColor;
+    font-family: monospace;
+    font-size: 0.875rem;
+    overflow-wrap: anywhere;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:gamma_promotion.notices_name",
+  "tag": null,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:gamma_promotion.notices_info"
+    },
+    {
+      "type": "range",
+      "id": "limit",
+      "label": "t:gamma_promotion.notices_limit",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:gamma_promotion.notices_name",
+      "category": "t:categories.product"
+    }
+  ]
+}
+{% endschema %}

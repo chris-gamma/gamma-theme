@@ -185,6 +185,8 @@
           aria-labelledby="{{ offer_id }}-title"
           {% if hide_at != blank %}data-gamma-hide-at="{{ hide_at }}"{% endif %}
         >
+          {%- comment -%} Product and cart notices link here; they can't know this section's ID. {%- endcomment -%}
+          <span id="offer-{{ offer.system.id }}" class="gamma-promotion__offer-anchor"></span>
           {%- comment -%}
             Groups are resolved before the offer's introduction, which they are printed after: its notice
             says that card prices are current prices only when the offer shows product cards. An offer's
@@ -870,6 +872,17 @@
   }
 
   /* The offer's text and facts sit beside its notice once there is room for both. */
+  /*
+    Takes no space in the offer's column. It sits inside the offer's padding, so its margin adds the
+    padding and the rule: a notice's link then stops where an overview row does.
+  */
+  .gamma-promotion__offer-anchor {
+    position: absolute;
+    scroll-margin-block-start: calc(
+      var(--header-height, 0px) + var(--gamma-space-group) + var(--style-border-width, 1px)
+    );
+  }
+
   .gamma-promotion__offer-head {
     display: grid;
     grid-template-columns: minmax(0, 1fr);

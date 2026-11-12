@@ -1,0 +1,80 @@
+{%- doc -%}
+  Renders one dealer-supplied gift notice in the shared notice shell, for a product page (panel) or a
+  cart line (line). It says only what a customer needs at a glance: a short label, the gift and its
+  quantity, what the purchase still needs, a marker when the gift is backordered, and a link to the
+  offer's conditions, where everything that applies to every gift is stated. The wording never says
+  the gift is in the cart or applied at checkout:
+
+  - `earned`: the purchase satisfies the group's conditions.
+  - `unconfirmed`: the conditions the storefront can check are met, and staff confirm the others.
+  - `conditional` (default): a quantity or companion condition isn't met, so the notice states it.
+
+  The label says "to be confirmed" whenever staff confirm some conditions. Every text parameter is
+  already escaped.
+
+  @param {string} state - `earned`, `unconfirmed` or `conditional`.
+  @param {string} gift - The gift's label.
+  @param {number} [quantity] - Gifts the purchase earns; shown from two.
+  @param {string} [companion] - The companion item's label, when the group requires one.
+  @param {number} [min_quantity] - Qualifying units per gift.
+  @param {string} [staff] - `1` when staff confirm some conditions after the order.
+  @param {string} [backordered] - `1` when the gift is currently backordered.
+  @param {string} [url] - Address of the offer's conditions.
+  @param {string} [until] - The offer's last day, for the panel's small line.
+  @param {string} [variant] - `panel` (default) or `line`.
+  @param {string} [hide_at] - Unix seconds at which gamma-hide-at.js hides the notice.
+{%- enddoc -%}
+
+{%- liquid
+  assign named = gift
+  assign count = quantity | plus: 0
+  if count > 1
+    assign named = gift | append: ' ×' | append: count
+  endif
+
+  assign lead = 'gamma_promotion.notice.gift_label' | t
+  if staff == '1'
+    assign lead = 'gamma_promotion.notice.gift_label_staff' | t
+  endif
+
+  assign message = named
+  if state != 'earned' and state != 'unconfirmed'
+    assign needed = min_quantity | plus: 0
+    if needed > 1 and companion != blank
+      assign message = 'gamma_promotion.notice.gift_with_both_html' | t: count: needed, companion: companion, gift: named
+    elsif needed > 1
+      assign message = 'gamma_promotion.notice.gift_with_quantity_html' | t: count: needed, gift: named
+    elsif companion != blank
+      assign message = 'gamma_promotion.notice.gift_with_companion_html' | t: companion: companion, gift: named
+    endif
+  endif
+
+  if backordered == '1'
+    assign marker = 'gamma_promotion.notice.gift_backordered' | t
+    assign message = message | append: ' ' | append: marker
+  endif
+-%}
+
+{%- if variant == 'line' -%}
+  {%- liquid
+    # A line has no second row: the link follows the text, smaller, and names its gift for assistive technology.
+    if url != blank
+      assign link_text = 'gamma_promotion.notice.conditions_link_short' | t
+      assign message = message | append: ' <span class="gamma-notice__meta">· <a href="' | append: url | append: '">' | append: link_text | append: '<span class="visually-hidden"> – ' | append: gift | append: '</span></a></span>'
+    endif
+    render 'gamma-notice', variant: 'line', icon: 'icon-gamma-gift.svg', lead: lead, message: message, hide_at: hide_at
+  -%}
+{%- else -%}
+  {%- capture content -%}
+    {%- if until != blank or url != blank -%}
+      <p class="gamma-notice__note">
+        {{- until -}}
+        {%- if until != blank and url != blank %} · {% endif -%}
+        {%- if url != blank -%}
+          <a href="{{ url }}">{{ 'gamma_promotion.notice.conditions_link' | t }}</a>
+        {%- endif -%}
+      </p>
+    {%- endif -%}
+  {%- endcapture -%}
+  {%- render 'gamma-notice', icon: 'icon-gamma-gift.svg', lead: lead, message: message, content: content, hide_at: hide_at -%}
+{%- endif -%}

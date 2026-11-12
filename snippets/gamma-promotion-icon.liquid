@@ -4,6 +4,7 @@
   for anything else. The icon is decorative; the text beside it carries the meaning.
 
   @param {string} [benefit] - The offer's `benefit` value, such as `free_gift`.
+  @param {string} [output] - `name` to output the icon's asset name, for the notice shell, instead of the icon.
 
   @example
   <span class="svg-wrapper" aria-hidden="true">{% render 'gamma-promotion-icon', benefit: offer.benefit.value %}</span>
@@ -12,10 +13,15 @@
 {%- liquid
   case benefit
     when 'free_gift'
-      echo 'icon-gamma-gift.svg' | inline_asset_content
+      assign icon = 'icon-gamma-gift.svg'
     when 'promotional_price', 'percent_or_amount_off', 'kit_price', 'manufacturer_rebate', 'rental_rate'
-      echo 'icon-discount.svg' | inline_asset_content
+      assign icon = 'icon-discount.svg'
     else
-      echo 'icon-info.svg' | inline_asset_content
+      assign icon = 'icon-info.svg'
   endcase
+  if output == 'name'
+    echo icon
+  else
+    echo icon | inline_asset_content
+  endif
 -%}

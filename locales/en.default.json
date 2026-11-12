@@ -212,6 +212,19 @@
       },
       "rental_link": "View in the rental catalogue"
     },
+    "notice": {
+      "gift_label": "Free item:",
+      "gift_label_staff": "Free item, to be confirmed:",
+      "gift_with_companion_html": "{{ gift }}, with {{ companion }}",
+      "gift_with_quantity_html": "{{ gift }}, with {{ count }} eligible items",
+      "gift_with_both_html": "{{ gift }}, with {{ count }} eligible items and {{ companion }}",
+      "gift_backordered": "(backordered)",
+      "counts_toward_html": "Counts toward the gift offer: {{ gift }}.",
+      "offer_lead_html": "{{ offer }}:",
+      "manufacturer": "Claimed from the manufacturer after your purchase.",
+      "conditions_link": "Offer conditions",
+      "conditions_link_short": "Conditions"
+    },
     "post_sale": {
       "heading": "Claims for eligible past purchases",
       "between": "For eligible purchases made between {{ start }} and {{ end }}.",
