@@ -1,5 +1,5 @@
 {%- doc -%}
-  Renders one dealer-supplied gift notice in the shared notice shell, for a product page (panel) or a
+  Renders one dealer-supplied gift notice in the shared notice shell, for a product page (compact panel) or a
   cart line (line). It states only what a customer needs at a glance and links to the offer's
   conditions. It never says the gift is in the cart or applied at checkout. Every text parameter is
   already escaped.
@@ -15,7 +15,7 @@
   @param {string} [backordered] - `1` when the gift is currently backordered.
   @param {string} [url] - Address of the offer's conditions.
   @param {string} [until] - The offer's last day, for the panel's small line.
-  @param {string} [variant] - `panel` (default) or `line`.
+  @param {string} [variant] - `panel` (default, rendered compact) or `line`.
   @param {string} [hide_at] - Unix seconds at which gamma-hide-at.js hides the notice.
 {%- enddoc -%}
 
@@ -71,5 +71,5 @@
       </p>
     {%- endif -%}
   {%- endcapture -%}
-  {%- render 'gamma-notice', icon: 'icon-gamma-gift.svg', lead: lead, message: message, content: content, hide_at: hide_at -%}
+  {%- render 'gamma-notice', variant: 'compact', icon: 'icon-gamma-gift.svg', lead: lead, message: message, content: content, hide_at: hide_at -%}
 {%- endif -%}
