@@ -1,7 +1,8 @@
 {%- doc -%}
   Outputs a campaign or offer's localized date line from Unix-second boundaries (start inclusive, end
   exclusive), as dates in the store's time zone. The end shows as the last valid day (the end minus
-  one second). Outputs nothing when both are blank.
+  one second). A period within one day is stated as that day. French dates that begin with "1" take
+  the locale's "1er". Outputs nothing when both are blank.
 
   @param {number} [start] - Start in Unix seconds; blank is unbounded.
   @param {number} [end] - End in Unix seconds (exclusive); blank is unbounded.
@@ -15,10 +16,22 @@
 
   if start != blank
     assign start_text = start | plus: 0 | date: format: 'date'
+    assign day = start | plus: 0 | date: '%-d'
+    assign opening = start_text | slice: 0, 2
+    if day == '1' and opening == '1 '
+      assign first_day = 'gamma_promotion.dates.first_day' | t
+      assign start_text = start_text | remove_first: '1' | prepend: first_day
+    endif
   endif
 
   if end != blank
     assign end_text = end | plus: 0 | minus: 1 | date: format: 'date'
+    assign day = end | plus: 0 | minus: 1 | date: '%-d'
+    assign opening = end_text | slice: 0, 2
+    if day == '1' and opening == '1 '
+      assign first_day = 'gamma_promotion.dates.first_day' | t
+      assign end_text = end_text | remove_first: '1' | prepend: first_day
+    endif
   endif
 
   case mode
@@ -27,7 +40,9 @@
     when 'last'
       echo end_text
     else
-      if start_text != blank and end_text != blank
+      if start_text != blank and start_text == end_text
+        echo 'gamma_promotion.dates.on' | t: date: start_text
+      elsif start_text != blank and end_text != blank
         echo 'gamma_promotion.dates.from_through' | t: start: start_text, end: end_text
       elsif end_text != blank
         echo 'gamma_promotion.dates.through' | t: end: end_text

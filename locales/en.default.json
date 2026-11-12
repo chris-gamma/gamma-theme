@@ -133,7 +133,9 @@
     "dates": {
       "from_through": "From {{ start }} through {{ end }}",
       "through": "Through {{ end }}",
-      "from": "Starting {{ start }}"
+      "from": "Starting {{ start }}",
+      "on": "On {{ date }} only",
+      "first_day": "1"
     },
     "ended": "This promotion has ended.",
     "unavailable_heading": "This promotion isn’t available",
@@ -213,6 +215,7 @@
     "post_sale": {
       "heading": "Claims for eligible past purchases",
       "between": "For eligible purchases made between {{ start }} and {{ end }}.",
+      "on": "For eligible purchases made on {{ date }}.",
       "before": "For eligible purchases made on or before {{ end }}."
     },
     "index": {
