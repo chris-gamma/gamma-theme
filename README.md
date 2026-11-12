@@ -57,6 +57,8 @@ Push with `git push origin dev`. The `upstream` remote is only for pulling Horiz
 
 Pick a verified stable release from [Shopify Horizon](https://github.com/Shopify/horizon), read its release notes and merge it, keeping upstream history and Gamma's customizations. Upstream `main` isn't necessarily stable. Leave existing vendor tags alone.
 
+After each update, check two Gamma changes inside Horizon's own files against the new release. `snippets/gamma-card-variant.liquid` supplies the variant on promotion pages; the product card's block and snippet, gallery, title, price, Quick Add and swatches each carry a marked Gamma addition that does nothing elsewhere. Check that a card limited to one variant still shows its image, price, badges and link, and adds it from Quick Add. `snippets/cart-products.liquid` sets a cart line's detail text size on the cell instead of Horizon's `.cart-items__details *` rule; drop that if Horizon fixes the rule.
+
 During each update:
 
 - Keep Shopify's unmodified README, license and release notes as `README-horizon.md`, `LICENSE-horizon.md` and `release-notes-horizon.md`; Gamma's own README and license stay in place.
