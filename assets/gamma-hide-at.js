@@ -2,7 +2,7 @@
  * Hides time-limited campaign content on pages that stay open past its end.
  *
  * Elements marked `data-gamma-hide-at` (a Unix second) are hidden after that instant. Shopify's next
- * render is authoritative; this only covers pages already loaded or cached. Notices that arrive with a variant update are picked up too. A container
+ * render is authoritative; this only covers pages already loaded or cached. Notices that arrive with a variant or cart update are picked up too. A container
  * marked `data-gamma-hide-empty`, such as the offer navigation, is hidden once all its list items
  * are. A `gamma:hide-at` event on the document reports that something was hidden, so pagers can
  * recount.
@@ -45,7 +45,7 @@ function check() {
 }
 
 check();
-// Variant updates bring notices with their own instants, so check again once they settle.
+// Variant and cart updates bring notices with their own instants, so check again once they settle.
 let pending = 0;
 new MutationObserver((mutations) => {
   if (pending) return;
