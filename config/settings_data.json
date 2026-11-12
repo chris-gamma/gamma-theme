@@ -78,7 +78,7 @@
     "variant_button_width": "equal-width-buttons",
     "content_for_index": [],
     "badge_sold_out_background_color": "{{ settings.color_palette.color2 }}",
-    "palette_input_border": "{{ settings.color_palette.color1 }}",
+    "palette_input_border": "{{ settings.color_palette.brand }}",
     "palette_variant_border": "{{ settings.color_palette.color1 }}",
     "color_palette": {
       "background": "#ffffff",
@@ -176,7 +176,7 @@
       "variant_button_radius": 14,
       "variant_button_width": "equal-width-buttons",
       "badge_sold_out_background_color": "{{ settings.color_palette.color2 }}",
-      "palette_input_border": "{{ settings.color_palette.color1 }}",
+      "palette_input_border": "{{ settings.color_palette.brand }}",
       "palette_variant_border": "{{ settings.color_palette.color1 }}",
       "color_palette": {
         "background": "#ffffff",
