@@ -70,6 +70,13 @@
       endif
       assign seen_offers = seen_offers | append: offer.system.id | append: ','
 
+      # Only a free gift can give the gift claim (gamma-promotion-offer), so another offer is passed
+      # over before it is evaluated.
+      assign benefit = offer.benefit.value | append: ''
+      if benefit != 'free_gift'
+        continue
+      endif
+
       capture offer_result
         render 'gamma-promotion-offer', offer: offer, parent: parent, at: at
       endcapture
