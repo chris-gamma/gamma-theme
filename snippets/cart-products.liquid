@@ -43,6 +43,12 @@
   type="module"
   fetchpriority="low"
 ></script>
+{%- comment -%} Gamma: hides time-limited promotion notices on carts that stay open. {%- endcomment -%}
+<script
+  src="{{ 'gamma-hide-at.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>
 
 {% render 'text-component-shimmer-styles' %}
 
@@ -145,7 +151,12 @@
           </thead>
 
           <tbody role="rowgroup">
+            {%- comment -%} Gamma: one promotion lookup serves every line. {%- endcomment -%}
+            {%- capture gamma_cart_notices -%}
+              {%- render 'gamma-promotion-cart', cart: cart -%}
+            {%- endcapture -%}
             {% for item in cart.items %}
+              {%- assign gamma_line_marker = '@@gamma-line-' | append: forloop.index0 | append: '@@' -%}
               <tr
                 id="CartItem-{{ item.key }}"
                 role="row"
@@ -322,6 +333,14 @@
                       {%- endif -%}
                     {%- endif -%}
                     {%- render 'gamma-availability-line', item: item -%}
+                    {%- liquid
+                      if gamma_cart_notices contains gamma_line_marker
+                        assign gamma_line_notices = gamma_cart_notices | split: gamma_line_marker
+                        for gamma_line_notice in gamma_line_notices offset: 1
+                          echo gamma_line_notice | split: '@@gamma-line-end@@' | first
+                        endfor
+                      endif
+                    -%}
                   </div>
 
                   <div class="cart-items__unit-price-wrapper">
@@ -648,7 +667,12 @@
     margin-block-start: var(--margin-3xs);
   }
 
-  .cart-items__details * {
+  /*
+    Gamma: Horizon 4.4.0 sets this size with `.cart-items__details *`, so nested elements can't
+    inherit a smaller size from their parent. Setting it on the details cell lets components in the
+    line size their own text. Drop this if a later Horizon release changes the rule.
+  */
+  .cart-items__details {
     font-size: var(--font-size--sm);
   }
 

@@ -1,12 +1,13 @@
 /**
  * Hides time-limited campaign content on pages that stay open past its end.
  *
- * Campaign pages, the promotions index, collection callouts and product notices mark claims, offers
- * and cards with `data-gamma-hide-at`, a Unix second. Shopify's next render is authoritative; this
- * only stops an already loaded or cached page from showing them after that instant. Notices that
- * arrive later with a variant update are picked up too. A container marked `data-gamma-hide-empty`,
- * such as the offer navigation, is hidden once all its list items are. A `gamma:hide-at` event on
- * the document reports that something was hidden, so pagers can recount.
+ * Campaign pages, the promotions index, collection callouts and product and cart notices mark
+ * claims, offers and cards with `data-gamma-hide-at`, a Unix second. Shopify's next render is
+ * authoritative; this only stops an already loaded or cached page from showing them after that
+ * instant. Notices that arrive later with a variant or cart update are picked up too. A container
+ * marked `data-gamma-hide-empty`, such as the offer navigation, is hidden once all its list items
+ * are. A `gamma:hide-at` event on the document reports that something was hidden, so pagers can
+ * recount.
  */
 
 const SELECTOR = '[data-gamma-hide-at]';
@@ -46,7 +47,7 @@ function check() {
 }
 
 check();
-// Variant updates bring notices with their own instants, so check again once they settle.
+// Variant and cart updates bring notices with their own instants, so check again once they settle.
 let pending = 0;
 new MutationObserver((mutations) => {
   if (pending) return;

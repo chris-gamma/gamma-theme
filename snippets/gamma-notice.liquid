@@ -124,6 +124,21 @@
     line-height: 1.4;
   }
 
+  /*
+    A line has no button, so its link is underlined to be found without relying on colour. Horizon's
+    cart removes the underline from links in a line's details, so the line itself is set here too.
+  */
+  .gamma-notice.gamma-notice--line a {
+    text-decoration-line: underline;
+    text-decoration-color: currentcolor;
+  }
+
+  /* The link that follows a line's text: smaller than the text, at the theme's 12px step. */
+  .gamma-notice--line .gamma-notice__meta {
+    font-size: var(--font-size--2xs);
+    white-space: nowrap;
+  }
+
   .gamma-notice--line .gamma-notice__icon {
     width: 1.1em;
     height: 1.1em;

@@ -1,0 +1,135 @@
+{%- doc -%}
+  Private helper of gamma-promotion-cart. Evaluates one campaign once for a cart render and outputs a
+  record for each product group of its live gift offers; the cart then matches its lines against the
+  records. Nothing here depends on a product.
+
+  Output: records that each start with `@@gamma-group@@`, their fields separated by `@@f@@`:
+  0. `G` for a usable group, or `X` for one whose scope or gift data is invalid (fields 1 to 4 only);
+     a line in an invalid group's collection gets no claim from that offer
+  1. promotion ID  2. offer ID  3. group ID  4. qualifying collection ID
+  5. the listed variant IDs as `,id,id,` when only those qualify, else empty
+  6. minimum quantity  7. companion collection ID  8. companion quantity (both empty without one)
+  9. `1` when staff confirm conditions  10. gifts per entitlement  11. gift limit per order, or empty
+  12. hide_at  13. gift label  14. companion label  15. `1` when the gift is backordered
+  16. address of the offer's conditions
+  Labels are escaped.
+
+  The campaign gives no record unless it is live, lists at most 12 offers that reference at most 12
+  groups in all, and every list it loads iterates: Shopify silently empties a list that crosses its
+  1,000-entry limit, so a list whose size is positive but which iterates nothing suppresses the
+  campaign. A gift offer with more than 8 groups also suppresses it.
+
+  @param {object} promotion - The `promotion` entry.
+  @param {number} at - Evaluation time in Unix seconds, shared by the cart render.
+{%- enddoc -%}
+
+{%- liquid
+  assign record_separator = '@@gamma-group@@'
+  assign field_separator = '@@f@@'
+  assign records = ''
+  assign usable = false
+
+  capture parent
+    render 'gamma-promotion-state', promotion: promotion, at: at
+  endcapture
+  assign parent = parent | strip
+  assign state = parent | split: '|' | first
+  if state == 'live'
+    assign usable = true
+    assign offers = promotion.offers.value
+    assign offers_size = offers.size | plus: 0
+    if offers_size > 12
+      assign usable = false
+    endif
+  endif
+
+  if usable
+    # Sizes alone decide the campaign's group limit and whether Shopify emptied its offer list.
+    assign campaign_groups = 0
+    assign offers_read = 0
+    for offer in offers
+      assign offers_read = offers_read | plus: 1
+      assign campaign_groups = campaign_groups | plus: offer.groups.value.size
+    endfor
+    if offers_size > 0 and offers_read == 0
+      assign usable = false
+    elsif campaign_groups > 12
+      assign usable = false
+    endif
+  endif
+
+  if usable
+    assign seen_offers = ','
+    for offer in offers
+      if offer == blank
+        continue
+      endif
+      assign token = ',' | append: offer.system.id | append: ','
+      if seen_offers contains token
+        continue
+      endif
+      assign seen_offers = seen_offers | append: offer.system.id | append: ','
+
+      capture offer_result
+        render 'gamma-promotion-offer', offer: offer, parent: parent, at: at
+      endcapture
+      assign offer_parts = offer_result | strip | split: '|'
+      if offer_parts[1] != 'gift'
+        continue
+      endif
+
+      assign groups = offer.groups.value
+      assign groups_size = groups.size | plus: 0
+      if groups_size > 8
+        assign usable = false
+        break
+      endif
+
+      assign url = promotion.system.url | append: '#offer-' | append: offer.system.id
+      assign backordered = '0'
+      if offer.gift_supply.value == 'backordered'
+        assign backordered = '1'
+      endif
+      assign identity = promotion.system.id | append: field_separator | append: offer.system.id | append: field_separator
+
+      assign groups_read = 0
+      for group in groups
+        assign groups_read = groups_read | plus: 1
+        capture group_data
+          render 'gamma-promotion-group-data', group: group, claim: 'gift'
+        endcapture
+        assign data = group_data | strip | split: '|'
+        case data[0]
+          when 'valid'
+            assign variant_ids = ''
+            if group.variants_only.value == true
+              assign variant_ids = group.variants.value | map: 'id' | join: ','
+              assign variant_ids = ',' | append: variant_ids | append: ','
+            endif
+            assign gift = group.reward_label.value | strip | escape
+            assign companion = group.requires_label.value | strip | escape
+            assign reward_quantity = group.reward_quantity.value | default: 1 | plus: 0
+            assign record = 'G' | append: field_separator | append: identity | append: group.system.id | append: field_separator | append: data[1]
+            assign record = record | append: field_separator | append: variant_ids | append: field_separator | append: data[2] | append: field_separator | append: data[3]
+            assign record = record | append: field_separator | append: data[4] | append: field_separator | append: data[5] | append: field_separator | append: reward_quantity
+            assign record = record | append: field_separator | append: group.reward_limit.value | append: field_separator | append: offer_parts[4] | append: field_separator | append: gift
+            assign record = record | append: field_separator | append: companion | append: field_separator | append: backordered | append: field_separator | append: url
+            assign records = records | append: record_separator | append: record
+          when 'invalid'
+            assign invalid_collection = group.collection.value.id
+            if invalid_collection != blank
+              assign records = records | append: record_separator | append: 'X' | append: field_separator | append: identity | append: group.system.id | append: field_separator | append: invalid_collection
+            endif
+        endcase
+      endfor
+      if groups_size > 0 and groups_read == 0
+        assign usable = false
+        break
+      endif
+    endfor
+  endif
+
+  if usable
+    echo records
+  endif
+-%}
