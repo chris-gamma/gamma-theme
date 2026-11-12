@@ -22,8 +22,26 @@
 {% endif %}
 
 {% liquid
+  # Gamma: on a campaign page, a card limited to listed variants shows the first of them, not the
+  # product's default variant (gamma-card-variant). Empty everywhere else.
+  assign gamma_variant = nil
+  capture gamma_variant_id
+    render 'gamma-card-variant', product: product
+  endcapture
+  assign gamma_variant_id = gamma_variant_id | strip
+  if gamma_variant_id != blank
+    assign gamma_variant_id = gamma_variant_id | plus: 0
+    assign gamma_variant = product.variants | where: 'id', gamma_variant_id | first
+  endif
+  assign gamma_card_available = product.available
+  assign gamma_card_url = product.url
+  if gamma_variant
+    assign gamma_card_available = gamma_variant.available
+    assign gamma_card_url = gamma_variant.url
+  endif
+
   assign has_quick_add = false
-  if settings.quick_add and product.available
+  if settings.quick_add and gamma_card_available
     assign has_quick_add = true
   endif
 
@@ -36,7 +54,7 @@
   assign product_card_gap_value = product_card_gap | default: block_settings.product_card_gap
 
   # variant_to_link drives the featured image used by the main-product view transition.
-  assign variant_to_link = product.selected_or_first_available_variant
+  assign variant_to_link = gamma_variant | default: product.selected_or_first_available_variant
 
   if settings.transition_to_main_product
     # Gamma: the transition image follows the storefront language's eligible media.
@@ -94,8 +112,8 @@
   <a
     id="{{ product_card_id | md5 }}"
     {% unless onboarding %}
-      {% # Link to product.url so algorithmic variant relevance and tracking params are maintained. %}
-      href="{{ product.url }}"
+      {% # Link to product.url so algorithmic variant relevance and tracking params are maintained. %}{% # Gamma: a card limited to a listed variant links to that variant. %}
+      href="{{ gamma_card_url }}"
     {% endunless %}
     class="product-card__link"
     ref="productCardLink"

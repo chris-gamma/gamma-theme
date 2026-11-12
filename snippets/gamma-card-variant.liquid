@@ -1,0 +1,33 @@
+{%- doc -%}
+  Outputs the ID of the variant a product card must show, or nothing. A campaign page passes an offer
+  group to Horizon's product card as its closest `promotion_group`; when that group is limited to listed
+  variants and only some of this product's variants are listed, the card shows the first listed one
+  (its image, price, availability, link and quick add) instead of the product's default variant.
+  Everywhere else, and for a product whose variants all qualify, the output is empty and the card
+  behaves as Horizon renders it. Callers capture the output, strip it and find the variant among
+  `product.variants`.
+
+  @param {object} product - The product the card renders.
+
+  @example
+  {% capture variant_id %}{% render 'gamma-card-variant', product: product %}{% endcapture %}
+{%- enddoc -%}
+
+{%- liquid
+  assign group = closest.metaobject.promotion_group
+  if product != blank and group != blank and group.variants_only.value == true
+    assign first_listed = ''
+    assign listed_count = 0
+    for listed in group.variants.value
+      if listed.product.id == product.id
+        assign listed_count = listed_count | plus: 1
+        if first_listed == blank
+          assign first_listed = listed.id
+        endif
+      endif
+    endfor
+    if first_listed != blank and listed_count < product.variants_count
+      echo first_listed
+    endif
+  endif
+-%}

@@ -4,6 +4,7 @@
   @param {object} product - The product object
   @param {string} section_id - The section ID
   @param {object} [block] - The block object
+  @param {object} [gamma_variant] - Gamma: the variant a campaign card is limited to; quick add then adds that variant directly
 {%- enddoc -%}
 
 {% liquid
@@ -11,7 +12,7 @@
   assign add_to_cart_text = 'actions.add' | t
   assign choose_options_text = 'actions.choose' | t
   # Logic to determine which variant to use (matching swatch selection logic from product-card)
-  assign variant = product.selected_or_first_available_variant
+  assign variant = gamma_variant | default: product.selected_or_first_available_variant
 
   assign uses_selling_plans = false
   if product.requires_selling_plan or product.selling_plan_groups.size > 0
@@ -47,6 +48,14 @@
     endif
   else
     assign render_choose = true
+  endif
+
+  # Gamma: a campaign card limited to a listed variant adds that variant itself, without the dialog
+  # that offers the product's other variants.
+  if gamma_variant
+    assign initial_button = 'add'
+    assign render_add = true
+    assign render_choose = false
   endif
 
   if uses_selling_plans

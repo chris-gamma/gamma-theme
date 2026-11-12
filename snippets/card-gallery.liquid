@@ -7,6 +7,7 @@
   @param [section] - The section object the snippet is rendered in
   @param [block] - The block object the snippet is rendered in
   @param {boolean} [gamma_availability_badge] - Whether the card shows a Gamma availability badge
+  @param {object} [gamma_variant] - Gamma: the variant a campaign card is limited to; its image, link and badges replace the product's
 {%- enddoc -%}
 
 {% liquid
@@ -16,6 +17,20 @@
   # Gamma: media marked for the other storefront language is removed before featured selection and counting.
   assign gamma_media = product.media
   assign gamma_featured_media = product.featured_media
+  # Gamma: a campaign card limited to a listed variant shows that variant's image, link and status.
+  assign gamma_card_url = product.url
+  assign gamma_card_has_badge = false
+  if product.available == false or product.compare_at_price > product.price
+    assign gamma_card_has_badge = true
+  endif
+  if gamma_variant
+    assign gamma_featured_media = gamma_variant.featured_media | default: product.featured_media
+    assign gamma_card_url = gamma_variant.url
+    assign gamma_card_has_badge = false
+    if gamma_variant.available == false or gamma_variant.compare_at_price > gamma_variant.price
+      assign gamma_card_has_badge = true
+    endif
+  endif
   if product != blank and product.media.size > 1
     capture gamma_excluded_media_ids
       render 'gamma-media-exclusions', media: product.media
@@ -42,7 +57,7 @@
   assign has_badges = false
   assign badge_position = null
   if product != blank
-    if product.available == false or product.compare_at_price > product.price or gamma_availability_badge
+    if gamma_card_has_badge or gamma_availability_badge
       assign has_badges = true
       assign badge_position = settings.badge_position
     endif
@@ -116,7 +131,7 @@
     <a
       class="contents"
       ref="cardGalleryLink"
-      href="{{ product.url }}"
+      href="{{ gamma_card_url }}"
       aria-label="{{- product.title -}}"
     >
       {% liquid
@@ -246,7 +261,7 @@
       <a
         class="contents"
         ref="cardGalleryLink"
-        href="{{ product.url }}"
+        href="{{ gamma_card_url }}"
       >
         <span class="title-text">{{- product.title -}}</span>
       </a>

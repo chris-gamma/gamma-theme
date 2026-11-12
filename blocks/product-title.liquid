@@ -3,11 +3,27 @@
   {% assign product_title = '<p role="heading" aria-level="3">' | append: text | append: '</p>' %}
   {% render 'text', fallback_text: product_title, block: block %}
 {% else %}
-  {% assign product_title = '<p role="heading" aria-level="3">' | append: closest.product.title | append: '</p>' %}
+  {% assign product_title = '<p role="heading" aria-level="3">' | append: closest.product.title | append: '</p>' %}{%- liquid
+    # Gamma: on a campaign page, a card limited to listed variants shows the first of them, not the
+    # product's default variant (gamma-card-variant). Empty everywhere else.
+    assign gamma_variant = nil
+    capture gamma_variant_id
+      render 'gamma-card-variant', product: closest.product
+    endcapture
+    assign gamma_variant_id = gamma_variant_id | strip
+    if gamma_variant_id != blank
+      assign gamma_variant_id = gamma_variant_id | plus: 0
+      assign gamma_variant = closest.product.variants | where: 'id', gamma_variant_id | first
+    endif
+    assign gamma_card_url = closest.product.url
+    if gamma_variant
+      assign gamma_card_url = gamma_variant.url
+    endif
+  %}
   <a
     class="contents user-select-text"
     ref="productTitleLink"
-    href="{{ closest.product.url }}"
+    href="{{ gamma_card_url }}"
   >
     {% render 'text', fallback_text: product_title, block: block %}
   </a>

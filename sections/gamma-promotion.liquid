@@ -256,8 +256,15 @@
                 -%}
                 {%- if group.variants_only.value == true -%}
                   {%- liquid
+                    # One card per product, showing its first listed variant (gamma-card-variant resolves
+                    # it inside Horizon's card). A first pass keeps each product's listed variants, in
+                    # list order, so the cards can name and link the others.
                     assign listed = group.variants.value
                     assign collection_token = ',' | append: collection.id | append: ','
+                    assign listed_map = ''
+                    for listed_variant in listed
+                      assign listed_map = listed_map | append: '@@P' | append: listed_variant.product.id | append: '@@' | append: listed_variant.url | append: '~~' | append: listed_variant.title
+                    endfor
                     assign shown_products = ','
                   -%}
                   {%- capture cards -%}
@@ -278,20 +285,35 @@
                         unless product_collections contains collection_token
                           continue
                         endunless
+                        assign product_marker = '@@P' | append: listed_product.id | append: '@@'
+                        assign product_title = listed_product.title | escape
+                        assign product_entries = listed_map | split: product_marker
                         assign names = ''
+                        assign others = ''
                         assign name_count = 0
-                        for other in listed
-                          if other.product.id == listed_product.id
-                            assign names = names | append: ', ' | append: other.title
-                            assign name_count = name_count | plus: 1
+                        for product_entry in product_entries offset: 1
+                          assign entry_parts = product_entry | split: '@@' | first | split: '~~'
+                          assign entry_name = entry_parts[1] | escape
+                          assign names = names | append: ', ' | append: entry_name
+                          assign name_count = name_count | plus: 1
+                          if name_count > 1
+                            assign others = others | append: ', <a href="' | append: entry_parts[0] | append: '">' | append: entry_name | append: '<span class="visually-hidden"> – ' | append: product_title | append: '</span></a>'
                           endif
                         endfor
                         assign names = names | remove_first: ', '
+                        assign others = others | remove_first: ', '
                         assign item_count = item_count | plus: 1
                       -%}
                       {%- if take > 0 -%}
                         <li class="gamma-promotion__card">
-                          {%- render 'gamma-promotion-variant-card', variant: listed_variant, names: names, count: name_count -%}
+                          {%- content_for 'block', type: '_product-card', id: 'static-product-card', closest.metaobject.promotion_group: group, gamma_product: listed_product -%}
+                          {%- comment -%} Only some of the product's variants qualify: the card shows the first, named here with the others. {%- endcomment -%}
+                          {%- if name_count < listed_product.variants_count -%}
+                            <p class="gamma-promotion__variants">
+                              {{- listed_variant.title | escape -}}
+                              {%- if others != blank %} · {{ 'gamma_promotion.cards.also' | t }} {{ others }}{% endif -%}
+                            </p>
+                          {%- endif -%}
                         </li>
                         {%- liquid
                           assign take = take | minus: 1
@@ -299,7 +321,7 @@
                           assign card_count = card_count | plus: 1
                         -%}
                       {%- else -%}
-                        {%- capture overflow_item -%}<li><a href="{{ listed_variant.url }}">{{ listed_product.title | escape }}</a>{% unless listed_product.has_only_default_variant %} ({{ names | escape }}){% endunless %}</li>{%- endcapture -%}
+                        {%- capture overflow_item -%}<li><a href="{{ listed_variant.url }}">{{ listed_product.title | escape }}</a>{% unless listed_product.has_only_default_variant %} ({{ names }}){% endunless %}</li>{%- endcapture -%}
                         {%- assign overflow = overflow | append: overflow_item -%}
                       {%- endif -%}
                     {%- endfor -%}
@@ -1021,6 +1043,20 @@
     flex-direction: column;
     gap: var(--gap-xs, 0.5rem);
     min-width: 0;
+  }
+
+  /* Under a card limited to listed variants: the variant shown, then links to the others. */
+  .gamma-promotion__variants {
+    margin: 0;
+    color: var(--gamma-color-muted);
+    font-size: var(--font-size--sm);
+    overflow-wrap: anywhere;
+  }
+
+  .gamma-promotion__variants a {
+    color: inherit;
+    text-decoration-line: underline;
+    text-decoration-color: currentcolor;
   }
 
   .gamma-promotion__claims,

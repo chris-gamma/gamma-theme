@@ -1,9 +1,12 @@
 {%- doc -%}
   @param {string} [product_view_context] - Context value passed through to the card snippet.
+  @param {object} [gamma_product] - Gamma: the product, when the caller's one `closest` argument carries a campaign offer group instead.
 {%- enddoc -%}
 
 {% liquid
-  assign product = closest.product
+  # Gamma: a campaign page passes its offer group as the closest context, so that the card's blocks can
+  # show the variant that qualifies (gamma-card-variant), and the product as a parameter.
+  assign product = gamma_product | default: closest.product
 -%}
 
 {% capture children %}

@@ -3,11 +3,16 @@
   Claims are made only when complete variant data proves them; otherwise a neutral badge is used.
 
   @param {object} product - Product rendered by the card.
+  @param {object} [variant] - The variant a campaign card is limited to; the badge then describes that variant alone.
 {%- enddoc -%}
 
 {%- liquid
   capture status
-    render 'gamma-availability-status', product: product, mode: 'product'
+    if variant
+      render 'gamma-availability-status', product: product, variant: variant
+    else
+      render 'gamma-availability-status', product: product, mode: 'product'
+    endif
   endcapture
   assign status = status | strip
   case status

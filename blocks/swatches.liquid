@@ -7,6 +7,18 @@
       assign product_has_swatches = true
     endif
   endfor
+
+  # Gamma: a campaign card limited to a listed variant has no swatches, which would switch it to a
+  # variant that doesn't qualify (gamma-card-variant).
+  if product_has_swatches
+    capture gamma_variant_id
+      render 'gamma-card-variant', product: closest.product
+    endcapture
+    assign gamma_variant_id = gamma_variant_id | strip
+    if gamma_variant_id != blank
+      assign product_has_swatches = false
+    endif
+  endif
 -%}
 
 {% stylesheet %}
