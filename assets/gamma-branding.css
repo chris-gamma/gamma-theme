@@ -287,7 +287,10 @@
   letter-spacing: 0.05em;
 }
 
-/* Compact: the panel beside purchase controls; smaller text, icon and padding. Its qualifying line is 12px. */
+/*
+  Compact: the panel beside purchase controls and in the cart summary; smaller text, icon and padding.
+  Its qualifying line is 12px.
+*/
 .gamma-notice--compact {
   gap: var(--gap-xs, 0.5rem);
   padding: var(--padding-sm, 0.75rem);

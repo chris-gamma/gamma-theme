@@ -1,8 +1,9 @@
 {%- doc -%}
   Renders Gamma's notice shell: a neutral panel with an optional Gamma Red icon, a bold lead-in and
-  the message. `compact` is the quieter panel beside purchase controls and `line` the inline form
-  for dense lists such as cart lines. Callers pass text that is already translated or escaped. Its
-  rules are in `assets/gamma-branding.css`.
+  the message. `compact` is the quieter panel beside purchase controls and in the cart summary, and
+  `line` the inline form for dense lists such as cart lines. Callers pass text that is already
+  translated or escaped. Its rules are in `assets/gamma-branding.css`; a caller that renders once per
+  cart line writes the line markup itself (`snippets/gamma-availability-line.liquid`).
 
   @param {string} [lead] - Bold lead-in.
   @param {string} [message] - Text that follows the lead-in on the same line.
