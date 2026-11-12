@@ -194,10 +194,7 @@
       "staff": "Some conditions are confirmed by our team after you order."
     },
     "cards": {
-      "eligible_variants": {
-        "one": "Eligible variant: {{ variants }}",
-        "other": "Eligible variants: {{ variants }}"
-      },
+      "also": "Also:",
       "see_all": {
         "one": "See the eligible product",
         "other": "See all {{ count }} eligible products"

@@ -2,11 +2,16 @@
   Renders a product-wide availability badge for product cards, or no output.
 
   @param {object} product - Product rendered by the card.
+  @param {object} [variant] - The variant a campaign card is limited to; the badge describes only it.
 {%- enddoc -%}
 
 {%- liquid
   capture status
-    render 'gamma-availability-status', product: product, mode: 'product'
+    if variant
+      render 'gamma-availability-status', product: product, variant: variant
+    else
+      render 'gamma-availability-status', product: product, mode: 'product'
+    endif
   endcapture
   assign status = status | strip
   case status
