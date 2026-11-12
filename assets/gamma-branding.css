@@ -379,6 +379,30 @@
   overflow-wrap: anywhere;
 }
 
+/*
+  A price block in the group-heading role (the product page's, which Quick Add copies) follows the
+  role's 20px phone size; Horizon's h4 preset stays 24px at every width. Its tax, unit-price and
+  instalment lines keep body type, as Horizon already does for the volume-pricing note.
+*/
+@media screen and (max-width: 749px) {
+  product-price.text-block.h4 {
+    --font-h4--size: var(--gamma-type-group-size);
+  }
+}
+
+product-price.text-block:is(.h1, .h2, .h3, .h4, .h5, .h6) :is(.tax-note, .unit-price, .installments) {
+  font-family: var(--font-body--family);
+  font-style: var(--font-body--style);
+  font-weight: var(--font-paragraph--weight);
+  line-height: var(--font-paragraph--line-height);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+product-price.text-block:is(.h1, .h2, .h3, .h4, .h5, .h6) > .installments {
+  font-size: var(--font-paragraph--size);
+}
+
 .product-details .text-block:not(.custom-typography) > h1 {
   text-wrap: wrap;
   overflow-wrap: anywhere;
