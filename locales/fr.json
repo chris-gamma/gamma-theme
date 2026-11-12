@@ -124,7 +124,9 @@
     "dates": {
       "from_through": "Du {{ start }} au {{ end }} inclusivement",
       "through": "Jusqu’au {{ end }} inclusivement",
-      "from": "À compter du {{ start }}"
+      "from": "À compter du {{ start }}",
+      "on": "Le {{ date }} seulement",
+      "first_day": "1er"
     },
     "ended": "Cette promotion est terminée.",
     "unavailable_heading": "Cette promotion n’est pas offerte",
@@ -204,6 +206,7 @@
     "post_sale": {
       "heading": "Réclamations pour les achats admissibles déjà effectués",
       "between": "Pour les achats admissibles effectués entre le {{ start }} et le {{ end }}.",
+      "on": "Pour les achats admissibles effectués le {{ date }}.",
       "before": "Pour les achats admissibles effectués au plus tard le {{ end }}."
     },
     "index": {
