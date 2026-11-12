@@ -295,7 +295,7 @@
 }
 
 /*
-  Compact: the panel beside purchase controls, quieter than the default,
+  Compact: the panel beside purchase controls and in the cart summary, quieter than the default,
   with smaller text and icon and less padding. Its qualifying line is a step below its text (12px).
 */
 .gamma-notice--compact {

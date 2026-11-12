@@ -1,9 +1,11 @@
 {%- doc -%}
   Renders Gamma's notice shell: a neutral panel with an optional icon in Gamma Red, a bold lead-in and
-  the message. The `compact` variant is the quieter panel beside purchase controls, and the `line`
-  variant is the inline form for dense lists such as cart lines. The shell has no coloured edge, its
-  meaning never depends on colour, and the lead-in is not a heading. Callers pass text that is
-  already translated or escaped. The shell's rules are in `assets/gamma-branding.css`.
+  the message. The `compact` variant is the quieter panel beside purchase controls and in the cart
+  summary, and the `line` variant is the inline form for dense lists such as cart lines. The shell
+  has no coloured edge, its meaning never depends on colour, and the lead-in is not a heading.
+  Callers pass text that is already translated or escaped. The shell's rules are in
+  `assets/gamma-branding.css`; a caller that renders once per cart line writes the line's two
+  elements itself instead of adding a render (`snippets/gamma-availability-line.liquid`).
 
   @param {string} [lead] - Bold lead-in.
   @param {string} [message] - Text that follows the lead-in on the same line.
