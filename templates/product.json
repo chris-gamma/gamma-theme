@@ -158,12 +158,22 @@
                     "padding-block-end": 0
                   },
                   "blocks": {}
+                },
+                "promotion_notices": {
+                  "type": "gamma-promotion-notices",
+                  "settings": {
+                    "limit": 2,
+                    "padding-block-start": 8,
+                    "padding-block-end": 0
+                  },
+                  "blocks": {}
                 }
               },
               "block_order": [
                 "text_xpVMaM",
                 "price_tVjtKg",
-                "battery_system"
+                "battery_system",
+                "promotion_notices"
               ]
             },
             "divider_VJhene": {
