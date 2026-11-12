@@ -69,7 +69,8 @@
           "color2": "#f5f5f6",
           "color3": "#DFDFDF",
           "brand": "#ee2622",
-          "brand_accessible": "#c41f1c"
+          "brand_accessible": "#c41f1c",
+          "signal": "#F6C700"
         }
       }
     ]
