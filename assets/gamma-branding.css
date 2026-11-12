@@ -2,8 +2,8 @@
   Gamma's design language (development plan, "Visual design language"), loaded on every page: the
   `--gamma-*` tokens, the type roles and the shared components. A token aliases Horizon's variable
   where one exists, so check the aliases after each Horizon update. The tokens that come straight
-  from theme settings (Gamma Red and the card, media and badge radii) are written on `:root` by
-  `snippets/gamma-tokens.liquid`.
+  from theme settings (Gamma Red, the card, media and badge radii, the badge font and case) are
+  written on `:root` by `snippets/gamma-tokens.liquid`.
 */
 
 :root {
@@ -34,6 +34,11 @@
   --gamma-rail-size: 264px;
 
   --gamma-ratio-campaign: 3 / 2;
+
+  /* Horizon's badge padding, tighter on phones, and its badge text size. */
+  --gamma-badge-padding-block: var(--badge-rectangle-padding-block);
+  --gamma-badge-padding-inline: var(--badge-rectangle-padding-inline);
+  --gamma-badge-font-size: var(--font-size--xs);
 }
 
 @media screen and (min-width: 750px) {
@@ -356,6 +361,22 @@
   width: 1.1em;
   height: 1.1em;
   margin-block-start: 0.15em;
+}
+
+/*
+  Badges: one family, with the theme's badge radius, font and case (Theme settings > Badges),
+  Horizon's badge padding (tighter on phones) and its 13px text. Product badges are Horizon's own,
+  with the availability badge beside them, and report status.
+  `gamma-badge` gives a Gamma badge the same geometry and type; a Brand badge adds its bold weight
+  (`snippets/gamma-brand-badge.liquid`).
+*/
+.gamma-badge {
+  padding: var(--gamma-badge-padding-block) var(--gamma-badge-padding-inline);
+  border-radius: var(--gamma-radius-badge);
+  font-family: var(--gamma-badge-font-family);
+  font-size: var(--gamma-badge-font-size);
+  text-transform: var(--gamma-badge-text-transform);
+  overflow-wrap: anywhere;
 }
 
 .product-details .text-block:not(.custom-typography) > h1 {

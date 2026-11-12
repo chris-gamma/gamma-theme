@@ -1,8 +1,8 @@
 {%- doc -%}
-  Writes on `:root` the design tokens that come straight from theme settings: Gamma Red and the
-  card, media and badge radii. `snippets/stylesheets.liquid` renders it once on every layout. The
-  tokens that alias Horizon's variables, the type roles and the shared components are in
-  `assets/gamma-branding.css` (development plan, "Visual design language").
+  Writes on `:root` the design tokens that come straight from theme settings: Gamma Red, the card,
+  media and badge radii, and the badge font and case. `snippets/stylesheets.liquid` renders it once
+  on every layout. The tokens that alias Horizon's variables, the type roles and the shared
+  components are in `assets/gamma-branding.css` (development plan, "Visual design language").
 
   @example
   {% render 'gamma-tokens' %}
@@ -14,5 +14,7 @@
     --gamma-radius-card: {{ settings.card_corner_radius }}px;
     --gamma-radius-media: {{ settings.product_corner_radius }}px;
     --gamma-radius-badge: {{ settings.badge_corner_radius }}px;
+    --gamma-badge-font-family: var(--font-{{ settings.badge_font_family }}--family);
+    --gamma-badge-text-transform: {{ settings.badge_text_transform }};
   }
 {% endstyle %}
