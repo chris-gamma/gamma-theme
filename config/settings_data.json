@@ -87,7 +87,8 @@
       "color2": "#f5f5f6",
       "color3": "#DFDFDF",
       "brand": "#ee2622",
-      "brand_accessible": "#c41f1c"
+      "brand_accessible": "#c41f1c",
+      "signal": "#F6C700"
     },
     "palette_primary_button_background": "{{ settings.color_palette.brand }}",
     "palette_primary_button_text": "{{ settings.color_palette.background }}",
@@ -184,7 +185,8 @@
         "color2": "#f5f5f6",
         "color3": "#DFDFDF",
         "brand": "#ee2622",
-        "brand_accessible": "#c41f1c"
+        "brand_accessible": "#c41f1c",
+        "signal": "#F6C700"
       },
       "palette_primary_button_background": "{{ settings.color_palette.brand }}",
       "palette_primary_button_text": "{{ settings.color_palette.background }}",
