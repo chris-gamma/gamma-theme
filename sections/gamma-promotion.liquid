@@ -25,8 +25,8 @@
 
 <div class="section-background"></div>
 <div
-  class="section section--page-width gamma-promotion gamma-tokens spacing-style"
-  style="{% render 'spacing-style', settings: section.settings %} {% render 'gamma-tokens' %}"
+  class="section section--page-width gamma-promotion spacing-style"
+  style="{% render 'spacing-style', settings: section.settings %}"
 >
   {%- case state -%}
     {%- when 'live' -%}
@@ -385,9 +385,9 @@
               {%- liquid
                 # From 1200px a group of five or more cards has its label beside the grid; smaller groups
                 # stack it above a grid identical to collection pages.
-                assign group_class = 'gamma-promotion__group'
+                assign group_class = 'gamma-promotion__group gamma-rail'
                 if card_count >= 5
-                  assign group_class = group_class | append: ' gamma-promotion__group--rail'
+                  assign group_class = group_class | append: ' gamma-rail--side'
                 endif
                 if group_kind == 'rental'
                   assign group_class = group_class | append: ' gamma-promotion__group--rental'
@@ -436,7 +436,7 @@
                 {%- if card_count > 0 or overflow != blank -%}
                   <div class="gamma-promotion__group-items">
                     {%- if card_count > 0 -%}
-                      <ul class="gamma-promotion__cards" role="list">{{ cards }}</ul>
+                      <ul class="gamma-card-grid" role="list">{{ cards }}</ul>
                     {%- endif -%}
                     {%- if overflow != blank -%}
                       <p class="gamma-promotion__more">{{ 'gamma_promotion.cards.more' | t }}</p>
@@ -557,7 +557,7 @@
         </section>
       {%- endif -%}
 
-      <p class="gamma-promotion__end">
+      <p class="gamma-promotion__end gamma-actions">
         <a class="button-secondary" href="{{ index_url }}">{{ 'gamma_promotion.all_link' | t }}</a>
       </p>
 
@@ -582,7 +582,7 @@
         {%- endfor -%}
       {%- endcapture -%}
       {%- capture index_button -%}
-        <p class="gamma-promotion__end">
+        <p class="gamma-promotion__end gamma-actions">
           <a class="button-secondary" href="{{ index_url }}">{{ 'gamma_promotion.index_link' | t }}</a>
         </p>
       {%- endcapture -%}
@@ -605,7 +605,7 @@
       <header class="gamma-promotion__state">
         <h1 class="gamma-promotion__title gamma-type-display">{{ 'gamma_promotion.unavailable_heading' | t }}</h1>
         {%- render 'gamma-notice', icon: 'icon-info.svg', message: unavailable_message -%}
-        <p class="gamma-promotion__end">
+        <p class="gamma-promotion__end gamma-actions">
           <a class="button-secondary" href="{{ index_url }}">{{ 'gamma_promotion.index_link' | t }}</a>
         </p>
       </header>
@@ -773,10 +773,6 @@
       align-items: center;
       min-block-size: var(--minimum-touch-target, 44px);
     }
-
-    .gamma-promotion__end .button-secondary {
-      width: 100%;
-    }
   }
 
   .gamma-promotion__overview {
@@ -850,11 +846,6 @@
   .gamma-promotion__overview-label {
     color: var(--gamma-color-muted);
     font-size: var(--font-size--sm);
-  }
-
-  /* The group heading's face at its phone size, whatever the width: a row is a link, not a heading. */
-  .gamma-promotion__overview-title {
-    font-size: 1.25rem;
   }
 
   .gamma-promotion__overview-arrow {
@@ -993,21 +984,6 @@
     border-radius: var(--gamma-radius-media);
   }
 
-  .gamma-promotion__group {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--gamma-space-inner);
-    align-items: start;
-    min-width: 0;
-  }
-
-  /* 1360px of content less the rail and its gap leaves four 256px cards, against 259px on collection pages. */
-  @media screen and (min-width: 1200px) {
-    .gamma-promotion__group--rail {
-      grid-template-columns: var(--gamma-rail-size) minmax(0, 1fr);
-    }
-  }
-
   /* Rental groups are told apart by a rule, not by panels. */
   .gamma-promotion__group--rental + .gamma-promotion__group--rental {
     padding-block-start: var(--gamma-space-group);
@@ -1040,22 +1016,6 @@
   .gamma-promotion__more {
     margin: 0;
     overflow-wrap: anywhere;
-  }
-
-  /* The collection grid: its minimum card width and gaps come from the collection template's settings. */
-  .gamma-promotion__cards {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--gamma-grid-gap);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  @media screen and (min-width: 750px) {
-    .gamma-promotion__cards {
-      grid-template-columns: repeat(auto-fill, minmax(var(--gamma-grid-card-min), 1fr));
-    }
   }
 
   .gamma-promotion__card {

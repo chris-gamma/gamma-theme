@@ -1,3 +1,363 @@
+/*
+  Gamma's design language (development plan, "Visual design language"), loaded on every page: the
+  `--gamma-*` tokens, the type roles and the shared components. A token aliases Horizon's variable
+  where one exists, so check the aliases after each Horizon update. The tokens that come straight
+  from theme settings (Gamma Red and the card, media and badge radii) are written on `:root` by
+  `snippets/gamma-tokens.liquid`.
+*/
+
+:root {
+  /* Artwork is prepared for a white ground, whatever the colour scheme. */
+  --gamma-color-tile: rgb(255 255 255);
+  --gamma-shadow-badge: 0 1px 5px 2px rgb(0 0 0 / 28%);
+
+  /* Phone sizes have no Horizon variable; from 750px the roles follow the theme's heading presets. */
+  --gamma-type-display-size: 2.25rem;
+  --gamma-type-page-size: var(--font-h2--size);
+  --gamma-type-section-size: 1.625rem;
+  --gamma-type-group-size: 1.25rem;
+  --gamma-type-label-size: var(--font-h6--size);
+  --gamma-type-lede-size: var(--font-size--md);
+  --gamma-type-reading-size: var(--font-size--md);
+  --gamma-type-body-size: var(--font-paragraph--size);
+
+  --gamma-space-section: 2.5rem;
+  --gamma-space-group: 1.75rem;
+  --gamma-space-inner: 1rem;
+
+  --gamma-measure-lede: 60ch;
+  --gamma-measure-text: 68ch;
+
+  /* The collection grid: two columns on phones, then as many 250px cards as fit. */
+  --gamma-grid-card-min: 250px;
+  --gamma-grid-gap: 12px;
+  --gamma-rail-size: 264px;
+
+  --gamma-ratio-campaign: 3 / 2;
+}
+
+@media screen and (min-width: 750px) {
+  :root {
+    --gamma-grid-gap: 24px 16px;
+
+    --gamma-type-display-size: var(--font-h1--size);
+    --gamma-type-section-size: var(--font-h3--size);
+    --gamma-type-group-size: var(--font-h4--size);
+    --gamma-type-lede-size: var(--font-size--lg);
+
+    --gamma-space-section: 3.5rem;
+    --gamma-space-group: 2.25rem;
+    --gamma-space-inner: 1.5rem;
+  }
+}
+
+/*
+  A custom property is resolved on the element that declares it, so the colour tokens are declared
+  again wherever Horizon's colour variables change: on a section or block with its own colours
+  (`color-custom-*`, from `snippets/contrast-override.liquid`) and on any element with the
+  `gamma-tokens` class, for a surface that sets those variables another way.
+*/
+:root,
+[class*='color-custom-'],
+.gamma-tokens {
+  --gamma-color-muted: var(--color-foreground-muted);
+  --gamma-color-panel: rgb(var(--color-foreground-rgb) / var(--opacity-5, 0.05));
+  --gamma-color-rule: rgb(var(--color-foreground-rgb) / 12%);
+  --gamma-color-paper: var(--color-background);
+}
+
+/* Type roles. A role changes a heading's size, never its level. */
+.gamma-type-display {
+  font-family: var(--font-h1--family);
+  font-style: var(--font-h1--style);
+  font-weight: var(--font-h1--weight);
+  font-size: var(--gamma-type-display-size);
+  line-height: var(--font-h1--line-height);
+  letter-spacing: var(--font-h1--letter-spacing);
+  text-transform: var(--font-h1--case);
+}
+
+.gamma-type-page {
+  font-family: var(--font-h2--family);
+  font-style: var(--font-h2--style);
+  font-weight: var(--font-h2--weight);
+  font-size: var(--gamma-type-page-size);
+  line-height: var(--font-h2--line-height);
+  letter-spacing: var(--font-h2--letter-spacing);
+  text-transform: var(--font-h2--case);
+}
+
+.gamma-type-section {
+  font-family: var(--font-h3--family);
+  font-style: var(--font-h3--style);
+  font-weight: var(--font-h3--weight);
+  font-size: var(--gamma-type-section-size);
+  line-height: var(--font-h3--line-height);
+  letter-spacing: var(--font-h3--letter-spacing);
+  text-transform: var(--font-h3--case);
+}
+
+.gamma-type-group {
+  font-family: var(--font-h4--family);
+  font-style: var(--font-h4--style);
+  font-weight: var(--font-h4--weight);
+  font-size: var(--gamma-type-group-size);
+  line-height: var(--font-h4--line-height);
+  letter-spacing: var(--font-h4--letter-spacing);
+  text-transform: var(--font-h4--case);
+}
+
+.gamma-type-label {
+  font-family: var(--font-h6--family);
+  font-style: var(--font-h6--style);
+  font-weight: var(--font-h6--weight);
+  font-size: var(--gamma-type-label-size);
+  line-height: 1.35;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.gamma-type-lede {
+  max-inline-size: var(--gamma-measure-lede);
+  font-size: var(--gamma-type-lede-size);
+  line-height: 1.5;
+}
+
+.gamma-type-reading {
+  max-inline-size: var(--gamma-measure-text);
+  font-size: var(--gamma-type-reading-size);
+  line-height: 1.55;
+}
+
+/* Fine print: terms stay visible, muted and never larger than the content they qualify. */
+.gamma-fine-print {
+  max-inline-size: var(--gamma-measure-text);
+  color: var(--gamma-color-muted);
+  font-size: var(--gamma-type-body-size);
+}
+
+.gamma-fine-print > .gamma-type-label {
+  color: var(--color-foreground);
+}
+
+.gamma-fine-print :is(h1, h2, h3, h4, h5, h6):not(.gamma-type-label) {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: var(--font-weight-bold, 700);
+  line-height: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+/*
+  Media tile: artwork may contain text, so a tile shows it whole on white at the context's ratio,
+  set in `--gamma-media-ratio` (3:2 by default).
+*/
+.gamma-media-tile {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: var(--gamma-media-ratio, var(--gamma-ratio-campaign));
+  border-radius: var(--gamma-radius-media);
+  background-color: var(--gamma-color-tile);
+}
+
+.gamma-media-tile > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Section heading: a heading and its count, above a rule. */
+.gamma-section-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--gap-2xs, 0.3rem) var(--gap-md, 1rem);
+  padding-block-end: var(--padding-sm, 0.75rem);
+  border-block-end: var(--style-border-width, 1px) solid var(--gamma-color-rule);
+}
+
+.gamma-section-heading > * {
+  margin: 0;
+}
+
+.gamma-section-heading > :is(h1, h2, h3, h4, h5, h6) {
+  overflow-wrap: anywhere;
+}
+
+.gamma-section-heading__count {
+  color: var(--gamma-color-muted);
+}
+
+/*
+  Label rail: a label block above its grid of cards. With five or more cards, `gamma-rail--side`
+  puts the label in a rail beside the grid from 1200px: 1360px of content less the rail and its gap
+  leaves four 256px cards, against 259px on collection pages.
+*/
+.gamma-rail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--gamma-space-inner);
+  align-items: start;
+  min-width: 0;
+}
+
+@media screen and (min-width: 1200px) {
+  .gamma-rail--side {
+    grid-template-columns: var(--gamma-rail-size) minmax(0, 1fr);
+  }
+}
+
+/* Card grid: the collection grid, whose minimum card width and gaps copy the collection template's settings. */
+.gamma-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--gamma-grid-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media screen and (min-width: 750px) {
+  .gamma-card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(var(--gamma-grid-card-min), 1fr));
+  }
+}
+
+/*
+  Actions follow the theme's button settings through Horizon's own classes: `button` for the one
+  primary action in a view, `button-secondary` for onward and external actions, and a text link
+  elsewhere. On phones, a button directly inside a `gamma-actions` element spans the width.
+*/
+@media screen and (max-width: 749px) {
+  .gamma-actions > :is(.button, .button-secondary) {
+    width: 100%;
+  }
+}
+
+/*
+  Notice shell (`snippets/gamma-notice.liquid`): a neutral panel, an icon in Gamma Red, a bold lead-in
+  and the message. It has no coloured edge and its meaning never depends on colour.
+*/
+.gamma-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap-sm, 0.7rem);
+  margin: 0;
+  padding: var(--padding-md, 0.8rem);
+  border-radius: var(--gamma-radius-media);
+  background: var(--gamma-color-panel);
+  color: var(--color-foreground);
+  font-size: var(--font-paragraph--size);
+  line-height: var(--font-paragraph--line-height);
+  overflow-wrap: anywhere;
+}
+
+.gamma-notice[hidden] {
+  display: none;
+}
+
+.gamma-notice__icon {
+  flex-shrink: 0;
+  width: var(--icon-size-md, 1.375rem);
+  height: var(--icon-size-md, 1.375rem);
+  color: var(--gamma-color-accent, currentColor);
+}
+
+.gamma-notice__icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.gamma-notice__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--gap-xs, 0.5rem);
+  min-width: 0;
+}
+
+.gamma-notice__body > * {
+  margin: 0;
+}
+
+/* A quieter qualifying line inside the notice's content. */
+.gamma-notice__note {
+  color: var(--gamma-color-muted);
+  font-size: var(--font-size--sm);
+}
+
+.gamma-notice code {
+  font-family: inherit;
+  font-weight: var(--font-weight-bold, 700);
+  letter-spacing: 0.05em;
+}
+
+/*
+  Compact: the panel beside purchase controls, quieter than the default,
+  with smaller text and icon and less padding. Its qualifying line is a step below its text (12px).
+*/
+.gamma-notice--compact {
+  gap: var(--gap-xs, 0.5rem);
+  padding: var(--padding-sm, 0.75rem);
+  font-size: var(--font-size--sm);
+  line-height: 1.4;
+}
+
+.gamma-notice--compact .gamma-notice__icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.gamma-notice--compact .gamma-notice__body {
+  gap: var(--gap-2xs, 0.25rem);
+}
+
+.gamma-notice--compact .gamma-notice__note {
+  font-size: var(--font-size--2xs);
+}
+
+/*
+  Line: the inline form for dense lists such as cart lines, without a panel. The doubled class keeps
+  its margin above Horizon's `.cart-items__table *` reset, which loads after this file; a line that
+  opens its container has none, as Horizon's own first paragraphs.
+*/
+.gamma-notice.gamma-notice--line {
+  gap: var(--gap-2xs, 0.3rem);
+  margin-block-start: var(--margin-2xs, 0.3rem);
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  font-size: var(--font-size--sm);
+  line-height: 1.4;
+}
+
+.gamma-notice.gamma-notice--line:first-child {
+  margin-block-start: 0;
+}
+
+/*
+  A line has no button, so its link is underlined to be found without relying on colour. Horizon's
+  cart removes the underline from links in a line's details, so the line itself is set here too.
+*/
+.gamma-notice.gamma-notice--line a {
+  text-decoration-line: underline;
+  text-decoration-color: currentcolor;
+}
+
+/* The link that follows a line's text: smaller than the text, at the theme's 12px step. */
+.gamma-notice--line .gamma-notice__meta {
+  font-size: var(--font-size--2xs);
+  white-space: nowrap;
+}
+
+.gamma-notice--line .gamma-notice__icon {
+  width: 1.1em;
+  height: 1.1em;
+  margin-block-start: 0.15em;
+}
+
 .product-details .text-block:not(.custom-typography) > h1 {
   text-wrap: wrap;
   overflow-wrap: anywhere;

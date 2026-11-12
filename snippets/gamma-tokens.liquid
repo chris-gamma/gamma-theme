@@ -1,170 +1,18 @@
 {%- doc -%}
-  Gamma's design tokens and type roles (development plan, "Visual design language"). The output is
-  the declarations that come from theme settings, for the `style` attribute of an element that also
-  has the `gamma-tokens` class; the stylesheet adds the tokens that alias Horizon's variables.
-  Colour tokens resolve on the element that declares them, so they follow its colour scheme, and
-  rendering this snippet is what loads the stylesheet on a page. A role class changes a heading's
-  size, never its level. The `gamma-media-tile` class shows artwork whole on white at the ratio in
-  `--gamma-media-ratio` (3:2 by default).
+  Writes on `:root` the design tokens that come straight from theme settings: Gamma Red and the
+  card, media and badge radii. `snippets/stylesheets.liquid` renders it once on every layout. The
+  tokens that alias Horizon's variables, the type roles and the shared components are in
+  `assets/gamma-branding.css` (development plan, "Visual design language").
 
   @example
-  <div class="gamma-tokens" style="{% render 'gamma-tokens' %}"></div>
+  {% render 'gamma-tokens' %}
 {%- enddoc -%}
 
-{%- capture declarations -%}
-  --gamma-color-accent: {{ settings.color_palette.brand }};
-  --gamma-radius-card: {{ settings.card_corner_radius }}px;
-  --gamma-radius-media: {{ settings.product_corner_radius }}px;
-  --gamma-radius-badge: {{ settings.badge_corner_radius }}px;
-{%- endcapture -%}
-{{- declarations | strip | strip_newlines -}}
-
-{% stylesheet %}
-  .gamma-tokens {
-    --gamma-color-muted: var(--color-foreground-muted);
-    --gamma-color-panel: rgb(var(--color-foreground-rgb) / var(--opacity-5, 0.05));
-    --gamma-color-rule: rgb(var(--color-foreground-rgb) / 12%);
-    --gamma-color-paper: var(--color-background);
-
-    /* Artwork is prepared for a white ground, whatever the colour scheme. */
-    --gamma-color-tile: rgb(255 255 255);
-    --gamma-shadow-badge: 0 1px 5px 2px rgb(0 0 0 / 28%);
-
-    /* Phone sizes have no Horizon variable; from 750px the roles follow the theme's heading presets. */
-    --gamma-type-display-size: 2.25rem;
-    --gamma-type-page-size: var(--font-h2--size);
-    --gamma-type-section-size: 1.625rem;
-    --gamma-type-group-size: 1.25rem;
-    --gamma-type-label-size: var(--font-h6--size);
-    --gamma-type-lede-size: var(--font-size--md);
-    --gamma-type-reading-size: var(--font-size--md);
-    --gamma-type-body-size: var(--font-paragraph--size);
-
-    --gamma-space-section: 2.5rem;
-    --gamma-space-group: 1.75rem;
-    --gamma-space-inner: 1rem;
-
-    --gamma-measure-lede: 60ch;
-    --gamma-measure-text: 68ch;
-
-    /* The collection grid: two columns on phones, then as many 250px cards as fit. */
-    --gamma-grid-card-min: 250px;
-    --gamma-grid-gap: 12px;
-    --gamma-rail-size: 264px;
-
-    --gamma-ratio-campaign: 3 / 2;
+{% style %}
+  :root {
+    --gamma-color-accent: {{ settings.color_palette.brand }};
+    --gamma-radius-card: {{ settings.card_corner_radius }}px;
+    --gamma-radius-media: {{ settings.product_corner_radius }}px;
+    --gamma-radius-badge: {{ settings.badge_corner_radius }}px;
   }
-
-  @media screen and (min-width: 750px) {
-    .gamma-tokens {
-      --gamma-grid-gap: 24px 16px;
-
-      --gamma-type-display-size: var(--font-h1--size);
-      --gamma-type-section-size: var(--font-h3--size);
-      --gamma-type-group-size: var(--font-h4--size);
-      --gamma-type-lede-size: var(--font-size--lg);
-
-      --gamma-space-section: 3.5rem;
-      --gamma-space-group: 2.25rem;
-      --gamma-space-inner: 1.5rem;
-    }
-  }
-
-  .gamma-type-display {
-    font-family: var(--font-h1--family);
-    font-style: var(--font-h1--style);
-    font-weight: var(--font-h1--weight);
-    font-size: var(--gamma-type-display-size);
-    line-height: var(--font-h1--line-height);
-    letter-spacing: var(--font-h1--letter-spacing);
-    text-transform: var(--font-h1--case);
-  }
-
-  .gamma-type-page {
-    font-family: var(--font-h2--family);
-    font-style: var(--font-h2--style);
-    font-weight: var(--font-h2--weight);
-    font-size: var(--gamma-type-page-size);
-    line-height: var(--font-h2--line-height);
-    letter-spacing: var(--font-h2--letter-spacing);
-    text-transform: var(--font-h2--case);
-  }
-
-  .gamma-type-section {
-    font-family: var(--font-h3--family);
-    font-style: var(--font-h3--style);
-    font-weight: var(--font-h3--weight);
-    font-size: var(--gamma-type-section-size);
-    line-height: var(--font-h3--line-height);
-    letter-spacing: var(--font-h3--letter-spacing);
-    text-transform: var(--font-h3--case);
-  }
-
-  .gamma-type-group {
-    font-family: var(--font-h4--family);
-    font-style: var(--font-h4--style);
-    font-weight: var(--font-h4--weight);
-    font-size: var(--gamma-type-group-size);
-    line-height: var(--font-h4--line-height);
-    letter-spacing: var(--font-h4--letter-spacing);
-    text-transform: var(--font-h4--case);
-  }
-
-  .gamma-type-label {
-    font-family: var(--font-h6--family);
-    font-style: var(--font-h6--style);
-    font-weight: var(--font-h6--weight);
-    font-size: var(--gamma-type-label-size);
-    line-height: 1.35;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .gamma-type-lede {
-    max-inline-size: var(--gamma-measure-lede);
-    font-size: var(--gamma-type-lede-size);
-    line-height: 1.5;
-  }
-
-  .gamma-type-reading {
-    max-inline-size: var(--gamma-measure-text);
-    font-size: var(--gamma-type-reading-size);
-    line-height: 1.55;
-  }
-
-  /* Terms stay visible, muted and never larger than the content they qualify. */
-  .gamma-fine-print {
-    max-inline-size: var(--gamma-measure-text);
-    color: var(--gamma-color-muted);
-    font-size: var(--gamma-type-body-size);
-  }
-
-  .gamma-fine-print > .gamma-type-label {
-    color: var(--color-foreground);
-  }
-
-  .gamma-fine-print :is(h1, h2, h3, h4, h5, h6):not(.gamma-type-label) {
-    font-family: inherit;
-    font-size: inherit;
-    font-weight: var(--font-weight-bold, 700);
-    line-height: inherit;
-    letter-spacing: normal;
-    text-transform: none;
-  }
-
-  /* Artwork may contain text, so a media tile shows it whole on white at the context's ratio. */
-  .gamma-media-tile {
-    position: relative;
-    overflow: hidden;
-    aspect-ratio: var(--gamma-media-ratio, var(--gamma-ratio-campaign));
-    border-radius: var(--gamma-radius-media);
-    background-color: var(--gamma-color-tile);
-  }
-
-  .gamma-media-tile > img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-  }
-{% endstylesheet %}
+{% endstyle %}

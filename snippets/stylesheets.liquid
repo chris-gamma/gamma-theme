@@ -1,6 +1,8 @@
 {{ 'overflow-list.css' | asset_url | preload_tag: as: 'style' }}
 {{ 'base.css' | asset_url | stylesheet_tag: preload: true }}
 {{ 'gamma-branding.css' | asset_url | stylesheet_tag }}
+{%- comment -%} Gamma: the design tokens that come from theme settings, which gamma-branding.css reads. {%- endcomment -%}
+{%- render 'gamma-tokens' %}
 {{ 'gamma-privacy.css' | asset_url | stylesheet_tag }}
 {{ 'gamma-media.css' | asset_url | stylesheet_tag }}
 {%- if page.content contains 'display-card-table' -%}

@@ -99,8 +99,8 @@
 
 <div class="section-background"></div>
 <div
-  class="section section--page-width gamma-promotion-index gamma-tokens spacing-style"
-  style="{% render 'spacing-style', settings: section.settings %} {% render 'gamma-tokens' %}"
+  class="section section--page-width gamma-promotion-index spacing-style"
+  style="{% render 'spacing-style', settings: section.settings %}"
 >
   <header class="gamma-promotion-index__header">
     <h1 class="gamma-promotion-index__title gamma-type-page">{{ page.title | escape }}</h1>
@@ -111,7 +111,7 @@
 
   {%- unless has_live -%}
     {%- assign empty_message = 'gamma_promotion.index.empty' | t -%}
-    <div class="gamma-promotion-index__empty">
+    <div class="gamma-promotion-index__empty gamma-actions">
       {%- render 'gamma-notice', icon: 'icon-info.svg', message: empty_message -%}
       <a class="button-secondary" href="{{ routes.all_products_collection_url }}">{{ 'actions.continue_shopping' | t }}</a>
     </div>
@@ -148,9 +148,9 @@
       endif
     -%}
     <section class="{{ group_class }}" aria-labelledby="{{ group_id }}-title">
-      <div class="gamma-promotion-index__group-header">
-        <h2 id="{{ group_id }}-title" class="gamma-promotion-index__group-title gamma-type-section">{{ group_heading }}</h2>
-        <p class="gamma-promotion-index__count">{{ 'gamma_promotion.index.count' | t: count: sorted.size }}</p>
+      <div class="gamma-section-heading">
+        <h2 id="{{ group_id }}-title" class="gamma-type-section">{{ group_heading }}</h2>
+        <p class="gamma-section-heading__count">{{ 'gamma_promotion.index.count' | t: count: sorted.size }}</p>
       </div>
       <gamma-promotion-pager
         id="{{ group_id }}"
@@ -203,8 +203,7 @@
     max-width: 48rem;
   }
 
-  .gamma-promotion-index__title,
-  .gamma-promotion-index__group-title {
+  .gamma-promotion-index__title {
     margin: 0;
     overflow-wrap: anywhere;
   }
@@ -217,30 +216,10 @@
     max-width: 48rem;
   }
 
-  @media screen and (max-width: 749px) {
-    .gamma-promotion-index__empty .button-secondary {
-      width: 100%;
-    }
-  }
-
   .gamma-promotion-index__group {
     display: flex;
     flex-direction: column;
     gap: var(--gap-md, 1rem);
-  }
-
-  .gamma-promotion-index__group-header {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: var(--gap-2xs, 0.3rem) var(--gap-md, 1rem);
-    padding-block-end: var(--padding-sm, 0.75rem);
-    border-block-end: var(--style-border-width, 1px) solid var(--gamma-color-rule);
-  }
-
-  .gamma-promotion-index__count {
-    margin: 0;
-    color: var(--gamma-color-muted);
   }
 
   /* One, two, three and four columns. */

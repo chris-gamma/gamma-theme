@@ -131,7 +131,7 @@
         <a href="{{ url }}">{{ link_text }}</a>
       </p>
     {%- endcapture -%}
-    {%- render 'gamma-notice', icon: icon, lead: lead, message: message, content: content, hide_at: hide_at -%}
+    {%- render 'gamma-notice', variant: 'compact', icon: icon, lead: lead, message: message, content: content, hide_at: hide_at -%}
   {%- endif -%}
 {%- endfor -%}
 
