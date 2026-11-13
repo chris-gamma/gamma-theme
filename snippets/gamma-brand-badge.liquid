@@ -1,8 +1,10 @@
 {%- doc -%}
   Renders a text badge for a `brand` metaobject entry, such as a promotion's sponsor. Shopify returns a
   Draft, deleted or missing reference as blank, so the badge then renders nothing. The colour is the
-  theme's brand colour when `use_theme_brand_color` is set, otherwise `badge_color`, otherwise none;
-  filled badges use black or white text, whichever contrasts more (at least 4.5:1 for any colour). The
+  theme's brand colour when `use_theme_brand_color` is set, otherwise `badge_color`, otherwise none.
+  Filled badges use white text unless black's contrast with the colour is at least three times white's
+  (Shopify's ratios, rounded to one decimal), so manufacturer reds and oranges take white and light
+  colours keep black; white never falls below 2.6:1 (the AGENTS.md exception for Brand badges). The
   entry's `logo` is reserved and not displayed.
 
   Inline, a badge without a colour is a neutral outline. As an overlay it sits in the top-left corner of
@@ -31,11 +33,11 @@
     endif
     if badge_color != blank
       assign badge_color = badge_color | color_modify: 'alpha', 1
-      assign badge_text_color = '#000000'
+      assign badge_text_color = '#ffffff'
       assign black_contrast = badge_color | color_contrast: '#000000'
-      assign white_contrast = badge_color | color_contrast: '#ffffff'
-      if white_contrast > black_contrast
-        assign badge_text_color = '#ffffff'
+      assign white_contrast_tripled = badge_color | color_contrast: '#ffffff' | times: 3
+      if black_contrast >= white_contrast_tripled
+        assign badge_text_color = '#000000'
       endif
     endif
   endif
