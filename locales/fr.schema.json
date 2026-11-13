@@ -64,7 +64,9 @@
   "gamma": {
     "menu_en": "Menu de remplacement en anglais",
     "menu_fr": "Menu de remplacement en français",
-    "menu_override_info": "Facultatif. Si le menu de remplacement est vide ou non sélectionné, le menu par défaut ci-dessus est utilisé. Modifiez les liens et leurs destinations dans Contenu > Menus."
+    "menu_override_info": "Facultatif. Si le menu de remplacement est vide ou non sélectionné, le menu par défaut ci-dessus est utilisé. Modifiez les liens et leurs destinations dans Contenu > Menus.",
+    "logo_offset": "Décalage optique du logo",
+    "logo_offset_info": "Déplace le logo de l’en-tête horizontalement de cette fraction de sa largeur partout où il est centré, pour qu’un point choisi du logo, plutôt que son cadre, tombe sur l’axe central de la page, par exemple là où se rejoignent deux images de bannière côte à côte. Une valeur négative le déplace vers la gauche; 0 n’ajoute rien."
   },
   "gamma_hours": {
     "name": "Heures d’ouverture",
