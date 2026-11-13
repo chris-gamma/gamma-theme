@@ -6,7 +6,9 @@ import { StandardEvents, ProductSelectEvent } from '@shopify/events';
  * Keeps a product's promotion notices in step with the selected variant.
  *
  * Horizon's variant update morphs only the picker, so this takes the notices block from the section
- * response and swaps it in. Without JavaScript the page shows the notices of the variant in its URL.
+ * response and swaps it in. While the new selection loads, the old notices are hidden but keep their
+ * height, so the controls below move at most once. Without JavaScript the page shows the notices of
+ * the variant in its URL.
  *
  * @typedef {Object} PromotionNoticesRefs
  * @property {HTMLElement} panel
@@ -27,7 +29,13 @@ class GammaPromotionNotices extends Component {
     this.#owner?.removeEventListener(StandardEvents.productSelect, this.#select);
     this.#owner = null;
     this.#generation++;
+    this.#release();
     super.disconnectedCallback();
+  }
+
+  /** Releases the height held while the selection loads. */
+  #release() {
+    this.style.removeProperty('min-height');
   }
 
   /** @param {Element} element */
@@ -41,7 +49,10 @@ class GammaPromotionNotices extends Component {
     const generation = ++this.#generation;
     const { panel } = this.refs;
     const wasHidden = panel.hidden;
-    // Never leave the previous variant's claim visible while the new selection loads.
+    // Hide the previous variant's notices while the new selection loads, but keep the block's
+    // height until the response arrives (none when it had no notices).
+    const height = this.getBoundingClientRect().height;
+    if (height > 0) this.style.minHeight = `${height}px`;
     panel.hidden = true;
 
     event.promise
@@ -70,6 +81,10 @@ class GammaPromotionNotices extends Component {
         if (generation !== this.#generation || !this.isConnected) return;
         // An aborted request keeps the last confirmed selection; failures stay cleared.
         if (error?.name === 'AbortError') panel.hidden = wasHidden;
+      })
+      .finally(() => {
+        // Only the latest selection releases the height; a superseded one leaves it to that selection.
+        if (generation === this.#generation) this.#release();
       });
   };
 }
