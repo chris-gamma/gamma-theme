@@ -73,7 +73,9 @@
   "gamma": {
     "menu_en": "English menu override",
     "menu_fr": "French menu override",
-    "menu_override_info": "Optional. An unset or empty override uses the default menu above. Edit links and destinations in Content > Menus."
+    "menu_override_info": "Optional. An unset or empty override uses the default menu above. Edit links and destinations in Content > Menus.",
+    "logo_offset": "Logo optical offset",
+    "logo_offset_info": "Moves the header logo sideways by this share of its width wherever the logo is centred, so that a chosen point of the artwork, rather than its box, sits on the page's centre line, for example where two side-by-side hero images meet. Negative values move it left; 0 adds nothing."
   },
   "gamma_hours": {
     "name": "Store hours",

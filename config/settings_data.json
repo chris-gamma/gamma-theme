@@ -11,6 +11,7 @@
   "current": {
     "logo_height": 60,
     "logo_height_mobile": 40,
+    "gamma_logo_offset": 2.5,
     "type_body_font": "inter_n4",
     "type_subheading_font": "oswald_n5",
     "type_heading_font": "oswald_n5",

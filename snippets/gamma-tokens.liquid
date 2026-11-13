@@ -1,6 +1,7 @@
 {%- doc -%}
   Writes on `:root` the design tokens that come straight from theme settings: Gamma Red, the card,
-  media and badge radii, and the badge font and case. `snippets/stylesheets.liquid` renders it once
+  media and badge radii, and the badge font and case. It also writes the header logo's optical offset
+  (Theme settings > Logo and favicon) when it isn't 0. `snippets/stylesheets.liquid` renders it once
   on every layout. The tokens that alias Horizon's variables, the type roles and the shared
   components are in `assets/gamma-branding.css` (development plan, "Visual design language").
 
@@ -18,3 +19,32 @@
     --gamma-badge-text-transform: {{ settings.badge_text_transform }};
   }
 {% endstyle %}
+
+{%- comment -%}
+  The logo offset moves the header logo link, so its focus ring and hit area move with the artwork, by
+  a share of the logo image's rendered width: Horizon's width from the logo height and aspect ratio, or
+  the link's own width where the image is narrowed to fit (phones). It applies only where the logo is
+  centred: the header's centre column from 750px, and the drawer layout, which centres the logo at
+  every width. Nothing is written at 0 or without a logo image.
+{%- endcomment -%}
+{%- if settings.gamma_logo_offset != 0 and settings.logo != blank -%}
+  {%- liquid
+    assign gamma_logo_width = settings.logo_height | times: settings.logo.aspect_ratio | ceil
+    assign gamma_logo_width_mobile = settings.logo_height_mobile | times: settings.logo.aspect_ratio | ceil
+    assign gamma_logo_share = settings.gamma_logo_offset | divided_by: 100.0
+  -%}
+  {% style %}
+    @media screen and (max-width: 749px) {
+      #header-component .header-logo {
+        translate: calc(min({{ gamma_logo_width_mobile }}px, 100%) * {{ gamma_logo_share }}) 0;
+      }
+    }
+
+    @media screen and (min-width: 750px) {
+      #header-component .header__column--center .header-logo,
+      #header-component[data-menu-style='drawer'] .header-logo {
+        translate: calc(min({{ gamma_logo_width }}px, 100%) * {{ gamma_logo_share }}) 0;
+      }
+    }
+  {% endstyle %}
+{%- endif -%}

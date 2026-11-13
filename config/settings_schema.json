@@ -50,6 +50,18 @@
         "info": "t:info.logo_height"
       },
       {
+        "type": "range",
+        "id": "gamma_logo_offset",
+        "label": "t:gamma.logo_offset",
+        "min": -5,
+        "max": 5,
+        "step": 0.1,
+        "unit": "%",
+        "default": 0,
+        "visible_if": "{{ settings.logo != blank }}",
+        "info": "t:gamma.logo_offset_info"
+      },
+      {
         "type": "image_picker",
         "id": "favicon",
         "label": "t:settings.favicon"
