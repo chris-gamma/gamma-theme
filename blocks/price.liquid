@@ -100,6 +100,16 @@
   {%- endif -%}
 </product-price>
 
+{%- comment -%}
+  Gamma change to Horizon's price block: on a campaign card limited to one listed variant (gamma_variant
+  is set only there), the variant's name follows the price as a muted line inside the card, so the
+  customer sees which variant the price and offer are for. Styled in sections/gamma-promotion.liquid.
+  Review it at each Horizon update.
+{%- endcomment -%}
+{%- if gamma_variant -%}
+  <p class="gamma-card-variant">{{ gamma_variant.title | escape }}</p>
+{%- endif -%}
+
 {% render 'payment-terms-styles' %}
 
 {% schema %}

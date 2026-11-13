@@ -39,6 +39,11 @@
     assign gamma_card_available = gamma_variant.available
     assign gamma_card_url = gamma_variant.url
   endif
+  assign gamma_card_label = product.title | escape
+  if gamma_variant
+    assign gamma_variant_label = gamma_variant.title | escape
+    assign gamma_card_label = gamma_card_label | append: ' – ' | append: gamma_variant_label
+  endif
 
   assign has_quick_add = false
   if settings.quick_add and gamma_card_available
@@ -117,7 +122,8 @@
     {% endunless %}
     class="product-card__link"
     ref="productCardLink"
-    aria-label="{{ product.title | escape }}"
+    {% # Gamma change to Horizon's card link: a card limited to a listed variant is named with it ("Product – 14 in"). Review it at each Horizon update. %}
+    aria-label="{{ gamma_card_label }}"
   ></a>
   <div
     class="
