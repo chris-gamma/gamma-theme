@@ -21,11 +21,11 @@
     endif
     if badge_color != blank
       assign badge_color = badge_color | color_modify: 'alpha', 1
-      assign badge_text_color = '#000000'
+      assign badge_text_color = '#ffffff'
       assign black_contrast = badge_color | color_contrast: '#000000'
-      assign white_contrast = badge_color | color_contrast: '#ffffff'
-      if white_contrast > black_contrast
-        assign badge_text_color = '#ffffff'
+      assign white_contrast_tripled = badge_color | color_contrast: '#ffffff' | times: 3
+      if black_contrast >= white_contrast_tripled
+        assign badge_text_color = '#000000'
       endif
     endif
   endif
