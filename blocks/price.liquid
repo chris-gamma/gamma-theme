@@ -100,6 +100,14 @@
   {%- endif -%}
 </product-price>
 
+{%- comment -%}
+  Gamma: on a campaign card limited to one listed variant (gamma_variant is set only there), the
+  variant's name follows the price as a muted line. Styled in sections/gamma-promotion.liquid.
+{%- endcomment -%}
+{%- if gamma_variant -%}
+  <p class="gamma-card-variant">{{ gamma_variant.title | escape }}</p>
+{%- endif -%}
+
 {% render 'payment-terms-styles' %}
 
 {% schema %}
