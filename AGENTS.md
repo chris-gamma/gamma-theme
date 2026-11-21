@@ -2,9 +2,17 @@
 
 Shared instructions for Claude Code, Codex, GitHub Copilot and other coding agents working with Chris. Read [README.md](README.md) for task-relevant setup and maintenance context; a Markdown link alone does not establish that its contents were loaded.
 
+## Project
+
+Location Gamma is moving its storefront from WordPress to Shopify. This repository is the customized Horizon theme; the work also covers the bilingual storefront, the rental catalogue integration, store content and launch preparation. The soft launch is planned for February 2027 and the grand opening for April 2027.
+
+- [docs/development-plan.md](docs/development-plan.md) holds the features and their acceptance criteria, the branch sequence with model guidance, and the open and resolved questions. Follow its approved decisions.
+- Primary, the production store, is `location-gamma.myshopify.com` (permanent domain `d2e135-ff.myshopify.com`, shop ID 74939334829). It is password-protected until launch, and its published theme follows this repository's `dev` branch.
+- Gamma-Dev, the development store, is `gamma-dev-2318.myshopify.com` (shop ID 81927143660).
+
 ## Scope and decisions
 
-- Work inside this repository. Preserve existing edits, historical commits, vendor tags, attribution and [LICENSE.md](LICENSE.md). For authorized implementation, verify Git status and feature dependencies, then start bounded work from the appropriate current `dev` on a descriptive `feature/*` branch; validate and review the complete diff before local integration. Keep `main` for authorized releases.
+- Work inside this repository. Preserve existing edits, historical commits, vendor tags, attribution and [LICENSE.md](LICENSE.md). Branches, integration and commits follow [Branches and commits](#branches-and-commits).
 - Make minimal, targeted changes. Preserve deliberate Gamma customizations; inspect relevant code and history before replacing them. Avoid unrelated refactors, dependency changes, formatting or file edits.
 - Resolve technical decisions in this order: explicit user instructions; current Shopify platform requirements and supported behavior; Horizon architecture and conventions; Gamma's established conventions and customizations; general development practices. Identify conflicts explicitly. This order does not authorize unsupported or unsafe implementations, or replacing working Gamma behavior merely because a newer pattern exists.
 - Establish whether the task is planning, reviewing, or implementing. Planning and review are read-only unless implementation is explicitly requested: inspect relevant evidence without branch changes, dependency installation, file edits, commits or store mutations. Before implementing, identify the requested outcome, applicable approvals, dependencies, affected surfaces and observable acceptance criteria.
@@ -21,8 +29,26 @@ Shared instructions for Claude Code, Codex, GitHub Copilot and other coding agen
 - Keep sessions focused on one coherent task. For unrelated work, recommend Claude Code's `/clear` after preserving essential decisions, file paths, Git state and remaining steps in a concise handoff. For a long continuing task, prefer `/compact` and a focused summary over repeatedly starting from scratch. Do not create session-summary files unless requested.
 - Inspect narrowly: search for relevant files or symbols first, read the smallest useful code and documentation scope, and reuse evidence already gathered. Verify current repository, platform and runtime facts before relying on historical notes; never claim access to a session, browser, store or test result that has not been observed. Avoid repeated full-repository scans, redundant tool calls, excessively large outputs and broad web research without a task-specific question. Do not save tokens by skipping necessary investigation, testing, accessibility checks or review.
 - Invoke Shopify-specific skills and plugins when specialized Liquid, platform, custom-data or API guidance is actually useful. Avoid loading the Shopify plugin for ordinary Git, CSS, JavaScript, writing or coordination tasks that need no Shopify-specific knowledge. Use targeted official sources and existing local tools; do not disable required project capabilities or alter plugin configuration without authorization.
-- For Claude Code, prefer Opus at medium effort for substantive work; raise effort to high for demanding architecture, debugging, design or review. Prefer Sonnet for straightforward coordination and appropriately scoped subagents. Delegate only when independent work will materially help, give subagents tight tasks, and avoid duplicate exploration. These preferences do not override explicit model choices or themselves change Claude Code settings.
+- Use the model and effort the development plan's model guidance gives each branch. Delegate only when independent work will materially help, give subagents tight tasks, and avoid duplicate exploration. These preferences do not override explicit model choices or themselves change agent settings.
 - Give short progress updates when useful. Finish with what changed, what was verified, what remains uncertain or untested, and any approval needed. State failures and limitations plainly; do not imply a check passed merely because it was attempted.
+
+## Branches and commits
+
+- Each piece of work is one branch from the development plan's branch tables, named exactly as the plan names it: `feature/` followed by a short kebab-case name of its area and scope, such as `feature/design-cart`. Work the plan doesn't list gets a row there first, named the same way. Start the branch from current `dev`, or stack it on its parent where the plan says so.
+- For authorized implementation, verify Git status and the branch's dependencies first, and validate and review the complete diff before local integration. Integrate into `dev` by local fast-forward when Chris asks, in the plan's order, then record the integration in the plan.
+- Never push `dev` without Chris's approval for that push: it deploys Primary's published theme. Keep `main` for authorized releases.
+- Keep integrated `feature/*` branches as history. Removing a worktree doesn't include deleting its branch; delete a branch only when Chris names it.
+- Match the commit messages already on `origin/dev`: a short imperative subject in sentence case, with no prefix or full stop; usually no body, otherwise one short paragraph giving a reason the subject can't; no trailers or attribution lines. Plan updates are "Record …" commits. Measurements and verification belong in the plan and the final report.
+
+## Store access
+
+- Before any store operation, confirm the store's identity: `shopify store execute -s gamma-dev-2318.myshopify.com -q '{ shop { id } }'` must return Gamma-Dev's shop ID. The default environment in `shopify.theme.toml` is Primary, so theme commands for Gamma-Dev use `-e dev`.
+- Rendered checks through `shopify theme dev` on Gamma-Dev's development theme are authorized without asking, after that check. Admin data changes, fixtures, uploads to other themes, publishing, pushes and every Primary operation still need explicit approval.
+- Chris may be running his own `shopify theme dev` (port 9292) against the same development theme. Use another port, never stop his process, and say when the development theme holds your files. Switching branches in a checkout that a running `theme dev` watches uploads those files to the development theme.
+- The Shopify connector may be connected to either store: check `get-shop-info` before using it, and don't switch its store unasked, since switching revokes its access. For authorized Admin operations, prefer it or Shopify CLI to browser automation.
+- `.env` holds the storefront password; load it into commands without printing it.
+- The storefronts rate-limit bursts (HTTP 429 and a verification page for 10–25 minutes). Space rendered-check requests about 1.5 seconds apart and stop pollers before other storefront work.
+- Keep durable design-review evidence outside the repository, under `/home/chris/shopify/gamma-scs-handoff/design-review/<date>-<short-commit>/`.
 
 ## Documentation and tests
 
@@ -58,4 +84,4 @@ Shared instructions for Claude Code, Codex, GitHub Copilot and other coding agen
 
 ## Maintaining these instructions
 
-Update only directly relevant sections when related work verifies a durable architectural or convention change. Add useful findings, remove demonstrably obsolete guidance, and preserve user-established conventions unless explicitly superseded. This maintenance permission does not authorize unrelated documentation or test generation or material expansion without explicit user authorization. Avoid wording-only rewrites, speculative rules, temporary implementation details and recurring maintenance exercises. Keep shared rules here and Copilot-specific discovery guidance in [`.github/copilot-instructions.md`](.github/copilot-instructions.md).
+Update only directly relevant sections when related work verifies a durable architectural or convention change. Add useful findings, remove demonstrably obsolete guidance, and preserve user-established conventions unless explicitly superseded. This maintenance permission does not authorize unrelated documentation or test generation or material expansion without explicit user authorization. Avoid wording-only rewrites, speculative rules, temporary implementation details and recurring maintenance exercises. Keep shared rules here, Copilot-specific discovery guidance in [`.github/copilot-instructions.md`](.github/copilot-instructions.md), and only the import of this file in [`CLAUDE.md`](CLAUDE.md).
