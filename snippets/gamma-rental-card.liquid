@@ -66,7 +66,9 @@
     outline-offset: var(--focus-outline-offset, 3px);
   }
 
+  /* Without an image, the square Horizon's product card gives a missing image. */
   .gamma-rental-card .gamma-rental-card__media--empty {
+    aspect-ratio: 1;
     background-color: var(--gamma-color-panel);
   }
 
