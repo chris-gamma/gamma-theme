@@ -34,8 +34,14 @@ Location Gamma is moving its storefront from WordPress to Shopify. This reposito
 
 ## Branches and commits
 
-- Each piece of work is one branch from the development plan's branch tables, named exactly as the plan names it: `feature/` followed by a short kebab-case name of its area and scope, such as `feature/design-cart`. Work the plan doesn't list gets a row there first, named the same way. Start the branch from current `dev`, or stack it on its parent where the plan says so.
-- For authorized implementation, verify Git status and the branch's dependencies first, and validate and review the complete diff before local integration. Integrate into `dev` by local fast-forward when Chris asks, in the plan's order, then record the integration in the plan.
+- Each piece of work gets one branch, and you name it yourself: a type prefix for what the change does, then a short kebab-case name of its area and scope (two to four words) that no existing branch uses. Say which name you chose when you start. A branch in the development plan's tables keeps the name the plan gives it, and a new row is named by the same rule.
+  - `feature/`: new or changed storefront behaviour, design or content contracts, such as `feature/design-cart`. Add the work to the plan's tables first.
+  - `fix/`: corrects a defect in work already integrated into `dev`, toward the behaviour the plan already describes, such as `fix/promotion-notice-height`. A defect in a branch that isn't integrated yet is fixed on that branch.
+  - `refactor/`: restructures code without changing rendered output, editor settings or behaviour.
+  - `chore/`: maintenance with no intended storefront change: dependencies, development tooling and agent configuration, such as `chore/agent-tooling`, and Horizon updates as `chore/horizon-<version>`.
+  - `docs/`: changes only to documentation or the plan, such as `docs/plan-store-state`.
+  A change that fits two types takes the one with the larger effect on the storefront, in the order above.
+- Start a branch from current `dev`, or stack it on its parent where the plan says so. For authorized implementation, verify Git status and the branch's dependencies first, and validate and review the complete diff before local integration. Integrate into `dev` by local fast-forward when Chris asks, in the plan's order. Record each integration of a plan row in the plan; record another branch there only when it changes a feature's status or a decision.
 - Never push `dev` without Chris's approval for that push: it deploys Primary's published theme. Keep `main` for authorized releases.
 - Keep integrated `feature/*` branches as history. Removing a worktree doesn't include deleting its branch; delete a branch only when Chris names it.
 - Match the commit messages already on `origin/dev`: a short imperative subject in sentence case, with no prefix or full stop; usually no body, otherwise one short paragraph giving a reason the subject can't; no trailers or attribution lines. Plan updates are "Record …" commits. Measurements and verification belong in the plan and the final report.
@@ -80,7 +86,7 @@ Location Gamma is moving its storefront from WordPress to Shopify. This reposito
 - Distinguish observed results from another agent's claims. Report each meaningful check as passed, failed, blocked or not run, and distinguish feature merge readiness from storefront launch readiness. Where remote previews, browser extensions or tunnels are involved, confirm which host and `localhost` are in use before diagnosing a theme failure.
 - For each Horizon update, preserve incoming `README.md` as `README-horizon.md`, `LICENSE.md` as `LICENSE-horizon.md`, and `release-notes.md` as `release-notes-horizon.md`, replacing the previous unmodified vendor copies. Resolve rename conflicts, remove duplicate original filenames, and review before integration; `README.md` is the project README.
 - Keep only English/French locales: `en.default.json`, `fr.json`, `en.default.schema.json`, `fr.schema.json`. For every Horizon update, inspect all resulting locale files, remove reintroduced non-English/French files, validate retained JSON and storefront/schema key references, and review that diff before integration. Any regional English/French file needs a concrete requirement. These locale and vendor-document steps require manual review, with no automatic enforcement; `.shopifyignore` does not prevent Git merges from adding files.
-- Evaluate verified stable Horizon source commits on a feature branch as described in `README.md`; preserve upstream history and deliberate Gamma changes.
+- Evaluate verified stable Horizon source commits on a `chore/horizon-<version>` branch as described in `README.md`; preserve upstream history and deliberate Gamma changes.
 
 ## Maintaining these instructions
 
