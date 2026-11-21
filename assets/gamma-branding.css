@@ -221,6 +221,65 @@ product-card:has(:focus-visible) .card-gallery,
 }
 
 /*
+  A product card's image arrow fades to Gamma Red like the frame. Horizon draws the arrows white in a
+  difference blend, which would show Gamma Red as cyan, so an active arrow uses the normal blend and
+  is black with a thin white halo for dark photos. The fade is listed after Horizon's `arrowsSlideIn`
+  so that doesn't restart, and the arrows lose Horizon's button colour transition, which in the
+  difference blend would pass through grey and cyan. Arrows with a filled shape keep their button colours.
+*/
+@keyframes gamma-arrow-accent {
+  from {
+    color: rgb(0 0 0);
+  }
+
+  to {
+    color: var(--gamma-color-accent);
+  }
+}
+
+.card-gallery slideshow-arrows .slideshow-control:not([class*='slideshow-control--shape-']) {
+  transition: none;
+}
+
+.card-gallery slideshow-arrows:has(> .slideshow-control:not([class*='slideshow-control--shape-']):focus-visible) {
+  mix-blend-mode: normal;
+
+  .slideshow-control:not([class*='slideshow-control--shape-']) {
+    color: rgb(0 0 0);
+    filter: drop-shadow(0 0 1px rgb(255 255 255)) drop-shadow(0 0 1px rgb(255 255 255));
+  }
+
+  .slideshow-control:not([class*='slideshow-control--shape-']):focus-visible {
+    color: var(--gamma-color-accent);
+    opacity: 1;
+    filter: none;
+    animation:
+      arrowsSlideIn var(--animation-speed) var(--animation-easing) forwards,
+      gamma-arrow-accent var(--animation-speed-medium, 0.15s) var(--animation-easing, ease-in-out) both;
+  }
+}
+
+@media (any-pointer: fine) {
+  .card-gallery slideshow-arrows:has(> .slideshow-control:not([class*='slideshow-control--shape-']):hover) {
+    mix-blend-mode: normal;
+
+    .slideshow-control:not([class*='slideshow-control--shape-']) {
+      color: rgb(0 0 0);
+      filter: drop-shadow(0 0 1px rgb(255 255 255)) drop-shadow(0 0 1px rgb(255 255 255));
+    }
+
+    .slideshow-control:not([class*='slideshow-control--shape-']):hover {
+      color: var(--gamma-color-accent);
+      opacity: 1;
+      filter: none;
+      animation:
+        arrowsSlideIn var(--animation-speed) var(--animation-easing) forwards,
+        gamma-arrow-accent var(--animation-speed-medium, 0.15s) var(--animation-easing, ease-in-out) both;
+    }
+  }
+}
+
+/*
   On phones Horizon runs card media to the screen edges in a full-width grid
   (`collection-wrapper--full-width-on-mobile`), where a frame would lose its outer corners, so those
   tiles have none.
