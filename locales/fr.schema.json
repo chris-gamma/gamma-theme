@@ -33,6 +33,10 @@
     "icon_height": "Hauteur de l’icône",
     "text_style": "Style du texte"
   },
+  "gamma_cart": {
+    "empty_menu": "Liens du panier vide",
+    "empty_menu_info": "Menu affiché quand le panier est vide, au lieu du bouton Continuer vos achats."
+  },
   "gamma_information": {
     "name": "Renseignements produit",
     "row": "Rubrique produit",

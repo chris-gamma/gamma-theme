@@ -1601,6 +1601,12 @@
         "default": "/collections/all"
       },
       {
+        "type": "link_list",
+        "id": "gamma_empty_cart_menu",
+        "label": "t:gamma_cart.empty_menu",
+        "info": "t:gamma_cart.empty_menu_info"
+      },
+      {
         "type": "header",
         "content": "t:content.product_media"
       },
