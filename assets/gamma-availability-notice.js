@@ -51,11 +51,8 @@ class GammaAvailabilityNotice extends Component {
     event.promise
       .then(({ detail }) => {
         if (generation !== this.#generation || !this.isConnected) return;
-        try {
-          this.#update(detail);
-        } finally {
-          this.#release();
-        }
+        this.#update(detail);
+        this.#release();
       })
       .catch((error) => {
         if (generation !== this.#generation || !this.isConnected) return;
@@ -94,8 +91,10 @@ class GammaAvailabilityNotice extends Component {
   }
 
   #hold() {
+    // Measured before cancelling, so a change during the ease holds where the notice is now.
+    const height = this.getBoundingClientRect().height;
     this.#resize?.cancel();
-    this.style.height = `${this.getBoundingClientRect().height}px`;
+    this.style.height = `${height}px`;
   }
 
   /** Eases from the held height to the new one, or changes at once when motion is reduced. */
@@ -103,14 +102,15 @@ class GammaAvailabilityNotice extends Component {
     const from = this.getBoundingClientRect().height;
     this.style.height = '';
     const to = this.getBoundingClientRect().height;
-    if (from === to || prefersReducedMotion()) return;
+    if (prefersReducedMotion()) return;
 
     const root = getComputedStyle(document.documentElement);
     const duration = (parseFloat(root.getPropertyValue('--animation-speed-slow')) || 0.2) * 1000;
     const easing = root.getPropertyValue('--ease-out-cubic').trim() || 'ease-out';
+    if (!this.refs.panel.hidden) this.refs.panel.animate([{ opacity: 0 }, { opacity: 1 }], { duration, easing });
+    if (from === to) return;
     this.style.overflow = 'clip';
     this.#resize = this.animate([{ height: `${from}px` }, { height: `${to}px` }], { duration, easing });
-    if (!this.refs.panel.hidden) this.refs.panel.animate([{ opacity: 0 }, { opacity: 1 }], { duration, easing });
     this.#resize.finished
       .catch(() => {})
       .finally(() => {
