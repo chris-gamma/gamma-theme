@@ -55,7 +55,7 @@
   "gamma_search": {
     "name": "Champ de recherche",
     "placeholder": "Texte indicatif",
-    "placeholder_info": "Laissez vide pour afficher « Rechercher ». Gardez un texte court pour qu’il s’affiche au complet sur les petits écrans.",
+    "placeholder_info": "Laissez vide pour afficher « Rechercher ». Gardez un texte court pour qu’il s’affiche au complet sur les petits écrans.",
     "width_info": "Sur mobile, le champ occupe toujours toute la largeur.",
     "background_opacity": "Opacité de l’arrière-plan",
     "colors_info": "S’applique au champ et à son instruction. Un arrière-plan plus transparent ou d’autres couleurs peuvent rendre le texte difficile à lire sur une image; vérifiez le contraste avec votre image."
@@ -92,7 +92,7 @@
       "regular_info": "Affiché lorsqu’aucun remplacement ni aucune exception datée ne s’applique.",
       "override": "Remplacement",
       "override_info": "Facultatif. Affiché partout, peu importe ses dates, jusqu’à ce que vous le retiriez ici ou que vous activiez Force off dans l’entrée.",
-      "exceptions_info": "Exceptions datées : une entrée qui a un Display start s’affiche à partir de ce moment jusqu’à son Display end, ou pendant 7 jours s’il n’y en a pas. Activez son avis de congé et précisez-y les dates touchées; une exception sans avis affiche plutôt le message de contact. Si des exceptions se chevauchent, la plus courte s’affiche. Force off ou le statut Brouillon masque une entrée. Jusqu’à 49 entrées publiées peuvent être vérifiées : mettez les exceptions passées en brouillon."
+      "exceptions_info": "Exceptions datées : une entrée qui a un Display start s’affiche à partir de ce moment jusqu’à son Display end, ou pendant 7 jours s’il n’y en a pas. Activez son avis de congé et précisez-y les dates touchées; une exception sans avis affiche plutôt le message de contact. Si des exceptions se chevauchent, la plus courte s’affiche. Force off ou le statut Brouillon masque une entrée. Jusqu’à 49 entrées publiées peuvent être vérifiées : mettez les exceptions passées en brouillon."
     }
   },
   "gamma_map": {
@@ -115,7 +115,7 @@
     "ratio_4_3": "4:3",
     "ratio_16_9": "16:9",
     "max_width": "Largeur maximale",
-    "max_width_info": "Jusqu’à 480 px, ce qui garde les crédits d’uMap sous son bouton ?."
+    "max_width_info": "Jusqu’à 480 px, ce qui garde les crédits d’uMap sous son bouton « ? »."
   },
   "gamma_editorial": {
     "name": "Panneau éditorial",
@@ -128,7 +128,7 @@
     "name": "Titre avec nombre",
     "heading_info": "Laissez vide pour utiliser le titre de la collection.",
     "show_count": "Afficher le nombre de produits",
-    "show_link": "Afficher le lien « Tout afficher »",
+    "show_link": "Afficher le lien « Tout afficher »",
     "show_link_info": "Affiché quand la collection compte plus de produits que la liste n’en montre."
   },
   "gamma_header": {
@@ -149,7 +149,7 @@
     "home_name": "Promotions en cours",
     "home_info": "Affiche les promotions en cours à partir du contenu Shopify, dans l’ordre de l’index des promotions. N’affiche rien quand aucune n’est en cours.",
     "home_limit": "Promotions à afficher",
-    "home_link": "Lien « Tout afficher »",
+    "home_link": "Lien « Tout afficher »",
     "notices_name": "Avis de promotion",
     "notices_info": "Présente les promotions en cours qui s’appliquent à la variante sélectionnée, à partir du contenu Shopify. N’affiche rien s’il n’y en a aucune.",
     "notices_limit": "Nombre d’avis à afficher",
@@ -1162,7 +1162,7 @@
     "home_to_shirts": "<p>Accueil → Chemises</p>",
     "intentional_design": "<h2>Conception intentionnelle</h2>",
     "introducing_p": "<p><em>Présentation</em></p>",
-    "latest_products": "<p>Découvrez nos derniers produits, conçus spécialement pour la saison. Achetez vos favoris avant qu’ils ne disparaissent !</p>",
+    "latest_products": "<p>Découvrez nos derniers produits, conçus spécialement pour la saison. Achetez vos favoris avant qu’ils ne disparaissent!</p>",
     "made_local_and_global": "<p>Nos produits sont fabriqués localement et dans le monde entier. Nous sélectionnons soigneusement nos partenaires de fabrication pour garantir que nos produits sont de haute qualité et d’un juste rapport qualité-prix.</p>",
     "made_with_care_h2": "<h2>Fabriqué avec soin</h2>",
     "made_with_care_extended": "<p>Fabriquée avec soin et inconditionnellement appréciée par nos clients, cette meilleure vente emblématique dépasse toutes les attentes.</p>",
@@ -1177,7 +1177,7 @@
     "product_story": "<p>Au cœur de chaque produit se trouve une histoire unique, animée par notre passion pour la qualité et l’innovation. Chaque article améliore votre quotidien et suscite de la joie.</p>",
     "real_people": "<p>De vraies personnes qui fabriquent d’excellents produits</p>",
     "related_product": "<h2>Produits connexes</h2>",
-    "return_policy": "<h2>Quelle est la politique de retour ?</h2>",
+    "return_policy": "<h2>Quelle est la politique de retour?</h2>",
     "reviews": "<p>★★★★★ 368 avis</p>",
     "shipping_based_on_location": "<p>L’expédition est calculée en fonction de votre emplacement et des articles de votre commande. Vous connaîtrez toujours le prix de l’expédition avant d’effectuer votre achat.</p>",
     "shop_by_collection": "<h3>Magasiner par collection</h3>",
@@ -1212,13 +1212,13 @@
     "popup_link": "Lien du pop-up",
     "sign_up": "S'inscrire",
     "welcome_to_our_store": "Bienvenue dans notre boutique",
-    "shop_our_latest_arrivals": "Découvrez nos derniers arrivages !",
-    "are_purchases_final_sale": "Certains achats sont-ils des ventes fermes ?",
+    "shop_our_latest_arrivals": "Découvrez nos derniers arrivages!",
+    "are_purchases_final_sale": "Certains achats sont-ils des ventes fermes?",
     "care_instructions": "Instructions d'entretien",
     "cart": "Panier",
     "discover_collection": "Découvrir la collection",
     "fit": "coupe",
-    "how_much_for_shipping": "Quels sont les frais d'expédition ?",
+    "how_much_for_shipping": "Quels sont les frais d'expédition?",
     "learn_more": "En savoir plus",
     "manufacturing": "Fabrication",
     "materials": "Matériaux",
@@ -1229,9 +1229,9 @@
     "submit_button_label": "Envoyer",
     "up_the_ante": "Mettre\nla\nbarre plus haut",
     "view_all_button_label": "Tout voir",
-    "what_is_return_policy": "Quelle est la politique de retour ?",
-    "when_will_order_arrive": "Quand recevrai-je ma commande ?",
-    "where_are_products_made": "Où sont fabriqués vos produits ?",
+    "what_is_return_policy": "Quelle est la politique de retour?",
+    "when_will_order_arrive": "Quand recevrai-je ma commande?",
+    "where_are_products_made": "Où sont fabriqués vos produits?",
     "trending_now": "Tendances actuelles",
     "shop_the_look": "<h2>Acheter le style complet</h2>",
     "bestsellers": "Meilleures ventes",
