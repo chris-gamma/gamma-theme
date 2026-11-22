@@ -3,6 +3,13 @@
   type="module"
   fetchpriority="low"
 ></script>
+{%- comment -%}
+  Gamma: Quick Add morphs product HTML into the dialog without running its scripts, so the notices that
+  follow a variant change load their modules here.
+{%- endcomment -%}
+<script src="{{ 'gamma-availability-notice.js' | asset_url }}" type="module" fetchpriority="low"></script>
+<script src="{{ 'gamma-promotion-notices.js' | asset_url }}" type="module" fetchpriority="low"></script>
+<script src="{{ 'gamma-hide-at.js' | asset_url }}" type="module" fetchpriority="low"></script>
 
 {% render 'dialog-styles' %}
 
