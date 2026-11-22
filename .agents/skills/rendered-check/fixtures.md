@@ -14,6 +14,8 @@ Re-check before relying on it; other sessions change this store.
 - Product cards: `t8-fixture-swatches` (three colour swatches), `t8-fixture-localized-media`
   (`-en`/`-fr` images), `t8-fixture-sale-backorder` (sale and backorder badges together), collection
   `t8-fixture-cards`; hidden collection `t8-fixture-hidden`.
+- Product page: `t9-fixture-two-available` (Kit in stock, Outil seul backordered; in `tools-equipment`);
+  the GTA 40 set has complementary products. Combined listings aren't available on Gamma-Dev's plan.
 - Card image arrows need three or more visible, non-variant images: `/collections/chainsaws`.
 - Most product images are identical 4:3 illustrations; for real photo shapes, use rental catalogue
   images.
@@ -33,6 +35,10 @@ Run GraphQL with `shopify store execute -s gamma-dev-2318.myshopify.com --allow-
   `gid://shopify/TaxonomyValue/2874`); a product category with a Color attribute (e.g.
   `gid://shopify/TaxonomyCategory/ha-15-38`); and `productOptions: [{ name: "Color", linkedMetafield:
   { namespace: "shopify", key: "color-pattern", values: [<entry ids>] } }]`.
+- Complementary products: metafield `shopify--discovery--product_recommendation.complementary_products`,
+  type `list.product_reference`, on the product that shows them.
+- In-stock quantities: the CLI's access has no inventory scopes; use the Shopify connector's
+  `set-inventory` on the location the variant is stocked at.
 - Hidden collection: metafield `seo.hidden`, type `number_integer`, value `1`.
 - Publish to the storefront: `publishablePublish(id, input: [{ publicationId: <Online Store> }])`;
   list publications to find the ID.
