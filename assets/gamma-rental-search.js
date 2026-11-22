@@ -485,6 +485,7 @@ function recordFailure(error) {
  * @typedef {object} Refs
  * @property {HTMLElement} group
  * @property {HTMLElement} message
+ * @property {HTMLElement} error - The failure notice.
  * @property {HTMLUListElement} results
  * @property {HTMLUListElement} actions
  * @property {HTMLElement} status
@@ -499,7 +500,7 @@ function recordFailure(error) {
  * @extends {Component<Refs>}
  */
 class GammaRentalSearch extends Component {
-  requiredRefs = ['group', 'message', 'results', 'actions', 'status', 'title', 'toggle'];
+  requiredRefs = ['group', 'message', 'error', 'results', 'actions', 'status', 'title', 'toggle'];
 
   /** @type {AbortController | undefined} */
   #listeners;
@@ -746,7 +747,7 @@ class GammaRentalSearch extends Component {
 
   /** Shows the current view. With the switch off, only the header and its rental site link remain. */
   #render() {
-    const { group, message, results, actions, toggle } = this.refs;
+    const { group, message, error, results, actions, toggle } = this.refs;
     const site = this.#site;
     const view = this.#view;
     const expanded = this.#expanded;
@@ -756,6 +757,7 @@ class GammaRentalSearch extends Component {
     group.removeAttribute('aria-busy');
     this.removeAttribute('data-results');
     message.hidden = true;
+    error.hidden = true;
     results.hidden = true;
     actions.hidden = true;
     results.replaceChildren();
@@ -780,8 +782,7 @@ class GammaRentalSearch extends Component {
     if (view.kind === 'error') {
       actions.append(this.#createAction(fill(this.dataset.labelSearch, { terms: view.query }), searchPageUrl(site, view.query)));
       actions.hidden = false;
-      message.textContent = this.dataset.labelError ?? '';
-      message.hidden = false;
+      error.hidden = false;
       return;
     }
 

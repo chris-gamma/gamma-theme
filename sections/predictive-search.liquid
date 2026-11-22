@@ -102,9 +102,11 @@
             %}
           {% endif %}
         {%- elsif predictive_search.resources.queries.size == 0 -%}
-          <p class="predictive-search-results__no-results">
-            {{ 'content.search_results_no_results' | t: terms: predictive_search.terms }}
-          </p>
+          {%- comment -%} Gamma: the empty state is a quiet notice (compact notice shell). {%- endcomment -%}
+          <div class="predictive-search-results__no-results">
+            {%- assign gamma_no_results = 'content.search_results_no_results' | t: terms: predictive_search.terms -%}
+            {%- render 'gamma-notice', icon: 'icon-info.svg', message: gamma_no_results, variant: 'compact' -%}
+          </div>
         {% endif %}
       {% else %}
         {%- liquid

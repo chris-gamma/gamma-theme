@@ -317,6 +317,46 @@ product-card:has(:focus-visible) .card-gallery,
   }
 }
 
+/*
+  Search dialog: product results keep Horizon's 4:5 crop and take the product card's price weight and
+  sale-first order; each group's title, rentals included, uses the label role. Doubled classes
+  outrank Horizon's rules, which load after this file.
+*/
+.predictive-search-results__card--product .resource-card__content.resource-card__content .price {
+  font-weight: var(--font-weight-bold, 700);
+}
+
+.search-modal .predictive-search-results__title.predictive-search-results__title {
+  font-family: var(--font-h6--family);
+  font-style: var(--font-h6--style);
+  font-weight: var(--font-h6--weight);
+  font-size: var(--gamma-type-label-size);
+  line-height: 1.35;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* The recently viewed title holds its Clear button, which keeps body type. */
+.search-modal .predictive-search-results__title > .predictive-search-results__clear {
+  font-family: var(--font-body--family);
+  font-weight: var(--font-paragraph--weight);
+  font-size: var(--font-size--sm);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+/* Search empty states are compact notices; Horizon centres the dialog's and fades the page's. */
+.predictive-search-results__no-results > .gamma-notice {
+  margin-inline: var(--padding-xl);
+  text-align: start;
+}
+
+.search-results__no-results:has(> .gamma-notice) {
+  width: 100%;
+  max-inline-size: var(--gamma-measure-text);
+  opacity: 1;
+}
+
 .gamma-section-heading {
   display: flex;
   flex-wrap: wrap;
