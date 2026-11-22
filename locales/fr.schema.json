@@ -108,14 +108,14 @@
     "image": "Image",
     "image_info": "Affichée jusqu’au chargement de la carte interactive. Utilisez une image de carte sans commandes; une mention OpenStreetMap y est affichée.",
     "image_mobile": "Image mobile",
-    "image_mobile_info": "Facultative. Affichée sur les écrans de moins de 750 px.",
+    "image_mobile_info": "Facultative. Affichée sur les écrans de moins de 750 px.",
     "aspect_ratio": "Format sur ordinateur",
     "aspect_ratio_mobile": "Format sur mobile",
     "ratio_image": "Selon l’image",
     "ratio_4_3": "4:3",
     "ratio_16_9": "16:9",
     "max_width": "Largeur maximale",
-    "max_width_info": "Jusqu’à 480 px, ce qui garde les crédits d’uMap sous son bouton « ? »."
+    "max_width_info": "Jusqu’à 480 px, ce qui garde les crédits d’uMap sous son bouton « ? »."
   },
   "gamma_editorial": {
     "name": "Panneau éditorial",
