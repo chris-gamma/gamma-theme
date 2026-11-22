@@ -16,11 +16,11 @@
           "type": "text",
           "name": "t:names.heading",
           "settings": {
-            "text": "<p>Reliable performance. Professional results.<br/>Anywhere you work.</p>",
+            "text": "<h1>Reliable performance. Professional results.<br/>Anywhere you work.</h1>",
             "width": "100%",
             "max_width": "normal",
             "alignment": "center",
-            "type_preset": "h2",
+            "type_preset": "h1",
             "font": "var(--font-body--family)",
             "font_size": "1rem",
             "line_height": "normal",
@@ -93,7 +93,21 @@
         "blurred_reflection": false,
         "reflection_opacity": 75,
         "padding-block-start": 100,
-        "padding-block-end": 72
+        "padding-block-end": 72,
+        "background_color": "{{ settings.color_palette.color1 }}"
+      }
+    },
+    "gamma_promotions": {
+      "type": "gamma-promotion-home",
+      "settings": {
+        "limit": 4,
+        "link": "shopify://pages/promotions",
+        "icons_style": "arrow",
+        "icons_shape": "none",
+        "section_width": "page-width",
+        "background_color": "{{ settings.color_palette.color2 }}",
+        "padding-block-start": 56,
+        "padding-block-end": 56
       }
     },
     "product_list_fa6P9H": {
@@ -131,49 +145,18 @@
             "padding-inline-end": 0
           },
           "blocks": {
-            "product_list_text_YFtzcL": {
-              "type": "_product-list-text",
-              "name": "t:names.collection_title",
+            "gamma_section_heading_Hm3k8Q": {
+              "type": "gamma-section-heading",
               "settings": {
-                "text": "<h2>{{ closest.collection.title }}</h2>",
-                "width": "fit-content",
-                "max_width": "normal",
-                "alignment": "left",
-                "type_preset": "h4",
-                "font": "var(--font-body--family)",
-                "font_size": "",
-                "line_height": "normal",
-                "letter_spacing": "normal",
-                "case": "none",
-                "wrap": "pretty",
-                "background": false,
-                "background_color": "#00000026",
-                "corner_radius": 0,
-                "padding-block-start": 0,
-                "padding-block-end": 0,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0
-              },
-              "blocks": {}
-            },
-            "product_list_button_MWeP9V": {
-              "type": "_product-list-button",
-              "name": "t:names.product_list_button",
-              "settings": {
-                "label": "View all",
-                "open_in_new_tab": false,
-                "style_class": "button-unstyled",
-                "width": "fit-content",
-                "custom_width": 100,
-                "width_mobile": "fit-content",
-                "custom_width_mobile": 100
+                "heading": "",
+                "show_count": true,
+                "show_link": true
               },
               "blocks": {}
             }
           },
           "block_order": [
-            "product_list_text_YFtzcL",
-            "product_list_button_MWeP9V"
+            "gamma_section_heading_Hm3k8Q"
           ]
         },
         "static-product-card": {
@@ -290,121 +273,56 @@
         "section_width": "page-width",
         "horizontal_alignment": "flex-start",
         "gap": 28,
-        "padding-block-start": 48,
-        "padding-block-end": 48
+        "padding-block-start": 56,
+        "padding-block-end": 56
       }
     },
     "gamma_intro": {
       "type": "section",
       "blocks": {
-        "intro_heading": {
-          "type": "text",
-          "name": "t:names.heading",
+        "panel_about": {
+          "type": "gamma-editorial-panel",
           "settings": {
-            "text": "<h2>Who we are</h2>",
-            "width": "100%",
-            "max_width": "normal",
-            "alignment": "left",
-            "type_preset": "h3",
-            "font": "var(--font-body--family)",
-            "font_size": "",
-            "line_height": "normal",
-            "letter_spacing": "normal",
-            "case": "none",
-            "wrap": "pretty",
-            "background": false,
-            "background_color": "#00000026",
-            "corner_radius": 0,
-            "padding-block-start": 0,
-            "padding-block-end": 0,
-            "padding-inline-start": 0,
-            "padding-inline-end": 0
+            "image": "shopify://shop_images/stihl-hs82-action.jpg",
+            "label": "About us",
+            "heading": "Who we are",
+            "text": "<p>Founded in 1983 in Notre-Dame-de-Grâce, Gamma Equipment Rental is a family-run business. Homeowners, contractors, work crews and property managers have trusted us with their jobs for more than forty years.</p>",
+            "button_label": "Our story",
+            "rental_site": false,
+            "link": "shopify://pages/a-propos",
+            "open_in_new_tab": false
           },
           "blocks": {}
         },
-        "intro_body": {
-          "type": "group",
-          "name": "t:names.group",
+        "panel_rental": {
+          "type": "gamma-editorial-panel",
           "settings": {
-            "content_direction": "column",
-            "vertical_on_mobile": true,
-            "horizontal_alignment": "flex-start",
-            "vertical_alignment": "center",
-            "align_baseline": false,
-            "horizontal_alignment_flex_direction_column": "flex-start",
-            "vertical_alignment_flex_direction_column": "center",
-            "gap": 12,
-            "width": "custom",
-            "custom_width": 66,
-            "width_mobile": "fill",
-            "custom_width_mobile": 100,
-            "height": "fit",
-            "custom_height": 100,
-            "background_media": "none",
-            "video_position": "cover",
-            "background_image_position": "cover",
-            "toggle_overlay": false,
-            "overlay_color": "#00000026",
-            "overlay_style": "solid",
-            "gradient_direction": "to top",
-            "border": "none",
-            "border_width": 1,
-            "border_opacity": 100,
-            "border_radius": 0,
+            "image": "shopify://shop_images/stihl-tsa300-action.jpg",
+            "label": "Rental",
+            "heading": "Rent the equipment you need",
+            "text": "<p>From hand tools to site equipment, see everything we rent in our rental catalogue.</p>",
+            "button_label": "Rental catalogue",
+            "rental_site": true,
             "link": "",
-            "open_in_new_tab": false,
-            "placeholder": "",
-            "padding-block-start": 0,
-            "padding-block-end": 0,
-            "padding-inline-start": 0,
-            "padding-inline-end": 0
+            "open_in_new_tab": false
           },
-          "blocks": {
-            "intro_text": {
-              "type": "text",
-              "name": "t:names.text",
-              "settings": {
-                "text": "<p>Founded in 1983, Gamma Equipment Rental in Montréal's diverse Notre-Dame-de-Grâce neighbourhood has been a family-run business from the start. Our reliable rental equipment and outdoor power equipment from top brands are trusted by homeowners, contractors, work crews, and property managers across the city.</p><p>After more than forty years, that's why we're still local: serving our community drives us to be the best in everything we do.</p>",
-                "width": "100%",
-                "max_width": "none",
-                "alignment": "left",
-                "type_preset": "rte",
-                "font": "var(--font-body--family)",
-                "font_size": "",
-                "line_height": "normal",
-                "letter_spacing": "normal",
-                "case": "none",
-                "wrap": "pretty",
-                "background": false,
-                "background_color": "#00000026",
-                "corner_radius": 0,
-                "padding-block-start": 0,
-                "padding-block-end": 0,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0
-              },
-              "blocks": {}
-            }
-          },
-          "block_order": [
-            "intro_text"
-          ]
+          "blocks": {}
         }
       },
       "block_order": [
-        "intro_heading",
-        "intro_body"
+        "panel_about",
+        "panel_rental"
       ],
-      "name": "t:names.rich_text_section",
+      "name": "t:gamma_editorial.name",
       "settings": {
-        "content_direction": "column",
+        "content_direction": "row",
         "vertical_on_mobile": true,
         "horizontal_alignment": "flex-start",
-        "vertical_alignment": "center",
+        "vertical_alignment": "flex-start",
         "align_baseline": false,
         "horizontal_alignment_flex_direction_column": "flex-start",
         "vertical_alignment_flex_direction_column": "center",
-        "gap": 20,
+        "gap": 16,
         "section_width": "page-width",
         "section_height": "",
         "section_height_custom": 50,
@@ -427,6 +345,7 @@
   },
   "order": [
     "hero_jVaWmY",
+    "gamma_promotions",
     "product_list_fa6P9H",
     "gamma_intro"
   ]

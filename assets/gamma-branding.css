@@ -392,6 +392,14 @@ product-recommendations .section-resource-list__content:has(> *),
   color: var(--gamma-color-muted);
 }
 
+/* The hero heading takes the display role, 36 px on phones; Horizon's H1 preset stays at 48 px there. */
+@media screen and (max-width: 749px) {
+  .hero .text-block.h1,
+  .hero .text-block.h1 > :is(h1, h2, p) {
+    font-size: var(--gamma-type-display-size);
+  }
+}
+
 /* A section heading's "view all" link sits at the end of the heading's row. */
 .gamma-section-heading__link {
   display: inline-flex;
