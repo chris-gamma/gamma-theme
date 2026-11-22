@@ -25,8 +25,13 @@
   --gamma-space-group: 1.75rem;
   --gamma-space-inner: 1rem;
 
-  --gamma-measure-lede: 60ch;
-  --gamma-measure-text: 68ch;
+  /*
+    About 60 to 68 characters of Inter per line: its 1ch, the zero, is wider than an average character.
+    Panels of short rows, such as a campaign's facts, keep a wider box.
+  */
+  --gamma-measure-lede: 44ch;
+  --gamma-measure-text: 49ch;
+  --gamma-measure-panel: 68ch;
 
   /* The collection grid: two columns on phones, then as many 250px cards as fit. */
   --gamma-grid-card-min: 250px;
@@ -353,7 +358,7 @@ product-card:has(:focus-visible) .card-gallery,
 
 .search-results__no-results:has(> .gamma-notice) {
   width: 100%;
-  max-inline-size: var(--gamma-measure-text);
+  max-inline-size: var(--gamma-measure-panel);
   opacity: 1;
 }
 
