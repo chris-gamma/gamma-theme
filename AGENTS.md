@@ -19,7 +19,7 @@ Location Gamma is moving its storefront from WordPress to Shopify. This reposito
 - Establish whether the task is planning, reviewing, or implementing. Planning and review are read-only unless implementation is explicitly requested: inspect relevant evidence without branch changes, dependency installation, file edits, commits or store mutations. Before implementing, identify the requested outcome, applicable approvals, dependencies, affected surfaces and observable acceptance criteria.
 - Do not attempt to resolve bugs or issues in upstream Horizon code. Focus on authorized changes within the Gamma project scope. Do not introduce workarounds or modifications for upstream issues unless explicitly authorized. Review and report upstream issues in the response as appropriate.
 - Keep work local. Store authentication, connections, previews, uploads, deployments, publication, synchronization and store changes require explicit authorization, including development and unpublished themes. External service writes and hosting operations also require authorization. Confirm the exact store and operation before an authorized write; never infer a store from a branch name or assume authorization carries over from an earlier task.
-- Do not add hooks, scripts, skills, workflows, CI or agent tooling unless explicitly requested or authorized. The buildless-maintenance rule below authorizes relevant local configuration, npm check commands and development dependencies; other tooling still requires explicit authorization.
+- Do not add hooks, scripts, skills, workflows, CI or agent tooling unless explicitly requested or authorized; the skills in `.agents/skills/` are the authorized exception and may be kept current. The buildless-maintenance rule below authorizes relevant local configuration, npm check commands and development dependencies; other tooling still requires explicit authorization.
 
 ## Collaboration and context efficiency
 
@@ -49,15 +49,23 @@ Location Gamma is moving its storefront from WordPress to Shopify. This reposito
 - Every commit and merge is SSH-signed and must show as verified on GitHub. Commit with ordinary `git commit` and `git merge` so the repository's settings apply: this repository's `.git/config` names the signing key, which differs from the global default. Never pass `--no-gpg-sign`, override `user.signingkey`, or create commits with plumbing such as `git commit-tree` without `-S`. Check with `git log --format='%G? %h %s'` (every line `G`) before asking to push.
 - Rewrite or force-push history only when Chris asks. A rewrite keeps Horizon's history, vendor tags and `main` intact, keeps each commit on the day it was made and in order, dates nothing after the push, signs every commit, keeps the integration merges, and is built and checked in a separate clone with a backup bundle before it replaces anything.
 
+## Skills
+
+Repeated workflows are skills in [.agents/skills/](.agents/skills/), one folder each with a `SKILL.md` and any scripts. Codex and GitHub Copilot read them there; `.claude/skills/` links to the same folders for Claude Code, so each skill exists once. Use the one that fits the task, or read its `SKILL.md` directly if your tool doesn't load skills:
+
+- `rendered-check`: preview Gamma-Dev with `shopify theme dev`, capture pages and test interaction; Gamma-Dev's test data.
+
+Add a skill only for a workflow that has repeated; change one when the workflow it describes changes, in the same branch.
+
 ## Store access
 
 - Before any store operation, confirm the store's identity: `shopify store execute -s gamma-dev-2318.myshopify.com -q '{ shop { id } }'` must return Gamma-Dev's shop ID. The default environment in `shopify.theme.toml` is Primary, so theme commands for Gamma-Dev use `-e dev`.
-- Rendered checks through `shopify theme dev` on Gamma-Dev's development theme are authorized without asking, after that check. Admin data changes, fixtures, uploads to other themes, publishing, pushes and every Primary operation still need explicit approval.
+- Rendered checks through `shopify theme dev` on Gamma-Dev's development theme are authorized without asking, after that check. Run them with the `rendered-check` skill. Admin data changes, fixtures, uploads to other themes, publishing, pushes and every Primary operation still need explicit approval.
 - Chris may be running his own `shopify theme dev` (port 9292) against the same development theme. Use another port, never stop his process, and say when the development theme holds your files. Switching branches in a checkout that a running `theme dev` watches uploads those files to the development theme.
 - The Shopify connector may be connected to either store: check `get-shop-info` before using it, and don't switch its store unasked, since switching revokes its access. For authorized Admin operations, prefer it or Shopify CLI to browser automation.
 - `.env` holds the storefront password; load it into commands without printing it.
 - The storefronts rate-limit bursts (HTTP 429 and a verification page for 10–25 minutes). Space rendered-check requests about 1.5 seconds apart and stop pollers before other storefront work.
-- Keep durable design-review evidence outside the repository, under `/home/chris/shopify/gamma-scs-handoff/design-review/<date>-<short-commit>/`.
+- Keep durable design-review evidence outside the repository, under `/home/chris/shopify/gamma-scs-handoff/design-review/<date>-<short-commit>-<topic>/`.
 
 ## Documentation and tests
 
