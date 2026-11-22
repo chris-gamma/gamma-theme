@@ -357,13 +357,18 @@ product-card:has(:focus-visible) .card-gallery,
   opacity: 1;
 }
 
+/* Product recommendations keep their heading blocks and take the heading's rule beneath them. */
+.gamma-section-heading,
+product-recommendations .section-resource-list__content {
+  padding-block-end: var(--padding-sm, 0.75rem);
+  border-block-end: var(--style-border-width, 1px) solid var(--gamma-color-rule);
+}
+
 .gamma-section-heading {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: var(--gap-2xs, 0.3rem) var(--gap-md, 1rem);
-  padding-block-end: var(--padding-sm, 0.75rem);
-  border-block-end: var(--style-border-width, 1px) solid var(--gamma-color-rule);
 }
 
 .gamma-section-heading > * {
