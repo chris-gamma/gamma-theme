@@ -9,6 +9,7 @@
 /^\.vscode\/.*$/
 /^\.githooks\/.*$/
 /^scripts\/.*$/
+/^tests\/.*$/
 /^\.idea\/.*$/
 /^docs\/.*$/
 /^reports\/.*$/
