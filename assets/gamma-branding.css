@@ -561,12 +561,17 @@ product-card:has(:focus-visible) .card-gallery,
 /*
   A price block in the group-heading role (the product page's, which Quick Add copies) and a
   collection card title in it follow the role's 20px phone size; Horizon's h4 preset stays 24px at
-  every width. The price's tax, unit-price and instalment lines keep body type.
+  every width. The product title takes the section-title role's 26px the same way. The price's tax,
+  unit-price and instalment lines keep body type.
 */
 @media screen and (max-width: 749px) {
   product-price.text-block.h4,
   .collection-card .text-block.h4 {
     --font-h4--size: var(--gamma-type-group-size);
+  }
+
+  .product-details .text-block.h3:has(> h1) {
+    --font-h3--size: var(--gamma-type-section-size);
   }
 }
 
