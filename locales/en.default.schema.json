@@ -126,6 +126,20 @@
     "max_width": "Maximum width",
     "max_width_info": "Up to 480 px, which keeps uMap’s credits under its ? button."
   },
+  "gamma_editorial": {
+    "name": "Editorial panel",
+    "label": "Label",
+    "action": "Button",
+    "rental_site": "Link to the rental site",
+    "rental_site_info": "Uses the rental site addresses in Theme settings, in the storefront’s language, and opens in a new tab."
+  },
+  "gamma_section_heading": {
+    "name": "Counted heading",
+    "heading_info": "Leave blank to use the collection’s title.",
+    "show_count": "Show product count",
+    "show_link": "Show “View all” link",
+    "show_link_info": "Shown when the collection has more products than the list shows."
+  },
   "gamma_promotion": {
     "campaign_name": "Promotion page",
     "campaign_info": "Shows the promotion from Shopify content. Scheduled, paused, ended and unavailable promotions show a notice instead of offers.",
@@ -136,6 +150,10 @@
     "page_size": "Promotions per page",
     "show_coming_soon": "Show coming soon",
     "show_recently_ended": "Show recently ended",
+    "home_name": "Current promotions",
+    "home_info": "Shows the live promotions from Shopify content in the promotions index’s order. Shows nothing when none is live.",
+    "home_limit": "Promotions to show",
+    "home_link": "“View all” link",
     "notices_name": "Promotion notices",
     "notices_info": "Shows the live promotions that apply to the selected variant, from Shopify content. Shows nothing when there are none.",
     "notices_limit": "Notices to show",

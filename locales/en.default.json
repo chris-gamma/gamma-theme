@@ -231,6 +231,9 @@
       "on": "For eligible purchases made on {{ date }}.",
       "before": "For eligible purchases made on or before {{ end }}."
     },
+    "home": {
+      "heading": "Current promotions"
+    },
     "index": {
       "empty": "There are no promotions right now. Come back soon.",
       "cta": "See the promotion",

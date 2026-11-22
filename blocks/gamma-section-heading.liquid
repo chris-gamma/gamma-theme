@@ -1,0 +1,67 @@
+{%- doc -%}
+  Counted section heading for a product list: the collection's title (or a heading of its own), the
+  collection's product count and a "view all" link to the collection when the list doesn't show
+  every product. Uses the closest collection, as Horizon's product list header blocks do.
+{%- enddoc -%}
+
+{%- liquid
+  assign collection = closest.collection
+  assign heading = block.settings.heading | default: collection.title
+  assign total = collection.all_products_count | default: 0
+  assign shown = section.settings.max_products | default: 0
+-%}
+<div class="gamma-section-heading gamma-section-heading--block" {{ block.shopify_attributes }}>
+  {%- if heading != blank -%}
+    <h2 class="gamma-type-section">{{ heading | escape }}</h2>
+  {%- endif -%}
+  {%- if block.settings.show_count and total > 0 -%}
+    <p class="gamma-section-heading__count">{{ 'content.item_count' | t: count: total }}</p>
+  {%- endif -%}
+  {%- if block.settings.show_link and collection.url != blank and total > shown -%}
+    <a class="gamma-section-heading__link" href="{{ collection.url }}">
+      {{- 'actions.view_all' | t -}}
+      <span class="gamma-section-heading__arrow" aria-hidden="true">{{ 'icon-arrow.svg' | inline_asset_content }}</span>
+    </a>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .gamma-section-heading--block {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:gamma_section_heading.name",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:settings.heading",
+      "info": "t:gamma_section_heading.heading_info"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_count",
+      "label": "t:gamma_section_heading.show_count",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_link",
+      "label": "t:gamma_section_heading.show_link",
+      "info": "t:gamma_section_heading.show_link_info",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:gamma_section_heading.name",
+      "category": "t:categories.text"
+    }
+  ]
+}
+{% endschema %}
