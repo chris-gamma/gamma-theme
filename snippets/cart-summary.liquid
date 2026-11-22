@@ -154,9 +154,12 @@
                         required
                         data-skip-node-update
                       >
+                      {%- comment -%}
+                        Gamma: Payer is the summary's one primary button, so the discount code's button is secondary.
+                      {%- endcomment -%}
                       <button
                         type="submit"
-                        class="button cart-discount__button"
+                        class="button button-secondary cart-discount__button"
                       >
                         {{ 'actions.apply' | t }}
                       </button>

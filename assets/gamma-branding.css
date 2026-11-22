@@ -357,9 +357,13 @@ product-card:has(:focus-visible) .card-gallery,
   opacity: 1;
 }
 
-/* Product recommendations keep their heading blocks and take the heading's rule beneath them. */
+/*
+  Product recommendations keep their heading blocks and take the heading's rule beneath them, as does the
+  product list under the cart.
+*/
 .gamma-section-heading,
-product-recommendations .section-resource-list__content:has(> *) {
+product-recommendations .section-resource-list__content:has(> *),
+.shopify-section:has(.cart-page) ~ .shopify-section .section-resource-list__header:has(> *) {
   padding-block-end: var(--padding-sm, 0.75rem);
   border-block-end: var(--style-border-width, 1px) solid var(--gamma-color-rule);
 }
@@ -660,4 +664,145 @@ product-price.text-block:is(.h1, .h2, .h3, .h4, .h5, .h6) > .installments {
 
 .text-block a[href^='mailto:'] {
   overflow-wrap: anywhere;
+}
+
+/*
+  Cart line images keep their own ratio (the cart page's adaptive setting; the drawer in
+  `snippets/cart-products.liquid`) on the white tile, in the card tile's frame, which turns Gamma Red on
+  hover or keyboard focus like a card's.
+*/
+.cart-items__media-container {
+  border-radius: var(--gamma-radius-media);
+  background-color: var(--gamma-color-tile);
+}
+
+.cart-items__media-container::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 var(--gamma-tile-frame-width) var(--gamma-tile-frame-color, var(--gamma-color-rule));
+  pointer-events: none;
+  transition: box-shadow var(--animation-speed-medium, 0.15s) var(--animation-easing, ease-in-out);
+}
+
+@media (any-pointer: fine) {
+  .cart-items__media-container:hover {
+    --gamma-tile-frame-color: var(--gamma-color-accent);
+  }
+}
+
+.cart-items__media-container:focus-visible {
+  --gamma-tile-frame-color: var(--gamma-color-accent);
+}
+
+/*
+  Order summary: a Concrete panel on the cart page and a Concrete band at the foot of the drawer. The band
+  is opaque because lines scroll under it, and it drops Horizon's fade, which would blur its edge. The
+  ship-together notice inside turns Paper so it stays its own shell, and the total takes the group role.
+*/
+.cart-page .cart-summary__inner {
+  padding: var(--gamma-space-inner);
+  border-radius: var(--gamma-radius-card);
+  background: var(--gamma-color-panel);
+}
+
+/*
+  From 750 to 989px the fitted summary sits below the lines, as on phones; beside them it left the line
+  titles about 110px.
+*/
+@media screen and (min-width: 750px) and (max-width: 989px) {
+  .cart-page:has(.cart-page__summary) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+  }
+
+  .cart-page .cart-page__summary {
+    display: block;
+    grid-column: 1;
+    grid-row: auto;
+    height: auto;
+    padding-block-start: var(--padding-xl);
+  }
+
+  .cart-page .cart-summary__inner {
+    position: static;
+  }
+}
+
+.cart-drawer__inner .cart-drawer__summary {
+  border-start-start-radius: var(--gamma-radius-card);
+  border-start-end-radius: var(--gamma-radius-card);
+  background: linear-gradient(var(--gamma-color-panel), var(--gamma-color-panel)), var(--color-background);
+  mask-image: none;
+}
+
+/* The panel's edge replaces the rule above the note and discount rows. */
+:is(.cart-page .cart-summary__inner, .cart-drawer__inner .cart-drawer__summary) .cart-actions {
+  border-block-start: none;
+  margin-block-start: 0;
+}
+
+:is(.cart-summary, .cart-drawer__summary) .gamma-notice {
+  background: var(--gamma-color-paper);
+}
+
+.cart-totals .cart-totals__total-label {
+  font-family: var(--font-h4--family);
+  font-style: var(--font-h4--style);
+  font-weight: var(--font-h4--weight);
+  font-size: var(--gamma-type-group-size);
+  line-height: var(--font-h4--line-height);
+  letter-spacing: var(--font-h4--letter-spacing);
+  text-transform: var(--font-h4--case);
+}
+
+.cart-totals .cart-totals__total-value {
+  font-size: var(--gamma-type-group-size);
+}
+
+/*
+  Empty cart: a quiet notice of the chosen menu's links (`snippets/cart-products.liquid`). It repeats the
+  cart's heading, so the heading stays only for assistive technology.
+*/
+.gamma-empty-cart {
+  width: 100%;
+  max-inline-size: 36rem;
+  text-align: start;
+}
+
+.gamma-empty-cart + * {
+  margin-block-start: var(--margin-md, 1rem);
+}
+
+.gamma-empty-cart__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-xs, 0.5rem) var(--gap-md, 1rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gamma-empty-cart__links a {
+  text-decoration-line: underline;
+  text-decoration-color: currentcolor;
+}
+
+/* The empty drawer's items have no inline padding of their own. */
+.cart-items__wrapper--drawer-empty:has(.gamma-empty-cart) {
+  padding-inline: var(--cart-drawer-padding, var(--padding-lg));
+}
+
+.cart-page--empty:has(.gamma-empty-cart) .cart-title h1,
+.cart-drawer--empty:has(.gamma-empty-cart) .cart-drawer__content > .theme-drawer__title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }

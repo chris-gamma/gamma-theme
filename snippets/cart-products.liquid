@@ -64,20 +64,48 @@
   "
 >
   {% if cart.empty? or force_empty %}
+    {%- comment -%}
+      Gamma: with a menu chosen in Theme settings > Cart, the empty cart shows a quiet notice of its links
+      instead of the continue-shopping button. The notice repeats the cart's heading, which is then only
+      visually hidden, so its own line is hidden from assistive technology.
+    {%- endcomment -%}
+    {%- assign gamma_empty_menu = settings.gamma_empty_cart_menu -%}
+    {%- if gamma_empty_menu.links.size > 0 -%}
+      <nav
+        class="gamma-notice gamma-notice--compact gamma-tokens gamma-empty-cart"
+        aria-label="{{ 'actions.continue_shopping' | t }}"
+      >
+        <div class="gamma-notice__body">
+          <p aria-hidden="true">
+            <strong>{{ 'content.your_cart_is_empty' | t }}</strong>
+          </p>
+          <ul class="gamma-empty-cart__links">
+            {%- for link in gamma_empty_menu.links -%}
+              <li>
+                <a href="{{ link.url }}">{{ link.title | escape }}</a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      </nav>
+    {%- endif -%}
+
     {%- if shop.customer_accounts_enabled and customer == null -%}
       <p>
         {{ 'actions.log_in_html' | t: link: routes.account_login_url }}
       </p>
     {%- endif -%}
 
-    <a
-      class="button cart-items__empty-button"
-      href="{{ settings.empty_cart_button_link | default: routes.all_products_collection_url }}"
-    >
-      <span class="button-text">
-        {{ 'actions.continue_shopping' | t }}
-      </span>
-    </a>
+    {%- unless gamma_empty_menu.links.size > 0 -%}
+      <a
+        class="button cart-items__empty-button"
+        href="{{ settings.empty_cart_button_link | default: routes.all_products_collection_url }}"
+      >
+        <span class="button-text">
+          {{ 'actions.continue_shopping' | t }}
+        </span>
+      </a>
+    {%- endunless -%}
   {%- else -%}
     <span
       class="visually-hidden"
@@ -204,6 +232,10 @@
                       if block_settings.image_ratio == 'portrait'
                         assign ratio = 0.8
                       elsif block_settings.image_ratio == 'adapt'
+                        assign ratio = gamma_line_image.aspect_ratio
+                      endif
+                      # Gamma: the drawer has no ratio setting; its lines keep the image's own ratio, like the cart page.
+                      if context == 'drawer'
                         assign ratio = gamma_line_image.aspect_ratio
                       endif
                     %}

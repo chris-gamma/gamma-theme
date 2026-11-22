@@ -42,6 +42,10 @@
     "icon_height": "Icon height",
     "text_style": "Text style"
   },
+  "gamma_cart": {
+    "empty_menu": "Empty cart links",
+    "empty_menu_info": "Menu shown when the cart is empty, instead of the continue shopping button."
+  },
   "gamma_information": {
     "name": "Product information",
     "row": "Product information row",

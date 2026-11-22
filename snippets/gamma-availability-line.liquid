@@ -1,7 +1,8 @@
 {%- doc -%}
-  Renders Shopify's line status message and backorder/special-order text for one cart line, or
-  nothing. Uses all cart units of the line's variant so split lines share one stock check. The
-  messages use the notice shell's line markup, written here so a cart line adds no render.
+  Renders Shopify's line status message and the backorder or special-order label for one cart line,
+  or nothing. The label carries the status; the summary's notice explains the delay once for the
+  cart. Uses all cart units of the line's variant so split lines share one stock check. The messages
+  use the notice shell's line markup, written here so a cart line adds no render.
 
   @param {object} item - Cart line item.
 {%- enddoc -%}
@@ -22,17 +23,14 @@
       assign shown = true
       assign icon = 'icon-gamma-backorder.svg'
       assign label = 'gamma_availability.backorder.label' | t
-      assign message = 'gamma_availability.backorder.message' | t
     when 'partial_backorder'
       assign shown = true
       assign icon = 'icon-gamma-backorder.svg'
       assign label = 'gamma_availability.partial_backorder.label' | t
-      assign message = 'gamma_availability.partial_backorder.message' | t
     when 'special_order'
       assign shown = true
       assign icon = 'icon-gamma-special-order.svg'
       assign label = 'gamma_availability.special_order.label' | t
-      assign message = 'gamma_availability.special_order.message' | t
   endcase
 -%}
 {%- if item.error_message != blank -%}
@@ -54,6 +52,6 @@
     >
       {{- icon | inline_asset_content -}}
     </span>
-    <span><strong>{{ label }}</strong> {{ message }}</span>
+    <span><strong>{{ label }}</strong></span>
   </p>
 {%- endif -%}

@@ -32,7 +32,7 @@
           "static": true,
           "settings": {
             "gap": 24,
-            "image_ratio": "portrait",
+            "image_ratio": "adapt",
             "dividers": true,
             "vendor": false,
             "padding-block-start": 0,
@@ -46,7 +46,7 @@
           "type": "_cart-summary",
           "static": true,
           "settings": {
-            "extend_summary": true,
+            "extend_summary": false,
             "border": "none",
             "border_width": 1,
             "border_opacity": 100,
