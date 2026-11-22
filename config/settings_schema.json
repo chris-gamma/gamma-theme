@@ -1607,6 +1607,18 @@
         "info": "t:gamma_cart.empty_menu_info"
       },
       {
+        "type": "link_list",
+        "id": "gamma_empty_cart_menu_en",
+        "label": "t:gamma.menu_en",
+        "info": "t:gamma.menu_override_info"
+      },
+      {
+        "type": "link_list",
+        "id": "gamma_empty_cart_menu_fr",
+        "label": "t:gamma.menu_fr",
+        "info": "t:gamma.menu_override_info"
+      },
+      {
         "type": "header",
         "content": "t:content.product_media"
       },
