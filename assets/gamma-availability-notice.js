@@ -15,15 +15,19 @@ class GammaAvailabilityNotice extends Component {
   #generation = 0;
   /** @type {Animation | null} */
   #resize = null;
+  /** Until this time, taps and clicks on the controls below the notice are ignored while they move. */
+  #guardUntil = 0;
 
   connectedCallback() {
     super.connectedCallback();
     this.#owner = this.#ownerOf(this);
     this.#owner?.addEventListener(StandardEvents.productSelect, this.#select);
+    this.#owner?.addEventListener('click', this.#guard, { capture: true });
   }
 
   disconnectedCallback() {
     this.#owner?.removeEventListener(StandardEvents.productSelect, this.#select);
+    this.#owner?.removeEventListener('click', this.#guard, { capture: true });
     this.#owner = null;
     this.#generation++;
     this.#resize?.cancel();
@@ -62,6 +66,20 @@ class GammaAvailabilityNotice extends Component {
       });
   };
 
+  /**
+   * A tap aimed at a control as it moves would land on whatever moved into its place. Keyboard
+   * activation (a click with no detail) is never blocked, since focus doesn't move with the controls.
+   * @param {MouseEvent} event
+   */
+  #guard = (event) => {
+    if (event.detail === 0 || performance.now() >= this.#guardUntil) return;
+    const target = event.target;
+    if (!(target instanceof Node) || this.contains(target)) return;
+    if (!(this.compareDocumentPosition(target) & Node.DOCUMENT_POSITION_FOLLOWING)) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  };
+
   /** @param {Awaited<ProductSelectEvent['promise']>['detail']} detail */
   #update(detail) {
     const { panel, announcement } = this.refs;
@@ -97,18 +115,25 @@ class GammaAvailabilityNotice extends Component {
     this.style.height = `${height}px`;
   }
 
-  /** Eases from the held height to the new one, or changes at once when motion is reduced. */
+  /**
+   * Eases from the held height to the new one, or changes at once when motion is reduced, and
+   * ignores taps below the notice until shortly after the move.
+   */
   #release() {
     const from = this.getBoundingClientRect().height;
     this.style.height = '';
     const to = this.getBoundingClientRect().height;
-    if (prefersReducedMotion()) return;
+    if (prefersReducedMotion()) {
+      if (from !== to) this.#guardUntil = performance.now() + 300;
+      return;
+    }
 
     const root = getComputedStyle(document.documentElement);
     const duration = (parseFloat(root.getPropertyValue('--animation-speed-slow')) || 0.2) * 1000;
     const easing = root.getPropertyValue('--ease-out-cubic').trim() || 'ease-out';
     if (!this.refs.panel.hidden) this.refs.panel.animate([{ opacity: 0 }, { opacity: 1 }], { duration, easing });
     if (from === to) return;
+    this.#guardUntil = performance.now() + duration + 150;
     this.style.overflow = 'clip';
     this.#resize = this.animate([{ height: `${from}px` }, { height: `${to}px` }], { duration, easing });
     this.#resize.finished
