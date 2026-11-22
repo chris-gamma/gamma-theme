@@ -117,6 +117,25 @@
     "max_width": "Largeur maximale",
     "max_width_info": "Jusqu’à 480 px, ce qui garde les crédits d’uMap sous son bouton ?."
   },
+  "gamma_editorial": {
+    "name": "Panneau éditorial",
+    "label": "Étiquette",
+    "action": "Bouton",
+    "rental_site": "Lien vers le site de location",
+    "rental_site_info": "Utilise les adresses du site de location des paramètres du thème, dans la langue de la boutique, et s’ouvre dans un nouvel onglet."
+  },
+  "gamma_section_heading": {
+    "name": "Titre avec nombre",
+    "heading_info": "Laissez vide pour utiliser le titre de la collection.",
+    "show_count": "Afficher le nombre de produits",
+    "show_link": "Afficher le lien « Tout afficher »",
+    "show_link_info": "Affiché quand la collection compte plus de produits que la liste n’en montre."
+  },
+  "gamma_header": {
+    "home_heading_header": "Titre de la page d’accueil",
+    "home_heading": "Ajouter le nom de la boutique comme titre de page masqué",
+    "home_heading_info": "Désactivez cette option quand le contenu de la page d’accueil a son propre titre principal (H1), comme celui de la bannière."
+  },
   "gamma_promotion": {
     "campaign_name": "Page de promotion",
     "campaign_info": "Affiche la promotion à partir du contenu Shopify. Les promotions planifiées, suspendues, terminées ou non offertes affichent un avis au lieu des offres.",
@@ -127,6 +146,10 @@
     "page_size": "Promotions par page",
     "show_coming_soon": "Afficher les promotions à venir",
     "show_recently_ended": "Afficher les promotions récemment terminées",
+    "home_name": "Promotions en cours",
+    "home_info": "Affiche les promotions en cours à partir du contenu Shopify, dans l’ordre de l’index des promotions. N’affiche rien quand aucune n’est en cours.",
+    "home_limit": "Promotions à afficher",
+    "home_link": "Lien « Tout afficher »",
     "notices_name": "Avis de promotion",
     "notices_info": "Présente les promotions en cours qui s’appliquent à la variante sélectionnée, à partir du contenu Shopify. N’affiche rien s’il n’y en a aucune.",
     "notices_limit": "Nombre d’avis à afficher",

@@ -171,4 +171,38 @@
     width: 100%;
     height: 100%;
   }
+
+  /* A list item marked `gamma-promotion-feature` shows its card with the artwork beside the text. */
+  @media screen and (min-width: 750px) {
+    .gamma-promotion-feature > .gamma-promotion-card {
+      flex-direction: row;
+
+      .gamma-promotion-card__media {
+        flex: 0 0 50%;
+        aspect-ratio: auto;
+        min-block-size: 14rem;
+        border-block-end: 0;
+        border-inline-end: var(--style-border-width, 1px) solid var(--gamma-color-rule);
+      }
+
+      /* Out of flow, so tall artwork is fitted to the row instead of setting its height. */
+      .gamma-promotion-card__media > img {
+        position: absolute;
+        inset: 0;
+      }
+
+      .gamma-promotion-card__body {
+        justify-content: center;
+        padding: var(--gamma-space-inner);
+      }
+
+      .gamma-promotion-card__title {
+        font-size: var(--gamma-type-section-size);
+      }
+
+      .gamma-promotion-card__footer {
+        margin-block-start: 0;
+      }
+    }
+  }
 {% endstylesheet %}

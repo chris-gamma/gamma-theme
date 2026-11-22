@@ -5,7 +5,6 @@
   assign entries = ''
   assign separator = '@@gamma-promotion@@'
   assign key_separator = '~~gamma-key~~'
-  assign title_padding = '                                                                                '
   assign over_limit = false
 
   # The definition allows 5 campaigns; a longer list means validation is missing, so claim nothing.
@@ -23,18 +22,13 @@
       if parts[0] != 'live'
         continue
       endif
-      assign priority = promotion.priority.value | plus: 0
-      if priority < 1 or priority > 99
-        assign priority = 50
-      endif
-      assign padded_priority = '00' | append: priority | slice: -2, 2
-      assign end_key = parts[2] | default: '99999999999'
-      assign padded_end = '00000000000' | append: end_key | slice: -11, 11
-      assign title_key = promotion.title.value | strip | downcase | append: title_padding | slice: 0, 80
+      capture key
+        render 'gamma-promotion-sort-key', promotion: promotion, state: state
+      endcapture
       capture item
         render 'gamma-promotion-callout-item', promotion: promotion, end: parts[2]
       endcapture
-      assign entries = entries | append: separator | append: padded_priority | append: padded_end | append: title_key | append: promotion.system.handle | append: key_separator | append: item
+      assign entries = entries | append: separator | append: key | append: key_separator | append: item
     endfor
   endif
 -%}

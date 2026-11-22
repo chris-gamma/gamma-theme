@@ -222,6 +222,9 @@
       "on": "Pour les achats admissibles effectués le {{ date }}.",
       "before": "Pour les achats admissibles effectués au plus tard le {{ end }}."
     },
+    "home": {
+      "heading": "Promotions en cours"
+    },
     "index": {
       "empty": "Aucune promotion en ce moment. Revenez bientôt.",
       "cta": "Voir la promotion",

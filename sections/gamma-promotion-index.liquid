@@ -2,7 +2,6 @@
   assign at = 'now' | date: '%s' | plus: 0
   assign item_separator = '@@gamma-promotion@@'
   assign key_separator = '~~gamma-key~~'
-  assign title_padding = '                                                                                '
   assign sales = ''
   assign rental = ''
   assign coming = ''
@@ -39,28 +38,9 @@
         continue
       endif
 
-      assign priority = promotion.priority.value | plus: 0
-      if priority < 1 or priority > 99
-        assign priority = 50
-      endif
-      assign padded_priority = '00' | append: priority | slice: -2, 2
-      assign end_key = parts[2] | default: '99999999999'
-      assign padded_end = '00000000000' | append: end_key | slice: -11, 11
-      assign start_key = parts[1] | default: '00000000000'
-      assign padded_start = '00000000000' | append: start_key | slice: -11, 11
-      assign title_key = promotion.title.value | strip | downcase | append: title_padding | slice: 0, 80
-      assign tie = title_key | append: promotion.system.handle
-
-      case group
-        when 'live'
-          assign key = padded_priority | append: padded_end | append: tie
-        when 'coming'
-          assign key = padded_start | append: tie
-        when 'ended'
-          # Most recently ended first: invert the end for an ascending sort.
-          assign inverted_end = 99999999999 | minus: end_key
-          assign key = '00000000000' | append: inverted_end | slice: -11, 11 | append: tie
-      endcase
+      capture key
+        render 'gamma-promotion-sort-key', promotion: promotion, state: state, group: group
+      endcapture
 
       capture card
         if group == 'live'
@@ -166,7 +146,11 @@
             {%- assign offset = run | times: 50 -%}
             {%- if offset >= sorted.size -%}{%- break -%}{%- endif -%}
             {%- for item in sorted limit: 50 offset: offset -%}
-              {{- item | split: key_separator | last -}}
+              {%- assign card = item | split: key_separator | last -%}
+              {%- if offset == 0 and forloop.first and group_class contains '--feature' -%}
+                {%- assign card = card | replace_first: 'class="gamma-promotion-index__item', 'class="gamma-promotion-index__item gamma-promotion-feature' -%}
+              {%- endif -%}
+              {{- card -}}
             {%- endfor -%}
           {%- endfor -%}
         </ul>
@@ -240,39 +224,8 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .gamma-promotion-index__group--feature .gamma-promotion-index__item:first-child {
+    .gamma-promotion-index__item.gamma-promotion-feature {
       grid-column: span 2;
-
-      .gamma-promotion-card {
-        flex-direction: row;
-      }
-
-      .gamma-promotion-card__media {
-        flex: 0 0 50%;
-        aspect-ratio: auto;
-        min-block-size: 14rem;
-        border-block-end: 0;
-        border-inline-end: var(--style-border-width, 1px) solid var(--gamma-color-rule);
-      }
-
-      /* Out of flow, so tall artwork is fitted to the row instead of setting its height. */
-      .gamma-promotion-card__media > img {
-        position: absolute;
-        inset: 0;
-      }
-
-      .gamma-promotion-card__body {
-        justify-content: center;
-        padding: var(--gamma-space-inner);
-      }
-
-      .gamma-promotion-card__title {
-        font-size: var(--gamma-type-section-size);
-      }
-
-      .gamma-promotion-card__footer {
-        margin-block-start: 0;
-      }
     }
   }
 
