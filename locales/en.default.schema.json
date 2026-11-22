@@ -17,6 +17,12 @@
     "collapsible": "Show as collapsible row",
     "collapsible_info": "Policies shown one after another as collapsible rows form a single list. The entry’s name, or the heading above, labels the row."
   },
+  "gamma_collection_header": {
+    "name": "Collection header",
+    "block_info": "Shows the collection’s title, its number of products and its description.",
+    "show_count": "Show product count",
+    "show_description": "Show description"
+  },
   "gamma_filters": {
     "fixed_attributes": "Fixed collection attributes",
     "fixed_attributes_info": "Hides filters shared by every product in collections using this template. A hidden filter reappears while a link applies it, so customers can remove it.",

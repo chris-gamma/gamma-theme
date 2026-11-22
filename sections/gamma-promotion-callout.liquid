@@ -58,7 +58,7 @@
   >
     {%- comment -%} One compact notice with a line per campaign; it goes when its last line does. {%- endcomment -%}
     <aside class="gamma-promotion-callout__panel" aria-label="{{ heading | escape }}" data-gamma-hide-empty>
-      {%- render 'gamma-notice', icon: 'icon-discount.svg', lead: heading, content: lines -%}
+      {%- render 'gamma-notice', icon: 'icon-discount.svg', lead: heading, content: lines, variant: 'compact' -%}
     </aside>
   </div>
   <script src="{{ 'gamma-hide-at.js' | asset_url }}" type="module" fetchpriority="low"></script>

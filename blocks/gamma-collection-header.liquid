@@ -1,0 +1,100 @@
+{%- doc -%}
+  Collection page header: the title as the h1, the total product count (filters don't change it) and
+  the description; renders nothing outside a collection.
+{%- enddoc -%}
+
+{%- liquid
+  assign collection = closest.collection
+  assign show_description = false
+  if block.settings.show_description and collection.description != blank
+    assign show_description = true
+  endif
+-%}
+
+{%- if collection != blank -%}
+  <div
+    class="gamma-collection-header"
+    {{ block.shopify_attributes }}
+  >
+    <div class="gamma-section-heading">
+      <h1 class="gamma-type-page">{{ collection.title | escape }}</h1>
+      {%- if block.settings.show_count -%}
+        <p class="gamma-section-heading__count gamma-type-label">
+          {{- 'content.item_count' | t: count: collection.all_products_count -}}
+        </p>
+      {%- endif -%}
+    </div>
+    {%- if show_description -%}
+      <div class="gamma-type-lede gamma-collection-header__description rte">
+        {{- collection.description -}}
+      </div>
+    {%- endif -%}
+  </div>
+
+  {%- if block.settings.show_count -%}
+    {%- comment -%}
+      The header states the total, so the filter bar's live count shows only while a filter narrows it.
+      It stays in the page so its status updates are still announced.
+    {%- endcomment -%}
+    {% style %}
+      collection-component:not(:has(.facets-horizontal-remove--active, .facets__clear-all--active))
+        .products-count-wrapper
+        > [role='status'] {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+      }
+    {% endstyle %}
+  {%- endif -%}
+{%- endif -%}
+
+{% stylesheet %}
+  .gamma-collection-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-md, 1rem);
+    width: 100%;
+  }
+
+  .gamma-collection-header__description > :first-child {
+    margin-block-start: 0;
+  }
+
+  .gamma-collection-header__description > :last-child {
+    margin-block-end: 0;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:gamma_collection_header.name",
+  "tag": null,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:gamma_collection_header.block_info"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_count",
+      "label": "t:gamma_collection_header.show_count",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "t:gamma_collection_header.show_description",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:gamma_collection_header.name",
+      "category": "t:categories.collection"
+    }
+  ]
+}
+{% endschema %}
