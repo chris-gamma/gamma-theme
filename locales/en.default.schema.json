@@ -140,6 +140,11 @@
     "show_link": "Show “View all” link",
     "show_link_info": "Shown when the collection has more products than the list shows."
   },
+  "gamma_header": {
+    "home_heading_header": "Home page heading",
+    "home_heading": "Add the store name as a hidden page heading",
+    "home_heading_info": "Turn off when the home page content has its own main heading (H1), such as the hero’s."
+  },
   "gamma_promotion": {
     "campaign_name": "Promotion page",
     "campaign_info": "Shows the promotion from Shopify content. Scheduled, paused, ended and unavailable promotions show a notice instead of offers.",

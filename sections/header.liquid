@@ -398,7 +398,8 @@
   <div
     class="header__underlay header__underlay-open"
   ></div>
-  {%- if request.page_type == 'index' -%}
+  {%- comment -%} Gamma: a setting turns the hidden store-name heading off when the home page has its own h1. {%- endcomment -%}
+  {%- if request.page_type == 'index' and section.settings.gamma_home_heading -%}
     <h1 class="visually-hidden">{{ shop.name }}</h1>
   {%- endif -%}
   {% for row in rows %}
@@ -1838,6 +1839,17 @@
       "label": "t:settings.text_color_transparent",
       "placeholder": "t:settings.default",
       "visible_if": "{{ section.settings.enable_transparent_header_collection }}"
+    },
+    {
+      "type": "header",
+      "content": "t:gamma_header.home_heading_header"
+    },
+    {
+      "type": "checkbox",
+      "id": "gamma_home_heading",
+      "label": "t:gamma_header.home_heading",
+      "info": "t:gamma_header.home_heading_info",
+      "default": true
     }
   ],
   "presets": []

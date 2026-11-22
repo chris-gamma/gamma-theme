@@ -131,6 +131,11 @@
     "show_link": "Afficher le lien « Tout afficher »",
     "show_link_info": "Affiché quand la collection compte plus de produits que la liste n’en montre."
   },
+  "gamma_header": {
+    "home_heading_header": "Titre de la page d’accueil",
+    "home_heading": "Ajouter le nom de la boutique comme titre de page masqué",
+    "home_heading_info": "Désactivez cette option quand le contenu de la page d’accueil a son propre titre principal (H1), comme celui de la bannière."
+  },
   "gamma_promotion": {
     "campaign_name": "Page de promotion",
     "campaign_info": "Affiche la promotion à partir du contenu Shopify. Les promotions planifiées, suspendues, terminées ou non offertes affichent un avis au lieu des offres.",
