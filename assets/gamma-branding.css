@@ -692,3 +692,68 @@ product-price.text-block:is(.h1, .h2, .h3, .h4, .h5, .h6) > .installments {
   --gamma-tile-frame-color: var(--gamma-color-accent);
 }
 
+/*
+  Order summary: a Concrete panel on the cart page and a Concrete band at the foot of the drawer. The band
+  is opaque because lines scroll under it, and it drops Horizon's fade, which would blur its edge. The
+  ship-together notice inside turns Paper so it stays its own shell, and the total takes the group role.
+*/
+.cart-page .cart-summary__inner {
+  padding: var(--gamma-space-inner);
+  border-radius: var(--gamma-radius-card);
+  background: var(--gamma-color-panel);
+}
+
+/*
+  From 750 to 989px the fitted summary sits below the lines, as on phones; beside them it left the line
+  titles about 110px.
+*/
+@media screen and (min-width: 750px) and (max-width: 989px) {
+  .cart-page:has(.cart-page__summary) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+  }
+
+  .cart-page .cart-page__summary {
+    display: block;
+    grid-column: 1;
+    grid-row: auto;
+    height: auto;
+    padding-block-start: var(--padding-xl);
+  }
+
+  .cart-page .cart-summary__inner {
+    position: static;
+  }
+}
+
+.cart-drawer__inner .cart-drawer__summary {
+  border-start-start-radius: var(--gamma-radius-card);
+  border-start-end-radius: var(--gamma-radius-card);
+  background: linear-gradient(var(--gamma-color-panel), var(--gamma-color-panel)), var(--color-background);
+  mask-image: none;
+}
+
+/* The panel's edge replaces the rule above the note and discount rows. */
+:is(.cart-page .cart-summary__inner, .cart-drawer__inner .cart-drawer__summary) .cart-actions {
+  border-block-start: none;
+  margin-block-start: 0;
+}
+
+:is(.cart-summary, .cart-drawer__summary) .gamma-notice {
+  background: var(--gamma-color-paper);
+}
+
+.cart-totals .cart-totals__total-label {
+  font-family: var(--font-h4--family);
+  font-style: var(--font-h4--style);
+  font-weight: var(--font-h4--weight);
+  font-size: var(--gamma-type-group-size);
+  line-height: var(--font-h4--line-height);
+  letter-spacing: var(--font-h4--letter-spacing);
+  text-transform: var(--font-h4--case);
+}
+
+.cart-totals .cart-totals__total-value {
+  font-size: var(--gamma-type-group-size);
+}
+

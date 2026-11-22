@@ -114,7 +114,8 @@
                   {% render 'cart-products', context: 'drawer' %}
                 </scroll-hint>
 
-                <div class="cart-drawer__summary">
+                {%- comment -%} Gamma: `gamma-tokens` resolves the panel colour in the drawer's colour scheme. {%- endcomment -%}
+                <div class="cart-drawer__summary gamma-tokens">
                   {% render 'cart-summary', section_id: 'cart-drawer-section' %}
                 </div>
               </scroll-hint>

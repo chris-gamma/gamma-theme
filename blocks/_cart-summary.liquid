@@ -18,9 +18,10 @@
     class="section-background{% if custom_color %} color-custom-{{ block.id }} inherit-parent-scheme--mobile{% endif %}"
   ></div>
 {% endif %}
+{%- comment -%} Gamma: `gamma-tokens` resolves the panel colour in the section's colour scheme. {%- endcomment -%}
 <div
   class="
-    cart-summary border-style
+    cart-summary border-style gamma-tokens
     {% if block_settings.extend_summary == true %}
       cart-summary--extend
       {% if custom_color %} color-custom-{{ block.id }} inherit-parent-scheme--mobile{% endif %}
