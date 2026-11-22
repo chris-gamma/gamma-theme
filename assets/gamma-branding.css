@@ -806,3 +806,57 @@ product-price.text-block:is(.h1, .h2, .h3, .h4, .h5, .h6) > .installments {
   white-space: nowrap;
   border: 0;
 }
+
+/* Quick Add takes the buttons' rounding instead of Horizon's fixed pill. */
+button.quick-add__button.button {
+  border-radius: var(--style-border-radius-buttons-primary);
+}
+
+/* Horizon dims the other filter summaries while one is hovered; the dimming fades like the caret. */
+.facets__summary {
+  transition: opacity var(--animation-speed) var(--animation-easing);
+}
+
+/*
+  The discount code's button sits inside its field, like the newsletter block's integrated button: the
+  form draws the field and the button keeps Horizon's size, inset by the same margin.
+*/
+.cart-discount .cart-discount__content {
+  height: auto;
+  padding-block: var(--padding-2xs) var(--padding-sm);
+}
+
+.cart-discount .cart-discount__form {
+  gap: 0;
+  align-items: stretch;
+  height: auto;
+  min-height: calc(var(--button-size) + 2 * (var(--margin-xs) + var(--style-border-width-inputs)));
+  padding: 0;
+  border: var(--style-border-width-inputs) solid var(--color-input-border);
+  border-radius: var(--style-border-radius-inputs);
+  background-color: var(--color-input-background);
+}
+
+.cart-discount .cart-discount__input {
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+}
+
+.cart-discount .cart-discount__button {
+  flex-shrink: 0;
+  height: auto;
+  margin: var(--margin-xs);
+  padding-block: 0;
+}
+
+/* A field with its button inside shows the focus ring around the whole field, as the home search does. */
+:is(.cart-discount__form, .email-signup__input-group--integrated):has(input:focus-visible) {
+  outline: var(--focus-outline-width) solid currentcolor;
+  outline-offset: var(--focus-outline-offset);
+}
+
+:is(.cart-discount__form, .email-signup__input-group--integrated) input:focus-visible {
+  outline: none;
+}

@@ -44,7 +44,7 @@
             "placeholder": "",
             "width": "custom",
             "custom_width": 60,
-            "border_radius": 100,
+            "border_radius": 14,
             "border_width": 1,
             "background_color": "#000000",
             "background_opacity": 60,
