@@ -22,8 +22,8 @@
     "hide_power_source": "Masquer le filtre de source d’alimentation"
   },
   "gamma_availability": {
-    "badges": "Afficher les badges de rupture et de commande spéciale",
-    "badges_info": "Les cartes produit vérifient jusqu’à 250 variantes. Les options mixtes ou incomplètes affichent un badge neutre.",
+    "badges": "Afficher les pastilles de rupture et de commande spéciale",
+    "badges_info": "Les cartes produit vérifient jusqu’à 250 variantes. Les options mixtes ou incomplètes affichent une pastille neutre.",
     "cart_notice": "Afficher l’avis de rupture et de commande spéciale",
     "cart_notice_info": "Explique dans le résumé du panier que l’expédition dépend du fournisseur et comment les commandes mêlant des articles en stock sont expédiées ensemble."
   },
@@ -92,7 +92,7 @@
       "regular_info": "Affiché lorsqu’aucun remplacement ni aucune exception datée ne s’applique.",
       "override": "Remplacement",
       "override_info": "Facultatif. Affiché partout, peu importe ses dates, jusqu’à ce que vous le retiriez ici ou que vous activiez Force off dans l’entrée.",
-      "exceptions_info": "Exceptions datées : une entrée qui a un Display start s’affiche à partir de ce moment jusqu’à son Display end, ou pendant 7 jours s’il n’y en a pas. Activez son avis de congé et précisez-y les dates touchées; une exception sans avis affiche plutôt le message de contact. Si des exceptions se chevauchent, la plus courte s’affiche. Force off ou le statut Brouillon masque une entrée. Jusqu’à 49 entrées publiées peuvent être vérifiées : mettez les exceptions passées en brouillon."
+      "exceptions_info": "Exceptions datées : une entrée qui a un Display start s’affiche à partir de ce moment jusqu’à son Display end, ou pendant 7 jours s’il n’y en a pas. Activez son avis de congé et précisez-y les dates touchées; une exception sans avis affiche plutôt le message de contact. Si des exceptions se chevauchent, la plus courte s’affiche. Force off ou l’état Brouillon masque une entrée. Jusqu’à 49 entrées publiées peuvent être vérifiées : mettez les exceptions passées en brouillon."
     }
   },
   "gamma_map": {
@@ -192,7 +192,7 @@
     "animations": "Animations",
     "announcement": "Annonce",
     "announcement_bar": "Barre d’annonces",
-    "badges": "Badges",
+    "badges": "Pastilles",
     "button": "Bouton",
     "cart": "Panier",
     "cart_items": "Articles du panier",
@@ -251,8 +251,8 @@
     "spacer": "Espaceur",
     "video_section": "Vidéo",
     "custom_liquid": "Liquid personnalisé",
-    "blog_post": "Article de blog",
-    "blog_posts": "Articles de blog",
+    "blog_post": "Article de blogue",
+    "blog_posts": "Articles de blogue",
     "caption": "Légende",
     "collection_card_image": "Image",
     "collection_title": "Titre de la collection",
@@ -293,10 +293,10 @@
     "featured_image": "Image vedette",
     "multicolumn": "Multicolonne",
     "product_custom_property": "Instructions spéciales",
-    "blog_card": "Carte d’article de blog",
-    "blog_posts_grid": "Articles de blog : Grille",
-    "blog_posts_carousel": "Articles de blog : Carrousel",
-    "blog_posts_editorial": "Articles de blog : Éditorial",
+    "blog_card": "Carte d’article de blogue",
+    "blog_posts_grid": "Articles de blogue : Grille",
+    "blog_posts_carousel": "Articles de blogue : Carrousel",
+    "blog_posts_editorial": "Articles de blogue : Éditorial",
     "excerpt": "Extrait",
     "footer_password": "Pied de page pour mot de passe",
     "policies_and_links": "Politiques et liens",
@@ -668,7 +668,7 @@
       "input_preset": "Saisie",
       "checkbox_preset": "Étiquette de la case à cocher"
     },
-    "blog": "Blog",
+    "blog": "Blogue",
     "post_count": "Nombre d'articles",
     "animation": "Animation",
     "top_level_size": "Taille du niveau supérieur",
@@ -703,10 +703,10 @@
     "enable_sticky_add_to_cart": "Barre d’ajout au panier flottante",
     "sticky_add_to_cart": "Ajout au panier flottant",
     "actions_display_style": "Style de menu",
-    "badge_sale_background_color": "Arrière-plan du badge de promotion",
-    "badge_sale_text_color": "Texte du badge de promotion",
-    "badge_sold_out_background_color": "Arrière-plan du badge Épuisé",
-    "badge_sold_out_text_color": "Texte du badge Épuisé",
+    "badge_sale_background_color": "Arrière-plan de la pastille de promotion",
+    "badge_sale_text_color": "Texte de la pastille de promotion",
+    "badge_sold_out_background_color": "Arrière-plan de la pastille Épuisé",
+    "badge_sold_out_text_color": "Texte de la pastille Épuisé",
     "border_color": "Couleur de la bordure",
     "bottom_border_color": "Couleur de la bordure inférieure",
     "drawer_borders": "Bordure du tiroir",
@@ -1117,7 +1117,7 @@
     "resource_reference_product_media": "Affiche le support multimédia du produit parent",
     "product_media": "Support multimédia du produit",
     "section_link": "Lien de la section",
-    "gift_card_form_description": "Les clients peuvent envoyer des cartes-cadeaux à l’e-mail d’un destinataire avec un message personnel. [En savoir plus](https://help.shopify.com/manual/products/gift-card-products)",
+    "gift_card_form_description": "Les clients peuvent envoyer des cartes-cadeaux à l’adresse courriel d’un destinataire avec un message personnel. [En savoir plus](https://help.shopify.com/manual/products/gift-card-products)",
     "heading": "Titre",
     "resource_reference_product_custom_property": "Ajoutez des champs de saisie personnalisables pour recueillir des informations personnalisées qui seront ajoutées à cet article du panier et qui seront visibles plus tard dans les détails de la commande.",
     "block_link": "Lien du bloc",
@@ -1183,10 +1183,10 @@
     "shop_by_collection": "<h3>Magasiner par collection</h3>",
     "signature_products": "<h2>Notre produit phare</h2>",
     "styled_with": "<h3>Porté avec</h3>",
-    "subscribe": "<h2>Abonnez-vous à nos e-mails</h2>",
+    "subscribe": "<h2>Abonnez-vous à nos courriels</h2>",
     "team_with_goal": "<h2>Une équipe avec un objectif</h2>",
     "unable_to_accept_returns": "<p>Nous ne pouvons pas accepter les retours sur certains articles. Ceux-ci seront clairement indiqués avant l’achat.</p>",
-    "work_quickly_to_ship": "<p>Nous nous efforcerons d’expédier votre commande le plus rapidement possible. Une fois votre commande expédiée, vous recevrez un e-mail contenant des informations supplémentaires. Les délais de livraison varient en fonction de votre emplacement.</p>",
+    "work_quickly_to_ship": "<p>Nous nous efforcerons d’expédier votre commande le plus rapidement possible. Une fois votre commande expédiée, vous recevrez un courriel contenant des informations supplémentaires. Les délais de livraison varient en fonction de votre emplacement.</p>",
     "join_our_email_list": "<h2>Inscrivez-vous à notre liste de diffusion</h2>",
     "get_exclusive_deals_and_early_access_to_new_products": "<p>Recevez des offres exclusives et un accès anticipé aux nouveaux produits.</p>",
     "artistry_in_action": "<p>L’art en action </p>",
@@ -1267,7 +1267,7 @@
     "actions_display_style": "Les icônes sont toujours utilisées sur mobile",
     "edit_input_field_in_theme_settings": "Modifier le champ de saisie dans les [paramètres du thème](/editor?context=theme&category=input%20fields)",
     "edit_variants_in_theme_settings": "Modifier le style des variantes dans les [paramètres du thème](/editor?context=theme&category=variant%20pickers)",
-    "shop_pay_payment_options": "Affiche les badges du paiement en plusieurs fois avec Shop Pay et HSA/FSA lorsqu’ils sont disponibles."
+    "shop_pay_payment_options": "Affiche les pastilles du paiement en plusieurs fois avec Shop Pay et HSA/FSA lorsqu’ils sont disponibles."
   },
   "categories": {
     "basic": "De base",
@@ -1288,6 +1288,6 @@
     "other_sections": "Autre",
     "storytelling": "Narration",
     "text": "Texte",
-    "blog_post": "Article de blog"
+    "blog_post": "Article de blogue"
   }
 }
