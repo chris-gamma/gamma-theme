@@ -819,3 +819,8 @@ product-price.text-block:is(.h1, .h2, .h3, .h4, .h5, .h6) > .installments {
 button.quick-add__button.button {
   border-radius: var(--style-border-radius-buttons-primary);
 }
+
+/* Horizon dims the other filter summaries while one is hovered; the dimming fades like the caret. */
+.facets__summary {
+  transition: opacity var(--animation-speed) var(--animation-easing);
+}
