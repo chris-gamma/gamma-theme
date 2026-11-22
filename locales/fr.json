@@ -478,9 +478,9 @@
     "inventory_in_stock": "En stock",
     "inventory_out_of_stock": "En rupture de stock",
     "inventory_low_stock_show_count": {
-      "one": "{{ count }} restant",
-      "other": "{{ count }} restants",
-      "many": "{{ count }} restants"
+      "one": "{{ count }} restant",
+      "other": "{{ count }} restants",
+      "many": "{{ count }} restants"
     },
     "shipping_policy": "Expédition calculée au moment du paiement.",
     "powered_by": "Cette boutique sera exploitée par",
