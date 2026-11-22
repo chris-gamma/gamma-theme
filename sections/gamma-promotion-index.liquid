@@ -146,7 +146,11 @@
             {%- assign offset = run | times: 50 -%}
             {%- if offset >= sorted.size -%}{%- break -%}{%- endif -%}
             {%- for item in sorted limit: 50 offset: offset -%}
-              {{- item | split: key_separator | last -}}
+              {%- assign card = item | split: key_separator | last -%}
+              {%- if offset == 0 and forloop.first and group_class contains '--feature' -%}
+                {%- assign card = card | replace_first: 'class="gamma-promotion-index__item', 'class="gamma-promotion-index__item gamma-promotion-feature' -%}
+              {%- endif -%}
+              {{- card -}}
             {%- endfor -%}
           {%- endfor -%}
         </ul>
@@ -220,39 +224,8 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .gamma-promotion-index__group--feature .gamma-promotion-index__item:first-child {
+    .gamma-promotion-index__item.gamma-promotion-feature {
       grid-column: span 2;
-
-      .gamma-promotion-card {
-        flex-direction: row;
-      }
-
-      .gamma-promotion-card__media {
-        flex: 0 0 50%;
-        aspect-ratio: auto;
-        min-block-size: 14rem;
-        border-block-end: 0;
-        border-inline-end: var(--style-border-width, 1px) solid var(--gamma-color-rule);
-      }
-
-      /* Out of flow, so tall artwork is fitted to the row instead of setting its height. */
-      .gamma-promotion-card__media > img {
-        position: absolute;
-        inset: 0;
-      }
-
-      .gamma-promotion-card__body {
-        justify-content: center;
-        padding: var(--gamma-space-inner);
-      }
-
-      .gamma-promotion-card__title {
-        font-size: var(--gamma-type-section-size);
-      }
-
-      .gamma-promotion-card__footer {
-        margin-block-start: 0;
-      }
     }
   }
 
