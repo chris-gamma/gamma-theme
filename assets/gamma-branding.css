@@ -602,6 +602,20 @@ product-price.text-block:is(.h1, .h2, .h3, .h4, .h5, .h6) > .installments {
 }
 
 /*
+  Between 750 and 989px the product page's grid gallery is a column of about 300px, so it shows
+  Horizon's phone carousel in place of the grid, as Horizon does below 750px.
+*/
+@media screen and (min-width: 750px) and (max-width: 989px) {
+  .product-information .product-information__media media-gallery.media-gallery--grid slideshow-component {
+    display: block;
+  }
+
+  .product-information .product-information__media media-gallery.media-gallery--grid .media-gallery__grid {
+    display: none;
+  }
+}
+
+/*
   Add to cart is the product page's one primary button, so Shopify's unbranded dynamic checkout button
   takes Horizon's secondary button settings (base.css styles it as a primary). Branded wallet buttons keep
   Shopify's styling.
