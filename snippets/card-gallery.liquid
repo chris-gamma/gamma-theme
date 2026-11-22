@@ -88,6 +88,18 @@
     assign image_sizes = sizes_attribute | strip
   endif
 
+  # Gamma: campaign pages pass their offer group as every card's `closest`. Their grid copies the
+  # collection grid (250px cards, 16px gaps, two columns on phones) but has no card-size setting, so
+  # `sizes` uses those values. Cards load lazily.
+  assign gamma_campaign_card = false
+  if closest.metaobject.promotion_group != blank
+    assign gamma_campaign_card = true
+    capture sizes_attribute
+      render 'util-autofill-img-size-attr', card_size: 250, card_gap: 16, mobile_size: '50vw'
+    endcapture
+    assign image_sizes = sizes_attribute | strip
+  endif
+
   assign ratio = '1'
   case block_settings.image_ratio
     when 'landscape'
@@ -139,9 +151,12 @@
 
         assign featured_media_loading = 'lazy'
         assign featured_media_sizes = 'auto, ' | append: image_sizes
+        # Gamma: campaign cards stay lazy (see `sizes` above).
         if section.index == null or section.index < 5
-          assign featured_media_loading = 'eager'
-          assign featured_media_sizes = image_sizes
+          unless gamma_campaign_card
+            assign featured_media_loading = 'eager'
+            assign featured_media_sizes = image_sizes
+          endunless
         endif
 
         # The class differs per media only by media_type; the base template and the
