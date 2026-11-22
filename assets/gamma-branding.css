@@ -661,3 +661,34 @@ product-price.text-block:is(.h1, .h2, .h3, .h4, .h5, .h6) > .installments {
 .text-block a[href^='mailto:'] {
   overflow-wrap: anywhere;
 }
+
+/*
+  Cart line images keep their own ratio (the cart page's adaptive setting; the drawer in
+  `snippets/cart-products.liquid`) on the white tile, in the card tile's frame, which turns Gamma Red on
+  hover or keyboard focus like a card's.
+*/
+.cart-items__media-container {
+  border-radius: var(--gamma-radius-media);
+  background-color: var(--gamma-color-tile);
+}
+
+.cart-items__media-container::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 var(--gamma-tile-frame-width) var(--gamma-tile-frame-color, var(--gamma-color-rule));
+  pointer-events: none;
+  transition: box-shadow var(--animation-speed-medium, 0.15s) var(--animation-easing, ease-in-out);
+}
+
+@media (any-pointer: fine) {
+  .cart-items__media-container:hover {
+    --gamma-tile-frame-color: var(--gamma-color-accent);
+  }
+}
+
+.cart-items__media-container:focus-visible {
+  --gamma-tile-frame-color: var(--gamma-color-accent);
+}
+

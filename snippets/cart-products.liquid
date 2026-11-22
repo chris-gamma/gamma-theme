@@ -206,6 +206,10 @@
                       elsif block_settings.image_ratio == 'adapt'
                         assign ratio = gamma_line_image.aspect_ratio
                       endif
+                      # Gamma: the drawer has no ratio setting; its lines keep the image's own ratio, like the cart page.
+                      if context == 'drawer'
+                        assign ratio = gamma_line_image.aspect_ratio
+                      endif
                     %}
                     <a
                       href="{{ item.url }}"
