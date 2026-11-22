@@ -57,6 +57,7 @@ Repeated workflows are skills in [.agents/skills/](.agents/skills/), one folder 
 - `design-review`: baseline, options and browser mock-ups for a visual change, before Chris decides.
 - `performance-check`: Liquid profiles, cart render time and image bytes, before and after.
 - `integrate`: merge a finished branch into `dev`.
+- `horizon-update`: move the theme to a new Horizon release.
 
 Add a skill only for a workflow that has repeated; change one when the workflow it describes changes, in the same branch.
 
