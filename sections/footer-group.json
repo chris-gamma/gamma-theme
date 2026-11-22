@@ -97,7 +97,7 @@
                 "custom_button_border": "{{ settings.color_palette.background }}",
                 "display_type": "text",
                 "label": "Subscribe",
-                "integrated_button": false,
+                "integrated_button": true,
                 "button_type_preset": "paragraph",
                 "padding-block-start": 0,
                 "padding-block-end": 0,
