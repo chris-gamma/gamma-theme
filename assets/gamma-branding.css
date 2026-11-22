@@ -814,3 +814,8 @@ product-price.text-block:is(.h1, .h2, .h3, .h4, .h5, .h6) > .installments {
 :root:root {
   --color-secondary-button-hover-text: var(--color-secondary-button-text);
 }
+
+/* Quick Add takes the buttons' rounding instead of Horizon's fixed pill. */
+button.quick-add__button.button {
+  border-radius: var(--style-border-radius-buttons-primary);
+}
