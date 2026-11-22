@@ -619,6 +619,20 @@ product-price.text-block:is(.h1, .h2, .h3, .h4, .h5, .h6) > .installments {
   --button-border-color: var(--color-secondary-button-hover-border);
 }
 
+/*
+  The product description reads as the reading role. The text block's size setting only applies to its
+  custom preset, which drops the rich-text styles, so the role is set here, with its measure in place of
+  the block's max-width.
+*/
+.product-details rte-formatter.text-block {
+  font-size: var(--gamma-type-reading-size);
+  line-height: 1.55;
+}
+
+.product-details rte-formatter.text-block > * {
+  max-inline-size: min(100%, var(--gamma-measure-text));
+}
+
 .product-details .text-block:not(.custom-typography) > h1 {
   text-wrap: wrap;
   overflow-wrap: anywhere;
