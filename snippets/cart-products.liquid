@@ -65,11 +65,20 @@
 >
   {% if cart.empty? or force_empty %}
     {%- comment -%}
-      Gamma: with a menu chosen in Theme settings > Cart, the empty cart shows a quiet notice of its links
-      instead of the continue-shopping button. The notice repeats the cart's heading, which is then only
+      Gamma: with a menu chosen in Theme settings > Cart (or its English or French override), the empty
+      cart shows a quiet notice of its links instead of the continue-shopping button. The notice repeats
+      the cart's heading, which is then only
       visually hidden, so its own line is hidden from assistive technology.
     {%- endcomment -%}
-    {%- assign gamma_empty_menu = settings.gamma_empty_cart_menu -%}
+    {%- capture gamma_empty_menu_handle -%}
+      {%- render 'gamma-menu-handle',
+        menu: settings.gamma_empty_cart_menu,
+        menu_en: settings.gamma_empty_cart_menu_en,
+        menu_fr: settings.gamma_empty_cart_menu_fr,
+        locale_code: request.locale.iso_code
+      -%}
+    {%- endcapture -%}
+    {%- assign gamma_empty_menu = linklists[gamma_empty_menu_handle] -%}
     {%- if gamma_empty_menu.links.size > 0 -%}
       <nav
         class="gamma-notice gamma-notice--compact gamma-tokens gamma-empty-cart"
