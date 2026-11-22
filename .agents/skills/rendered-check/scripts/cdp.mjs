@@ -11,13 +11,35 @@ export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const FINE_POINTER =
   '--blink-settings=primaryPointerType=4,availablePointerTypes=4,primaryHoverType=2,availableHoverTypes=2';
 
+// Browsers still running when the script ends, crashes or is interrupted are stopped and their profiles removed.
+const running = new Set();
+process.on('exit', () => running.forEach((stop) => stop()));
+for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => process.exit(1));
+
 export async function launch({ port = 9391, fine = true, profile, extra = [], scrollbars = false } = {}) {
-  profile ??= path.join(os.tmpdir(), `gamma-cdp-${port}`);
+  // A new profile for each launch, so every run starts with an empty cart and no cookies; a profile the
+  // caller names is kept.
+  const temporary = !profile;
+  profile ??= fs.mkdtempSync(path.join(os.tmpdir(), 'gamma-cdp-'));
   const bin = process.env.CHROME_PATH || '/usr/sbin/chromium-browser';
   const args = ['--headless=new', `--remote-debugging-port=${port}`, '--no-first-run', '--disable-gpu', `--user-data-dir=${profile}`];
   if (!scrollbars) args.push('--hide-scrollbars');
   if (fine) args.push(FINE_POINTER);
-  const chrome = spawn(bin, [...args, ...extra, 'about:blank'], { stdio: 'ignore' });
+  // In its own process group, so stopping it also stops its renderer and helper processes.
+  const chrome = spawn(bin, [...args, ...extra, 'about:blank'], { stdio: 'ignore', detached: true });
+  const signal = (name) => {
+    try {
+      process.kill(-chrome.pid, name);
+    } catch {}
+  };
+  const removeProfile = () => {
+    if (temporary) fs.rmSync(profile, { recursive: true, force: true, maxRetries: 5 });
+  };
+  const stop = () => {
+    signal('SIGKILL');
+    removeProfile();
+  };
+  running.add(stop);
 
   let target;
   for (let i = 0; i < 80 && !target; i++) {
@@ -95,7 +117,14 @@ export async function launch({ port = 9391, fine = true, profile, extra = [], sc
     try {
       ws.close();
     } catch {}
-    chrome.kill('SIGTERM');
+    running.delete(stop);
+    if (chrome.exitCode === null && chrome.signalCode === null) {
+      const exited = new Promise((r) => chrome.once('exit', r));
+      signal('SIGTERM');
+      await Promise.race([exited, sleep(5000)]);
+      signal('SIGKILL');
+    }
+    removeProfile();
   };
   return { send, ev, viewport, nav, shot, key, move, click, type, close, listeners, pid: chrome.pid };
 }

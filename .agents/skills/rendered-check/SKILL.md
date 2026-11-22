@@ -55,7 +55,8 @@ Write a short script that imports `launch` from `scripts/cdp.mjs` and uses its r
 - Reduced motion: `send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] })`.
 - Measure state over time (colour or transform after 0, 60 and 300 ms) rather than trusting one sample.
 - Quick Add and cart checks add items to a fresh headless cart only; never submit orders, contact or
-  newsletter forms.
+  newsletter forms. Each `launch()` starts with a new profile, removed on close, so a cart lasts for
+  one launch: fill it in the same run that checks it.
 
 ## 4. Pacing and failures
 
