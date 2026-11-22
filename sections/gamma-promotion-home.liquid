@@ -26,10 +26,8 @@
       if promotion.image.value != blank
         assign has_artwork = 1
       endif
-      capture card
-        render 'gamma-promotion-card', promotion: promotion, state: state, heading_level: 'h3'
-      endcapture
-      assign entries = entries | append: separator | append: key | append: key_separator | append: parts[2] | append: key_separator | append: has_artwork | append: key_separator | append: card
+      # Cards render after sorting, only for the campaigns shown.
+      assign entries = entries | append: separator | append: key | append: key_separator | append: parts[2] | append: key_separator | append: has_artwork | append: key_separator | append: promotion.system.handle | append: key_separator | append: state
     endfor
   endpaginate
 -%}
@@ -47,15 +45,19 @@
     capture items
       for entry in sorted limit: shown
         assign fields = entry | split: key_separator
+        assign promotion = metaobjects.promotion[fields[3]]
+        capture card
+          render 'gamma-promotion-card', promotion: promotion, state: fields[4], heading_level: 'h3'
+        endcapture
         assign item_class = 'gamma-promotion-home__item'
         # A single campaign with artwork takes the index's feature card.
         if shown == 1 and fields[2] == '1'
           assign item_class = item_class | append: ' gamma-promotion-feature'
         endif
         echo '<li class="' | append: item_class | append: '" data-gamma-hide-at="' | append: fields[1] | append: '">'
-        echo fields[3]
+        echo card
         echo '</li>'
-        assign slide = '<div class="gamma-promotion-home__slide" data-gamma-hide-at="' | append: fields[1] | append: '">' | append: fields[3] | append: '</div>'
+        assign slide = '<div class="gamma-promotion-home__slide" data-gamma-hide-at="' | append: fields[1] | append: '">' | append: card | append: '</div>'
         assign slides = slides | append: separator | append: slide
       endfor
     endcapture
@@ -76,6 +78,7 @@
         {%- if section.settings.link != blank -%}
           <a class="gamma-section-heading__link" href="{{ section.settings.link }}">
             {{- 'actions.view_all' | t -}}
+            <span class="visually-hidden">: {{ 'gamma_promotion.home.heading' | t }}</span>
             <span class="gamma-section-heading__arrow" aria-hidden="true">{{ 'icon-arrow.svg' | inline_asset_content }}</span>
           </a>
         {%- endif -%}
@@ -105,6 +108,11 @@
 {%- endif -%}
 
 {% stylesheet %}
+  .gamma-promotion-home[hidden],
+  .resource-list__slide:has(> .gamma-promotion-home__slide[hidden]) {
+    display: none;
+  }
+
   .gamma-promotion-home__content {
     display: flex;
     flex-direction: column;

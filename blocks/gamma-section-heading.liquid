@@ -10,20 +10,21 @@
   assign total = collection.all_products_count | default: 0
   assign shown = section.settings.max_products | default: 0
 -%}
+{%- if heading != blank -%}
 <div class="gamma-section-heading gamma-section-heading--block" {{ block.shopify_attributes }}>
-  {%- if heading != blank -%}
-    <h2 class="gamma-type-section">{{ heading | escape }}</h2>
-  {%- endif -%}
+  <h2 class="gamma-type-section">{{ heading | escape }}</h2>
   {%- if block.settings.show_count and total > 0 -%}
     <p class="gamma-section-heading__count">{{ 'content.item_count' | t: count: total }}</p>
   {%- endif -%}
   {%- if block.settings.show_link and collection.url != blank and total > shown -%}
     <a class="gamma-section-heading__link" href="{{ collection.url }}">
       {{- 'actions.view_all' | t -}}
+      <span class="visually-hidden">: {{ heading | escape }}</span>
       <span class="gamma-section-heading__arrow" aria-hidden="true">{{ 'icon-arrow.svg' | inline_asset_content }}</span>
     </a>
   {%- endif -%}
 </div>
+{%- endif -%}
 
 {% stylesheet %}
   .gamma-section-heading--block {
