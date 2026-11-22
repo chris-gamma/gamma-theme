@@ -359,7 +359,7 @@ product-card:has(:focus-visible) .card-gallery,
 
 /* Product recommendations keep their heading blocks and take the heading's rule beneath them. */
 .gamma-section-heading,
-product-recommendations .section-resource-list__content {
+product-recommendations .section-resource-list__content:has(> *) {
   padding-block-end: var(--padding-sm, 0.75rem);
   border-block-end: var(--style-border-width, 1px) solid var(--gamma-color-rule);
 }
