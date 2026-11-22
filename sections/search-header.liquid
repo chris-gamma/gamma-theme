@@ -21,8 +21,9 @@
       {% assign heading_text = 'content.search_results' | t %}
     {% endif %}
 
+    {%- comment -%} Gamma: the search page's heading is its h1; the block's preset sets its size. {%- endcomment -%}
     {% capture heading_text %}
-      <h3>{{ heading_text }}</h3>
+      <h1>{{ heading_text }}</h1>
     {% endcapture %}
 
     {% content_for 'block', id: 'heading', type: '_heading', text: heading_text %}

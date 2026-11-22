@@ -8,6 +8,12 @@
     "collapsible": "Afficher comme rangée repliable",
     "collapsible_info": "Les politiques affichées l’une après l’autre en rangées repliables forment une seule liste. Le nom de l’entrée, ou le titre ci-dessus, identifie la rangée."
   },
+  "gamma_collection_header": {
+    "name": "En-tête de collection",
+    "block_info": "Affiche le titre de la collection, son nombre de produits et sa description.",
+    "show_count": "Afficher le nombre de produits",
+    "show_description": "Afficher la description"
+  },
   "gamma_filters": {
     "fixed_attributes": "Attributs fixes de la collection",
     "fixed_attributes_info": "Masque les filtres communs à tous les produits des collections qui utilisent ce modèle. Un filtre masqué réapparaît lorsqu’un lien l’applique, afin que le client puisse le retirer.",

@@ -9,6 +9,7 @@
   /* Artwork is prepared for a white ground, whatever the colour scheme. */
   --gamma-color-tile: rgb(255 255 255);
   --gamma-shadow-badge: 0 1px 5px 2px rgb(0 0 0 / 28%);
+  --gamma-tile-frame-width: 1.5px;
 
   /* Phone sizes have no Horizon variable; from 750px the roles follow the theme's heading presets. */
   --gamma-type-display-size: 2.25rem;
@@ -167,6 +168,193 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+
+/*
+  Tile frame: card images keep Horizon's shape and crop, framed by a ring at 12% Coal that turns Gamma
+  Red on hover or keyboard focus. Images are rounded at `--gamma-radius-media` instead of the card
+  blocks' own radius. The ring is drawn once per tile on an overlay above the images, so Horizon's
+  slides (each rounded up to a whole pixel) and the hover zoom can't cut it; a ring rather than a
+  border so 1.5px isn't snapped to one device pixel. The colour fade stays under reduced motion
+  because nothing moves.
+*/
+.card-gallery.card-gallery,
+.collection-card:not(.collection-card--image-bg) .collection-card__image {
+  overflow: hidden;
+  border-radius: var(--gamma-radius-media);
+}
+
+.predictive-search-results__card--product .resource-card__media {
+  position: relative;
+  border-radius: var(--resource-card-corner-radius, var(--gamma-radius-media));
+}
+
+.card-gallery::after,
+.collection-card:not(.collection-card--image-bg) .collection-card__image::after,
+.predictive-search-results__card--product .resource-card__media::after,
+.gamma-rental-card__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: var(--layer-flat, 1);
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 var(--gamma-tile-frame-width) var(--gamma-tile-frame-color, var(--gamma-color-rule));
+  pointer-events: none;
+  transition: box-shadow var(--animation-speed-medium, 0.15s) var(--animation-easing, ease-in-out);
+}
+
+@media (any-pointer: fine) {
+  product-card:hover .card-gallery,
+  .collection-card:hover .collection-card__image,
+  .predictive-search-results__card--product:hover .resource-card__media,
+  .gamma-rental-card:hover .gamma-rental-card__media {
+    --gamma-tile-frame-color: var(--gamma-color-accent);
+  }
+}
+
+product-card:has(:focus-visible) .card-gallery,
+.collection-card:has(:focus-visible) .collection-card__image,
+.predictive-search-results__card--product:is(:has(:focus-visible), [aria-selected='true'].keyboard-focus)
+  .resource-card__media,
+.gamma-rental-card:has(:focus-visible) .gamma-rental-card__media {
+  --gamma-tile-frame-color: var(--gamma-color-accent);
+}
+
+/*
+  A product card's image arrow fades to Gamma Red like the frame. Horizon draws the arrows white in a
+  difference blend, which would show Gamma Red as cyan, so an active arrow uses the normal blend and
+  is black with a thin white halo for dark photos. The fade is listed after Horizon's `arrowsSlideIn`
+  so that doesn't restart, and the arrows lose Horizon's button colour transition, which in the
+  difference blend would pass through grey and cyan. Arrows with a filled shape keep their button colours.
+*/
+@keyframes gamma-arrow-accent {
+  from {
+    color: rgb(0 0 0);
+  }
+
+  to {
+    color: var(--gamma-color-accent);
+  }
+}
+
+.card-gallery slideshow-arrows .slideshow-control:not([class*='slideshow-control--shape-']) {
+  transition: none;
+}
+
+.card-gallery slideshow-arrows:has(> .slideshow-control:not([class*='slideshow-control--shape-']):focus-visible) {
+  mix-blend-mode: normal;
+
+  .slideshow-control:not([class*='slideshow-control--shape-']) {
+    color: rgb(0 0 0);
+    filter: drop-shadow(0 0 1px rgb(255 255 255)) drop-shadow(0 0 1px rgb(255 255 255));
+  }
+
+  .slideshow-control:not([class*='slideshow-control--shape-']):focus-visible {
+    color: var(--gamma-color-accent);
+    opacity: 1;
+    filter: none;
+    animation:
+      arrowsSlideIn var(--animation-speed) var(--animation-easing) forwards,
+      gamma-arrow-accent var(--animation-speed-medium, 0.15s) var(--animation-easing, ease-in-out) both;
+  }
+}
+
+@media (any-pointer: fine) {
+  .card-gallery slideshow-arrows:has(> .slideshow-control:not([class*='slideshow-control--shape-']):hover) {
+    mix-blend-mode: normal;
+
+    .slideshow-control:not([class*='slideshow-control--shape-']) {
+      color: rgb(0 0 0);
+      filter: drop-shadow(0 0 1px rgb(255 255 255)) drop-shadow(0 0 1px rgb(255 255 255));
+    }
+
+    .slideshow-control:not([class*='slideshow-control--shape-']):hover {
+      color: var(--gamma-color-accent);
+      opacity: 1;
+      filter: none;
+      animation:
+        arrowsSlideIn var(--animation-speed) var(--animation-easing) forwards,
+        gamma-arrow-accent var(--animation-speed-medium, 0.15s) var(--animation-easing, ease-in-out) both;
+    }
+  }
+}
+
+/*
+  On phones Horizon runs card media to the screen edges in a full-width grid
+  (`collection-wrapper--full-width-on-mobile`), where a frame would lose its outer corners, so those
+  tiles have none.
+*/
+@media screen and (max-width: 749px) {
+  :is(.collection-wrapper--full-width, .collection-wrapper--full-width-on-mobile) .card-gallery::after {
+    display: none;
+  }
+}
+
+/*
+  Horizon's subtle zoom scales the whole tile, and the card around it (`.product-grid__card`,
+  `.collection-card__inner`) clips the scaled edges, frame included. The image zooms inside the still
+  tile instead. Doubled classes outrank Horizon's rules, which load after this file.
+*/
+@media (any-pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .card-hover-effect-subtle-zoom .product-card:hover .card-gallery.card-gallery,
+  .card-hover-effect-subtle-zoom
+    .collection-card:not(.collection-card--image-bg):hover
+    .collection-card__image.collection-card__image {
+    transform: none;
+  }
+
+  .card-hover-effect-subtle-zoom .card-gallery .product-media-container img,
+  .card-hover-effect-subtle-zoom .collection-card__image img.resource-image__image {
+    transition: transform var(--hover-transition-duration, 0.25s) var(--hover-transition-timing, ease-out);
+  }
+
+  .card-hover-effect-subtle-zoom .product-card:hover .card-gallery .product-media-container.product-media-container img,
+  .card-hover-effect-subtle-zoom
+    .collection-card:not(.collection-card--image-bg):hover
+    .collection-card__image
+    img.resource-image__image {
+    transform: scale(var(--hover-subtle-zoom-amount, 1.015));
+  }
+}
+
+/*
+  Search dialog: product results keep Horizon's 4:5 crop and take the product card's price weight and
+  sale-first order; each group's title, rentals included, uses the label role. Doubled classes
+  outrank Horizon's rules, which load after this file.
+*/
+.predictive-search-results__card--product .resource-card__content.resource-card__content .price {
+  font-weight: var(--font-weight-bold, 700);
+}
+
+.search-modal .predictive-search-results__title.predictive-search-results__title {
+  font-family: var(--font-h6--family);
+  font-style: var(--font-h6--style);
+  font-weight: var(--font-h6--weight);
+  font-size: var(--gamma-type-label-size);
+  line-height: 1.35;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* The recently viewed title holds its Clear button, which keeps body type. */
+.search-modal .predictive-search-results__title > .predictive-search-results__clear {
+  font-family: var(--font-body--family);
+  font-weight: var(--font-paragraph--weight);
+  font-size: var(--font-size--sm);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+/* Search empty states are compact notices; Horizon centres the dialog's and fades the page's. */
+.predictive-search-results__no-results > .gamma-notice {
+  margin-inline: var(--padding-xl);
+  text-align: start;
+}
+
+.search-results__no-results:has(> .gamma-notice) {
+  width: 100%;
+  max-inline-size: var(--gamma-measure-text);
+  opacity: 1;
 }
 
 .gamma-section-heading {
@@ -371,14 +559,23 @@
 }
 
 /*
-  A price block in the group-heading role (the product page's, which Quick Add copies) follows the
-  role's 20px phone size; Horizon's h4 preset stays 24px at every width. Its tax, unit-price and
-  instalment lines keep body type.
+  A price block in the group-heading role (the product page's, which Quick Add copies) and a
+  collection card title in it follow the role's 20px phone size; Horizon's h4 preset stays 24px at
+  every width. The price's tax, unit-price and instalment lines keep body type.
 */
 @media screen and (max-width: 749px) {
-  product-price.text-block.h4 {
+  product-price.text-block.h4,
+  .collection-card .text-block.h4 {
     --font-h4--size: var(--gamma-type-group-size);
   }
+}
+
+/*
+  The role's 1.0 line height leaves Oswald's descenders 0.25em below a collection card title's last
+  line, where Horizon's `.collection-card__inner` clips them.
+*/
+.collection-card .text-block.h4 {
+  padding-block-end: calc(var(--padding-block-end, 0px) + 0.25em);
 }
 
 product-price.text-block:is(.h1, .h2, .h3, .h4, .h5, .h6) :is(.tax-note, .unit-price, .installments) {

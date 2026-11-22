@@ -8,22 +8,31 @@
 {%- enddoc -%}
 
 {% stylesheet %}
-  /* Rental photos vary in shape, so they're scaled to fit a white box rather than cropped. */
+  /*
+    Rental photos follow the product cards beside them: in the search dialog, Horizon's 4:5 crop; on
+    campaign pages, each photo's own shape with the product corner radius. Their frame is in
+    assets/gamma-branding.css.
+  */
   .gamma-rental-card__media {
-    --resource-card-aspect-ratio: 4 / 5;
-
-    aspect-ratio: 4 / 5;
+    position: relative;
     overflow: hidden;
     border-radius: var(--resource-card-corner-radius, var(--gamma-radius-media));
-    background-color: var(--gamma-color-tile);
   }
 
   .gamma-rental-card__media .gamma-rental-card__image {
     display: block;
     width: 100%;
-    height: 100%;
-    aspect-ratio: auto;
-    object-fit: contain;
+    height: auto;
+    border-radius: inherit;
+  }
+
+  .resource-card .gamma-rental-card__media {
+    --resource-card-aspect-ratio: 4 / 5;
+  }
+
+  .resource-card .gamma-rental-card__media .gamma-rental-card__image {
+    aspect-ratio: var(--resource-card-aspect-ratio);
+    object-fit: cover;
   }
 
   /* Rental titles often differ only at the end (size, power source), so they aren't clamped. */

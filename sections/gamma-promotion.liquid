@@ -333,7 +333,8 @@
                     {%- capture cards -%}
                       {%- for product in collection.products limit: take -%}
                         <li class="gamma-promotion__card">
-                          {%- content_for 'block', type: '_product-card', id: 'static-product-card', closest.product: product -%}
+                          {%- comment -%} The group as closest context marks a campaign card, whose image sizes follow this grid (card-gallery). {%- endcomment -%}
+                          {%- content_for 'block', type: '_product-card', id: 'static-product-card', closest.metaobject.promotion_group: group, gamma_product: product -%}
                         </li>
                         {%- liquid
                           assign cards_left = cards_left | minus: 1

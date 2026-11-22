@@ -78,6 +78,15 @@
         ref="message"
         hidden
       ></p>
+      {%- comment -%} A failure is a quiet notice; the loading line above stays plain text. {%- endcomment -%}
+      <div
+        class="gamma-rental-search__error"
+        ref="error"
+        hidden
+      >
+        {%- assign error_message = 'gamma_rental.error' | t -%}
+        {%- render 'gamma-notice', icon: 'icon-info.svg', message: error_message, variant: 'compact' -%}
+      </div>
       <ul
         class="predictive-search-results__list predictive-search-results__wrapper-products list-unstyled"
         aria-labelledby="GammaRentalSearchTitle"
@@ -248,7 +257,11 @@
     color: rgb(var(--color-foreground-rgb) / var(--opacity-subdued-text));
   }
 
-  /* The result cards' white image box and unclamped title are in gamma-rental-card-styles. */
+  .gamma-rental-search__error {
+    margin-block-start: var(--margin-xs, 0.5rem);
+  }
+
+  /* The result cards' image crop and unclamped title are in gamma-rental-card-styles. */
   .gamma-rental-search__placeholder {
     padding: 0;
   }
