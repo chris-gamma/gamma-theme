@@ -519,14 +519,23 @@ product-card:has(:focus-visible) .card-gallery,
 }
 
 /*
-  A price block in the group-heading role (the product page's, which Quick Add copies) follows the
-  role's 20px phone size; Horizon's h4 preset stays 24px at every width. Its tax, unit-price and
-  instalment lines keep body type.
+  A price block in the group-heading role (the product page's, which Quick Add copies) and a
+  collection card title in it follow the role's 20px phone size; Horizon's h4 preset stays 24px at
+  every width. The price's tax, unit-price and instalment lines keep body type.
 */
 @media screen and (max-width: 749px) {
-  product-price.text-block.h4 {
+  product-price.text-block.h4,
+  .collection-card .text-block.h4 {
     --font-h4--size: var(--gamma-type-group-size);
   }
+}
+
+/*
+  The role's 1.0 line height leaves Oswald's descenders 0.25em below a collection card title's last
+  line, where Horizon's `.collection-card__inner` clips them.
+*/
+.collection-card .text-block.h4 {
+  padding-block-end: calc(var(--padding-block-end, 0px) + 0.25em);
 }
 
 product-price.text-block:is(.h1, .h2, .h3, .h4, .h5, .h6) :is(.tax-note, .unit-price, .installments) {

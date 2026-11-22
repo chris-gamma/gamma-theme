@@ -37,9 +37,12 @@
   {% endif %}
 
   {% capture list_items %}
-    {% for collection in section_collections limit: max_items %}
+    {%- assign gamma_shown = 0 -%}
+    {% for collection in section_collections %}
       {%- comment -%} Gamma: hide promotion eligibility collections (seo.hidden); they don't count toward the limit. {%- endcomment -%}
       {%- if collection.metafields.seo.hidden.value == 1 -%}{%- continue -%}{%- endif -%}
+      {%- if gamma_shown == max_items -%}{%- break -%}{%- endif -%}
+      {%- assign gamma_shown = gamma_shown | plus: 1 -%}
       <div class="resource-list__item">
         {% content_for 'block', type: '_collection-card', id: 'static-collection-card', closest.collection: collection %}
       </div>
