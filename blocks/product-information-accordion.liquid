@@ -16,7 +16,7 @@
 
 <div
   ref="rows"
-  class="accordion accordion--{{ block.id }} accordion--{{ block_settings.icon }} border-style spacing-style{% if block_settings.background_color != blank or block_settings.text_color != blank %} color-custom-{{ block.id }}{% endif %}{% if block_settings.background_color != blank %} accordion--custom-background{% endif %}{% if block_settings.dividers %} accordion--dividers{% endif %}"
+  class="accordion accordion--{{ block.id }} accordion--{{ block_settings.icon }} gamma-tokens gamma-information-rows--{{ block_settings.type_preset | default: 'default' }} border-style spacing-style{% if block_settings.background_color != blank or block_settings.text_color != blank %} color-custom-{{ block.id }}{% endif %}{% if block_settings.background_color != blank %} accordion--custom-background{% endif %}{% if block_settings.dividers %} accordion--dividers{% endif %}"
   style="
     --summary-font-family: var(--font-{{ block_settings.type_preset }}--family);
      --summary-font-style: var(--font-{{ block_settings.type_preset }}--style);
@@ -26,7 +26,7 @@
      --summary-font-case: var(--font-{{ block_settings.type_preset }}--case);
     {% render 'spacing-style', settings: block_settings %}
     {% render 'border-override', settings: block_settings %}
-    --color-border: {{ block_settings.divider_color | default: settings.color_palette.brand }};
+    {% if block_settings.divider_color != blank %} --color-border: {{ block_settings.divider_color }};{% endif %}
   "
   {{ block.shopify_attributes }}
 >
@@ -44,6 +44,10 @@
   product-information-accordion[hidden], product-information-accordion [hidden] { display: none; }
   product-information-accordion .gamma-information-status { margin-block: var(--margin-sm); }
   product-information-accordion .gamma-information-heading { min-width: 0; overflow-wrap: anywhere; }
+  /* Hairline dividers unless the block sets a divider colour. */
+  product-information-accordion .accordion { --color-border: var(--gamma-color-rule); }
+  /* With the h4 preset, row titles take the group role's phone size at every width: the details column is narrow. */
+  product-information-accordion .gamma-information-rows--h4 .details__header { font-size: 1.25rem; }
   .gamma-specifications { container-type: inline-size; min-width: 0; }
   .gamma-specifications__table {
     width: 100%; table-layout: fixed; border-collapse: collapse;
@@ -53,14 +57,14 @@
   }
   .gamma-specifications__label-column { width: 40%; }
   .gamma-specifications__value-column { width: 60%; }
-  .gamma-specifications__table tr { border-block-end: 1px solid rgb(var(--color-foreground-rgb) / 10%); }
+  .gamma-specifications__table tr { border-block-end: 1px solid var(--gamma-color-rule); }
+  .gamma-specifications__table tr:first-child { border-block-start: 1px solid var(--gamma-color-rule); }
   .gamma-specifications__table :is(th, td) {
     text-align: start; vertical-align: top; overflow-wrap: anywhere;
     padding: var(--padding-sm) var(--padding-md); font-weight: 400;
   }
-  .gamma-specifications__table th {
-    font-weight: 600; background: rgb(var(--color-foreground-rgb) / 5%);
-  }
+  /* Unshaded labels align with the row titles. */
+  .gamma-specifications__table tr > th { font-weight: 600; padding-inline-start: 0; }
   @container (width < 400px) {
     .gamma-specifications__table :is(th, td) { padding-inline: var(--padding-xs); }
   }

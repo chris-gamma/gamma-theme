@@ -357,13 +357,18 @@ product-card:has(:focus-visible) .card-gallery,
   opacity: 1;
 }
 
+/* Product recommendations keep their heading blocks and take the heading's rule beneath them. */
+.gamma-section-heading,
+product-recommendations .section-resource-list__content:has(> *) {
+  padding-block-end: var(--padding-sm, 0.75rem);
+  border-block-end: var(--style-border-width, 1px) solid var(--gamma-color-rule);
+}
+
 .gamma-section-heading {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: var(--gap-2xs, 0.3rem) var(--gap-md, 1rem);
-  padding-block-end: var(--padding-sm, 0.75rem);
-  border-block-end: var(--style-border-width, 1px) solid var(--gamma-color-rule);
 }
 
 .gamma-section-heading > * {
@@ -561,12 +566,17 @@ product-card:has(:focus-visible) .card-gallery,
 /*
   A price block in the group-heading role (the product page's, which Quick Add copies) and a
   collection card title in it follow the role's 20px phone size; Horizon's h4 preset stays 24px at
-  every width. The price's tax, unit-price and instalment lines keep body type.
+  every width. The product title takes the section-title role's 26px the same way. The price's tax,
+  unit-price and instalment lines keep body type.
 */
 @media screen and (max-width: 749px) {
   product-price.text-block.h4,
   .collection-card .text-block.h4 {
     --font-h4--size: var(--gamma-type-group-size);
+  }
+
+  .product-details .text-block.h3:has(> h1) {
+    --font-h3--size: var(--gamma-type-section-size);
   }
 }
 
@@ -589,6 +599,58 @@ product-price.text-block:is(.h1, .h2, .h3, .h4, .h5, .h6) :is(.tax-note, .unit-p
 
 product-price.text-block:is(.h1, .h2, .h3, .h4, .h5, .h6) > .installments {
   font-size: var(--font-paragraph--size);
+}
+
+/*
+  Between 750 and 989px the product page's grid gallery is a column of about 300px, so it shows
+  Horizon's phone carousel and its phone controls (`desktop:hidden`) in place of the grid, as Horizon
+  does below 750px. Its slides' image sizes follow in `snippets/product-media-gallery-content.liquid`.
+*/
+@media screen and (min-width: 750px) and (max-width: 989px) {
+  .product-information .product-information__media media-gallery.media-gallery--grid slideshow-component {
+    display: block;
+  }
+
+  .product-information .product-information__media media-gallery.media-gallery--grid .media-gallery__grid {
+    display: none;
+  }
+
+  .product-information .product-information__media media-gallery.media-gallery--grid .media-gallery__mobile-controls {
+    /* stylelint-disable-next-line declaration-no-important */
+    display: flex !important;
+  }
+}
+
+/*
+  Add to cart is the product page's one primary button, so Shopify's unbranded dynamic checkout button
+  takes Horizon's secondary button settings (base.css styles it as a primary). Branded wallet buttons keep
+  Shopify's styling.
+*/
+.product-details button.shopify-payment-button__button--unbranded {
+  --button-color: var(--color-secondary-button-text);
+  --button-background-color: var(--color-secondary-button-background);
+  --button-border-color: var(--color-secondary-button-border);
+  --button-border-width: var(--style-border-width-secondary);
+
+  font-family: var(--button-font-family-secondary);
+  font-style: var(--button-font-style-secondary);
+  font-weight: var(--button-font-weight-secondary);
+  text-transform: var(--button-text-case-secondary);
+}
+
+.product-details button.shopify-payment-button__button--unbranded:hover:not([disabled]) {
+  --button-color: var(--color-secondary-button-hover-text);
+  --button-background-color: var(--color-secondary-button-hover-background);
+  --button-border-color: var(--color-secondary-button-hover-border);
+}
+
+/*
+  The product description takes the reading role's size. The text block's size setting only applies to
+  its custom preset, which drops the rich-text styles; its own max-width setting keeps the measure.
+*/
+.product-details rte-formatter.text-block {
+  font-size: var(--gamma-type-reading-size);
+  line-height: 1.55;
 }
 
 .product-details .text-block:not(.custom-typography) > h1 {
