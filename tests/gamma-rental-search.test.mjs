@@ -159,6 +159,18 @@ describe('selectImage', () => {
     assert.deepEqual(image, { url: page('/medium-large.jpg'), width: 768, height: 512 });
   });
 
+  it('prefers the smallest size', () => {
+    const image = selectImage(
+      withSizes({
+        large: { source_url: page('/large.jpg'), width: 1024, height: 683 },
+        medium: { source_url: page('/medium.jpg'), width: 300, height: 200 },
+      }),
+      site
+    );
+
+    assert.equal(image?.url, page('/medium.jpg'));
+  });
+
   it('skips images on other sites and invalid dimensions', () => {
     const image = selectImage(
       withSizes({
@@ -267,20 +279,25 @@ describe('fetchRentalMatches', () => {
   });
 
   it('ignores a malformed total', async () => {
-    respond('[]', { headers: { 'X-WP-Total': '12 items' } });
-
-    assert.equal((await search()).total, null);
+    for (const total of ['12 items', '-1', '12345678']) {
+      respond('[]', { headers: { 'X-WP-Total': total } });
+      assert.equal((await search()).total, null, total);
+    }
   });
 
   it('reports rate limits with the requested delay', async () => {
     respond(null, { status: 429, headers: { 'Retry-After': '120' } });
     await assert.rejects(search(), (error) => isKind(error, 'rate-limited') && error.retryAfter === 120);
 
-    respond(null, { status: 429, headers: { 'Retry-After': new Date(Date.now() + 60_000).toUTCString() } });
-    await assert.rejects(
-      search(),
-      (error) => isKind(error, 'rate-limited') && error.retryAfter >= 58 && error.retryAfter <= 60
-    );
+    const now = Date.UTC(2026, 10, 21, 12);
+    mock.timers.enable({ apis: ['Date'], now });
+    for (const [offset, seconds] of [
+      [60_000, 60],
+      [-60_000, 0],
+    ]) {
+      respond(null, { status: 429, headers: { 'Retry-After': new Date(now + offset).toUTCString() } });
+      await assert.rejects(search(), (error) => isKind(error, 'rate-limited') && error.retryAfter === seconds);
+    }
 
     respond(null, { status: 429, headers: { 'Retry-After': 'soon' } });
     await assert.rejects(search(), (error) => isKind(error, 'rate-limited') && error.retryAfter === null);

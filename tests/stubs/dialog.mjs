@@ -1,5 +1,5 @@
 // Stands in for assets/dialog.js.
-export class DialogCloseEvent extends Event {
+export class DialogCloseEvent extends CustomEvent {
   static eventName = 'dialog:close';
 
   constructor() {
