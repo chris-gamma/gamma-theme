@@ -357,9 +357,13 @@ product-card:has(:focus-visible) .card-gallery,
   opacity: 1;
 }
 
-/* Product recommendations keep their heading blocks and take the heading's rule beneath them. */
+/*
+  Product recommendations keep their heading blocks and take the heading's rule beneath them, as does the
+  product list under the cart.
+*/
 .gamma-section-heading,
-product-recommendations .section-resource-list__content:has(> *) {
+product-recommendations .section-resource-list__content:has(> *),
+.shopify-section:has(.cart-page) ~ .shopify-section .section-resource-list__header {
   padding-block-end: var(--padding-sm, 0.75rem);
   border-block-end: var(--style-border-width, 1px) solid var(--gamma-color-rule);
 }
