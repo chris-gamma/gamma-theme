@@ -22,12 +22,13 @@ class GammaAvailabilityNotice extends Component {
     super.connectedCallback();
     this.#owner = this.#ownerOf(this);
     this.#owner?.addEventListener(StandardEvents.productSelect, this.#select);
-    this.#owner?.addEventListener('click', this.#guard, { capture: true });
+    // On the window, so it runs before Horizon's delegated `on:click` handlers, which capture on the document.
+    window.addEventListener('click', this.#guard, { capture: true });
   }
 
   disconnectedCallback() {
     this.#owner?.removeEventListener(StandardEvents.productSelect, this.#select);
-    this.#owner?.removeEventListener('click', this.#guard, { capture: true });
+    window.removeEventListener('click', this.#guard, { capture: true });
     this.#owner = null;
     this.#generation++;
     this.#resize?.cancel();
@@ -74,7 +75,7 @@ class GammaAvailabilityNotice extends Component {
   #guard = (event) => {
     if (event.detail === 0 || performance.now() >= this.#guardUntil) return;
     const target = event.target;
-    if (!(target instanceof Node) || this.contains(target)) return;
+    if (!(target instanceof Node) || this.contains(target) || !this.#owner?.contains(target)) return;
     if (!(this.compareDocumentPosition(target) & Node.DOCUMENT_POSITION_FOLLOWING)) return;
     event.preventDefault();
     event.stopImmediatePropagation();
@@ -112,6 +113,7 @@ class GammaAvailabilityNotice extends Component {
     // Measured before cancelling, so a change during the ease holds where the notice is now.
     const height = this.getBoundingClientRect().height;
     this.#resize?.cancel();
+    this.#guardUntil = 0;
     this.style.height = `${height}px`;
   }
 
