@@ -1,0 +1,36 @@
+{%- doc -%}
+  Prints a campaign's sort key in the promotions index's order, so every list of campaigns sorts the
+  same way. Live: priority (1 to 99, 50 when unset), then the earliest end. Coming soon: the earliest
+  start. Recently ended: the most recent end first. Ties go to the title, then the handle.
+
+  @param {object} promotion - The `promotion` entry.
+  @param {string} state - The campaign's gamma-promotion-state output.
+  @param {string} [group] - 'live' (default), 'coming' or 'ended'.
+{%- enddoc -%}
+
+{%- liquid
+  assign parts = state | strip | split: '|'
+  assign title_padding = '                                                                                '
+  assign priority = promotion.priority.value | plus: 0
+  if priority < 1 or priority > 99
+    assign priority = 50
+  endif
+  assign padded_priority = '00' | append: priority | slice: -2, 2
+  assign end_key = parts[2] | default: '99999999999'
+  assign padded_end = '00000000000' | append: end_key | slice: -11, 11
+  assign start_key = parts[1] | default: '00000000000'
+  assign padded_start = '00000000000' | append: start_key | slice: -11, 11
+  assign title_key = promotion.title.value | strip | downcase | append: title_padding | slice: 0, 80
+  assign tie = title_key | append: promotion.system.handle
+
+  case group
+    when 'coming'
+      echo padded_start | append: tie
+    when 'ended'
+      # Most recently ended first: invert the end for an ascending sort.
+      assign inverted_end = 99999999999 | minus: end_key
+      echo '00000000000' | append: inverted_end | slice: -11, 11 | append: tie
+    else
+      echo padded_priority | append: padded_end | append: tie
+  endcase
+-%}
