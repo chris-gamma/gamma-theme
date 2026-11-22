@@ -603,7 +603,8 @@ product-price.text-block:is(.h1, .h2, .h3, .h4, .h5, .h6) > .installments {
 
 /*
   Between 750 and 989px the product page's grid gallery is a column of about 300px, so it shows
-  Horizon's phone carousel in place of the grid, as Horizon does below 750px.
+  Horizon's phone carousel and its phone controls (`desktop:hidden`) in place of the grid, as Horizon
+  does below 750px. Its slides' image sizes follow in `snippets/product-media-gallery-content.liquid`.
 */
 @media screen and (min-width: 750px) and (max-width: 989px) {
   .product-information .product-information__media media-gallery.media-gallery--grid slideshow-component {
@@ -612,6 +613,11 @@ product-price.text-block:is(.h1, .h2, .h3, .h4, .h5, .h6) > .installments {
 
   .product-information .product-information__media media-gallery.media-gallery--grid .media-gallery__grid {
     display: none;
+  }
+
+  .product-information .product-information__media media-gallery.media-gallery--grid .media-gallery__mobile-controls {
+    /* stylelint-disable-next-line declaration-no-important */
+    display: flex !important;
   }
 }
 
