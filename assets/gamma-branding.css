@@ -624,9 +624,9 @@ product-price.text-block:is(.h1, .h2, .h3, .h4, .h5, .h6) > .installments {
 /*
   Add to cart is the product page's one primary button, so Shopify's unbranded dynamic checkout button
   takes Horizon's secondary button settings (base.css styles it as a primary). Branded wallet buttons keep
-  Shopify's styling.
+  Shopify's styling. On phones, Quick Add moves the product form out of `.product-details`.
 */
-.product-details button.shopify-payment-button__button--unbranded {
+:is(.product-details, .quick-add-modal__content) button.shopify-payment-button__button--unbranded {
   --button-color: var(--color-secondary-button-text);
   --button-background-color: var(--color-secondary-button-background);
   --button-border-color: var(--color-secondary-button-border);
@@ -638,7 +638,7 @@ product-price.text-block:is(.h1, .h2, .h3, .h4, .h5, .h6) > .installments {
   text-transform: var(--button-text-case-secondary);
 }
 
-.product-details button.shopify-payment-button__button--unbranded:hover:not([disabled]) {
+:is(.product-details, .quick-add-modal__content) button.shopify-payment-button__button--unbranded:hover:not([disabled]) {
   --button-color: var(--color-secondary-button-hover-text);
   --button-background-color: var(--color-secondary-button-hover-background);
   --button-border-color: var(--color-secondary-button-hover-border);
