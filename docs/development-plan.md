@@ -724,7 +724,7 @@ Local implementation (`feature/availability`, based on `2f8844b`): a shared reso
 
 #### Pickup information for backordered and special-order items
 
-**Status:** Planned (T18). **Prerequisite:** S5 (rendered 2026-11-23). **Decision:** Q19 (resolved 2026-11-23). Approved for carry-over on 2026-11-10 as a new increment; the rest of G08, including its Implemented status, is unchanged.
+**Status:** Implemented on `feature/availability-pickup` (T18), 2026-11-23; rendered on Gamma-Dev in French and English at 320, 390, 768 and 1440 px and at 200% zoom, with variant changes, rapid changes and the dialog's focus and Escape checked on the product page. Quick Add wasn't exercised. **Prerequisite:** S5 (rendered 2026-11-23). **Decision:** Q19 (resolved 2026-11-23). Approved for carry-over on 2026-11-10 as a new increment; the rest of G08, including its Implemented status, is unchanged.
 
 **Purpose.** Stop the native pickup line from contradicting the availability notice. Horizon's `local-pickup` component in `blocks/buy-buttons.liquid` shows a green check, "Pickup available at …" and a ready time whenever a pickup location reports `available`. Shopify documents the Storefront API's `StoreAvailability.available` as true for untracked or oversellable inventory, even at a quantity of zero or less; the Liquid `store_availability` reference says only that the variant "has available inventory at the location". If Liquid behaves as the Storefront API does, which is an inference until S5, a backordered or special-order variant shows G08's notice above a line saying it is ready for pickup.
 
