@@ -44,6 +44,11 @@ git merge --no-ff vendor/horizon-v<version> -m "Merge Horizon <version>"
   `fr.schema.json`, compare the incoming file with the previous vendor copy: keep Gamma's text where
   Horizon's string didn't change, apply the Quebec French glossary and spacing in the development plan to
   new and changed keys, list them with old and new text for Chris, and keep the `shopify.*` keys.
+  `node .agents/skills/horizon-update/scripts/locale-compare.mjs <previous-tag>:locales/fr.json
+  locales/fr.json --en locales/en.default.json` lists the added, removed and changed keys with their
+  text, and flags interpolation names, HTML and plural forms that differ from English, and French spacing.
+  Before changing a string's wording, search for the key's uses: the same text can be a visible label,
+  an `aria-label` or a meta description.
 
 ## 3. Check the Gamma changes
 
