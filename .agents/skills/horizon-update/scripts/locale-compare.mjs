@@ -21,7 +21,7 @@ const read = (source) =>
 const parse = (source) => {
   const text = read(source);
   const body = text
-    .slice(text.indexOf('{'))
+    .replace(/^\s*\/\*[\s\S]*?\*\//, '')
     .split('\n')
     .filter((line) => !line.trim().startsWith('//'))
     .join('\n')
@@ -87,6 +87,9 @@ if (enMap) {
   for (const k of enMap.keys()) {
     if (!newMap.has(k) && !pluralParent(k)) problem(`${k}: missing (English has it)`);
   }
+  for (const k of newMap.keys()) {
+    if (!enMap.has(k) && !k.startsWith('shopify.') && !pluralParent(k)) problem(`${k}: not in English`);
+  }
   const [enPlurals, newPlurals] = [plurals(enMap), plurals(newMap)];
   for (const [parent, forms] of enPlurals) {
     const mine = newPlurals.get(parent);
@@ -100,7 +103,7 @@ if (enMap) {
 const french = /(^|[/:])fr[.\w]*\.json$/.test(args[1]);
 if (french) console.log('Spacing (added and changed values)');
 for (const k of french ? [...added, ...changed] : []) {
-  const v = newMap.get(k).replace(/{{[^}]*}}/g, 'X').replace(/<[^>]+>/g, ' ').replace(/https?:\/\/\S+/g, '');
+  const v = newMap.get(k).replace(/{{[^}]*}}/g, '0').replace(/<[^>]+>/g, ' ').replace(/https?:\/\/\S+/g, '');
   if (/[^\s  ]:(\s|$)/.test(v) || / :/.test(v)) problem(`${k}: colon needs a no-break space before it`);
   if (/[\s  ][;?!]/.test(v)) problem(`${k}: no space before ; ? !`);
   if (/«(?![  ])|(?<![  ])»/.test(v)) problem(`${k}: guillemets need no-break spaces inside`);
