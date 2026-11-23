@@ -1,6 +1,6 @@
 # Location Gamma agent guidance
 
-Shared instructions for Claude Code, Codex, GitHub Copilot and other coding agents working with Chris. Read [README.md](README.md) for task-relevant setup and maintenance context; a Markdown link alone does not establish that its contents were loaded.
+Shared instructions for Claude Code, Codex, GitHub Copilot and other coding agents working with Chris. Read [README.md](README.md) for task-relevant setup and maintenance context; a Markdown link alone does not establish that its contents were loaded. Rules for any Shopify store or preview are in [Store access](#store-access); branch, commit, signing and push rules are in [Branches and commits](#branches-and-commits).
 
 ## Project
 
@@ -18,7 +18,7 @@ Location Gamma is moving its storefront from WordPress to Shopify. This reposito
 - Resolve technical decisions in this order: explicit user instructions; current Shopify platform requirements and supported behavior; Horizon architecture and conventions; Gamma's established conventions and customizations; general development practices. Identify conflicts explicitly. This order does not authorize unsupported or unsafe implementations, or replacing working Gamma behavior merely because a newer pattern exists.
 - Establish whether the task is planning, reviewing, or implementing. Planning and review are read-only unless implementation is explicitly requested: inspect relevant evidence without branch changes, dependency installation, file edits, commits or store mutations. Before implementing, identify the requested outcome, applicable approvals, dependencies, affected surfaces and observable acceptance criteria.
 - Do not attempt to resolve bugs or issues in upstream Horizon code. Focus on authorized changes within the Gamma project scope. Do not introduce workarounds or modifications for upstream issues unless explicitly authorized. Review and report upstream issues in the response as appropriate.
-- Keep work local. Store authentication, connections, previews, uploads, deployments, publication, synchronization and store changes require explicit authorization, including development and unpublished themes. External service writes and hosting operations also require authorization. Confirm the exact store and operation before an authorized write; never infer a store from a branch name or assume authorization carries over from an earlier task.
+- Keep work local. [Store access](#store-access) is the authority for every store operation, including development and unpublished themes: its one standing exception is the Gamma-Dev preview, and everything else needs explicit authorization for that exact operation. External service writes and hosting operations also require authorization. Confirm the exact store and operation before an authorized write; never infer a store from a branch name or assume authorization carries over from an earlier task.
 - Do not add hooks, scripts, skills, workflows, CI or agent tooling unless explicitly requested or authorized; the skills in `.agents/skills/` are the authorized exception and may be kept current. The buildless-maintenance rule below authorizes relevant local configuration, npm check commands and development dependencies; other tooling still requires explicit authorization.
 
 ## Collaboration and context efficiency
@@ -73,8 +73,12 @@ Skills name features and records in plain words, without plan IDs, so they stay 
 
 ## Store access
 
+This section governs all store access; other sections defer to it.
+
 - Before any store operation, confirm the store's identity: `shopify store execute -s gamma-dev-2318.myshopify.com -q '{ shop { id } }'` must return Gamma-Dev's shop ID. The default environment in `shopify.theme.toml` is Primary, so theme commands for Gamma-Dev use `-e dev`.
-- Rendered checks through `shopify theme dev` on Gamma-Dev's development theme are authorized without asking, after that check. Run them with the `rendered-check` skill. Admin data changes, fixtures, uploads to other themes, publishing, pushes and every Primary operation still need explicit approval.
+- The only standing authorization is a rendered check: `shopify theme dev` previewing Gamma-Dev's development theme, after that identity check, run with the `rendered-check` skill. It reaches nothing else.
+- Everything else needs explicit approval for that exact operation: Admin data changes, fixtures, uploads to other themes, publishing, pushes and switching the connector's store.
+- Primary's approval boundary: every Primary operation, read or write, needs explicit approval, and a Gamma-Dev authorization never extends to it. Pushing `dev` can change Primary's published theme (see the development note under Project), so it is a Primary operation.
 - Chris may be running his own `shopify theme dev` (port 9292) against the same development theme. Use another port, never stop his process, and say when the development theme holds your files. Switching branches in a checkout that a running `theme dev` watches uploads those files to the development theme.
 - The Shopify connector may be connected to either store: check `get-shop-info` before using it, and don't switch its store unasked, since switching revokes its access. For authorized Admin operations, prefer it or Shopify CLI to browser automation.
 - `.env` holds the storefront password; load it into commands without printing it.

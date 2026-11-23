@@ -19,7 +19,11 @@ CSS or storefront JavaScript. The scripts are in `scripts/` next to this file; r
 - For a before/after review, serve the baseline from a copy:
   `git archive <commit> | tar -x -C <scratch>/base`, then `PREVIEW_PATH=<scratch>/base scripts/preview.sh start`.
 - If it asks for an identity check, send Chris the link it prints and start again afterwards.
-- `scripts/preview.sh stop` when done.
+- `scripts/preview.sh stop` when done. The script only signals a preview it started: it records the
+  owning worktree, served path, port and the process's pid and start time, and `status` and `stop` check
+  them against the live process. It refuses (and leaves the process alone) when another worktree or path
+  owns the preview, when the port is held by something it didn't start, such as Chris's 9292, and when a
+  recorded pid now belongs to an unrelated process. Then ask Chris rather than force it.
 
 ## 2. Captures
 
@@ -34,7 +38,10 @@ Write a job file and run `node scripts/shoot.mjs jobs.json <evidence>/after`:
 ]
 ```
 
-- Every changed surface in French (`/`) and English (`/en`) at 320, 390, 768 and
+- While iterating, shoot one relevant route in one locale at one viewport (the one the change shows
+  best at). Before calling the change done, run the full acceptance matrix below; iteration captures
+  don't count toward it.
+- Acceptance: every changed surface in French (`/`) and English (`/en`) at 320, 390, 768 and
   1440 px, plus 200% zoom (`"zoom": 2`, widths 1440 and 768) for layout changes. Cover the empty,
   error and long-French-text states the change can reach.
 - The log flags horizontal overflow and, with `vclip`, text clipped by an ancestor. Known Horizon

@@ -22,15 +22,7 @@ git merge-base --is-ancestor dev HEAD   # the branch contains current dev
 - Stop any `shopify theme dev` you started before switching branches; a running preview uploads whatever
   the checkout holds.
 
-## 2. Checks on the branch tip
-
-- `npm run check:all` passes, with only the known Horizon warnings listed in `README.md`.
-- Storefront changes have rendered evidence (the `rendered-check` skill), and shared, user-facing or
-  hard-to-reverse changes have had an independent review. Report anything not run.
-- `repowise risk dev..<branch>` (or `get_change_risk`) names the riskiest files and what usually changes with
-  them; check those were covered. Skip it where `.repowise/` doesn't exist.
-
-## 3. Commits and text
+## 2. Commits and text
 
 ```sh
 git log --format='%G? %h %s' dev..<branch>    # every line starts with G
@@ -44,6 +36,21 @@ git diff dev...<branch> -- .agents | grep -nE '^\+.*\b([GTQ][0-9]{1,2}|S[1-6])\b
 - A commit that isn't `G` was made without the repository's signing settings; re-sign it with
   `git commit --amend --no-edit` (or `git rebase --exec 'git commit --amend --no-edit' dev`) while the
   branch is unpushed.
+- Finish all rewording, amending and re-signing here, before any evidence is recorded. Rewriting commits
+  after the checks leaves their evidence describing commits that no longer exist.
+
+## 3. Checks and review on the candidate tree
+
+- Name the candidate first: `git rev-parse HEAD HEAD^{tree}`. Because step 1 shows the branch contains
+  current `dev`, the `--no-ff` merge produces this same tree. Record the tree id with every result below,
+  and with the inputs that could change one (`package-lock.json`, the Node and Shopify CLI versions, the
+  Theme Check config). Evidence for a different tree, or for the same tree with different inputs, isn't
+  evidence for this merge.
+- `npm run check:all` passes, with only the known Horizon warnings listed in `README.md`.
+- Storefront changes have rendered evidence (the `rendered-check` skill), and shared, user-facing or
+  hard-to-reverse changes have had an independent review. Report anything not run.
+- `repowise risk dev..<branch>` (or `get_change_risk`) names the riskiest files and what usually changes with
+  them; check those were covered. Skip it where `.repowise/` doesn't exist.
 
 ## 4. Merge
 
@@ -55,6 +62,11 @@ git log --format='%G? %h %s' -1          # G
 
 Never fast-forward, squash or rebase `dev` itself.
 
+Then compare the trees: `git rev-parse HEAD^{tree}` against the tree recorded in step 3. If they match and
+the inputs are unchanged, reuse the evidence and say so; don't rerun the checks. If the merge changed the
+effective tree (`dev` moved after step 1, a conflict was resolved) or an input changed, run step 3 again on
+the merge result and report the new results, including the review.
+
 ## 5. Development plan
 
 If the branch is a row in `docs/development-plan.md`, update that row's state and the "State on …"
@@ -64,7 +76,8 @@ decision. Cite commits by their short hashes in backticks.
 
 ## 6. Push
 
-Run `npm run check:all` on `dev`, then ask Chris to approve the push, naming both refs. During
+Use step 4's evidence: reused if the tree matched, rerun if it didn't. Step 5 changes only the plan. Then
+ask Chris to approve the push, naming both refs. During
 development a push to `dev` updates Primary's password-protected published theme; after release it no
 longer reaches the live store (AGENTS.md, "Project"). With approval:
 
