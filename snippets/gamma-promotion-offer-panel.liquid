@@ -85,6 +85,7 @@
       {%- endif -%}
       {%- if action_scheme == 'https://' -%}
         <p>
+          {%- capture action_url -%}{% render 'gamma-localized-url', url: action_url %}{%- endcapture -%}
           <a href="{{ action_url | escape }}" target="_blank" rel="noopener">
             {{- action_text | escape -}}
             <span class="visually-hidden">{{ 'gamma_promotion.new_tab' | t }}</span>

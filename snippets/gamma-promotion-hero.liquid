@@ -63,6 +63,8 @@
         assign show_source = true
       endif
     -%}
+    {%- capture button_url -%}{% render 'gamma-localized-url', url: button_url %}{%- endcapture -%}
+    {%- capture source_url -%}{% render 'gamma-localized-url', url: source_url %}{%- endcapture -%}
     {%- if offers > 0 or show_button or show_source -%}
       {%- comment -%}
         The page's one red button leads to the offers and shows from 750px only; on phones the overview
