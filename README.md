@@ -18,10 +18,12 @@ Coding agents use a local [Repowise](https://docs.repowise.dev) index of the rep
 
 ```sh
 repowise init --yes --no-prose --no-agents --no-claude-md --no-distill-hook
+repowise config set editor_setup false
+git checkout -- .github/copilot-instructions.md
 repowise reindex --embedder fastembed
 ```
 
-This indexes without a model, keeps `AGENTS.md` and `.claude/` as they are, and installs a post-commit hook that keeps the index current. It also adds a block to `.github/copilot-instructions.md`; remove it, since `AGENTS.md` covers Repowise for every agent.
+This indexes without a model, connects the agents and installs a post-commit hook that keeps the index current. Turning off `editor_setup` stops updates from rewriting the agent instruction files; `AGENTS.md` covers Repowise for every agent.
 
 ## Checking changes
 
