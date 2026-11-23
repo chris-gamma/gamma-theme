@@ -34,6 +34,7 @@ git merge-base --is-ancestor dev HEAD   # the branch contains current dev
 git log --format='%G? %h %s' dev..<branch>    # every line starts with G
 git diff dev...<branch> -- . ':!docs/development-plan.md' ':!AGENTS.md' ':!CLAUDE.md' ':!.github' ':!.agents' ':!.claude' \
   | grep -nE '^\+.*\b([GTQ][0-9]{1,2}|S[1-6])\b|^\+.*\b(approved|Gamma-Dev|fixture)\b'   # no output
+git diff dev...<branch> -- .agents | grep -nE '^\+.*\b([GTQ][0-9]{1,2}|S[1-6])\b'               # no output
 ```
 
 - Subjects are short and plain, with no body, plan ID, "Record …" or jargon. Fix problems on the branch
