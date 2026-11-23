@@ -1,12 +1,31 @@
 ---
 name: rendered-check
-description: Render theme changes on the Gamma-Dev store with `shopify theme dev` and check them in headless Chromium - before/after captures in French and English at 320, 390, 768 and 1440 px, interaction checks with real input, and recipes for Gamma-Dev test data. Use for any visual or interactive change before it is integrated.
+description: Render theme changes on the Gamma-Dev store with `shopify theme dev` and check them in headless Chromium - before/after captures in French and English at 320, 390, 768 and 1440 px, interaction checks with real input (Playwright MCP), accessibility, computed-style and network checks (Chrome DevTools MCP), and recipes for Gamma-Dev test data. Use for any visual or interactive change before it is integrated.
 ---
 
 # Rendered checks on Gamma-Dev
 
 Local checks don't prove rendering. Use this for changes to templates, sections, blocks, snippets,
 CSS or storefront JavaScript. The scripts are in `scripts/` next to this file; run them with Node 22+.
+
+Pick the tool by the question, cheapest first:
+
+| Question | Tool |
+| --- | --- |
+| Does every changed surface hold up in both languages at every width? What changed against the baseline? | `shoot.mjs` and `compare.mjs` (section 2): batch, repeatable, nothing enters the conversation but the log |
+| Does it work with real input: hover, Tab order, typing, opening a drawer, Quick Add? | Playwright MCP (section 3) |
+| Is the accessibility tree, focus order, tap target, computed style, console issue or image request right? | Chrome DevTools MCP with the `a11y-debugging` and `chrome-devtools` skills (section 4) |
+| Does a value change over time (colour or transform after 0, 60 and 300 ms), or does a flow need exact repeatability? | A script on `cdp.mjs` (section 3) |
+
+The two MCP servers (`playwright`, `chrome-devtools`) are user-level, pinned, headless, with a fresh
+in-memory profile and Google usage statistics and CrUX lookups off. Their tools are deferred: load them
+with ToolSearch before the first call. If a server isn't listed, fall back to the scripts and say so in
+the report.
+
+Rules for every browser tool: open only the preview (`http://127.0.0.1:9293`, or the port the preview
+printed), never Primary or a store domain directly; never submit orders, contact or newsletter forms;
+keep page loads about 1.5 s apart (section 5); close the page or browser when done. Only the preview
+handles the storefront password, so a browser tool never needs it.
 
 ## 1. Preview
 
@@ -64,15 +83,27 @@ Write a job file and run `node scripts/shoot.mjs jobs.json <evidence>/after`:
 
 ## 3. Interaction
 
-Write a short script that imports `launch` from `scripts/cdp.mjs` and uses its real input helpers
-(`key`, `move`, `click`, `type`). Pitfalls that cost time before:
+Use the Playwright MCP tools for one-off interaction checks: `browser_navigate`, `browser_resize`,
+`browser_snapshot` (the accessibility tree with element refs; prefer it to screenshots for finding what
+to act on), `browser_hover`, `browser_click`, `browser_press_key`, `browser_type`,
+`browser_emulate_media` and `browser_take_screenshot`. Its browser reports a fine pointer and hover, and
+its input is real input. The cart and any stored choice last as long as the MCP server runs, so close
+the browser (`browser_close`) between checks that need an empty cart or no stored choice.
+`browser_evaluate` reads page values; avoid `browser_run_code_unsafe`, which runs arbitrary code.
+
+Write a script on `scripts/cdp.mjs` (`launch`, then `key`, `move`, `click`, `type`) instead when the
+check measures state over time, must repeat identically, or belongs in the evidence folder as a rerunnable
+file. Pitfalls that cost time before:
 
 - Run hover and keyboard checks in a fresh browser that never had touch emulation on; `launch()`
-  declares a fine pointer by default, which headless Chromium otherwise lacks.
+  declares a fine pointer by default, which headless Chromium otherwise lacks. Playwright's browser needs
+  no declaration, but a phone-width capture from `shoot.mjs` or an emulated device leaves touch on for
+  that browser.
 - Horizon scrolls `.page-wrapper`, not the document. Scroll it (with `behavior: 'instant'`) before
   measuring positions, and to load lazy images.
-- `:focus-visible` needs real Tab key events; programmatic `focus()` doesn't count. Predictive search
-  only reacts to trusted typing (`type()`), not synthetic input events.
+- `:focus-visible` needs real Tab key events (`browser_press_key`, `key()`); programmatic `focus()`
+  doesn't count. Predictive search only reacts to trusted typing: `type()` in a script, or
+  `browser_type` with `slowly: true` (key by key); don't set the field's value.
 - Search dialog: focus stays in the field while the arrow keys move the highlight; the highlighted
   result has `aria-selected="true"` (and `keyboard-focus`). `aria-activedescendant` isn't used.
 - Cart: the cart is a drawer, but auto-open after adding is off (Horizon's default), so adding leaves
@@ -81,25 +112,52 @@ Write a short script that imports `launch` from `scripts/cdp.mjs` and uses its r
 - Maps: with no stored choice, a map loads as it scrolls into view when privacy allows preferences,
   which it does headless. To test the static image and its show button, set
   `localStorage['gamma-map:choice'] = 'off'` on the storefront and reload.
-- Reduced motion: `send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] })`.
+- Reduced motion: `browser_emulate_media` with `reducedMotion: 'reduce'`, Chrome DevTools `emulate` with
+  `prefersReducedMotion: 'reduce'`, or in a script
+  `send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] })`.
 - Measure state over time (colour or transform after 0, 60 and 300 ms) rather than trusting one sample.
 - Checkout can't be reached through the preview: it leaves the proxy for the password-protected store.
 - Quick Add and cart checks add items to a fresh headless cart only; never submit orders, contact or
   newsletter forms. Each `launch()` starts with a new profile, removed on close, so a cart lasts for
   one launch: fill it in the same run that checks it.
 
-## 4. Pacing and failures
+## 4. Inspection with Chrome DevTools
+
+Load the `chrome-devtools` skill for the tool workflow (navigate, wait, snapshot, then act; `filePath` for
+large outputs) and `a11y-debugging` for accessibility. They are user-level skills; if they aren't listed,
+use `wcag-accessibility` and the scripts. Use it for what a screenshot can't show:
+
+- Accessibility: `take_snapshot` is the accessibility tree (names, roles, heading levels, landmarks);
+  `list_console_messages` with `types: ["issue"]` lists Chrome's own a11y and form issues;
+  `lighthouse_audit` (accessibility category, both `device` values) gives a baseline, and its failures are
+  read from `report.json` with a one-liner, not loaded whole. Use `press_key` Tab with a snapshot after each
+  press for focus order, and the skill's tap-target snippet through `evaluate_script`. Lighthouse
+  doesn't replace the keyboard pass or a visual review; treat a 100 as no automatic failures found.
+- Computed style: `get_css_styles` for a selected element's matched rules, cascade and custom properties,
+  which is how to see why a Gamma rule loses to a Horizon one.
+- Environment: `emulate` for reduced motion, forced colors, contrast preference, colour scheme, CPU and
+  network throttling, and viewport.
+- Network: `list_network_requests` for image requests, widths and formats; use it with the
+  `performance-check` skill for image bytes, not instead of it.
+- LCP: `debug-optimize-lcp` and `performance_start_trace` work on the preview, but the preview proxies
+  every request, so time to first byte and total load time aren't the live store's. Use a trace for
+  which element is the LCP, render-blocking resources and the resource's discovery and priority, and take
+  timings from the published theme.
+
+## 5. Pacing and failures
 
 - Keep page loads about 1.5 s apart. Bursts earn HTTP 429 and a verification page for 10–25 minutes.
 - The preview proxy sometimes answers 502 under load; retry that page once on its own before calling it
   a failure. A 401 for about a minute means the preview session is renewing.
 - Run one heavy job at a time (a sweep, an interaction run, a Theme Check).
 
-## 5. Evidence and report
+## 6. Evidence and report
 
 - Keep evidence outside the repository in
   `/home/chris/shopify/gamma-scs-handoff/design-review/<date>-<short-commit>-<topic>/` (`before/`,
-  `after/`, and any one-off scripts).
+  `after/`, and any one-off scripts). Save MCP screenshots and reports there too: pass `filename`
+  (Playwright) or `filePath` / `outputDirPath` (Chrome DevTools) so they don't land in the repository or
+  the default temporary folder.
 - Report each check as passed, failed, blocked or not run, with the decisive measurement. Say what
   wasn't covered (missing test data, the theme editor, other browsers). A screenshot doesn't prove
   interaction.
