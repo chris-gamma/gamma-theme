@@ -14,17 +14,16 @@
 import { launch, sleep } from './cdp.mjs';
 import fs from 'node:fs';
 
-// Text whose glyph boxes extend past an ancestor that clips overflow: vertical clipping that a
-// horizontal-overflow check can't see.
-// The words a customer reads or hears: text outside scripts and templates, plus accessible names.
+// The words a customer reads or hears: rendered text (screen-reader-only text included, display: none
+// excluded) plus accessible names. No-break spaces are kept, so French spacing changes show in the diff.
 const TEXT = `(d) => {
-  const c = d.body.cloneNode(true);
-  c.querySelectorAll('script, style, noscript, template, svg').forEach((e) => e.remove());
   const labels = [...d.querySelectorAll('[aria-label], [alt], [placeholder], [title]')].flatMap((e) =>
     ['aria-label', 'alt', 'placeholder', 'title'].map((a) => e.getAttribute(a)).filter((v) => v && v.trim()));
-  return { text: c.textContent.replace(/\\s+/g, ' ').trim(), labels: [...new Set(labels)] };
+  return { text: d.body.innerText.replace(/[ \\t\\n\\r\\f]+/g, ' ').trim(), labels: [...new Set(labels)] };
 }`;
 
+// Text whose glyph boxes extend past an ancestor that clips overflow: vertical clipping that a
+// horizontal-overflow check can't see.
 const VCLIP = `(d) => {
   const out = [];
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, { acceptNode: (n) => n.textContent.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT });

@@ -15,7 +15,8 @@ Re-check before relying on it; other sessions change this store.
   (`-en`/`-fr` images), `t8-fixture-sale-backorder` (sale and backorder badges together), collection
   `t8-fixture-cards`; hidden collection `t8-fixture-hidden`.
 - Price range: `t17-fixture-price-range` (Small $49.99, Large $89.99 on sale from $99.99; in
-  `t8-fixture-cards`) shows "From" pricing on cards.
+  `t8-fixture-cards`). Horizon shows "From" pricing only in the featured-product block; cards show
+  the lowest price.
 - Product page: `t9-fixture-two-available` (Kit in stock, Outil seul backordered; in `tools-equipment`);
   the GTA 40 set has complementary products. Combined listings aren't available on Gamma-Dev's plan.
 - Locations: `Location Gamma - Montréal` matches Primary's store (physical storefront, pickup ready in
