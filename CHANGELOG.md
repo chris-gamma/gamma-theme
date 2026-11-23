@@ -1,6 +1,6 @@
 # Changelog
 
-Location Gamma's storefront theme is based on Shopify Horizon 4.4.0.
+Location Gamma's storefront theme is based on Shopify Horizon 4.5.0.
 
 ## Unreleased
 
@@ -43,6 +43,7 @@ Location Gamma's storefront theme is based on Shopify Horizon 4.4.0.
 - Text in a cart line's details inherits its size from the line instead of one forced size, so a notice's link can be smaller than its text.
 
 - Updated the Horizon foundation from 4.3.0 to 4.4.0, keeping Gamma's customizations and English/French locales. Primary buttons use the Accent font's weight.
+- Updated the Horizon foundation from 4.4.0 to 4.5.0, keeping Gamma's customizations and English/French locales. Quick Add renders its own product section when a product template lacks the price, variant picker or buy buttons, and new French strings use the Quebec terms.
 
 ### Fixed
 
