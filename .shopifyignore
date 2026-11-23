@@ -2,12 +2,15 @@
 /^\.git\/.*$/
 /^\.github\/.*$/
 /^\.agents\/.*$/
+/^\.claude\/.*$/
 /^\.codex\/.*$/
 /^node_modules\/.*$/
 /^\.shopify\/.*$/
+/^\.repowise\/.*$/
 /^\.vscode\/.*$/
 /^\.githooks\/.*$/
 /^scripts\/.*$/
+/^tests\/.*$/
 /^\.idea\/.*$/
 /^docs\/.*$/
 /^reports\/.*$/

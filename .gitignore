@@ -1,6 +1,7 @@
 # Local dependencies and state
 node_modules/
 .shopify/
+.repowise/
 .env
 .env.*
 !.env.example

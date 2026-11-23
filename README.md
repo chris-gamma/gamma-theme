@@ -14,6 +14,17 @@ npm ci --ignore-scripts
 
 This installs Shopify CLI and TypeScript for local checks. In VS Code, accept the prompt to use the workspace TypeScript.
 
+Coding agents use a local [Repowise](https://docs.repowise.dev) index of the repository. With Repowise installed (`uv tool install repowise --with fastembed`), build it once per checkout:
+
+```sh
+repowise init --yes --no-prose --no-agents --no-claude-md --no-distill-hook
+repowise config set editor_setup false
+git checkout -- .github/copilot-instructions.md
+repowise reindex --embedder fastembed
+```
+
+This indexes without a model, connects the agents and installs a post-commit hook that keeps the index current. Turning off `editor_setup` stops updates from rewriting the agent instruction files; `AGENTS.md` covers Repowise for every agent.
+
 ## Checking changes
 
 Run the full check before merging:
@@ -22,7 +33,7 @@ Run the full check before merging:
 npm run check:all
 ```
 
-This runs Theme Check, JavaScript type checking and whitespace checks on staged and unstaged changes. The checks also run individually:
+This runs Theme Check, JavaScript type checking, the unit tests and whitespace checks on staged and unstaged changes. The checks also run individually:
 
 | Command | Purpose |
 | --- | --- |
@@ -30,6 +41,9 @@ This runs Theme Check, JavaScript type checking and whitespace checks on staged 
 | `npm run check:json` | Get Theme Check results as JSON |
 | `npm run check:js` | Check JavaScript types without generating files |
 | `npm run check:js:watch` | Recheck JavaScript as you edit |
+| `npm test` | Run the unit tests with Node's test runner |
+
+Unit tests in `tests/` cover exported functions in Gamma's JavaScript that don't render. `tests/setup.mjs` lets Node load modules from `assets/`: `@theme/*` imports resolve to the stubs in `tests/stubs/`, and custom element registration does nothing. Node has no DOM, so the tests stub what they need, such as `fetch`.
 
 Horizon 4.5.0 has seven known warnings: one `ExcessiveSettingsCount` in `sections/header.liquid`, one `LiquidComplexity` in `snippets/product-media-gallery-content.liquid` and five `UnusedDocParam` in `snippets/divider.liquid`. Gamma's localized media filtering raises that snippet's complexity from 125 to 130. Anything else is new.
 
