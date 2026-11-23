@@ -1,0 +1,53 @@
+{%- doc -%}
+  Pickup wording for a backordered or special-order variant, in place of Horizon's ready line. A
+  location's `available` is also true for continue-selling stock at zero or below, so the native line
+  would promise a ready time for an item that is still on order.
+
+  @param {string} status - `backorder` or `special_order`.
+  @param {string} part - `icon`, `summary` (the two summary lines) or `row` (a dialog row).
+  @param {string} [location] - Location name, for the summary.
+{%- enddoc -%}
+
+{%- liquid
+  if status == 'special_order'
+    assign icon = 'icon-gamma-special-order.svg'
+  else
+    assign icon = 'icon-gamma-backorder.svg'
+  endif
+-%}
+
+{%- case part -%}
+  {%- when 'icon' -%}
+    <span class="gamma-pickup-status__icon">{{- icon | inline_asset_content -}}</span>
+  {%- when 'summary' -%}
+    <p class="pickup-location__text-sm">
+      {%- if status == 'special_order' -%}
+        {{- 'gamma_availability.pickup.special_order_html' | t: location: location -}}
+      {%- else -%}
+        {{- 'gamma_availability.pickup.backorder_html' | t: location: location -}}
+      {%- endif -%}
+    </p>
+    <p class="pickup-location__text-xs">{{ 'gamma_availability.pickup.timing' | t }}</p>
+  {%- when 'row' -%}
+    <span class="gamma-pickup-status__icon">{{- icon | inline_asset_content -}}</span>
+    {%- if status == 'special_order' -%}
+      {{- 'gamma_availability.pickup.special_order_row' | t -}}
+    {%- else -%}
+      {{- 'gamma_availability.pickup.backorder_row' | t -}}
+    {%- endif -%}
+{%- endcase -%}
+
+{% stylesheet %}
+  .gamma-pickup-status__icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    color: var(--gamma-color-accent, currentColor);
+  }
+
+  .gamma-pickup-status__icon svg {
+    width: 100%;
+    height: 100%;
+  }
+{% endstylesheet %}

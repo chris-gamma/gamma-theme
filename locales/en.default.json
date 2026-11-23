@@ -25,6 +25,13 @@
       "label": "Special order",
       "message": "This item is ordered specially for you."
     },
+    "pickup": {
+      "backorder_html": "Backordered: not yet ready for pickup at <b>{{ location }}</b>",
+      "special_order_html": "Special order: not yet ready for pickup at <b>{{ location }}</b>",
+      "timing": "Pickup timing depends on supplier availability.",
+      "backorder_row": "Backordered: pickup timing depends on supplier availability",
+      "special_order_row": "Special order: pickup timing depends on supplier availability"
+    },
     "varies": "Varies",
     "cart_notice": {
       "delay": "Shipping time for backordered and special-order items depends on supplier availability.",
