@@ -273,6 +273,21 @@
     assign closest_available_pick_up = null
     assign closest_in_store = null
 
+    # Gamma: a backordered or special-order variant gets its own pickup wording and no in-store stock claim,
+    # since a location reports available (without transfer, too) for continue-selling stock at zero or below.
+    capture gamma_pickup_delay
+      render 'gamma-availability-status', product: closest.product, variant: closest.product.selected_or_first_available_variant
+    endcapture
+    assign gamma_pickup_delay = gamma_pickup_delay | strip
+    case gamma_pickup_delay
+      when 'backorder', 'partial_backorder'
+        assign gamma_pickup_delay = 'backorder'
+      when 'special_order'
+        assign gamma_pickup_delay = 'special_order'
+      else
+        assign gamma_pickup_delay = ''
+    endcase
+
     if show_pickup_availability
       assign pick_up_availabilities = store_availabilities | where: 'pick_up_enabled', true
       assign closest_available_pick_up = pick_up_availabilities | where: 'available', true | first
@@ -282,7 +297,7 @@
     # Only read physical_storefront when the setting is on, so stores with it off render exactly as before.
     # In-person claims read available_without_transfer: available also counts stock that a transfer can bring for
     # pickup. A renderer without that value gives nil, so the block makes no in-person claim.
-    if show_physical_stores
+    if show_physical_stores and gamma_pickup_delay == ''
       assign in_store_availabilities = store_availabilities | where: 'physical_storefront' | where: 'available_without_transfer'
       if show_pickup_availability
         assign in_store_availabilities = in_store_availabilities | reject: 'pick_up_enabled'
@@ -314,7 +329,9 @@
       <div class="pickup-availability__row">
         <div class="pickup-availability__column">
           <span class="svg-wrapper">
-            {% if closest_available_pick_up or closest_in_store %}
+            {% if closest_available_pick_up and gamma_pickup_delay != '' %}
+              {%- render 'gamma-pickup-status', status: gamma_pickup_delay, part: 'icon' -%}
+            {% elsif closest_available_pick_up or closest_in_store %}
               {{- 'icon-available.svg' | inline_asset_content -}}
             {% else %}
               {{- 'icon-unavailable.svg' | inline_asset_content -}}
@@ -322,7 +339,13 @@
           </span>
         </div>
         <div class="pickup-availability__column">
-          {% if closest_available_pick_up %}
+          {% if closest_available_pick_up and gamma_pickup_delay != '' %}
+            {% render 'gamma-pickup-status',
+              status: gamma_pickup_delay,
+              part: 'summary',
+              location: closest_available_pick_up.location.name
+            %}
+          {% elsif closest_available_pick_up %}
             <p class="pickup-location__text-sm">
               {{ 'content.pickup_available_at_html' | t: location: closest_available_pick_up.location.name }}
             </p>
@@ -399,7 +422,7 @@
             assign is_in_store_only = false
             if show_pickup_availability and store_availability.pick_up_enabled
               assign is_pick_up = true
-            elsif show_physical_stores and store_availability.physical_storefront and store_availability.available_without_transfer
+            elsif show_physical_stores and gamma_pickup_delay == '' and store_availability.physical_storefront and store_availability.available_without_transfer
               assign is_in_store_only = true
             endif
 
@@ -415,7 +438,9 @@
                   {{- 'icon-available.svg' | inline_asset_content -}}
                   {{ 'content.in_store_available' | t }}
                 {% elsif show_pickup_availability and store_availability.pick_up_enabled %}
-                  {% if store_availability.available %}
+                  {% if store_availability.available and gamma_pickup_delay != '' %}
+                    {%- render 'gamma-pickup-status', status: gamma_pickup_delay, part: 'row' -%}
+                  {% elsif store_availability.available %}
                     {{- 'icon-available.svg' | inline_asset_content -}}
                     {% assign pickup_time = store_availability.pick_up_time | downcase %}
                     {{ 'content.pickup_available_in' | t: pickup_time: pickup_time }}

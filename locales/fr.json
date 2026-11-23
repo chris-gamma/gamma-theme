@@ -16,6 +16,13 @@
       "label": "Commande spéciale",
       "message": "Cet article est commandé spécialement pour vous."
     },
+    "pickup": {
+      "backorder_html": "En rupture de stock : pas encore prêt pour le retrait à <b>{{ location }}</b>",
+      "special_order_html": "En commande spéciale : pas encore prêt pour le retrait à <b>{{ location }}</b>",
+      "timing": "Le moment du retrait dépend de la disponibilité chez le fournisseur.",
+      "backorder_row": "En rupture de stock : retrait selon la disponibilité chez le fournisseur",
+      "special_order_row": "En commande spéciale : retrait selon la disponibilité chez le fournisseur"
+    },
     "varies": "Variable",
     "cart_notice": {
       "delay": "Le délai d’expédition des articles en rupture de stock ou en commande spéciale dépend de la disponibilité chez le fournisseur.",
