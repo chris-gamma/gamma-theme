@@ -19,8 +19,8 @@
     "varies": "Variable",
     "cart_notice": {
       "delay": "Le délai d’expédition des articles en rupture de stock ou en commande spéciale dépend de la disponibilité chez le fournisseur.",
-      "ship_together_with_note": "Les articles en rupture de stock ou en commande spéciale dépendent du fournisseur : nous expédierons votre commande une fois tout reçu. Pour recevoir séparément les articles en stock, indiquez-le sous « {{ note_label }} » (frais de livraison supplémentaires).",
-      "ship_together_without_note": "Les articles en rupture de stock ou en commande spéciale dépendent du fournisseur : nous expédierons votre commande une fois tout reçu. Pour recevoir séparément les articles en stock, communiquez avec nous (frais de livraison supplémentaires)."
+      "ship_together_with_note": "Les articles en rupture de stock ou en commande spéciale dépendent de la disponibilité chez le fournisseur : nous expédierons toute votre commande une fois tous les articles reçus. Pour recevoir séparément les articles en stock, indiquez-le sous « {{ note_label }} »; des frais de livraison supplémentaires s’appliquent.",
+      "ship_together_without_note": "Les articles en rupture de stock ou en commande spéciale dépendent de la disponibilité chez le fournisseur : nous expédierons toute votre commande une fois tous les articles reçus. Pour recevoir séparément les articles en stock, communiquez avec nous; des frais de livraison supplémentaires s’appliquent."
     }
   },
   "gamma_battery": {
@@ -78,7 +78,7 @@
       "sunday": "Dimanche"
     },
     "changed": "(horaire modifié)",
-    "fallback": "Nos heures d’ouverture ne sont pas disponibles. Communiquez avec nous avant de venir.",
+    "fallback": "Nos heures d’ouverture ne sont pas disponibles pour le moment. Communiquez avec nous avant de venir.",
     "editor": {
       "showing": "Affichage de « {{ name }} » ({{ source }}). Cette note n’est visible que dans l’éditeur de thème.",
       "showing_none": "Les clients voient le message de contact au lieu des heures. Cette note n’est visible que dans l’éditeur de thème.",
@@ -130,7 +130,7 @@
     },
     "ended": "Cette promotion est terminée.",
     "unavailable_heading": "Cette promotion n’est pas offerte",
-    "unavailable": "Elle n’a pas encore commencé, est suspendue ou est terminée. Consultez nos promotions en cours.",
+    "unavailable": "Cette promotion n’a pas encore commencé, est suspendue ou est terminée. Consultez nos promotions en cours.",
     "index_link": "Voir les promotions en cours",
     "all_link": "Voir toutes les promotions",
     "back": "Toutes les promotions",

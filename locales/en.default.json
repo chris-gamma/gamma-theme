@@ -28,8 +28,8 @@
     "varies": "Varies",
     "cart_notice": {
       "delay": "Shipping time for backordered and special-order items depends on supplier availability.",
-      "ship_together_with_note": "Backordered and special-order items depend on the supplier, so we’ll ship your order once everything arrives. To get in-stock items separately, ask under {{ note_label }} (extra shipping charges apply).",
-      "ship_together_without_note": "Backordered and special-order items depend on the supplier, so we’ll ship your order once everything arrives. To get in-stock items separately, contact us (extra shipping charges apply)."
+      "ship_together_with_note": "Backordered and special-order items depend on supplier availability, so we’ll ship your whole order once every item arrives. To receive in-stock items separately, tell us in {{ note_label }}; extra shipping charges apply.",
+      "ship_together_without_note": "Backordered and special-order items depend on supplier availability, so we’ll ship your whole order once every item arrives. To receive in-stock items separately, contact us; extra shipping charges apply."
     }
   },
   "gamma_battery": {
@@ -131,15 +131,15 @@
   },
   "gamma_promotion": {
     "dates": {
-      "from_through": "From {{ start }} to {{ end }}",
-      "through": "Until {{ end }}",
+      "from_through": "From {{ start }} to {{ end }} inclusive",
+      "through": "Until {{ end }} inclusive",
       "from": "Starting {{ start }}",
       "on": "On {{ date }} only",
       "first_day": "1"
     },
     "ended": "This promotion has ended.",
     "unavailable_heading": "This promotion isn’t available",
-    "unavailable": "It hasn’t started, is paused or has ended. See our current promotions.",
+    "unavailable": "This promotion hasn’t started, is paused or has ended. See our current promotions.",
     "index_link": "See current promotions",
     "all_link": "See all promotions",
     "back": "All promotions",
