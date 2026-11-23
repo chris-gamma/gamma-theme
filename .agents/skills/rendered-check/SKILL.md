@@ -13,8 +13,9 @@ CSS or storefront JavaScript. The scripts are in `scripts/` next to this file; r
 - `scripts/preview.sh start` confirms the store is Gamma-Dev, then runs `shopify theme dev` from this
   checkout on port 9293. Rendered checks on Gamma-Dev's development theme are authorized without
   asking (AGENTS.md); writing store data isn't. Tell Chris that the development theme holds your files.
-- Don't touch port 9292: it's Chris's own preview. Don't switch branches while the preview runs, since
-  it uploads whatever the checkout holds.
+- Don't touch port 9292: it's Chris's own preview. Don't switch branches or edit theme files in the
+  checkout while the preview runs, since it uploads whatever the checkout holds; tell a helper running
+  captures about any edits made beside it.
 - For a before/after review, serve the baseline from a copy:
   `git archive <commit> | tar -x -C <scratch>/base`, then `PREVIEW_PATH=<scratch>/base scripts/preview.sh start`.
 - If it asks for an identity check, send Chris the link it prints and start again afterwards.
@@ -40,6 +41,13 @@ Write a job file and run `node scripts/shoot.mjs jobs.json <evidence>/after`:
   cases: the two-line title clamp in the search dialog, the 1 px filter checkbox overhang and the
   closed sort menu (`sorting-filter__options-inner`).
 - Look at the screenshots that matter; a passing log isn't a visual review.
+- Before/after: shoot the same job file into `before/` and `after/`, then run
+  `node scripts/compare.mjs <evidence>`. It writes `compare.json` and lists the captures that differ, with
+  the changed area; open those pairs rather than every shot. Small differences inside images are usually
+  resampling.
+- Many changes don't show in a screenshot (`loading`, `sizes`, ARIA labels, a rule that only matters
+  for long text). State each expected change as something to measure in the page, and read it with a
+  job's `info` or the interaction script.
 
 ## 3. Interaction
 
@@ -52,6 +60,14 @@ Write a short script that imports `launch` from `scripts/cdp.mjs` and uses its r
   measuring positions, and to load lazy images.
 - `:focus-visible` needs real Tab key events; programmatic `focus()` doesn't count. Predictive search
   only reacts to trusted typing (`type()`), not synthetic input events.
+- Search dialog: focus stays in the field while the arrow keys move the highlight; the highlighted
+  result has `aria-selected="true"` (and `keyboard-focus`). `aria-activedescendant` isn't used.
+- Cart: the cart is a drawer, but auto-open after adding is off (Horizon's default), so adding leaves
+  it closed. Open it from the header's cart button, or check the cart page. `/cart.js` gives
+  `variant_title: null` for a product with a single variant.
+- Maps: with no stored choice, a map loads as it scrolls into view when privacy allows preferences,
+  which it does headless. To test the static image and its show button, set
+  `localStorage['gamma-map:choice'] = 'off'` on the storefront and reload.
 - Reduced motion: `send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] })`.
 - Measure state over time (colour or transform after 0, 60 and 300 ms) rather than trusting one sample.
 - Quick Add and cart checks add items to a fresh headless cart only; never submit orders, contact or

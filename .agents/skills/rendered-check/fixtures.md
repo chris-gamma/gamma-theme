@@ -16,6 +16,9 @@ Re-check before relying on it; other sessions change this store.
   `t8-fixture-cards`; hidden collection `t8-fixture-hidden`.
 - Product page: `t9-fixture-two-available` (Kit in stock, Outil seul backordered; in `tools-equipment`);
   the GTA 40 set has complementary products. Combined listings aren't available on Gamma-Dev's plan.
+- Pickup: product pages show no “In stock at …” store list (Buy buttons, Show physical stores), so no
+  location seems to be a physical storefront with stock. The CLI can't read locations; marking one is an
+  Admin change that needs approval.
 - Card image arrows need three or more visible, non-variant images: `/collections/chainsaws`.
 - Most product images are identical 4:3 illustrations; for real photo shapes, use rental catalogue
   images.
