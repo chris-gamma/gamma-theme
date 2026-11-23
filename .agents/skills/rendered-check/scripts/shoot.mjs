@@ -4,16 +4,27 @@
 // runs `pre` (an async JS body), then screenshots the top of the page (`mode: 'page'`, up to `maxh`
 // px) or one element (`mode: 'el'`, `sel`, `index`), and records `info` (a JS function of the
 // document or element returning JSON). `vclip: true` adds text clipped vertically by an ancestor.
+// `text: true` records the page's visible text and its aria-label, alt, placeholder and title values,
+// which compare.mjs diffs word by word; use it for wording changes.
 // Phones (< 750 px) emulate touch. Don't run hover checks in the same browser afterwards: once touch
 // emulation has been on, `(any-pointer: fine)` rules can stop matching.
 // Job: { name, fr, en?, langs?, widths?, h?, maxh?, mode?, sel?, index?, pad?, wait?, pre?, info?,
-//        vclip?, block?: [url patterns], hideHeader?, zoom?, typeText?, typeTextEn?, typeWait? }
+//        vclip?, text?, block?: [url patterns], hideHeader?, zoom?, typeText?, typeTextEn?, typeWait? }
 // Writes <outdir>/<name>-<lang>-<width>[-z200].png and <outdir>/info-<time>.json.
 import { launch, sleep } from './cdp.mjs';
 import fs from 'node:fs';
 
 // Text whose glyph boxes extend past an ancestor that clips overflow: vertical clipping that a
 // horizontal-overflow check can't see.
+// The words a customer reads or hears: text outside scripts and templates, plus accessible names.
+const TEXT = `(d) => {
+  const c = d.body.cloneNode(true);
+  c.querySelectorAll('script, style, noscript, template, svg').forEach((e) => e.remove());
+  const labels = [...d.querySelectorAll('[aria-label], [alt], [placeholder], [title]')].flatMap((e) =>
+    ['aria-label', 'alt', 'placeholder', 'title'].map((a) => e.getAttribute(a)).filter((v) => v && v.trim()));
+  return { text: c.textContent.replace(/\\s+/g, ' ').trim(), labels: [...new Set(labels)] };
+}`;
+
 const VCLIP = `(d) => {
   const out = [];
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, { acceptNode: (n) => n.textContent.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT });
@@ -89,6 +100,7 @@ for (const j of jobs) {
           out.info = (${j.info || '() => null'})(el);
         ` : `out.info = (${j.info || '() => null'})(document);`}
         ${j.vclip ? `out.vclip = (${VCLIP})(document);` : ''}
+        ${j.text ? `out.text = (${TEXT})(document);` : ''}
         return out;
       })()`);
       const tag = j.zoom ? `-z${j.zoom * 100}` : '';
@@ -122,7 +134,7 @@ for (const j of jobs) {
         }
         await b.shot(`${outdir}/${f}`);
       }
-      log.push({ f, info: r.info, overflow: r.overflow, vclip: r.vclip });
+      log.push({ f, info: r.info, overflow: r.overflow, vclip: r.vclip, text: r.text });
       console.log(f, r.overflow ? 'OVERFLOW' : '', r.vclip?.clipped ? `CLIPPED ${r.vclip.clipped}` : '', JSON.stringify(r.info || '').slice(0, 400));
       await sleep(1500);
     }

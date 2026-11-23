@@ -45,6 +45,12 @@ Write a job file and run `node scripts/shoot.mjs jobs.json <evidence>/after`:
   `node scripts/compare.mjs <evidence>`. It writes `compare.json` and lists the captures that differ, with
   the changed area; open those pairs rather than every shot. Small differences inside images are usually
   resampling.
+- Wording changes: add `"text": true` to the jobs. `compare.mjs` then lists, for each capture, the words
+  that changed in the page text and in `aria-label`, `alt`, `placeholder` and `title` values, so a change
+  outside the intended strings stands out.
+- The development theme carries no theme-content translations (text typed into sections and templates in
+  the editor, such as footer headings), so French captures show that text in English. The published theme
+  has the French; check it there before calling it a regression.
 - Many changes don't show in a screenshot (`loading`, `sizes`, ARIA labels, a rule that only matters
   for long text). State each expected change as something to measure in the page, and read it with a
   job's `info` or the interaction script.
@@ -70,6 +76,7 @@ Write a short script that imports `launch` from `scripts/cdp.mjs` and uses its r
   `localStorage['gamma-map:choice'] = 'off'` on the storefront and reload.
 - Reduced motion: `send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] })`.
 - Measure state over time (colour or transform after 0, 60 and 300 ms) rather than trusting one sample.
+- Checkout can't be reached through the preview: it leaves the proxy for the password-protected store.
 - Quick Add and cart checks add items to a fresh headless cart only; never submit orders, contact or
   newsletter forms. Each `launch()` starts with a new profile, removed on close, so a cart lasts for
   one launch: fill it in the same run that checks it.
