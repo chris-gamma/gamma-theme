@@ -7,6 +7,8 @@ description: Render theme changes on the Gamma-Dev store with `shopify theme dev
 
 Local checks don't prove rendering. Use this for changes to templates, sections, blocks, snippets,
 CSS or storefront JavaScript. The scripts are in `scripts/` next to this file; run them with Node 22+.
+They use the Chromium or Chrome on `PATH` (or `CHROME_PATH`) and give each run its own free debugging
+port, so runs can overlap.
 
 Pick the tool by the question, cheapest first:
 

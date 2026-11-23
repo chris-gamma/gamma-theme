@@ -1,4 +1,4 @@
-// node shoot.mjs <jobs.json> <outdir> [cdp-port] [only-name-substring]
+// node shoot.mjs <jobs.json> <outdir> [cdp-port, 0 = any free port] [only-name-substring]
 // Captures pages through the local `shopify theme dev` preview (BASE, default http://127.0.0.1:9293).
 // For each job, language and width it loads the page, scrolls once so lazy content loads, optionally
 // runs `pre` (an async JS body), then screenshots the top of the page (`mode: 'page'`, up to `maxh`
@@ -53,7 +53,7 @@ const VCLIP = `(d) => {
   return { clipped: out.length, examples: out.slice(0, 6) };
 }`;
 
-const [jobsFile, outdir, portArg = '9399', only = ''] = process.argv.slice(2);
+const [jobsFile, outdir, portArg = '0', only = ''] = process.argv.slice(2);
 const jobs = JSON.parse(fs.readFileSync(jobsFile, 'utf8')).filter((j) => !only || j.name.includes(only));
 fs.mkdirSync(outdir, { recursive: true });
 const BASE = process.env.BASE || 'http://127.0.0.1:9293';

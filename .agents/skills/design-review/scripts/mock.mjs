@@ -1,4 +1,4 @@
-// node mock.mjs <spec.json> <outdir> [cdp-port] [only-name-substring]
+// node mock.mjs <spec.json> <outdir> [cdp-port, 0 = any free port] [only-name-substring]
 // Browser-side mock-ups on the local preview (BASE, default http://127.0.0.1:9293): nothing in the
 // theme changes. For each page, language and width, every variant loads the page fresh, optionally
 // runs a helper file, injects its CSS and/or JS, then clips `sel` (or the first `rows` rows of
@@ -11,7 +11,7 @@ import { launch, sleep } from '../../rendered-check/scripts/cdp.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const [specFile, outdir, portArg = '9395', only = ''] = process.argv.slice(2);
+const [specFile, outdir, portArg = '0', only = ''] = process.argv.slice(2);
 const spec = JSON.parse(fs.readFileSync(specFile, 'utf8')).filter((s) => !only || s.name.includes(only));
 fs.mkdirSync(outdir, { recursive: true });
 const BASE = process.env.BASE || 'http://127.0.0.1:9293';

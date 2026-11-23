@@ -18,7 +18,7 @@ const median = (a) => {
   return s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2;
 };
 
-const b = await launch({ port: 9379, fine: false });
+const b = await launch({ fine: false });
 await b.nav(`${BASE}/cart`, 5000);
 for (const name of namesArg ? namesArg.split(',') : Object.keys(carts)) {
   const items = carts[name].map((v) => (Array.isArray(v) ? { id: v[0], quantity: v[1] } : { id: v, quantity: 1 }));

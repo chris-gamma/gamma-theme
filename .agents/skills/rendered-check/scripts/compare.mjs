@@ -56,7 +56,7 @@ const texts = (side) => {
 
 const hash = (path) => crypto.createHash('sha1').update(fs.readFileSync(path)).digest('hex');
 const files = fs.readdirSync(`${dir}/before`).filter((f) => f.endsWith('.png')).sort();
-const b = await launch({ port: 9396 });
+const b = await launch();
 await b.nav('about:blank', 100);
 
 const rows = [];

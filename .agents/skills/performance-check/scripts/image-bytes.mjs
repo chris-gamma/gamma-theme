@@ -8,7 +8,7 @@ import fs from 'node:fs';
 const [out, ...paths] = process.argv.slice(2);
 const BASE = process.env.BASE || 'http://127.0.0.1:9293';
 const VIEWPORTS = (process.env.VIEWPORTS || '1440x900,390x844').split(',').map((v) => v.split('x').map(Number));
-const b = await launch({ port: 9396 });
+const b = await launch();
 await b.send('Network.enable');
 await b.send('Network.setCacheDisabled', { cacheDisabled: true });
 const reqs = new Map();

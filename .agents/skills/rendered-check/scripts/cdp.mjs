@@ -16,12 +16,32 @@ const running = new Set();
 process.on('exit', () => running.forEach((stop) => stop()));
 for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => process.exit(1));
 
-export async function launch({ port = 9391, fine = true, profile, extra = [], scrollbars = false } = {}) {
+// CHROME_PATH, else the first Chromium or Chrome on PATH.
+function findBrowser() {
+  if (process.env.CHROME_PATH) return process.env.CHROME_PATH;
+  const dirs = (process.env.PATH || '').split(path.delimiter);
+  for (const name of ['chromium-browser', 'chromium', 'google-chrome-stable', 'google-chrome', 'chrome']) {
+    for (const dir of dirs) {
+      const file = path.join(dir, name);
+      try {
+        fs.accessSync(file, fs.constants.X_OK);
+        return file;
+      } catch {}
+    }
+  }
+  throw new Error('No Chromium or Chrome found on PATH; set CHROME_PATH to its executable.');
+}
+
+// With no `port`, Chromium picks a free one and reports it in the profile's DevToolsActivePort file, so
+// scripts can run side by side. Pass a port only to attach another tool to that browser.
+export async function launch({ port = 0, fine = true, profile, extra = [], scrollbars = false } = {}) {
   // A new profile for each launch, so every run starts with an empty cart and no cookies; a profile the
   // caller names is kept.
+  const bin = findBrowser();
   const temporary = !profile;
   profile ??= fs.mkdtempSync(path.join(os.tmpdir(), 'gamma-cdp-'));
-  const bin = process.env.CHROME_PATH || '/usr/sbin/chromium-browser';
+  const portFile = path.join(profile, 'DevToolsActivePort');
+  fs.rmSync(portFile, { force: true });
   const args = ['--headless=new', `--remote-debugging-port=${port}`, '--no-first-run', '--disable-gpu', `--user-data-dir=${profile}`];
   if (!scrollbars) args.push('--hide-scrollbars');
   if (fine) args.push(FINE_POINTER);
@@ -44,11 +64,12 @@ export async function launch({ port = 9391, fine = true, profile, extra = [], sc
   let target;
   for (let i = 0; i < 80 && !target; i++) {
     try {
-      target = (await (await fetch(`http://127.0.0.1:${port}/json`)).json()).find((t) => t.type === 'page');
+      if (!port) port = Number(fs.readFileSync(portFile, 'utf8').split('\n')[0]) || 0;
+      if (port) target = (await (await fetch(`http://127.0.0.1:${port}/json`)).json()).find((t) => t.type === 'page');
     } catch {}
     if (!target) await sleep(250);
   }
-  if (!target) throw new Error(`Chromium didn't start on port ${port}`);
+  if (!target) throw new Error(`Chromium didn't start (${bin}, port ${port || 'auto'})`);
 
   const ws = new WebSocket(target.webSocketDebuggerUrl);
   await new Promise((r) => (ws.onopen = r));
