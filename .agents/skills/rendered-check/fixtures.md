@@ -14,11 +14,13 @@ Re-check before relying on it; other sessions change this store.
 - Product cards: `t8-fixture-swatches` (three colour swatches), `t8-fixture-localized-media`
   (`-en`/`-fr` images), `t8-fixture-sale-backorder` (sale and backorder badges together), collection
   `t8-fixture-cards`; hidden collection `t8-fixture-hidden`.
+- Price range: `t17-fixture-price-range` (Small $49.99, Large $89.99 on sale from $99.99; in
+  `t8-fixture-cards`) shows "From" pricing on cards.
 - Product page: `t9-fixture-two-available` (Kit in stock, Outil seul backordered; in `tools-equipment`);
   the GTA 40 set has complementary products. Combined listings aren't available on Gamma-Dev's plan.
 - Locations: `Location Gamma - Montréal` matches Primary's store (physical storefront, pickup ready in
   four hours, the two local delivery zones) and holds most of the catalogue's stock. `Shop location`, with
-  no address, holds the T8, T9 and S5 fixtures; `My Custom Location` (Toronto) holds nothing. Shipping
+  no address, holds the product-card, product-page and pickup fixtures; `My Custom Location` (Toronto) holds nothing. Shipping
   profiles use Primary's Canada Post and Purolator rates. The CLI has no location scope: read locations
   through the Shopify connector, and the Physical storefront switch only in Admin.
 - Card image arrows need three or more visible, non-variant images: `/collections/chainsaws`.
