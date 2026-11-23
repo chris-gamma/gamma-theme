@@ -82,6 +82,14 @@ git grep -n 'Gamma:' -- sections blocks snippets assets layout templates config
   widths, before (on `dev`) and after, plus the interactions Gamma changes: Quick Add, swatches, filters,
   search dialog, cart notices, campaign pages, maps and store hours. Test the theme editor too, or report
   it as not run.
+- Accessibility regression: run the Chrome DevTools `lighthouse_audit` (accessibility) on one page of
+  each template type before and after, and compare the failing audits (see the `rendered-check` skill,
+  including the approved contrast exceptions). A new failure that comes from Horizon is an upstream
+  finding to report, not something to patch.
+- For new Horizon Liquid, schema or block features the update brings in, check them against current
+  Shopify documentation (`shopify-plugin:shopify-liquid`) before deciding whether a Gamma change is still
+  needed, and use `repowise` `get_why` and `get_risk` for the history and co-changing files of each marker
+  you re-check.
 
 ## 4. Finish
 

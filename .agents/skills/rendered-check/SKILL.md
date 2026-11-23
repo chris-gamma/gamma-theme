@@ -133,6 +133,11 @@ use `wcag-accessibility` and the scripts. Use it for what a screenshot can't sho
   read from `report.json` with a one-liner, not loaded whole. Use `press_key` Tab with a snapshot after each
   press for focus order, and the skill's tap-target snippet through `evaluate_script`. Lighthouse
   doesn't replace the keyboard pass or a visual review; treat a 100 as no automatic failures found.
+  Contrast failures on primary Gamma Red (above fine print) and on Brand badges are approved exceptions in
+  AGENTS.md; list them as such, and report any other contrast failure.
+- Design anti-patterns: `impeccable detect --json http://127.0.0.1:9293/<path> --viewport 390x844` (and
+  the default 1280x800) scans a rendered page, which sees what the Liquid sources don't. Run it once on
+  finished UI; the `design-review` skill covers how to read its findings.
 - Computed style: `get_css_styles` for a selected element's matched rules, cascade and custom properties,
   which is how to see why a Gamma rule loses to a Horizon one.
 - Environment: `emulate` for reduced motion, forced colors, contrast preference, colour scheme, CPU and

@@ -63,9 +63,9 @@ Location Gamma is moving its storefront from WordPress to Shopify. This reposito
 
 Repeated workflows are skills in [.agents/skills/](.agents/skills/), one folder each with a `SKILL.md` and any scripts. Codex and GitHub Copilot read them there; `.claude/skills/` links to the same folders for Claude Code, so each skill exists once. Use the one that fits the task, or read its `SKILL.md` directly if your tool doesn't load skills:
 
-- `rendered-check`: preview Gamma-Dev with `shopify theme dev`, capture pages and test interaction; Gamma-Dev's test data.
-- `design-review`: baseline, options and browser mock-ups for a visual change, before Chris decides.
-- `performance-check`: Liquid profiles, cart render time and image bytes, before and after.
+- `rendered-check`: preview Gamma-Dev with `shopify theme dev`, capture pages, test interaction and accessibility (Playwright and Chrome DevTools tools); Gamma-Dev's test data.
+- `design-review`: baseline and critique, options and browser mock-ups for a visual change, before Chris decides; says how to use the Impeccable and design-principle skills here.
+- `performance-check`: Liquid profiles, cart render time, image bytes and browser traces, before and after.
 - `integrate`: merge a finished branch into `dev`.
 - `horizon-update`: move the theme to a new Horizon release.
 

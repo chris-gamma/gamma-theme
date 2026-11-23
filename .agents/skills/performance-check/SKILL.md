@@ -44,6 +44,21 @@ Reports what loads before scrolling and after a full scroll at 1440x900 and 390x
 change), with product-card images split out: requested width against displayed width, priority and
 eager loading. Card images shouldn't load far wider than shown, or eagerly below the first screen.
 
+## Browser-side checks
+
+The Chrome DevTools tools (the `chrome-devtools` and `debug-optimize-lcp` skills, with the rules in the
+`rendered-check` skill) add what the scripts above don't measure; they don't replace them.
+
+- `performance_start_trace` with `reload: true` on a product, collection or campaign page, then
+  `performance_analyze_insight`, names the LCP element and which of its four parts is the delay, and lists
+  render-blocking requests. The preview proxies every request, so don't take time to
+  first byte or total load time from it: use the trace for which element, which resource and what
+  priority, and compare before and after under the same throttling (`emulate`).
+- `list_network_requests` confirms what `image-bytes.mjs` reports for one page: the requested widths,
+  formats and the order resources load in.
+- Impeccable's `optimize` command is a source of front-end loading ideas (images, fonts, rendering). Treat
+  it as a lens, not a measurement; a change counts only when a number before and after shows it.
+
 ## Report
 
 Pages, runs and medians before and after, the templates or lines that account for the difference, and

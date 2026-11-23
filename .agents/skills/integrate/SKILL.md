@@ -49,6 +49,12 @@ git diff dev...<branch> -- .agents | grep -nE '^\+.*\b([GTQ][0-9]{1,2}|S[1-6])\b
 - `npm run check:all` passes, with only the known Horizon warnings listed in `README.md`.
 - Storefront changes have rendered evidence (the `rendered-check` skill), and shared, user-facing or
   hard-to-reverse changes have had an independent review. Report anything not run.
+- A visual change also carries the results of the `design-review` skill's finishing steps (`polish`,
+  `harden` and the detector run, or the second `critique` for a shared component), with approved
+  exceptions named, or says they weren't run. Accessibility claims rest on the Chrome DevTools checks in
+  `rendered-check`, not only on Theme Check.
+- For an independent review of the diff, the `review-change` skill and `repowise:change-review` fit; a
+  reviewer's findings are verified before they're acted on.
 - `repowise risk dev..<branch>` (or `get_change_risk`) names the riskiest files and what usually changes with
   them; check those were covered. Skip it where `.repowise/` doesn't exist.
 
