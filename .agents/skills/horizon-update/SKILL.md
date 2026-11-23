@@ -40,7 +40,10 @@ git merge --no-ff vendor/horizon-v<version> -m "Merge Horizon <version>"
   `LICENSE-horizon.md` and `release-notes-horizon.md`; Gamma's `README.md` and `LICENSE.md` stay.
 - Locales: keep only `en.default.json`, `fr.json`, `en.default.schema.json` and `fr.schema.json`. Delete
   any other locale file the merge brings back, then check that new storefront and schema keys exist in
-  both French and English (add French translations where Horizon added keys).
+  both French and English (add French translations where Horizon added keys). For `fr.json` and
+  `fr.schema.json`, compare the incoming file with the previous vendor copy: keep Gamma's text where
+  Horizon's string didn't change, apply the Quebec French glossary and spacing (G32, Q18 in the plan) to
+  new and changed keys, list them with old and new text for Chris, and keep the `shopify.*` keys.
 
 ## 3. Check the Gamma changes
 
