@@ -14,6 +14,15 @@ npm ci --ignore-scripts
 
 This installs Shopify CLI and TypeScript for local checks. In VS Code, accept the prompt to use the workspace TypeScript.
 
+Coding agents use a local [Repowise](https://docs.repowise.dev) index of the repository. With Repowise installed (`uv tool install repowise --with fastembed`), build it once per checkout:
+
+```sh
+repowise init --yes --no-prose --no-agents --no-claude-md --no-distill-hook
+repowise reindex --embedder fastembed
+```
+
+This indexes without a model, keeps `AGENTS.md` and `.claude/` as they are, and installs a post-commit hook that keeps the index current. It also adds a block to `.github/copilot-instructions.md`; remove it, since `AGENTS.md` covers Repowise for every agent.
+
 ## Checking changes
 
 Run the full check before merging:

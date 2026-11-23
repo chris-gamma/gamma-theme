@@ -49,6 +49,16 @@ Location Gamma is moving its storefront from WordPress to Shopify. This reposito
 - Every commit and merge is SSH-signed and must show as verified on GitHub. Commit with ordinary `git commit` and `git merge` so the repository's settings apply: this repository's `.git/config` names the signing key, which differs from the global default. Never pass `--no-gpg-sign`, override `user.signingkey`, or create commits with plumbing such as `git commit-tree` without `-S`. Check with `git log --format='%G? %h %s'` (every line `G`) before asking to push.
 - Rewrite or force-push history only when Chris asks. A rewrite keeps Horizon's history, vendor tags and `main` intact, keeps each commit on the day it was made and in order, dates nothing after the push, signs every commit, keeps the integration merges, and is built and checked in a separate clone with a backup bundle before it replaces anything.
 
+## Repowise
+
+[Repowise](https://docs.repowise.dev) keeps a local index of this repository in `.repowise/`: the JavaScript import graph, Git history (ownership, hotspots, files that change together), code health, dead code and searchable pages for each file. Each checkout builds its own with the command in `README.md`, and a linked worktree reads its main checkout's index. The index is gitignored, a post-commit hook refreshes it after each commit, and it runs without a model, with local `fastembed` search, so nothing leaves the machine. Its MCP server is `repowise`; the CLI has the same answers (`repowise ask`, `search`, `context`, `risk`, `why`, `health`, `dead-code`).
+
+- For how, where or why questions about this repository, or to find the files a task involves, ask Repowise first (`get_answer`, `search_codebase`, `get_context`), then read only what it didn't show. Go straight to a file you already know.
+- Before changing a shared snippet, asset or Horizon file, check `get_risk` for its owners and the files that change with it; before review or integration, check `get_change_risk` for `dev..HEAD`.
+- Its graph doesn't follow Liquid: `render`, `section`, `content_for` and `asset_url` references, section and block types, and assets loaded from Liquid aren't edges, so Liquid files have no dependents there and most `assets/*.js` show as unreachable. Find Liquid dependents with a search, and never treat a dead-code finding as proof that a theme file is unused. Its health and dead-code findings in Horizon's own files are upstream.
+- Answers without a model are ranked evidence marked `degraded`; missing evidence isn't a negative finding, and platform behaviour still comes from Shopify's documentation.
+- `repowise generate`, a model provider, `repowise publish` and the hosted service send code off this machine or spend; each needs Chris's approval.
+
 ## Skills
 
 Repeated workflows are skills in [.agents/skills/](.agents/skills/), one folder each with a `SKILL.md` and any scripts. Codex and GitHub Copilot read them there; `.claude/skills/` links to the same folders for Claude Code, so each skill exists once. Use the one that fits the task, or read its `SKILL.md` directly if your tool doesn't load skills:

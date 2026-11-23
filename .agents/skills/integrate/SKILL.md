@@ -27,6 +27,8 @@ git merge-base --is-ancestor dev HEAD   # the branch contains current dev
 - `npm run check:all` passes, with only the known Horizon warnings listed in `README.md`.
 - Storefront changes have rendered evidence (the `rendered-check` skill), and shared, user-facing or
   hard-to-reverse changes have had an independent review. Report anything not run.
+- `repowise risk dev..<branch>` (or `get_change_risk`) names the riskiest files and what usually changes with
+  them; check those were covered. Skip it where `.repowise/` doesn't exist.
 
 ## 3. Commits and text
 

@@ -6,6 +6,7 @@
 /^\.codex\/.*$/
 /^node_modules\/.*$/
 /^\.shopify\/.*$/
+/^\.repowise\/.*$/
 /^\.vscode\/.*$/
 /^\.githooks\/.*$/
 /^scripts\/.*$/
