@@ -1,0 +1,78 @@
+{%- doc -%}
+  Outputs a link field's address pointed at the current language when it leads to this store. Shopify
+  localizes root-relative links in rich text but not in link fields, and those fields take full addresses,
+  so `https://<store domain>/collections/x` would take an English page to the French one. Addresses on the
+  store's domains become root-relative and get the current language's root (`/en`); links that already start
+  with a language's root, and links to other sites, are left alone.
+
+  @param {string} url - The link field's `url`.
+{%- enddoc -%}
+
+{%- liquid
+  assign link = url | append: '' | strip
+
+  assign hosts = shop.domain | append: ',' | append: shop.permanent_domain
+  assign primary_start = shop.domain | slice: 0, 4
+  if primary_start == 'www.'
+    assign bare = shop.domain | remove_first: 'www.'
+    assign hosts = hosts | append: ',' | append: bare
+  else
+    assign hosts = hosts | append: ',www.' | append: shop.domain
+  endif
+  assign hosts = hosts | split: ','
+
+  for host in hosts
+    for scheme in (0..1)
+      if scheme == 0
+        assign origin = 'https://' | append: host
+      else
+        assign origin = 'http://' | append: host
+      endif
+      assign start = link | slice: 0, origin.size | downcase
+      assign after = link | slice: origin.size, 1
+      if start == origin
+        if after == ''
+          assign link = '/'
+        elsif after == '/' or after == '?' or after == '#'
+          assign path = link | slice: origin.size, link.size
+          if after != '/'
+            assign path = '/' | append: path
+          endif
+          # A path starting with // or /\ would leave the store; keep the full address.
+          assign path_start = path | slice: 0, 2
+          unless path_start == '//' or path_start == '/\'
+            assign link = path
+          endunless
+        endif
+      endif
+    endfor
+  endfor
+
+  assign root = routes.root_url
+  assign first = link | slice: 0, 1
+  assign second = link | slice: 1, 1
+  if root != '/' and first == '/' and second != '/'
+    assign localized = false
+    for language in localization.available_languages
+      assign language_root = language.root_url | append: ''
+      if language_root != blank and language_root != '/'
+        assign start = link | slice: 0, language_root.size
+        assign after = link | slice: language_root.size, 1
+        if start == language_root
+          if after == '' or after == '/' or after == '?' or after == '#'
+            assign localized = true
+          endif
+        endif
+      endif
+    endfor
+    unless localized
+      if link == '/'
+        assign link = root
+      else
+        assign link = root | append: link
+      endif
+    endunless
+  endif
+
+  echo link
+-%}

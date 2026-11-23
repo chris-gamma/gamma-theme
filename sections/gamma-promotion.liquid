@@ -428,6 +428,7 @@
                     assign link_text = group.link.value.text | strip
                   -%}
                   {%- if link_url != blank and link_text != blank -%}
+                    {%- capture link_url -%}{% render 'gamma-localized-url', url: link_url %}{%- endcapture -%}
                     <p class="gamma-promotion__more"><a href="{{ link_url | escape }}">{{ link_text | escape }}</a></p>
                   {%- endif -%}
                 </div>
