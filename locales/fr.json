@@ -18,9 +18,9 @@
     },
     "varies": "Variable",
     "cart_notice": {
-      "delay": "Votre panier comprend des articles en rupture de stock ou en commande spéciale. Leur délai d’expédition dépend de la disponibilité chez le fournisseur.",
-      "ship_together_with_note": "Votre panier comprend des articles en rupture de stock ou en commande spéciale. Leur délai d’expédition dépend de la disponibilité chez le fournisseur, et nous expédierons votre commande en un seul envoi lorsque tous les articles seront reçus. Si vous souhaitez recevoir séparément les articles en stock, indiquez-le sous « {{ note_label }} ». Des frais de livraison supplémentaires s’appliquent.",
-      "ship_together_without_note": "Votre panier comprend des articles en rupture de stock ou en commande spéciale. Leur délai d’expédition dépend de la disponibilité chez le fournisseur, et nous expédierons votre commande en un seul envoi lorsque tous les articles seront reçus. Si vous souhaitez recevoir séparément les articles en stock, communiquez avec nous. Des frais de livraison supplémentaires s’appliquent."
+      "delay": "Le délai d’expédition des articles en rupture de stock ou en commande spéciale dépend de la disponibilité chez le fournisseur.",
+      "ship_together_with_note": "Les articles en rupture de stock ou en commande spéciale dépendent du fournisseur : nous expédierons votre commande une fois tout reçu. Pour recevoir séparément les articles en stock, indiquez-le sous « {{ note_label }} » (frais de livraison supplémentaires).",
+      "ship_together_without_note": "Les articles en rupture de stock ou en commande spéciale dépendent du fournisseur : nous expédierons votre commande une fois tout reçu. Pour recevoir séparément les articles en stock, communiquez avec nous (frais de livraison supplémentaires)."
     }
   },
   "gamma_battery": {
@@ -78,7 +78,7 @@
       "sunday": "Dimanche"
     },
     "changed": "(horaire modifié)",
-    "fallback": "Nos heures d’ouverture ne sont pas disponibles pour le moment. Veuillez communiquer avec nous avant votre visite.",
+    "fallback": "Nos heures d’ouverture ne sont pas disponibles. Communiquez avec nous avant de venir.",
     "editor": {
       "showing": "Affichage de « {{ name }} » ({{ source }}). Cette note n’est visible que dans l’éditeur de thème.",
       "showing_none": "Les clients voient le message de contact au lieu des heures. Cette note n’est visible que dans l’éditeur de thème.",
@@ -130,7 +130,7 @@
     },
     "ended": "Cette promotion est terminée.",
     "unavailable_heading": "Cette promotion n’est pas offerte",
-    "unavailable": "Elle n’a pas encore commencé, elle est suspendue ou elle n’est plus offerte. Consultez nos promotions en cours pour d’autres offres.",
+    "unavailable": "Elle n’a pas encore commencé, est suspendue ou est terminée. Consultez nos promotions en cours.",
     "index_link": "Voir les promotions en cours",
     "all_link": "Voir toutes les promotions",
     "back": "Toutes les promotions",
@@ -154,17 +154,17 @@
       "claim_by": "Soumettez votre réclamation au plus tard le {{ date }}.",
       "claim_link": "Formulaire de réclamation",
       "in_store_lead": "Offert en magasin.",
-      "in_store": "Présentez-vous au comptoir de Location Gamma pour profiter de cette offre.",
+      "in_store": "Présentez-vous à notre comptoir pour profiter de cette offre.",
       "contact_lead": "Communiquez avec nous.",
       "contact_us": "Appelez-nous ou écrivez-nous pour profiter de cette offre.",
-      "current_prices_in_store": "Les prix affichés sont les prix courants; l’offre s’applique en magasin.",
-      "current_prices_code": "Les prix affichés sont les prix courants; la réduction s’applique au paiement, avec le code.",
+      "current_prices_in_store": "Les prix affichés n’incluent pas l’offre, qui s’applique en magasin.",
+      "current_prices_code": "Les prix affichés n’incluent pas la réduction; entrez le code au moment du paiement.",
       "contact": "Nous joindre et heures d’ouverture"
     },
     "gift": {
       "heading": "Comment recevoir votre cadeau",
-      "how": "Inutile d’ajouter le cadeau à votre panier. Achetez l’équipement admissible comme d’habitude : Location Gamma fournit le cadeau avec votre commande. Si le cadeau est en rupture de stock, votre commande pourrait être retardée; nous communiquerons alors avec vous.",
-      "backordered": "Ce cadeau est présentement en rupture de stock; votre commande pourrait donc être retardée. Nous communiquerons avec vous pour vous donner plus de détails.",
+      "how": "Inutile d’ajouter le cadeau au panier : il accompagne votre commande. S’il est en rupture de stock, votre commande pourrait être retardée et nous communiquerons avec vous.",
+      "backordered": "Ce cadeau est en rupture de stock : votre commande pourrait être retardée. Nous communiquerons avec vous.",
       "limited": {
         "one": "Offre limitée à la première commande admissible.",
         "other": "Offre limitée aux {{ count }} premières commandes admissibles."

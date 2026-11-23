@@ -27,9 +27,9 @@
     },
     "varies": "Varies",
     "cart_notice": {
-      "delay": "Your cart includes backordered or special-order items. Their shipping time depends on supplier availability.",
-      "ship_together_with_note": "Your cart includes backordered or special-order items. Their shipping time depends on supplier availability, and we’ll ship your order together once everything has arrived. If you’d like in-stock items shipped separately, let us know under {{ note_label }}. Additional shipping charges apply.",
-      "ship_together_without_note": "Your cart includes backordered or special-order items. Their shipping time depends on supplier availability, and we’ll ship your order together once everything has arrived. If you’d like in-stock items shipped separately, please contact us. Additional shipping charges apply."
+      "delay": "Shipping time for backordered and special-order items depends on supplier availability.",
+      "ship_together_with_note": "Backordered and special-order items depend on the supplier, so we’ll ship your order once everything arrives. To get in-stock items separately, ask under {{ note_label }} (extra shipping charges apply).",
+      "ship_together_without_note": "Backordered and special-order items depend on the supplier, so we’ll ship your order once everything arrives. To get in-stock items separately, contact us (extra shipping charges apply)."
     }
   },
   "gamma_battery": {
@@ -87,7 +87,7 @@
       "sunday": "Sunday"
     },
     "changed": "(changed hours)",
-    "fallback": "Our hours aren’t available right now. Please contact us before your visit.",
+    "fallback": "Our hours aren’t available right now. Please contact us before visiting.",
     "editor": {
       "showing": "Showing “{{ name }}” ({{ source }}). This note appears only in the theme editor.",
       "showing_none": "Customers see the contact message instead of hours. This note appears only in the theme editor.",
@@ -131,15 +131,15 @@
   },
   "gamma_promotion": {
     "dates": {
-      "from_through": "From {{ start }} through {{ end }}",
-      "through": "Through {{ end }}",
+      "from_through": "From {{ start }} to {{ end }}",
+      "through": "Until {{ end }}",
       "from": "Starting {{ start }}",
       "on": "On {{ date }} only",
       "first_day": "1"
     },
     "ended": "This promotion has ended.",
     "unavailable_heading": "This promotion isn’t available",
-    "unavailable": "It hasn’t started yet, it’s paused, or it’s no longer offered. See our current promotions for other offers.",
+    "unavailable": "It hasn’t started, is paused or has ended. See our current promotions.",
     "index_link": "See current promotions",
     "all_link": "See all promotions",
     "back": "All promotions",
@@ -163,17 +163,17 @@
       "claim_by": "Submit your claim by {{ date }}.",
       "claim_link": "Claim form",
       "in_store_lead": "Available in store.",
-      "in_store": "Visit the Location Gamma counter to take advantage of this offer.",
+      "in_store": "Visit our counter to get this offer.",
       "contact_lead": "Contact us.",
-      "contact_us": "Call or write to Location Gamma to take advantage of this offer.",
-      "current_prices_in_store": "Prices shown are current prices; the offer is applied in store.",
-      "current_prices_code": "Prices shown are current prices; the discount is applied at checkout with the code.",
+      "contact_us": "Call or write to us to get this offer.",
+      "current_prices_in_store": "Prices shown don’t include the offer, which applies in store.",
+      "current_prices_code": "Prices shown don’t include the discount; enter the code at checkout.",
       "contact": "Contact us and store hours"
     },
     "gift": {
       "heading": "How you receive your gift",
-      "how": "No need to add the gift to your cart. Buy the qualifying equipment as usual and Location Gamma supplies the gift with your order. If the gift is backordered, your order may be delayed; we’ll contact you if that happens.",
-      "backordered": "This gift is currently backordered, so your order may be delayed. We’ll contact you with more information.",
+      "how": "No need to add the gift to your cart; it comes with your order. If it’s backordered, your order may be delayed and we’ll contact you.",
+      "backordered": "This gift is backordered, so your order may be delayed. We’ll contact you.",
       "limited": {
         "one": "Limited to the first qualifying order.",
         "other": "Limited to the first {{ count }} qualifying orders."
@@ -237,7 +237,7 @@
     "index": {
       "empty": "There are no promotions right now. Come back soon.",
       "cta": "See the promotion",
-      "until": "Through {{ date }}",
+      "until": "Until {{ date }}",
       "count": {
         "one": "{{ count }} promotion",
         "other": "{{ count }} promotions"
