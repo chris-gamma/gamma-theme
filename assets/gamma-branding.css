@@ -952,3 +952,179 @@ button.quick-add__button.button {
 .menu-drawer .menu-drawer__menu > .menu-drawer__list-item + .menu-drawer__list-item {
   border-block-start: 1px solid var(--gamma-color-rule);
 }
+
+/*
+  Footer bands: visit information, then the menus, then the logo, newsletter, social links and payment
+  marks, one full-width band each with a hairline between them. Horizon gives each top-level group a column,
+  so the grid is reset to one. The bands are found by what they hold, so they keep their layout if the
+  groups are reordered in the editor.
+*/
+.shopify-section-group-footer-group .footer-content {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.shopify-section-group-footer-group .footer-content > * + * {
+  padding-block-start: var(--footer-gap);
+  border-block-start: 1px solid var(--gamma-color-rule);
+}
+
+/* Footer headings take the group role, 20 px on phones; Horizon sizes the text block's own heading too. */
+.shopify-section-group-footer-group :is(.text-block.h4, .text-block.h4 > :is(h2, h3, p), .menu__heading.h4) {
+  font-size: var(--gamma-type-group-size);
+}
+
+/* The e-mail field grows from nothing, so its intrinsic width doesn't push the sign-up past a narrow column or zoomed phone. */
+.shopify-section-group-footer-group .email-signup__input {
+  inline-size: 0;
+}
+
+/* Accordion dividers take the footer's hairline instead of the full text colour. */
+.shopify-section-group-footer-group .menu--dividers .menu__details {
+  border-block-end-color: var(--gamma-color-rule);
+}
+
+@media screen and (min-width: 750px) {
+  /* Visit: the heading across the top, then the address, the hours (never narrower than their 16rem stacking point) and the map. */
+  .shopify-section-group-footer-group .group-block-content:has(> .gamma-hours) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(16rem, 24rem);
+    gap: var(--gap-md, 1rem) var(--footer-gap);
+    align-items: start;
+  }
+
+  .shopify-section-group-footer-group .group-block-content:has(> .gamma-hours) > .text-block:first-child {
+    grid-column: 1 / -1;
+  }
+
+  /* Menus: two columns, four from 990 px. */
+  .shopify-section-group-footer-group .group-block-content:has(> .menu) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--footer-gap);
+    align-items: start;
+  }
+
+  /* Logo, newsletter, social links and payment marks: each heading above its control. */
+  .shopify-section-group-footer-group .group-block-content:has(> .email-signup-block) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--gap-sm, 0.75rem) var(--footer-gap);
+    align-items: center;
+  }
+
+  .shopify-section-group-footer-group .group-block-content:has(> .email-signup-block) > .logo-block {
+    grid-area: 1 / 1;
+  }
+
+  .shopify-section-group-footer-group .group-block-content:has(> .email-signup-block) > .text-block:has(+ .email-signup-block) {
+    grid-area: 2 / 1;
+  }
+
+  .shopify-section-group-footer-group .group-block-content:has(> .email-signup-block) > .email-signup-block {
+    grid-area: 3 / 1;
+  }
+
+  .shopify-section-group-footer-group .group-block-content:has(> .email-signup-block) > .text-block:has(+ .social-icons__wrapper) {
+    grid-area: 2 / 2;
+  }
+
+  .shopify-section-group-footer-group .group-block-content:has(> .email-signup-block) > .social-icons__wrapper {
+    grid-area: 3 / 2;
+  }
+
+  .shopify-section-group-footer-group .group-block-content:has(> .email-signup-block) > .payment-icons {
+    grid-area: 4 / 1 / auto / -1;
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .shopify-section-group-footer-group .group-block-content:has(> .gamma-hours) {
+    grid-template-columns: minmax(0, 20rem) minmax(16rem, 24rem) auto;
+    justify-content: space-between;
+  }
+
+  .shopify-section-group-footer-group .group-block-content:has(> .menu) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .shopify-section-group-footer-group .group-block-content:has(> .email-signup-block) {
+    grid-template-columns: auto minmax(0, 26rem) auto minmax(0, 1fr);
+    align-items: end;
+  }
+
+  .shopify-section-group-footer-group .group-block-content:has(> .email-signup-block) > .logo-block {
+    grid-area: 1 / 1 / span 2;
+    align-self: center;
+  }
+
+  .shopify-section-group-footer-group .group-block-content:has(> .email-signup-block) > .text-block:has(+ .email-signup-block) {
+    grid-area: 1 / 2;
+  }
+
+  .shopify-section-group-footer-group .group-block-content:has(> .email-signup-block) > .email-signup-block {
+    grid-area: 2 / 2;
+  }
+
+  .shopify-section-group-footer-group .group-block-content:has(> .email-signup-block) > .text-block:has(+ .social-icons__wrapper) {
+    grid-area: 1 / 3;
+  }
+
+  .shopify-section-group-footer-group .group-block-content:has(> .email-signup-block) > .social-icons__wrapper {
+    grid-area: 2 / 3;
+    align-self: center;
+  }
+
+  .shopify-section-group-footer-group .group-block-content:has(> .email-signup-block) > .payment-icons {
+    grid-area: 2 / 4;
+    align-self: center;
+  }
+
+  .shopify-section-group-footer-group .group-block-content:has(> .email-signup-block) .payment-icons__list {
+    justify-content: flex-end;
+  }
+}
+
+/*
+  From 1280 px the visit band and the logo, newsletter and social band share the first row, each at its
+  content's width, and the menus follow under the rule. The bands keep their source order (visit, menus,
+  newsletter), which is also their order on phones.
+*/
+@media screen and (min-width: 1280px) {
+  .shopify-section-group-footer-group .footer-content {
+    grid-template-columns: minmax(0, 1fr) minmax(18rem, 24rem);
+    column-gap: var(--footer-gap);
+  }
+
+  .shopify-section-group-footer-group .footer-content > :has(> .group-block-content > .gamma-hours) {
+    grid-area: 1 / 1;
+  }
+
+  .shopify-section-group-footer-group .footer-content > :has(> .group-block-content > .email-signup-block) {
+    grid-area: 1 / 2;
+    padding-block-start: 0;
+    border-block-start: 0;
+  }
+
+  .shopify-section-group-footer-group .footer-content > :has(> .group-block-content > .menu) {
+    grid-area: 2 / 1 / auto / -1;
+  }
+
+  .shopify-section-group-footer-group .group-block-content:has(> .gamma-hours) {
+    grid-template-columns: max-content minmax(16rem, 22rem) auto;
+    justify-content: start;
+  }
+
+  .shopify-section-group-footer-group .group-block-content:has(> .email-signup-block) {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .shopify-section-group-footer-group .group-block-content:has(> .email-signup-block) > :is(.logo-block, .social-icons__wrapper) {
+    align-self: flex-start;
+  }
+
+  .shopify-section-group-footer-group .group-block-content:has(> .email-signup-block) .payment-icons__list {
+    justify-content: flex-start;
+  }
+}
