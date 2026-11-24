@@ -899,3 +899,56 @@ button.quick-add__button.button {
 :is(.cart-discount__form, .email-signup__input-group--integrated) input:focus-visible {
   outline: none;
 }
+
+/*
+  Header and drawer. Top-level links stay at full text colour; the section holding the current page is
+  underlined and a hovered or focused link gets a thinner underline, so the cue doesn't rest on colour.
+  Horizon subdues the other links instead (`blocks/_header-menu.liquid`); the ID selector outranks that rule.
+  Colours come from `--menu-top-level-font-color`, so the transparent home header keeps its own.
+*/
+#header-component .menu-list .menu-list__link {
+  color: var(--menu-top-level-font-color);
+}
+
+#header-component .menu-list__link .menu-list__link-title {
+  text-decoration-line: none;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.45em;
+}
+
+#header-component .menu-list__list-item:is(:hover, :focus-within) .menu-list__link-title {
+  text-decoration-line: underline;
+}
+
+#header-component .menu-list__link--active .menu-list__link-title {
+  text-decoration-line: underline;
+  text-decoration-thickness: 2px;
+}
+
+/* Parent links lead their mega-menu column and drawer submenu in bold. Horizon sets these variables inline one level up. */
+.menu-list__submenu-inner > .mega-menu,
+.menu-drawer__navigation > * {
+  --menu-parent-font-weight: var(--font-weight-bold, 700);
+}
+
+/* Drawer rows reach 48 px; the language select and a submenu's back button and title link reach 44 px. */
+.menu-drawer :is(.menu-drawer__menu-item--mainlist, .menu-drawer__menu-item--parent, .menu-drawer__menu-item--child) {
+  min-block-size: 48px;
+}
+
+.menu-drawer :is(.localization-form__select, .menu-drawer__back-button, a.menu-drawer__title) {
+  min-block-size: var(--minimum-touch-target, 44px);
+}
+
+/* Horizon clips the item text, which would cut the underline; the text wraps, so nothing else needs the clip. */
+.menu-drawer :is(.menu-drawer__menu-item[aria-current='page'], .menu-drawer__menu-item--active) .menu-drawer__menu-item-text {
+  overflow: visible;
+  text-decoration-line: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.3em;
+}
+
+/* Hairlines between drawer rows. Horizon's divider setting draws them only under items with submenus. */
+.menu-drawer .menu-drawer__menu > .menu-drawer__list-item + .menu-drawer__list-item {
+  border-block-start: 1px solid var(--gamma-color-rule);
+}
