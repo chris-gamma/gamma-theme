@@ -1109,6 +1109,8 @@ button.quick-add__button.button {
 
   .shopify-section-group-footer-group .footer-content > :has(> .group-block-content > .gamma-hours) {
     grid-area: 1 / 1;
+    padding-block-start: 0;
+    border-block-start: 0;
   }
 
   .shopify-section-group-footer-group .footer-content > :has(> .group-block-content > .menu) {
