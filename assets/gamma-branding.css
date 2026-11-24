@@ -978,16 +978,24 @@ button.quick-add__button.button {
 }
 
 @media screen and (min-width: 750px) {
-  /* Visit: the heading across the top, then the address, the hours filling the rest (above their 16rem stacking point) and the map. */
+  /* Visit: the heading across the top, the address with the map under it, and the hours filling the rest (above their 16rem stacking point). */
   .shopify-section-group-footer-group .group-block-content:has(> .gamma-hours) {
     display: grid;
-    grid-template-columns: max-content minmax(17rem, 1fr);
+    grid-template-columns: minmax(0, 15rem) minmax(17rem, 1fr);
     gap: var(--gap-md, 1rem) var(--footer-gap);
     align-items: start;
   }
 
   .shopify-section-group-footer-group .group-block-content:has(> .gamma-hours) > .text-block:first-child {
     grid-column: 1 / -1;
+  }
+
+  .shopify-section-group-footer-group .group-block-content:has(> .gamma-hours) > gamma-map-component {
+    grid-area: 3 / 1;
+  }
+
+  .shopify-section-group-footer-group .group-block-content:has(> .gamma-hours) > .gamma-hours {
+    grid-area: 2 / 2 / span 2;
   }
 
   /* Menus: two columns, four from 990 px. */
@@ -1032,10 +1040,6 @@ button.quick-add__button.button {
 }
 
 @media screen and (min-width: 990px) {
-  .shopify-section-group-footer-group .group-block-content:has(> .gamma-hours) {
-    grid-template-columns: max-content minmax(17rem, 1fr) auto;
-  }
-
   .shopify-section-group-footer-group .group-block-content:has(> .menu) {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -1112,21 +1116,9 @@ button.quick-add__button.button {
     grid-area: 2 / 1 / auto / -1;
   }
 
-  .shopify-section-group-footer-group .group-block-content:has(> .gamma-hours) {
-    grid-template-columns: max-content minmax(17rem, 1fr);
-  }
-
   /* Level with the menu headings, which sit in Horizon's padded summaries. */
   .shopify-section-group-footer-group .group-block-content:has(> .gamma-hours) > .text-block:first-child {
     padding-block-start: var(--padding-sm);
-  }
-
-  .shopify-section-group-footer-group .group-block-content:has(> .gamma-hours) > gamma-map-component {
-    grid-area: 3 / 1;
-  }
-
-  .shopify-section-group-footer-group .group-block-content:has(> .gamma-hours) > .gamma-hours {
-    grid-area: 2 / 2 / span 2;
   }
 
   .shopify-section-group-footer-group .group-block-content:has(> .menu) {
