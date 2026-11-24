@@ -1128,3 +1128,41 @@ button.quick-add__button.button {
     justify-content: flex-start;
   }
 }
+
+/*
+  Phones at 200% zoom (under 300 CSS px). Horizon's phone header gives four 44 px icon columns and squeezes
+  the logo column to nothing, and at 160 px the cart lands off-screen. Here the logo takes its own row and the
+  icons 32 px boxes (64 device pixels at that zoom). The sign-up button drops below its field.
+*/
+@media screen and (max-width: 299px) {
+  #header-component[data-menu-style] .header__row .header__columns {
+    --header-mobile-bookend: 32px;
+
+    grid-template-areas:
+      'leftA leftB . rightA rightB'
+      'center center center center center';
+    row-gap: var(--gap-2xs, 0.25rem);
+    padding-block-end: var(--padding-xs, 0.5rem);
+  }
+
+  #header-component[data-menu-style] .header__row header-actions {
+    grid-column: rightA-start / rightB-end;
+  }
+
+  #header-component[data-menu-style] .header__row :is(header-drawer summary, search-button button, .header-actions__action, cart-icon) {
+    inline-size: 32px;
+    min-inline-size: 0;
+  }
+
+  .shopify-section-group-footer-group .email-signup__input-group--integrated {
+    flex-wrap: wrap;
+  }
+
+  .shopify-section-group-footer-group .email-signup__input-group--integrated .email-signup__input {
+    flex-basis: 100%;
+  }
+
+  .shopify-section-group-footer-group .email-signup__input-group--integrated .email-signup__button {
+    flex: 1 1 0;
+  }
+}
