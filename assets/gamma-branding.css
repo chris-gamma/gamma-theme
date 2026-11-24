@@ -1078,44 +1078,65 @@ button.quick-add__button.button {
   }
 }
 
-/* From 1280 px the visit and newsletter bands share the first row; source order stays visit, menus, newsletter. */
+/* Below 1280 px the payment marks don't fit beside the sign-up; they sit under the social links. */
+@media screen and (min-width: 990px) and (max-width: 1279px) {
+  .shopify-section-group-footer-group .group-block-content:has(> .email-signup-block) > .payment-icons {
+    grid-area: 3 / 3 / auto / -1;
+  }
+
+  .shopify-section-group-footer-group .group-block-content:has(> .email-signup-block) .payment-icons__list {
+    justify-content: flex-start;
+  }
+}
+
+/*
+  From 1280 px: visit (address and map beside the hours) and the menus share the first row; the logo,
+  newsletter and social band runs below. The menus' last two share a column.
+*/
 @media screen and (min-width: 1280px) {
   .shopify-section-group-footer-group .footer-content {
-    grid-template-columns: minmax(0, 1fr) minmax(18rem, 24rem);
-    column-gap: var(--footer-gap);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: calc(1.5 * var(--footer-gap));
   }
 
   .shopify-section-group-footer-group .footer-content > :has(> .group-block-content > .gamma-hours) {
     grid-area: 1 / 1;
   }
 
-  .shopify-section-group-footer-group .footer-content > :has(> .group-block-content > .email-signup-block) {
+  .shopify-section-group-footer-group .footer-content > :has(> .group-block-content > .menu) {
     grid-area: 1 / 2;
     padding-block-start: 0;
     border-block-start: 0;
   }
 
-  .shopify-section-group-footer-group .footer-content > :has(> .group-block-content > .menu) {
+  .shopify-section-group-footer-group .footer-content > :has(> .group-block-content > .email-signup-block) {
     grid-area: 2 / 1 / auto / -1;
   }
 
   .shopify-section-group-footer-group .group-block-content:has(> .gamma-hours) {
-    grid-template-columns: max-content minmax(17rem, 22rem) auto;
-    justify-content: start;
+    grid-template-columns: max-content minmax(17rem, 1fr);
+    justify-content: stretch;
   }
 
-  .shopify-section-group-footer-group .group-block-content:has(> .email-signup-block) {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
+  /* Level with the menu headings, which sit in Horizon's padded summaries. */
+  .shopify-section-group-footer-group .group-block-content:has(> .gamma-hours) > .text-block:first-child {
+    padding-block-start: var(--padding-sm);
   }
 
-  .shopify-section-group-footer-group .group-block-content:has(> .email-signup-block) > :is(.logo-block, .social-icons__wrapper) {
-    align-self: flex-start;
+  .shopify-section-group-footer-group .group-block-content:has(> .gamma-hours) > gamma-map-component {
+    grid-area: 3 / 1;
   }
 
-  .shopify-section-group-footer-group .group-block-content:has(> .email-signup-block) .payment-icons__list {
-    justify-content: flex-start;
+  .shopify-section-group-footer-group .group-block-content:has(> .gamma-hours) > .gamma-hours {
+    grid-area: 2 / 2 / span 2;
+  }
+
+  .shopify-section-group-footer-group .group-block-content:has(> .menu) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .shopify-section-group-footer-group .group-block-content:has(> .menu) > .menu:nth-child(-n + 2) {
+    grid-row: span 2;
   }
 }
 
