@@ -978,10 +978,10 @@ button.quick-add__button.button {
 }
 
 @media screen and (min-width: 750px) {
-  /* Visit: the heading across the top, then the address, the hours (wider than their 16rem stacking point) and the map. */
+  /* Visit: the heading across the top, then the address, the hours filling the rest (above their 16rem stacking point) and the map. */
   .shopify-section-group-footer-group .group-block-content:has(> .gamma-hours) {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(17rem, 24rem);
+    grid-template-columns: max-content minmax(17rem, 1fr);
     gap: var(--gap-md, 1rem) var(--footer-gap);
     align-items: start;
   }
@@ -1033,8 +1033,7 @@ button.quick-add__button.button {
 
 @media screen and (min-width: 990px) {
   .shopify-section-group-footer-group .group-block-content:has(> .gamma-hours) {
-    grid-template-columns: minmax(0, 20rem) minmax(17rem, 24rem) auto;
-    justify-content: space-between;
+    grid-template-columns: max-content minmax(17rem, 1fr) auto;
   }
 
   .shopify-section-group-footer-group .group-block-content:has(> .menu) {
@@ -1115,7 +1114,6 @@ button.quick-add__button.button {
 
   .shopify-section-group-footer-group .group-block-content:has(> .gamma-hours) {
     grid-template-columns: max-content minmax(17rem, 1fr);
-    justify-content: stretch;
   }
 
   /* Level with the menu headings, which sit in Horizon's padded summaries. */
