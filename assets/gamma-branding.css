@@ -968,6 +968,11 @@ button.quick-add__button.button {
   inline-size: 0;
 }
 
+/* The smaller phone heading would take the accordion's tap height under 44 px. */
+.shopify-section-group-footer-group .menu__heading {
+  min-block-size: var(--minimum-touch-target, 44px);
+}
+
 /* Accordion dividers take the footer's hairline; the band's own rule follows the last one. */
 .shopify-section-group-footer-group .menu--dividers .menu__details {
   border-block-end-color: var(--gamma-color-rule);
