@@ -170,6 +170,18 @@
   font-size: var(--gamma-type-page-size);
 }
 
+/* An address with its phone and e-mail links on their own lines: each link is a 24 px target. */
+main .text-block p:has(> a[href^='tel:'] + br) {
+  line-height: 1.75;
+
+  > a {
+    display: inline-block;
+    min-block-size: 24px;
+    padding-block: 3px;
+    line-height: 18px;
+  }
+}
+
 /* Department cards in the contact page's body. */
 .rte .display-card-table {
   display: grid;
