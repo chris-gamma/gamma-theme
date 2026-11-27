@@ -68,6 +68,100 @@
   }
 }
 
+/*
+  Tables follow the product page's specification table: body size, no shading, sentence case, a 12% rule above the
+  first row and under each row. On phones, a table of up to five columns shows each row's first cell across the
+  width with the row's values below it, in the table's columns; wider tables scroll with their first column pinned.
+*/
+.page-content,
+.shopify-policy__body .rte,
+:is(.gamma-policy, .gamma-warranty-policies, .gamma-faq) .details-content {
+  table {
+    border-block-start: 1px solid var(--gamma-color-rule);
+    font-size: var(--gamma-type-body-size);
+    line-height: 1.5;
+  }
+
+  :is(td, th) :is(p, ul, ol) {
+    margin-block: 0;
+    font-size: inherit;
+    line-height: inherit;
+  }
+
+  :is(td, th) > * + * {
+    margin-block-start: 0.25em;
+  }
+
+  :is(thead, tr:not(:has(td))) {
+    background: none;
+    font-weight: inherit;
+    text-transform: none;
+  }
+
+  tr {
+    border-block-end: 1px solid var(--gamma-color-rule);
+  }
+
+  :is(th, td) {
+    padding: var(--padding-sm) var(--padding-md) var(--padding-sm) 0;
+    vertical-align: top;
+  }
+
+  th {
+    font-weight: 600;
+  }
+
+  thead th {
+    color: var(--gamma-color-muted);
+  }
+}
+
+@media screen and (max-width: 749px) {
+  :is(.page-content, .shopify-policy__body .rte, :is(.gamma-policy, .gamma-warranty-policies, .gamma-faq) .details-content)
+    table:not(:has(tr > :nth-child(6))) {
+    &,
+    > :is(thead, tbody, tfoot) {
+      display: block;
+    }
+
+    tr {
+      display: grid;
+      grid-template-columns: repeat(var(--gamma-table-values, 1), minmax(0, 1fr));
+      column-gap: var(--gap-md);
+    }
+
+    tr:has(> :nth-child(3)) {
+      --gamma-table-values: 2;
+    }
+
+    tr:has(> :nth-child(4)) {
+      --gamma-table-values: 3;
+    }
+
+    tr:has(> :nth-child(5)) {
+      --gamma-table-values: 4;
+    }
+
+    tr > :first-child {
+      grid-column: 1 / -1;
+      padding-block-end: 0;
+    }
+
+    thead tr > :first-child:empty {
+      display: none;
+    }
+  }
+
+  :is(.page-content, .shopify-policy__body .rte, :is(.gamma-policy, .gamma-warranty-policies, .gamma-faq) .details-content)
+    table:has(tr > :nth-child(6))
+    tr
+    > :first-child {
+    position: sticky;
+    inset-inline-start: 0;
+    background: var(--color-background);
+  }
+}
+
 /* Policy titles take the page-title role, as page titles do. */
 .shopify-policy__title h1 {
   font-size: var(--gamma-type-page-size);
