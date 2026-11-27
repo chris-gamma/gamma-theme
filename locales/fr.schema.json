@@ -8,6 +8,10 @@
     "collapsible": "Afficher comme rangée repliable",
     "collapsible_info": "Les politiques affichées l’une après l’autre en rangées repliables forment une seule liste. Le nom de l’entrée, ou le titre ci-dessus, identifie la rangée."
   },
+  "gamma_warranty_policies": {
+    "name": "Politiques de garantie",
+    "block_info": "Affiche chaque entrée de politique de garantie publiée en rangée repliable, regroupée selon la première marque de l’entrée et triée par nom. Les entrées sans marque viennent en premier. Modifiez les entrées dans Contenu > Métaobjets."
+  },
   "gamma_collection_header": {
     "name": "En-tête de collection",
     "block_info": "Affiche le titre de la collection, son nombre de produits et sa description.",

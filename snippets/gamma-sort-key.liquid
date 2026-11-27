@@ -1,0 +1,5 @@
+{%- doc -%}
+  Outputs text in lower case with French accents removed, for sorting names alphabetically.
+  @param {string} text - Text to turn into a sort key.
+{%- enddoc -%}
+{{- text | downcase | replace: 'à', 'a' | replace: 'â', 'a' | replace: 'ä', 'a' | replace: 'ç', 'c' | replace: 'é', 'e' | replace: 'è', 'e' | replace: 'ê', 'e' | replace: 'ë', 'e' | replace: 'î', 'i' | replace: 'ï', 'i' | replace: 'ô', 'o' | replace: 'ö', 'o' | replace: 'ù', 'u' | replace: 'û', 'u' | replace: 'ü', 'u' | replace: 'ÿ', 'y' | replace: 'œ', 'oe' | replace: 'æ', 'ae' | replace: '|', ' ' | replace: '@', ' ' | replace: '#', ' ' -}}

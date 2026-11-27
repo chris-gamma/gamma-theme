@@ -17,6 +17,10 @@
     "collapsible": "Show as collapsible row",
     "collapsible_info": "Policies shown one after another as collapsible rows form a single list. The entry’s name, or the heading above, labels the row."
   },
+  "gamma_warranty_policies": {
+    "name": "Warranty policies",
+    "block_info": "Lists every published warranty policy entry as collapsible rows, grouped by the first brand on each entry and sorted by name. Entries without a brand come first. Edit entries in Content > Metaobjects."
+  },
   "gamma_collection_header": {
     "name": "Collection header",
     "block_info": "Shows the collection’s title, its number of products and its description.",

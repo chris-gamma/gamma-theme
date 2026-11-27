@@ -1,0 +1,16 @@
+{%- doc -%}
+  Renders one brand group of warranty policy rows.
+  @param {string} brand_names - Brand names separated by ##; blank for entries without a brand.
+  @param {string} rows - Rendered accordion rows.
+  @param {string} [branded] - Handle of the group's first brand; - for entries without a brand.
+{%- enddoc -%}
+{%- if rows != blank -%}
+  <div class="gamma-warranty-policies__group">
+    {%- if branded != blank and branded != '-' -%}
+      <h2 class="gamma-warranty-policies__heading gamma-type-section">
+        {{- brand_names | split: '##' | join: ' / ' | escape -}}
+      </h2>
+    {%- endif -%}
+    <div class="gamma-warranty-policies__rows accordion accordion--caret accordion--dividers">{{ rows }}</div>
+  </div>
+{%- endif -%}
