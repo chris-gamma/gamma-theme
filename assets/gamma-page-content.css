@@ -102,9 +102,12 @@
     border-block-end: 1px solid var(--gamma-color-rule);
   }
 
+  /* Long words such as « Professionnel » break inside narrow columns, for example at 200% zoom on a phone. */
   :is(th, td) {
     padding: var(--padding-sm) var(--padding-md) var(--padding-sm) 0;
     vertical-align: top;
+    overflow-wrap: break-word;
+    hyphens: auto;
   }
 
   th {
