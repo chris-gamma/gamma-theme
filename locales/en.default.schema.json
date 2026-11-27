@@ -21,6 +21,10 @@
     "name": "Warranty policies",
     "block_info": "Lists every published warranty policy entry as collapsible rows, grouped by the first brand on each entry and sorted by name. Entries without a brand come first. Edit entries in Content > Metaobjects."
   },
+  "gamma_faq": {
+    "name": "FAQ",
+    "block_info": "Lists every published FAQ item entry as collapsible rows, by position and then by question. Edit entries in Content > Metaobjects."
+  },
   "gamma_collection_header": {
     "name": "Collection header",
     "block_info": "Shows the collection’s title, its number of products and its description.",

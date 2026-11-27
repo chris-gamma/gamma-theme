@@ -1,0 +1,32 @@
+{%- doc -%}
+  Renders one collapsed row in Horizon's accordion markup, for a list of rows inside an element with the
+  `gamma-disclosure-list accordion accordion--caret accordion--dividers` classes. The list's style matches the
+  product information accordion. The caller renders `accordion-styles` once.
+
+  @param {string} summary - Row title, already translated. It is escaped here.
+  @param {string} content - Row content (HTML).
+{%- enddoc -%}
+{%- capture row -%}
+  <details class="details">
+    <summary class="details__header">
+      {{ summary | escape }}
+      <span class="svg-wrapper icon-caret icon-animated">{{ 'icon-caret.svg' | inline_asset_content }}</span>
+      <span class="svg-wrapper icon-plus">{{ 'icon-plus.svg' | inline_asset_content }}</span>
+    </summary>
+    <div class="details-content">{{ content }}</div>
+  </details>
+{%- endcapture -%}
+{%- render 'accordion-custom-component', children: row -%}
+
+{% stylesheet %}
+  /* Rows match the product information accordion: 20 px titles on hairlines at every width. */
+  .gamma-disclosure-list {
+    --color-border: var(--gamma-color-rule);
+    --summary-font-family: var(--font-h4--family);
+    --summary-font-style: var(--font-h4--style);
+    --summary-font-weight: var(--font-h4--weight);
+    --summary-font-size: 1.25rem;
+    --summary-font-line-height: 1.2;
+    --summary-font-case: none;
+  }
+{% endstylesheet %}

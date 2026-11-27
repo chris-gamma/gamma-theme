@@ -12,6 +12,10 @@
     "name": "Politiques de garantie",
     "block_info": "Affiche chaque entrée de politique de garantie publiée en rangée repliable, regroupée selon la première marque de l’entrée et triée par nom. Les entrées sans marque viennent en premier. Modifiez les entrées dans Contenu > Métaobjets."
   },
+  "gamma_faq": {
+    "name": "FAQ",
+    "block_info": "Affiche chaque entrée de FAQ publiée en rangée repliable, par position, puis par question. Modifiez les entrées dans Contenu > Métaobjets."
+  },
   "gamma_collection_header": {
     "name": "En-tête de collection",
     "block_info": "Affiche le titre de la collection, son nombre de produits et sa description.",

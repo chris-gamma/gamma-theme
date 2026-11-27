@@ -1,0 +1,63 @@
+{%- doc -%}
+  Lists every published FAQ item entry as collapsed rows: by position (lowest first), then entries without a
+  position, each sorted by question in the storefront language.
+{%- enddoc -%}
+{%- paginate shop.metaobjects.faq_item.values by 250 -%}
+  {%- comment -%}
+    Paginated entries can't be read by index, so copy them into an array first. Sorting happens on keys built
+    from the position and the question without accents, because sort_natural puts É after Z.
+  {%- endcomment -%}
+  {%- assign entries = shop.metaobjects.faq_item.values | sort_natural: 'question' -%}
+  {%- capture sort_keys -%}
+    {%- for entry in entries -%}
+      {%- assign position = 999999 -%}
+      {%- if entry.position.value != blank -%}
+        {%- assign position = entry.position.value | plus: 100000 -%}
+      {%- endif -%}
+      {{- position -}}|{%- render 'gamma-sort-key', text: entry.question.value -%}@@{{ forloop.index0 }}##
+    {%- endfor -%}
+  {%- endcapture -%}
+  {%- assign sort_keys = sort_keys | split: '##' | sort -%}
+
+  {%- capture rows -%}
+    {%- for sort_key in sort_keys -%}
+      {%- assign entry_index = sort_key | split: '@@' | last | plus: 0 -%}
+      {%- assign entry = entries[entry_index] -%}
+      {%- capture content -%}{%- render 'gamma-policy-content', field: entry.answer -%}{%- endcapture -%}
+      {%- assign content = content | strip -%}
+      {%- if entry.question.value != blank and content != blank -%}
+        {%- render 'gamma-disclosure-row', summary: entry.question.value, content: content -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endcapture -%}
+{%- endpaginate -%}
+
+{%- if rows != blank -%}
+  <div
+    class="gamma-faq gamma-disclosure-list accordion accordion--caret accordion--dividers"
+    {{ block.shopify_attributes }}
+  >
+    {{ rows }}
+  </div>
+  {%- render 'accordion-styles' -%}
+{%- elsif request.design_mode -%}
+  <p class="gamma-faq" {{ block.shopify_attributes }}>{{ 'gamma_faq.editor_empty' | t }}</p>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:gamma_faq.name",
+  "tag": null,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:gamma_faq.block_info"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:gamma_faq.name"
+    }
+  ]
+}
+{% endschema %}
