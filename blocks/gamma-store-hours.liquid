@@ -27,7 +27,8 @@
 >
   {%- if hours != blank -%}
     {%- if show_notice -%}
-      <p class="gamma-hours__notice">{{ notice | escape }}</p>
+      {%- assign notice_message = notice | escape -%}
+      {%- render 'gamma-notice', icon: 'icon-info.svg', message: notice_message, variant: 'compact' -%}
     {%- endif -%}
     <table class="gamma-hours__table">
       <caption class="gamma-hours__caption{% unless block.settings.show_caption %} visually-hidden{% endunless %}">
@@ -87,24 +88,23 @@
     min-width: 0;
   }
 
-  .gamma-hours__notice {
-    margin: 0;
-    padding-inline-start: var(--padding-xs);
-    border-inline-start: 3px solid var(--gamma-hours-accent);
-    font-weight: var(--font-weight-bold, 700);
-    overflow-wrap: anywhere;
-  }
-
   .gamma-hours__table {
     width: 100%;
     border-collapse: collapse;
     font-variant-numeric: tabular-nums;
   }
 
+  /* The caption takes the label role. */
   .gamma-hours__caption:not(.visually-hidden) {
     caption-side: top;
-    margin-block-end: var(--margin-2xs, 0.25rem);
-    font-weight: var(--font-weight-bold, 700);
+    padding-block: var(--padding-xs) var(--padding-2xs);
+    font-family: var(--font-h6--family);
+    font-style: var(--font-h6--style);
+    font-weight: var(--font-h6--weight);
+    font-size: var(--gamma-type-label-size);
+    line-height: 1.35;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     text-align: start;
   }
 
