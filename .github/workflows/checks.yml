@@ -1,0 +1,56 @@
+name: Checks
+
+on:
+  push:
+    branches-ignore:
+      - main
+      - live
+      - live-pilot
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    env:
+      SHOPIFY_CLI_NO_ANALYTICS: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci --ignore-scripts
+
+      - name: Theme Check
+        run: npm run check
+
+      - name: JavaScript types
+        run: npm run check:js
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Whitespace
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ "$EVENT" = pull_request ]; then
+            base=$(git merge-base "$PR_BASE" HEAD)
+          elif [ -n "$BEFORE" ] && ! [[ "$BEFORE" =~ ^0+$ ]] && git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            base=$BEFORE
+          else
+            # A new branch: check what it adds to dev.
+            base=$(git merge-base origin/dev HEAD)
+          fi
+          git diff --check "$base" HEAD

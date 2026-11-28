@@ -67,6 +67,10 @@ Preserve merchant settings, translations and working Horizon behaviour. Record m
 
 Push with `git push origin dev`. The `upstream` remote is only for pulling Horizon updates; pushes to it are blocked locally.
 
+## Checks on GitHub
+
+`.github/workflows/checks.yml` runs Theme Check, the JavaScript types, the unit tests and `git diff --check` over the pushed commits on every push (except to `main`, `live` and `live-pilot`, which the release workflow checks) and on pull requests. Theme Check fails on errors and lists warnings without failing. The workflows use no secrets, and their actions are pinned to full commit SHAs; update the SHA and its version comment together.
+
 ## Updating Horizon
 
 Pick a verified stable release from [Shopify Horizon](https://github.com/Shopify/horizon), read its release notes and merge it, keeping upstream history and Gamma's customizations. Upstream `main` isn't necessarily stable. Leave existing vendor tags alone.
