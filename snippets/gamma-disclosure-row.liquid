@@ -4,12 +4,20 @@
   product information accordion. The caller renders `accordion-styles` once.
 
   @param {string} summary - Row title, already translated. It is escaped here.
+  @param {string} [detail] - A second line under the title, already translated and escaped (HTML).
   @param {string} content - Row content (HTML).
 {%- enddoc -%}
 {%- capture row -%}
   <details class="details">
     <summary class="details__header">
-      {{ summary | escape }}
+      {%- if detail != blank -%}
+        <span class="gamma-disclosure-row__title">
+          {{- summary | escape -}}
+          <span class="gamma-disclosure-row__detail">{{ detail }}</span>
+        </span>
+      {%- else -%}
+        {{ summary | escape }}
+      {%- endif %}
       <span class="svg-wrapper icon-caret icon-animated">{{ 'icon-caret.svg' | inline_asset_content }}</span>
       <span class="svg-wrapper icon-plus">{{ 'icon-plus.svg' | inline_asset_content }}</span>
     </summary>
@@ -28,5 +36,19 @@
     --summary-font-size: 1.25rem;
     --summary-font-line-height: 1.2;
     --summary-font-case: none;
+  }
+
+  .gamma-disclosure-row__title {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-2xs, 0.25rem);
+  }
+
+  .gamma-disclosure-row__detail {
+    font-family: var(--font-body--family);
+    font-size: var(--gamma-type-body-size);
+    font-weight: var(--font-body--weight);
+    line-height: 1.4;
+    color: var(--gamma-color-muted);
   }
 {% endstylesheet %}

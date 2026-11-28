@@ -13,6 +13,73 @@
       "online": "Commandes en ligne"
     }
   },
+  "gamma_blower_chart": {
+    "editor_empty": "Choisissez une entrée Tableau des souffleurs à feuilles. Les clients ne voient pas cette section avant qu’une entrée soit choisie.",
+    "good_to_know": "À savoir",
+    "as_of_html": "À jour au {{ date }}.",
+    "recheck": "Les règlements changent souvent, surtout au printemps et à l’automne. Vérifiez auprès de votre arrondissement ou de votre municipalité avant d’utiliser un souffleur.",
+    "not_legal_advice": "Ce tableau résume des règlements municipaux à titre informatif; il ne constitue pas un avis juridique.",
+    "power_tools_note": "* Outils motorisés : le règlement fixe des heures pour les outils bruyants en général sans nommer les souffleurs; nous les appliquons aux souffleurs.",
+    "jump_to": "Aller à",
+    "groups": {
+      "montreal_borough": "Arrondissements de Montréal",
+      "island_municipality": "Autres villes de l’île de Montréal",
+      "off_island": "Hors de l’île"
+    },
+    "group_count": "{{ count }} endroits",
+    "columns": {
+      "municipality": "Municipalité",
+      "gas": "Essence",
+      "season": "Saison permise",
+      "weekdays": "Lun. au ven.",
+      "saturday": "Samedi",
+      "sunday": "Dimanche",
+      "holidays": "Jours fériés",
+      "rule": "Règle",
+      "bylaw": "Règlement"
+    },
+    "status": {
+      "allowed": "Permis",
+      "two_stroke_banned": "2 temps interdits",
+      "seasonal": "Permis en saison",
+      "gas_banned_in_summer": "Interdit l’été",
+      "gas_limited": "Avril, oct. et nov.",
+      "all_gas_banned": "Essence interdite"
+    },
+    "all_year": "Toute l’année",
+    "hours": {
+      "none": "Interdit",
+      "not_addressed": "Non précisé",
+      "no_rule": "Aucune règle",
+      "no_set_hours": "Aucune heure fixée",
+      "unconfirmed": "À confirmer",
+      "range": "{{ start }} à {{ end }}",
+      "am": "",
+      "pm": "",
+      "noon": "12 h",
+      "labelled": "{{ label }} : {{ hours }}",
+      "prefix": {
+        "gas": "Essence",
+        "electric": "Électrique",
+        "mon_thu": "Lun. au jeu.",
+        "fri": "Ven."
+      }
+    },
+    "rule": {
+      "blower": "Souffleurs",
+      "tool": "Outils motorisés",
+      "blower_tool": "Souffleurs et outils motorisés",
+      "noise": "Bruit seulement",
+      "none": "Aucune règle"
+    },
+    "fine": {
+      "label_html": "Amende : {{ amount }}",
+      "range": "{{ min }} à {{ max }}",
+      "from": "à partir de {{ min }}"
+    },
+    "confirm": "À confirmer auprès de la municipalité",
+    "new_tab": "(nouvel onglet)"
+  },
   "gamma_availability": {
     "backorder": {
       "badge": "En rupture",

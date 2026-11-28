@@ -25,6 +25,11 @@
     "name": "FAQ",
     "block_info": "Lists every published FAQ item entry as collapsible rows, grouped by topic, then by position and question. Edit entries in Content > Metaobjects."
   },
+  "gamma_blower_chart": {
+    "name": "Leaf-blower chart",
+    "chart": "Chart",
+    "info": "Shows a Leaf-blower chart entry: its as-of date, the fine print and its municipalities in three groups. Edit entries in Content > Metaobjects."
+  },
   "gamma_collection_header": {
     "name": "Collection header",
     "block_info": "Shows the collection’s title, its number of products and its description.",

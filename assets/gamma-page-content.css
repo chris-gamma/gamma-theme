@@ -72,10 +72,12 @@
   Tables follow the product page's specification table: body size, no shading, sentence case, a 12% rule above the
   first row and under each row. On phones, a table of up to five columns shows each row's first cell across the
   width with the row's values below it, in the table's columns; wider tables scroll with their first column pinned.
+  The leaf-blower chart's tables take the same rules; below 990 px the chart shows disclosure rows instead.
 */
 .page-content,
 .shopify-policy__body .rte,
-:is(.gamma-policy, .gamma-warranty-policies, .gamma-faq) .details-content {
+:is(.gamma-policy, .gamma-warranty-policies, .gamma-faq) .details-content,
+.gamma-blower-chart__table {
   table {
     border-block-start: 1px solid var(--gamma-color-rule);
     font-size: var(--gamma-type-body-size);
