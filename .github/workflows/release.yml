@@ -1,0 +1,98 @@
+name: Release
+
+# Moves the live branch, and with it the theme Shopify keeps in sync with it, to main.
+# A push to main releases to live only once the LIVE_RELEASES variable is "on" (set at the launch
+# setup). Before that, run it by hand for the pilot branch.
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      live_branch:
+        description: Branch to release to
+        type: choice
+        options:
+          - live-pilot
+          - live
+        default: live-pilot
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  checks:
+    uses: ./.github/workflows/checks.yml
+
+  release:
+    needs: checks
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || vars.LIVE_RELEASES == 'on')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      LIVE_BRANCH: ${{ inputs.live_branch || 'live' }}
+      MAIN_SHA: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Check live for unreviewed admin changes
+        id: guard
+        env:
+          REVIEWER_EMAILS: ${{ vars.LIVE_REVIEWER_EMAILS }}
+        run: bash .github/scripts/release-guard.sh
+
+      - name: Replace live with main
+        env:
+          LIVE_SHA: ${{ steps.guard.outputs.live_sha }}
+        run: |
+          # Fails safely if Shopify commits to live after the guard read it.
+          git push --force-with-lease="refs/heads/$LIVE_BRANCH:$LIVE_SHA" origin "$MAIN_SHA:refs/heads/$LIVE_BRANCH"
+
+      - name: Close the admin-changes issue
+        run: |
+          title="Admin changes on $LIVE_BRANCH"
+          number=$(gh issue list --repo "$GITHUB_REPOSITORY" --label live-edits --state open --limit 100 --json number,title \
+            --jq "map(select(.title == \"$title\")) | first | .number // empty")
+          if [ -n "$number" ]; then
+            gh issue close "$number" --repo "$GITHUB_REPOSITORY" --comment "Released \`${MAIN_SHA:0:7}\` to \`$LIVE_BRANCH\`."
+          fi
+
+      - name: Check the storefront
+        if: env.LIVE_BRANCH == 'live' && vars.STOREFRONT_URL != ''
+        env:
+          STOREFRONT_URL: ${{ vars.STOREFRONT_URL }}
+        run: |
+          sleep 90
+          status=0
+          for path in / /en; do
+            code=$(curl -sS -L -o page.html -w '%{http_code}' "${STOREFRONT_URL%/}$path")
+            if [ "$code" != 200 ]; then
+              echo "::error::$path returned $code."
+              status=1
+            elif grep -q 'Liquid error' page.html; then
+              echo "::error::$path shows a Liquid error."
+              status=1
+            fi
+          done
+          exit $status
+
+      - name: Summary
+        if: always()
+        env:
+          STATUS: ${{ job.status }}
+        run: |
+          {
+            echo "Release of \`${MAIN_SHA:0:7}\` to \`$LIVE_BRANCH\`: $STATUS."
+            echo
+            echo "Shopify reports a failed theme sync only in Admin, under the theme's **View logs**."
+          } >>"$GITHUB_STEP_SUMMARY"

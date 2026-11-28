@@ -71,6 +71,53 @@ Push with `git push origin dev`. The `upstream` remote is only for pulling Horiz
 
 `.github/workflows/checks.yml` runs Theme Check, the JavaScript types, the unit tests and `git diff --check` over the pushed commits on every push (except to `main`, `live` and `live-pilot`, which the release workflow checks) and on pull requests. Theme Check fails on errors and lists warnings without failing. The workflows use no secrets, and their actions are pinned to full commit SHAs; update the SHA and its version comment together.
 
+## Releases
+
+`dev` collects integrated work and `main` holds releases. From launch, Shopify's GitHub integration connects the `live` branch to the live theme. Pushes to `dev` and other branches never reach it.
+
+To release:
+
+1. On `dev`, rename the CHANGELOG's Unreleased heading to the new version, such as `## 1.2.0 - 2027-03-04`, and add a new Unreleased heading.
+2. Preview the release candidate as an unpublished theme on the production store.
+3. Open a pull request from `dev` to `main` and wait for its checks.
+4. Merge it locally, sign a version tag and push both:
+
+   ```sh
+   git switch main
+   git merge --no-ff dev
+   git tag -s v1.2.0 -m v1.2.0
+   git push origin main v1.2.0
+   ```
+
+   The push marks the pull request merged.
+
+The push to `main` starts `.github/workflows/release.yml`. It runs the checks, then replaces `live` with `main`, and Shopify syncs the live theme. If `live` has admin changes that haven't been reviewed, it stops, leaves `live` and the theme unchanged and comments on the admin-changes issue. It pushes with the workflow's own token and `--force-with-lease`, so a Shopify commit during the run makes it fail safely. Afterwards it closes the issue and checks that `/` and `/en` load without a Liquid error. A failed sync shows only in Admin, under the theme's **View logs**.
+
+### Admin changes on `live`
+
+Theme editor and code editor saves on the live theme take effect at once and arrive on `live` as Shopify's commits. `.github/workflows/admin-changes.yml` keeps one open issue, "Admin changes on live", with the compare link, the commits and the changed files grouped as theme editor (`templates/`, `sections/*.json`, `config/settings_data.json`), theme content (`locales/`) and code. Each new batch adds a comment. `git diff $(git merge-base origin/main origin/live) origin/live` is always the set not yet reviewed.
+
+From launch the merchant owns `templates/*.json`, `sections/*.json` and `config/settings_data.json`; change them on a branch only where a schema change requires it. A branch that renames or removes a setting, block or section names the content that has to move, and the review moves it.
+
+### Reviewing admin changes
+
+Before a release, when `live` has admin changes:
+
+1. `git fetch origin`, then read the log and diff from `$(git merge-base origin/main origin/live)` to `origin/live`.
+2. Start a `chore/live-edits-<date>` branch from `dev`.
+3. Apply the changes with `git diff <base> origin/live | git apply --3way`. Edits to different parts of a file merge; edits to the same lines stop as conflicts. The merge is textual, so a clean result can still be wrong JSON content: read it.
+4. Move content onto any renamed settings, blocks or sections, commit in plain signed steps (such as "Update home page from the live theme editor"), run `npm run check:all` and preview the result.
+5. Tag the reviewed head: `git tag -s live-reviewed/<date> origin/live`, then `git push origin live-reviewed/<date>`. The tag records the review up to that commit, including changes deliberately left out, and keeps Shopify's commits reachable after `live` is replaced.
+6. Integrate the branch into `dev` and release.
+
+The release accepts `live` only if it has no commits since the last release, or if its head is the commit of the newest `live-reviewed/` tag and GitHub verifies that tag's signature for an address in the `LIVE_REVIEWER_EMAILS` variable. A save after the tag blocks the release until it is reviewed too.
+
+### Repository settings
+
+- Variables: `LIVE_RELEASES` set to `on` lets a push to `main` release to `live`; until then, run the release workflow by hand for `live-pilot`. `LIVE_REVIEWER_EMAILS` lists the addresses whose signed review tags are accepted, comma-separated. `STOREFRONT_URL` is the address the release checks.
+- A ruleset on `live` blocks deletion and allows updates only from Shopify's GitHub app and GitHub Actions.
+- If a ruleset on `main` requires pull requests, give the maintainer a bypass, so the local merge can be pushed.
+
 ## Updating Horizon
 
 Pick a verified stable release from [Shopify Horizon](https://github.com/Shopify/horizon), read its release notes and merge it, keeping upstream history and Gamma's customizations. Upstream `main` isn't necessarily stable. Leave existing vendor tags alone.
