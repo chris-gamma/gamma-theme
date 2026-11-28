@@ -29,15 +29,6 @@
   {% endcapture %}
   <div
     class="gamma-policy gamma-policy--collapsible accordion accordion--caret accordion--dividers"
-    style="
-      --summary-font-family: var(--font-h6--family);
-      --summary-font-style: var(--font-h6--style);
-      --summary-font-weight: var(--font-h6--weight);
-      --summary-font-size: var(--font-h6--size);
-      --summary-font-line-height: var(--font-h6--line-height);
-      --summary-font-case: var(--font-h6--case);
-      --gamma-policy-divider-color: {{ settings.color_palette.brand }};
-    "
     {{ block.shopify_attributes }}
   >
     {% render 'accordion-custom-component',
@@ -67,9 +58,20 @@
     margin-block-end: var(--margin-md);
   }
 
+  /* Rows match the product information accordion: 20 px titles on hairlines at every width. */
+  .gamma-policy--collapsible {
+    --color-border: var(--gamma-color-rule);
+    --summary-font-family: var(--font-h4--family);
+    --summary-font-style: var(--font-h4--style);
+    --summary-font-weight: var(--font-h4--weight);
+    --summary-font-size: 1.25rem;
+    --summary-font-line-height: 1.2;
+    --summary-font-case: none;
+  }
+
   /* Each row is its own accordion, so outrank Horizon's first-row rule that removes the top border. */
   .gamma-policy--collapsible + .gamma-policy--collapsible accordion-custom:first-child .details {
-    border-block-start: var(--style-border-width) solid var(--gamma-policy-divider-color);
+    border-block-start: var(--style-border-width) solid var(--color-border);
   }
 {% endstylesheet %}
 

@@ -5,6 +5,6 @@
 {%- render 'gamma-tokens' %}
 {{ 'gamma-privacy.css' | asset_url | stylesheet_tag }}
 {{ 'gamma-media.css' | asset_url | stylesheet_tag }}
-{%- if page.content contains 'display-card-table' -%}
+{%- if request.page_type == 'page' or request.page_type == 'policy' -%}
   {{ 'gamma-page-content.css' | asset_url | stylesheet_tag }}
 {%- endif -%}

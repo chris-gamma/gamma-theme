@@ -1,3 +1,189 @@
+/*
+  Business pages: page bodies, policies and the policy, warranty and FAQ rows. Prose is set at the reading size
+  and measure, and headings take the type roles by level. Tables, panels and fine print stay at the body size.
+  Loaded on pages and policies only (`snippets/stylesheets.liquid`).
+*/
+.page-content,
+.shopify-policy__body .rte,
+:is(.gamma-policy, .gamma-warranty-policies, .gamma-faq) .details-content {
+  :is(p, ul, ol) {
+    font-size: var(--gamma-type-reading-size);
+    line-height: 1.55;
+  }
+
+  :is(p, ul, ol, h2, h3, h4, h5, h6) {
+    max-inline-size: var(--gamma-measure-text);
+  }
+
+  h2 {
+    font-family: var(--font-h3--family);
+    font-style: var(--font-h3--style);
+    font-weight: var(--font-h3--weight);
+    font-size: var(--gamma-type-section-size);
+    line-height: var(--font-h3--line-height);
+    letter-spacing: var(--font-h3--letter-spacing);
+    text-transform: var(--font-h3--case);
+  }
+
+  h3 {
+    font-family: var(--font-h4--family);
+    font-style: var(--font-h4--style);
+    font-weight: var(--font-h4--weight);
+    font-size: var(--gamma-type-group-size);
+    line-height: var(--font-h4--line-height);
+    letter-spacing: var(--font-h4--letter-spacing);
+    text-transform: var(--font-h4--case);
+  }
+
+  h4 {
+    font-family: var(--font-h6--family);
+    font-style: var(--font-h6--style);
+    font-weight: var(--font-h6--weight);
+    font-size: var(--gamma-type-label-size);
+    line-height: 1.35;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  :is(h5, h6) {
+    margin-block-end: 0.25em;
+    font-family: var(--font-body--family);
+    font-style: normal;
+    font-weight: var(--font-weight-bold, 700);
+    font-size: var(--gamma-type-reading-size);
+    line-height: 1.4;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+
+  /* Fine print: small text, and a paragraph that is only an italic disclaimer. */
+  :is(small, p:has(> em:only-child)) {
+    color: var(--gamma-color-muted);
+    font-size: var(--gamma-type-body-size);
+  }
+
+  p:has(> small:only-child) {
+    font-size: var(--gamma-type-body-size);
+    line-height: 1.5;
+  }
+}
+
+/*
+  Tables follow the product page's specification table: body size, no shading, sentence case, a 12% rule above the
+  first row and under each row. On phones, a table of up to five columns shows each row's first cell across the
+  width with the row's values below it, in the table's columns; wider tables scroll with their first column pinned.
+*/
+.page-content,
+.shopify-policy__body .rte,
+:is(.gamma-policy, .gamma-warranty-policies, .gamma-faq) .details-content {
+  table {
+    border-block-start: 1px solid var(--gamma-color-rule);
+    font-size: var(--gamma-type-body-size);
+    line-height: 1.5;
+  }
+
+  :is(td, th) :is(p, ul, ol) {
+    margin-block: 0;
+    font-size: inherit;
+    line-height: inherit;
+  }
+
+  :is(td, th) > * + * {
+    margin-block-start: 0.25em;
+  }
+
+  /* The `table` in these selectors outweighs Horizon's `.rte` table rules, so they don't depend on load order. */
+  table :is(thead, tr:not(:has(td))) {
+    background: none;
+    font-weight: inherit;
+    text-transform: none;
+  }
+
+  table :is(thead, tbody, tfoot) > tr {
+    border-block-end: 1px solid var(--gamma-color-rule);
+  }
+
+  /* Long words such as « Professionnel » break inside narrow columns, for example at 200% zoom on a phone. */
+  table :is(th, td) {
+    padding: var(--padding-sm) var(--padding-md) var(--padding-sm) 0;
+    vertical-align: top;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  table th {
+    font-weight: 600;
+  }
+
+  table thead th {
+    color: var(--gamma-color-muted);
+  }
+}
+
+@media screen and (max-width: 749px) {
+  :is(.page-content, .shopify-policy__body .rte, :is(.gamma-policy, .gamma-warranty-policies, .gamma-faq) .details-content)
+    table:not(:has(tr > :nth-child(6))) {
+    &,
+    > :is(thead, tbody, tfoot) {
+      display: block;
+    }
+
+    tr {
+      display: grid;
+      grid-template-columns: repeat(var(--gamma-table-values, 1), minmax(0, 1fr));
+      column-gap: var(--gap-md);
+    }
+
+    tr:has(> :nth-child(3)) {
+      --gamma-table-values: 2;
+    }
+
+    tr:has(> :nth-child(4)) {
+      --gamma-table-values: 3;
+    }
+
+    tr:has(> :nth-child(5)) {
+      --gamma-table-values: 4;
+    }
+
+    tr > :first-child {
+      grid-column: 1 / -1;
+      padding-block-end: 0;
+    }
+
+    thead tr > :first-child:empty {
+      display: none;
+    }
+  }
+
+  :is(.page-content, .shopify-policy__body .rte, :is(.gamma-policy, .gamma-warranty-policies, .gamma-faq) .details-content)
+    table:has(tr > :nth-child(6))
+    tr
+    > :first-child {
+    position: sticky;
+    inset-inline-start: 0;
+    background: var(--color-background);
+  }
+}
+
+/* Policy titles take the page-title role, as page titles do. */
+.shopify-policy__title h1 {
+  font-size: var(--gamma-type-page-size);
+}
+
+/* An address with its phone and e-mail links on their own lines: each link is a 24 px target. */
+main .text-block p:has(> a[href^='tel:'] + br) {
+  line-height: 1.75;
+
+  > a {
+    display: inline-block;
+    min-block-size: 24px;
+    padding-block: 3px;
+    line-height: 18px;
+  }
+}
+
+/* Department cards in the contact page's body. */
 .rte .display-card-table {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
@@ -8,6 +194,71 @@
 .rte .display-card {
   padding: var(--padding-lg) var(--padding-xl);
   border-radius: var(--style-border-radius-md);
-  background-color: rgb(var(--color-foreground-rgb) / var(--opacity-5));
+  background-color: var(--gamma-color-panel);
+  font-size: var(--gamma-type-body-size);
   overflow-wrap: anywhere;
+}
+
+/* A card's leading bold line is its title, in the group role at the accordion rows' 20 px. */
+.rte .display-card > strong:first-child {
+  display: block;
+  margin-block-end: var(--margin-xs, 0.5rem);
+  font-family: var(--font-h4--family);
+  font-style: var(--font-h4--style);
+  font-weight: var(--font-h4--weight);
+  font-size: 1.25rem;
+  line-height: 1.2;
+}
+
+.rte .display-card > strong:first-child + br {
+  display: none;
+}
+
+.rte .display-card a {
+  text-decoration-line: underline;
+  text-decoration-color: currentcolor;
+}
+
+/*
+  A document link alone in its paragraph is a secondary action, styled as Horizon's secondary button. CSS can't
+  see text beside the link, so this relies on the paragraph holding only the link.
+*/
+.page-content p > a:is([href*='.pdf' i], [href*='.doc' i]):only-child {
+  --button-color: var(--color-secondary-button-text);
+  --button-background-color: var(--color-secondary-button-background);
+  --button-border-color: var(--color-secondary-button-border);
+  --button-border-width: var(--style-border-width-secondary);
+
+  display: inline-grid;
+  align-content: center;
+  min-height: var(--minimum-touch-target);
+  padding-block: var(--button-padding-block);
+  padding-inline: var(--button-padding-inline);
+  border-radius: var(--style-border-radius-buttons-secondary);
+  box-shadow: inset 0 0 0 var(--button-border-width) var(--button-border-color);
+  background-color: var(--button-background-color);
+  color: var(--button-color);
+  font-family: var(--button-font-family-secondary);
+  font-style: var(--button-font-style-secondary);
+  font-weight: var(--button-font-weight-secondary);
+  font-size: var(--font-paragraph--size);
+  line-height: var(--font-paragraph--line-height);
+  text-transform: var(--button-text-case-secondary);
+  text-decoration: none;
+  transition: color var(--animation-speed) var(--animation-easing),
+    box-shadow var(--animation-speed) var(--animation-easing),
+    background-color var(--animation-speed) var(--animation-easing);
+
+  &:hover {
+    --button-color: var(--color-secondary-button-hover-text);
+    --button-background-color: var(--color-secondary-button-hover-background);
+    --button-border-color: var(--color-secondary-button-hover-border);
+  }
+}
+
+/* The contact form's send button spans the width on phones, as primary buttons do there. */
+@media screen and (max-width: 749px) {
+  .contact-form .submit-button {
+    width: 100%;
+  }
 }

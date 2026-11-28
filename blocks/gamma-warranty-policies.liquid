@@ -1,0 +1,95 @@
+{%- doc -%}
+  Lists every active warranty policy entry as collapsed rows, grouped by the first brand each entry names.
+  Groups are ordered by brand name and rows by entry name, in the storefront language. Entries without a brand come first, without a heading.
+{%- enddoc -%}
+{%- paginate shop.metaobjects.warranty_policy.values by 250 -%}
+  {%- comment -%}
+    Paginated entries can't be read by index, so copy them into an array first. Sorting happens on keys built
+    from the brand and entry names without accents, because sort_natural puts É after Z.
+  {%- endcomment -%}
+  {%- assign entries = shop.metaobjects.warranty_policy.values | sort_natural: 'product_brand_type' -%}
+  {%- capture sort_keys -%}
+    {%- for entry in entries -%}
+      {%- assign brand_key = '0' -%}
+      {%- assign brand_handle = '-' -%}
+      {%- for brand in entry.brands.value limit: 1 -%}
+        {%- capture brand_key -%}1{%- render 'gamma-sort-key', text: brand.name.value -%}{%- endcapture -%}
+        {%- assign brand_handle = brand.system.handle -%}
+      {%- endfor -%}
+      {%- assign name = entry.product_brand_type.value | default: entry.system.handle -%}
+      {{- brand_key }} {% render 'gamma-sort-key', text: name %} @@{{ brand_handle }}@@{{ forloop.index0 }}##
+    {%- endfor -%}
+  {%- endcapture -%}
+  {%- assign sort_keys = sort_keys | split: '##' | sort -%}
+
+  {%- capture groups -%}
+    {%- assign group_handle = nil -%}
+    {%- assign brand_names = '' -%}
+    {%- assign rows = '' -%}
+    {%- for sort_key in sort_keys -%}
+      {%- assign parts = sort_key | split: '@@' -%}
+      {%- assign entry_handle = parts[1] -%}
+      {%- assign entry_index = parts[2] | plus: 0 -%}
+      {%- assign entry = entries[entry_index] -%}
+      {%- if entry_handle != group_handle -%}
+        {%- render 'gamma-warranty-policies-group', brand_names: brand_names, rows: rows, branded: group_handle -%}
+        {%- assign group_handle = entry_handle -%}
+        {%- assign brand_names = '' -%}
+        {%- assign rows = '' -%}
+      {%- endif -%}
+      {%- capture content -%}{%- render 'gamma-policy-content', policy: entry, type: 'warranty_policy' -%}{%- endcapture -%}
+      {%- assign content = content | strip -%}
+      {%- if content != blank -%}
+        {%- comment -%}Only rows that show name the group's brands.{%- endcomment -%}
+        {%- for brand in entry.brands.value -%}
+          {%- assign listed = brand_names | split: '##' -%}
+          {%- unless listed contains brand.name.value -%}
+            {%- assign brand_names = brand_names | append: brand.name.value | append: '##' -%}
+          {%- endunless -%}
+        {%- endfor -%}
+        {%- assign summary = entry.product_brand_type.value | default: entry.system.handle -%}
+        {%- capture row -%}{%- render 'gamma-disclosure-row', summary: summary, content: content -%}{%- endcapture -%}
+        {%- assign rows = rows | append: row -%}
+      {%- endif -%}
+    {%- endfor -%}
+    {%- render 'gamma-warranty-policies-group', brand_names: brand_names, rows: rows, branded: group_handle -%}
+  {%- endcapture -%}
+{%- endpaginate -%}
+
+{%- if groups != blank -%}
+  <div class="gamma-warranty-policies" {{ block.shopify_attributes }}>{{ groups }}</div>
+  {%- render 'accordion-styles' -%}
+{%- elsif request.design_mode -%}
+  <p class="gamma-warranty-policies" {{ block.shopify_attributes }}>{{ 'gamma_warranty_policies.editor_empty' | t }}</p>
+{%- endif -%}
+
+{% stylesheet %}
+  .gamma-warranty-policies {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-3xl);
+    width: 100%;
+  }
+
+  .gamma-warranty-policies__heading {
+    margin-block: 0 var(--margin-md);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:gamma_warranty_policies.name",
+  "tag": null,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:gamma_warranty_policies.block_info"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:gamma_warranty_policies.name"
+    }
+  ]
+}
+{% endschema %}

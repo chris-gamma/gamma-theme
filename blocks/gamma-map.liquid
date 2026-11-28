@@ -407,12 +407,14 @@
     }
   }
 
-  /* Top right, the corner uMap leaves free when its map isn't being edited. */
+  /* Top right, the corner uMap leaves free when its map isn't being edited. It keeps a full touch target. */
   .gamma-map .gamma-map__off {
     position: absolute;
     z-index: 3;
     inset-block-start: 0.375rem;
     inset-inline-end: 0.375rem;
+    min-width: var(--minimum-touch-target);
+    min-height: var(--minimum-touch-target);
     padding: 0;
     cursor: pointer;
   }
