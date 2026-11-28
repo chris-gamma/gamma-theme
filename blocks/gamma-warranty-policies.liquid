@@ -37,15 +37,16 @@
         {%- assign brand_names = '' -%}
         {%- assign rows = '' -%}
       {%- endif -%}
-      {%- for brand in entry.brands.value -%}
-        {%- assign listed = brand_names | split: '##' -%}
-        {%- unless listed contains brand.name.value -%}
-          {%- assign brand_names = brand_names | append: brand.name.value | append: '##' -%}
-        {%- endunless -%}
-      {%- endfor -%}
       {%- capture content -%}{%- render 'gamma-policy-content', policy: entry, type: 'warranty_policy' -%}{%- endcapture -%}
       {%- assign content = content | strip -%}
       {%- if content != blank -%}
+        {%- comment -%}Only rows that show name the group's brands.{%- endcomment -%}
+        {%- for brand in entry.brands.value -%}
+          {%- assign listed = brand_names | split: '##' -%}
+          {%- unless listed contains brand.name.value -%}
+            {%- assign brand_names = brand_names | append: brand.name.value | append: '##' -%}
+          {%- endunless -%}
+        {%- endfor -%}
         {%- assign summary = entry.product_brand_type.value | default: entry.system.handle -%}
         {%- capture row -%}{%- render 'gamma-disclosure-row', summary: summary, content: content -%}{%- endcapture -%}
         {%- assign rows = rows | append: row -%}
