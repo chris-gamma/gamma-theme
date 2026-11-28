@@ -91,7 +91,7 @@ To release:
 
    The push marks the pull request merged.
 
-The push to `main` starts `.github/workflows/release.yml`. It runs the checks, then replaces `live` with `main`, and Shopify syncs the live theme. If `live` has admin changes that haven't been reviewed, it stops, leaves `live` and the theme unchanged and comments on the admin-changes issue. It pushes with the workflow's own token and `--force-with-lease`, so a Shopify commit during the run makes it fail safely. Afterwards it closes the issue and checks that `/` and `/en` load without a Liquid error. A failed sync shows only in Admin, under the theme's **View logs**.
+The push to `main` starts `.github/workflows/release.yml`. It runs the checks, then replaces `live` with `main`, and Shopify syncs the live theme. If `live` has admin changes that haven't been reviewed, it stops, leaves `live` and the theme unchanged and comments on the admin-changes issue. It pushes with the workflow's own token and `--force-with-lease`, so a Shopify commit during the run makes it fail safely. GitHub doesn't let that token push changes to workflow files, so a release that adds or changes a file in `.github/workflows/` stops after the guard and puts the exact `git push --force-with-lease` command in the run's summary. Run it yourself, then re-run the release: it finds `live` at `main`, closes the issue and checks the storefront. Afterwards it closes the issue and checks that `/` and `/en` load without a Liquid error. A failed sync shows only in Admin, under the theme's **View logs**.
 
 ### Admin changes on `live`
 
