@@ -713,5 +713,22 @@
       "success_moderated": "Commentaire publié, en attente de modération",
       "success": "Commentaire publié"
     }
+  },
+  "shopify": {
+    "checkout": {
+      "split_delivery": {
+        "items_moved_to_shipping_toast": "Les articles qui ne peuvent pas être retirés ont été transférés à l’expédition.",
+        "delivery_updated_toast": {
+          "shipping": {
+            "one": "{{count}} article a été transféré à l’expédition.",
+            "other": "{{count}} articles ont été transférés à l’expédition."
+          },
+          "removal": {
+            "one": "{{count}} élément a été supprimé.",
+            "other": "{{count}} éléments ont été supprimés."
+          }
+        }
+      }
+    }
   }
 }
