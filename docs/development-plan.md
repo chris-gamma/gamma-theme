@@ -1889,7 +1889,7 @@ Record material changes to required behavior, data contracts or architecture in 
 
 ## Releases and the live theme
 
-**Status:** Planned (decision of 2026-11-22). T30, T31, the S7 pilot and the launch setup each need authorization; Q28–Q30 were resolved on 2026-11-27.
+**Status:** Implemented on `chore/release-ci` (2026-11-27) and not yet run on GitHub. Releases to `live` wait for the `LIVE_RELEASES` repository variable, set at the launch setup, and `live-pilot` can be released by hand for S7; review tags are accepted from the addresses in `LIVE_REVIEWER_EMAILS`, and `STOREFRONT_URL` is the address the release checks. T31, the S7 pilot and the launch setup each need authorization; Q28–Q30 were resolved on 2026-11-27, and Q31 is open.
 
 The theme stays buildless. Shopify minifies theme CSS and JavaScript when the storefront requests them, compresses them with Brotli or gzip, serves them with versioned one-year cache URLs and subsets `{% stylesheet %}` CSS to each page's render tree. Its minifier keeps identifiers, which leaves about 11 KB of brotli-compressed JavaScript on a first home-page visit (measured on 2026-11-21 against Shopify's Horizon demo store); a build step or transformed deploy branch would cost more in sync, debugging and Horizon-update work than that saves. CI instead checks every push, collects the changes made in Shopify Admin on the live theme for review, and moves the live theme to each release.
 
@@ -1946,7 +1946,9 @@ S7 runs the collection and release workflows by manual dispatch on Gamma-Dev, wi
 1. that Shopify's app can push under the `live` ruleset, and whether its commits show as verified;
 2. that a force push made with `GITHUB_TOKEN` triggers the theme sync and removes deleted files from the theme;
 3. that a save after the review tag blocks the release;
-4. how Shopify lays out the JSON it writes.
+4. how Shopify lays out the JSON it writes;
+5. whether the workflow's `GITHUB_TOKEN` may move `live-pilot` to a `main` that adds or changes files in `.github/workflows/`: GitHub refuses workflow changes from a token without the `workflows` permission, which `GITHUB_TOKEN` can't have, so the first pilot release, onto a branch without the workflows, should show it (Q31);
+6. that GitHub reports a review tag as unverified when its tagger address isn't a verified address of the signing key's owner, which the release guard relies on.
 
 At the Primary cutover, `live` is created from `main`, connected to a new theme on Primary and published, and a ruleset allows no deletion and updates only by Shopify's GitHub app and GitHub Actions. Commits on `live` are exempt from the signing rule, because they never reach `dev` or `main`; the release workflow's force push to `live` is the one standing exception to the force-push rule. T30 records both in `AGENTS.md`, with the review step and the release in `README.md`.
 
@@ -1995,6 +1997,7 @@ Independent local work can proceed while these are resolved. Resolve each before
 | Q28 | Release convention: how `dev` reaches `main`, and whether releases get version tags and CHANGELOG headings | All (releases) | Resolved 2026-11-27: a pull request from `dev` to `main` for the checks, merged locally with `git merge --no-ff dev` (signed, keeping Git's message) and pushed, which marks the pull request merged. `main` has no ruleset or branch protection yet; the ruleset that requires the pull request must allow that push for Chris. Releases get signed `v<major>.<minor>.<patch>` tags, and the CHANGELOG's Unreleased heading becomes the version |
 | Q29 | Whether Primary's development theme, connected to `dev`, is edited in the theme editor after launch; Shopify's commits from it would land on `dev` unsigned | All (releases) | Resolved 2026-11-27: content is edited only on the live theme, and the development theme only through code |
 | Q30 | The preview of each release candidate as an unpublished theme on Primary: approved with each release, or a standing approval | All (releases) | Resolved 2026-11-27: approved with each release |
+| Q31 | How a release that adds or changes workflow files reaches `live`, since the release workflow's `GITHUB_TOKEN` can't push workflow changes (review of T30, 2026-11-27; confirmed or ruled out by S7): a GitHub App token with the `workflows` permission, stored as a repository secret, which can then write any branch; or Chris moving `live` himself for those releases once the workflow's guard has passed, an exception to “nobody pushes to it by hand”. `live` is created from `main` at the cutover, so only later releases that change a workflow are affected | All (releases) | Open; recommended: Chris moves `live` by hand for those rare releases, keeping no write credential in GitHub |
 
 ### Material requirement and architecture decisions
 
