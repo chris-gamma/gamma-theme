@@ -15,7 +15,12 @@
     "editor_empty": "There are no published warranty policy entries. Customers don’t see this block until one is published."
   },
   "gamma_faq": {
-    "editor_empty": "There are no published FAQ item entries. Customers don’t see this block until one is published."
+    "editor_empty": "There are no published FAQ item entries. Customers don’t see this block until one is published.",
+    "topics": {
+      "rentals": "Rentals",
+      "in_store": "In-store purchases",
+      "online": "Online orders"
+    }
   },
   "gamma_availability": {
     "backorder": {

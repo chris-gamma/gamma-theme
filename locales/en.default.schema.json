@@ -23,7 +23,7 @@
   },
   "gamma_faq": {
     "name": "FAQ",
-    "block_info": "Lists every published FAQ item entry as collapsible rows, by position and then by question. Edit entries in Content > Metaobjects."
+    "block_info": "Lists every published FAQ item entry as collapsible rows, grouped by topic, then by position and question. Edit entries in Content > Metaobjects."
   },
   "gamma_collection_header": {
     "name": "Collection header",

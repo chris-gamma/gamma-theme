@@ -1,0 +1,16 @@
+{%- doc -%}
+  Renders one topic group of FAQ rows.
+  @param {string} rows - Rendered accordion rows.
+  @param {number} [rank] - The topic's place in `topics`, from 1; 0 for entries without a known topic.
+  @param {string[]} topics - The topic values, in display order.
+{%- enddoc -%}
+{%- if rows != blank -%}
+  <div class="gamma-faq__group">
+    {%- if rank > 0 -%}
+      {%- assign topic_index = rank | minus: 1 -%}
+      {%- assign heading_key = 'gamma_faq.topics.' | append: topics[topic_index] -%}
+      <h2 class="gamma-faq__heading gamma-type-section">{{ heading_key | t }}</h2>
+    {%- endif -%}
+    <div class="gamma-disclosure-list accordion accordion--caret accordion--dividers">{{ rows }}</div>
+  </div>
+{%- endif -%}

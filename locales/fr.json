@@ -6,7 +6,12 @@
     "editor_empty": "Aucune entrée de politique de garantie n’est publiée. Les clients ne voient pas ce bloc avant qu’une entrée soit publiée."
   },
   "gamma_faq": {
-    "editor_empty": "Aucune entrée de FAQ n’est publiée. Les clients ne voient pas ce bloc avant qu’une entrée soit publiée."
+    "editor_empty": "Aucune entrée de FAQ n’est publiée. Les clients ne voient pas ce bloc avant qu’une entrée soit publiée.",
+    "topics": {
+      "rentals": "Location",
+      "in_store": "Achats en magasin",
+      "online": "Commandes en ligne"
+    }
   },
   "gamma_availability": {
     "backorder": {

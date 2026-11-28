@@ -1,48 +1,76 @@
 {%- doc -%}
-  Lists every published FAQ item entry as collapsed rows: by position (lowest first), then entries without a
-  position, each sorted by question in the storefront language.
+  Lists every published FAQ item entry as collapsed rows, grouped by topic: rentals, in-store purchases, then
+  online orders, each under its heading. Entries with no known topic come first, without a heading. Inside a
+  group, rows go by position (lowest first), then entries without a position, each sorted by question in the
+  storefront language.
 {%- enddoc -%}
+{%- assign topics = 'rentals,in_store,online' | split: ',' -%}
 {%- paginate shop.metaobjects.faq_item.values by 250 -%}
   {%- comment -%}
     Paginated entries can't be read by index, so copy them into an array first. Sorting happens on keys built
-    from the position and the question without accents, because sort_natural puts É after Z.
+    from the topic's rank, the position and the question without accents, because sort_natural puts É after Z.
   {%- endcomment -%}
   {%- assign entries = shop.metaobjects.faq_item.values | sort_natural: 'question' -%}
   {%- capture sort_keys -%}
     {%- for entry in entries -%}
+      {%- assign rank = 0 -%}
+      {%- for topic in topics -%}
+        {%- if entry.topic.value == topic -%}
+          {%- assign rank = forloop.index -%}
+        {%- endif -%}
+      {%- endfor -%}
       {%- assign position = 999999 -%}
       {%- if entry.position.value != blank -%}
         {%- assign position = entry.position.value | plus: 100000 -%}
       {%- endif -%}
-      {{- position -}}|{%- render 'gamma-sort-key', text: entry.question.value -%}@@{{ forloop.index0 }}##
+      {{- rank -}}|{{- position -}}|{%- render 'gamma-sort-key', text: entry.question.value -%}@@{{ rank }}@@{{ forloop.index0 }}##
     {%- endfor -%}
   {%- endcapture -%}
   {%- assign sort_keys = sort_keys | split: '##' | sort -%}
 
-  {%- capture rows -%}
+  {%- capture groups -%}
+    {%- assign group_rank = nil -%}
+    {%- assign rows = '' -%}
     {%- for sort_key in sort_keys -%}
-      {%- assign entry_index = sort_key | split: '@@' | last | plus: 0 -%}
+      {%- assign parts = sort_key | split: '@@' -%}
+      {%- assign entry_rank = parts[1] | plus: 0 -%}
+      {%- assign entry_index = parts[2] | plus: 0 -%}
       {%- assign entry = entries[entry_index] -%}
+      {%- if entry_rank != group_rank -%}
+        {%- render 'gamma-faq-group', rows: rows, rank: group_rank, topics: topics -%}
+        {%- assign group_rank = entry_rank -%}
+        {%- assign rows = '' -%}
+      {%- endif -%}
       {%- capture content -%}{%- render 'gamma-policy-content', field: entry.answer -%}{%- endcapture -%}
       {%- assign content = content | strip -%}
       {%- if entry.question.value != blank and content != blank -%}
-        {%- render 'gamma-disclosure-row', summary: entry.question.value, content: content -%}
+        {%- capture row -%}{%- render 'gamma-disclosure-row', summary: entry.question.value, content: content -%}{%- endcapture -%}
+        {%- assign rows = rows | append: row -%}
       {%- endif -%}
     {%- endfor -%}
+    {%- render 'gamma-faq-group', rows: rows, rank: group_rank, topics: topics -%}
   {%- endcapture -%}
 {%- endpaginate -%}
 
-{%- if rows != blank -%}
-  <div
-    class="gamma-faq gamma-disclosure-list accordion accordion--caret accordion--dividers"
-    {{ block.shopify_attributes }}
-  >
-    {{ rows }}
-  </div>
+{%- if groups != blank -%}
+  <div class="gamma-faq" {{ block.shopify_attributes }}>{{ groups }}</div>
   {%- render 'accordion-styles' -%}
 {%- elsif request.design_mode -%}
   <p class="gamma-faq" {{ block.shopify_attributes }}>{{ 'gamma_faq.editor_empty' | t }}</p>
 {%- endif -%}
+
+{% stylesheet %}
+  .gamma-faq {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-3xl);
+    width: 100%;
+  }
+
+  .gamma-faq__heading {
+    margin-block: 0 var(--margin-md);
+  }
+{% endstylesheet %}
 
 {% schema %}
 {
