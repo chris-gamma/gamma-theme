@@ -51,11 +51,20 @@
         "content_direction": "column",
         "gap": 32,
         "padding-block-start": 40,
+        "padding-block-end": 40
+      }
+    },
+    "chart": {
+      "type": "gamma-blower-chart",
+      "settings": {
+        "chart": "leaf-blower-chart",
+        "padding-block-start": 0,
         "padding-block-end": 80
       }
     }
   },
   "order": [
-    "main"
+    "main",
+    "chart"
   ]
 }

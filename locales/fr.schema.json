@@ -16,6 +16,11 @@
     "name": "FAQ",
     "block_info": "Affiche chaque entrée de FAQ publiée en rangée repliable, regroupée par sujet, puis par position et par question. Modifiez les entrées dans Contenu > Métaobjets."
   },
+  "gamma_blower_chart": {
+    "name": "Tableau des souffleurs à feuilles",
+    "chart": "Tableau",
+    "info": "Affiche une entrée Tableau des souffleurs à feuilles : sa date de mise à jour, les mentions et ses municipalités en trois groupes. Modifiez les entrées dans Contenu > Métaobjets."
+  },
   "gamma_collection_header": {
     "name": "En-tête de collection",
     "block_info": "Affiche le titre de la collection, son nombre de produits et sa description.",

@@ -1,0 +1,79 @@
+{%- doc -%}
+  Formats one hours value of a leaf-blower bylaw entry in the storefront language: a range such as `07:00-19:00`
+  (« 7 h à 19 h », "7 a.m.–7 p.m."), a word (`none`, `not_addressed`, `no_rule`, `no_set_hours`, `unconfirmed`),
+  or up to two ranges or words prefixed by `gas`, `electric`, `mon-thu` or `fri` and separated by `;`, each on its
+  own line. A value it can't read is shown as entered. A time keeps its unit on its line (no-break spaces).
+
+  @param {string} value - The hours value.
+{%- enddoc -%}
+{%- liquid
+  assign french = false
+  assign language = request.locale.iso_code | downcase | split: '-' | first
+  if language == 'fr'
+    assign french = true
+  endif
+  assign words = 'none,not_addressed,no_rule,no_set_hours,unconfirmed' | split: ','
+  assign prefixes = 'gas,electric,mon-thu,fri' | split: ','
+  assign parts = value | strip | split: ';'
+
+  for part in parts
+    assign piece = part | strip
+    assign label = ''
+    assign first_word = piece | split: ' ' | first
+    if prefixes contains first_word
+      assign label_key = 'gamma_blower_chart.hours.prefix.' | append: first_word | replace: '-', '_'
+      assign label = label_key | t
+      assign piece = piece | remove_first: first_word | strip
+    endif
+
+    assign text = piece
+    if words contains piece
+      assign word_key = 'gamma_blower_chart.hours.' | append: piece
+      assign text = word_key | t
+    else
+      assign ends = piece | split: '-'
+      if ends.size == 2
+        assign formatted = ''
+        for boundary in ends
+          assign hm = boundary | strip | split: ':'
+          assign h = hm[0] | plus: 0
+          assign m = hm[1] | default: '00'
+          if french
+            assign time = h | append: '~h'
+            if m != '00'
+              assign time = time | append: '~' | append: m
+            endif
+          elsif h == 12 and m == '00'
+            assign time = 'gamma_blower_chart.hours.noon' | t
+          else
+            assign suffix = 'gamma_blower_chart.hours.am' | t
+            if h >= 12
+              assign suffix = 'gamma_blower_chart.hours.pm' | t
+            endif
+            assign h12 = h | modulo: 12
+            if h12 == 0
+              assign h12 = 12
+            endif
+            assign time = h12 | append: ''
+            if m != '00'
+              assign time = time | append: ':' | append: m
+            endif
+            assign time = time | append: '~' | append: suffix
+          endif
+          assign formatted = formatted | append: time | append: '|'
+        endfor
+        assign times = formatted | split: '|'
+        assign text = 'gamma_blower_chart.hours.range' | t: start: times[0], end: times[1]
+      endif
+    endif
+
+    unless forloop.first
+      echo '<br>'
+    endunless
+    if label != blank
+      echo 'gamma_blower_chart.hours.labelled' | t: label: label, hours: text | escape | replace: '~', '&nbsp;'
+    else
+      echo text | escape | replace: '~', '&nbsp;'
+    endif
+  endfor
+-%}

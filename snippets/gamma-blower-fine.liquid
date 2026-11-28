@@ -1,0 +1,53 @@
+{%- doc -%}
+  Outputs a leaf-blower bylaw entry's first-offence fine in the storefront language, in whole dollars:
+  "Fine: $300 to $1,000" / « Amende : 300 $ à 1 000 $ », one amount when both are equal, "From $500" when only
+  the minimum is known. Outputs nothing without a minimum.
+
+  @param {number} [min] - Lowest fine in dollars.
+  @param {number} [max] - Highest fine in dollars.
+{%- enddoc -%}
+{%- liquid
+  if min != blank
+  assign language = request.locale.iso_code | downcase | split: '-' | first
+  assign amounts = ''
+  assign values = min | append: '|'
+  if max != blank and max != min
+    assign values = values | append: max
+  endif
+  assign values = values | split: '|'
+  for value in values
+    assign digits = value | plus: 0 | append: ''
+    assign last = digits.size | minus: 1
+    capture amount
+      if language != 'fr'
+        echo '$'
+      endif
+      for i in (0..last)
+        assign remaining = digits.size | minus: i | modulo: 3
+        if i > 0 and remaining == 0
+          if language == 'fr'
+            echo '&nbsp;'
+          else
+            echo ','
+          endif
+        endif
+        echo digits | slice: i, 1
+      endfor
+      if language == 'fr'
+        echo '&nbsp;$'
+      endif
+    endcapture
+    assign amounts = amounts | append: amount | append: '|'
+  endfor
+  assign amounts = amounts | split: '|'
+
+  if max == blank
+    assign text = 'gamma_blower_chart.fine.from' | t: min: amounts[0]
+  elsif amounts.size > 1
+    assign text = 'gamma_blower_chart.fine.range' | t: min: amounts[0], max: amounts[1]
+  else
+    assign text = amounts[0]
+  endif
+  echo 'gamma_blower_chart.fine.label_html' | t: amount: text
+  endif
+-%}

@@ -22,6 +22,73 @@
       "online": "Online orders"
     }
   },
+  "gamma_blower_chart": {
+    "editor_empty": "Choose a Leaf-blower chart entry. Customers don’t see this section until one is chosen.",
+    "good_to_know": "Good to know",
+    "as_of_html": "Current as of {{ date }}.",
+    "recheck": "Bylaws change often, especially in spring and fall. Check with your borough or municipality before using a blower.",
+    "not_legal_advice": "This table summarizes municipal bylaws for information only; it is not legal advice.",
+    "power_tools_note": "* Power tools: the bylaw sets hours for noisy tools in general without naming blowers; we apply them to blowers.",
+    "jump_to": "Jump to",
+    "groups": {
+      "montreal_borough": "Montréal boroughs",
+      "island_municipality": "Other cities on the island of Montréal",
+      "off_island": "Off the island"
+    },
+    "group_count": "{{ count }} places",
+    "columns": {
+      "municipality": "Municipality",
+      "gas": "Gas",
+      "season": "Allowed season",
+      "weekdays": "Mon to Fri",
+      "saturday": "Saturday",
+      "sunday": "Sunday",
+      "holidays": "Holidays",
+      "rule": "Rule",
+      "bylaw": "Bylaw"
+    },
+    "status": {
+      "allowed": "Allowed",
+      "two_stroke_banned": "2-stroke banned",
+      "seasonal": "Allowed in season",
+      "gas_banned_in_summer": "Banned in summer",
+      "gas_limited": "Apr, Oct and Nov",
+      "all_gas_banned": "Gas banned"
+    },
+    "all_year": "All year",
+    "hours": {
+      "none": "Not allowed",
+      "not_addressed": "Not specified",
+      "no_rule": "No rule",
+      "no_set_hours": "No set hours",
+      "unconfirmed": "To be confirmed",
+      "range": "{{ start }}–{{ end }}",
+      "am": "a.m.",
+      "pm": "p.m.",
+      "noon": "noon",
+      "labelled": "{{ label }}: {{ hours }}",
+      "prefix": {
+        "gas": "Gas",
+        "electric": "Electric",
+        "mon_thu": "Mon to Thu",
+        "fri": "Fri"
+      }
+    },
+    "rule": {
+      "blower": "Blowers",
+      "tool": "Power tools",
+      "blower_tool": "Blowers and power tools",
+      "noise": "Noise only",
+      "none": "No rule"
+    },
+    "fine": {
+      "label_html": "Fine: {{ amount }}",
+      "range": "{{ min }} to {{ max }}",
+      "from": "From {{ min }}"
+    },
+    "confirm": "To be confirmed with the municipality",
+    "new_tab": "(opens in a new tab)"
+  },
   "gamma_availability": {
     "backorder": {
       "badge": "Backorder",

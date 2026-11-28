@@ -1,0 +1,435 @@
+{%- comment -%}
+  Leaf-blower bylaw chart from a `blower_bylaw_chart` entry: the fine print with the as-of date, links to the
+  three groups, then each group's municipalities. From 990 px each group is one table at the section's width;
+  below that, each municipality is a disclosure row. Every value comes from the entries; the theme only formats
+  times, fines and dates for the storefront language.
+{%- endcomment -%}
+{%- liquid
+  assign chart = section.settings.chart
+  assign groups = 'boroughs:montreal_borough,island:island_municipality,off_island:off_island' | split: ','
+  assign restrictive = 'two_stroke_banned,seasonal,gas_banned_in_summer,gas_limited,all_gas_banned' | split: ','
+  assign to_confirm = 'medium_low,low' | split: ','
+  assign hour_fields = 'hours_weekdays:weekdays,hours_saturday:saturday,hours_sunday:sunday,hours_holidays:holidays' | split: ','
+  assign has_tool_rows = false
+-%}
+
+<div class="section-background"></div>
+<div
+  class="section section--page-width gamma-blower-chart spacing-style"
+  style="{% render 'spacing-style', settings: section.settings %}"
+>
+  <div class="gamma-blower-chart__inner">
+  {%- if chart != blank -%}
+    {%- capture body -%}
+      {%- for group in groups -%}
+        {%- assign group_field = group | split: ':' | first -%}
+        {%- assign group_key = group | split: ':' | last -%}
+        {%- assign entries = chart[group_field].value -%}
+        {%- if entries == blank -%}
+          {%- continue -%}
+        {%- endif -%}
+        {%- assign heading_id = section.id | append: '-' | append: group_key -%}
+        {%- assign heading_key = 'gamma_blower_chart.groups.' | append: group_key -%}
+
+        {%- assign table_rows = '' -%}
+        {%- assign disclosure_rows = '' -%}
+        {%- for entry in entries -%}
+          {%- liquid
+            assign status = entry.gas_status.value
+            assign status_key = 'gamma_blower_chart.status.' | append: status
+            assign status_text = status_key | t
+            assign rule = entry.rule_type.value
+            assign rule_key = 'gamma_blower_chart.rule.' | append: rule
+            assign rule_text = rule_key | t
+            if rule == 'tool' or rule == 'blower_tool'
+              assign rule_text = rule_text | append: '*'
+              assign has_tool_rows = true
+            endif
+            assign season_text = entry.season.value | default: ''
+            if season_text == blank
+              assign season_text = 'gamma_blower_chart.all_year' | t
+            endif
+            assign confirm = false
+            if to_confirm contains entry.confidence.value
+              assign confirm = true
+            endif
+            for field in hour_fields
+              assign hours_key = field | split: ':' | first
+              if entry[hours_key].value contains 'unconfirmed'
+                assign confirm = true
+              endif
+            endfor
+          -%}
+
+          {%- capture status_html -%}
+            {%- if restrictive contains status -%}
+              <strong>{{ status_text | escape }}</strong>
+            {%- else -%}
+              {{ status_text | escape }}
+            {%- endif -%}
+          {%- endcapture -%}
+
+          {%- capture notes -%}
+            {%- if confirm -%}
+              <p class="gamma-blower-chart__note">{{ 'gamma_blower_chart.confirm' | t }}</p>
+            {%- endif -%}
+            {%- if entry.hours_note.value != blank -%}
+              <p class="gamma-blower-chart__note">{{ entry.hours_note.value | escape }}</p>
+            {%- endif -%}
+            {%- if entry.note.value != blank -%}
+              <p class="gamma-blower-chart__note">{{ entry.note.value | escape }}</p>
+            {%- endif -%}
+          {%- endcapture -%}
+
+          {%- capture bylaw_html -%}
+            {%- if entry.bylaw_url.value != blank -%}
+              <a href="{{ entry.bylaw_url.value }}" target="_blank" rel="noopener">
+                {{- entry.bylaw.value | escape -}}
+                <span class="visually-hidden"> {{ 'gamma_blower_chart.new_tab' | t }}</span>
+              </a>
+            {%- else -%}
+              {{ entry.bylaw.value | escape }}
+            {%- endif -%}
+            {%- capture fine -%}{%- render 'gamma-blower-fine', min: entry.fine_min.value, max: entry.fine_max.value -%}{%- endcapture -%}
+            {%- if fine != blank -%}
+              <span class="gamma-blower-chart__fine">{{ fine }}</span>
+            {%- endif -%}
+          {%- endcapture -%}
+
+          {%- capture table_row -%}
+            <tr>
+              <th scope="row">
+                {{- entry.name.value | escape -}}
+                {{- notes -}}
+              </th>
+              <td>
+                {{- status_html -}}
+                {%- if entry.gas_detail.value != blank -%}
+                  <span class="gamma-blower-chart__detail">{{ entry.gas_detail.value | escape }}</span>
+                {%- endif -%}
+              </td>
+              <td>{{ season_text | escape }}</td>
+              {%- for field in hour_fields -%}
+                {%- assign hours_key = field | split: ':' | first -%}
+                <td>{%- render 'gamma-blower-hours', value: entry[hours_key].value -%}</td>
+              {%- endfor -%}
+              <td>{{ rule_text | escape }}</td>
+              <td>{{ bylaw_html }}</td>
+            </tr>
+          {%- endcapture -%}
+          {%- assign table_rows = table_rows | append: table_row -%}
+
+          {%- capture facts -%}
+            <dl class="gamma-blower-chart__facts">
+              <div>
+                <dt>{{ 'gamma_blower_chart.columns.gas' | t }}</dt>
+                <dd>
+                  {{- status_html -}}
+                  {%- if entry.gas_detail.value != blank -%}
+                    <span class="gamma-blower-chart__detail">{{ entry.gas_detail.value | escape }}</span>
+                  {%- endif -%}
+                </dd>
+              </div>
+              <div>
+                <dt>{{ 'gamma_blower_chart.columns.season' | t }}</dt>
+                <dd>{{ season_text | escape }}</dd>
+              </div>
+              {%- for field in hour_fields -%}
+                {%- assign hours_key = field | split: ':' | first -%}
+                {%- assign column_key = field | split: ':' | last | prepend: 'gamma_blower_chart.columns.' -%}
+                <div>
+                  <dt>{{ column_key | t }}</dt>
+                  <dd>{%- render 'gamma-blower-hours', value: entry[hours_key].value -%}</dd>
+                </div>
+              {%- endfor -%}
+              <div>
+                <dt>{{ 'gamma_blower_chart.columns.rule' | t }}</dt>
+                <dd>{{ rule_text | escape }}</dd>
+              </div>
+              <div>
+                <dt>{{ 'gamma_blower_chart.columns.bylaw' | t }}</dt>
+                <dd>{{ bylaw_html }}</dd>
+              </div>
+            </dl>
+            {{- notes -}}
+          {%- endcapture -%}
+          {%- capture disclosure_row -%}
+            {%- render 'gamma-disclosure-row', summary: entry.name.value, detail: status_html, content: facts -%}
+          {%- endcapture -%}
+          {%- assign disclosure_rows = disclosure_rows | append: disclosure_row -%}
+        {%- endfor -%}
+
+        <section class="gamma-blower-chart__group" aria-labelledby="{{ heading_id }}">
+          <h2 class="gamma-blower-chart__heading gamma-type-section" id="{{ heading_id }}">
+            {{- heading_key | t }}
+            <span class="gamma-blower-chart__count">
+              {{- 'gamma_blower_chart.group_count' | t: count: entries.size -}}
+            </span>
+          </h2>
+          <div class="gamma-blower-chart__table">
+            <table aria-labelledby="{{ heading_id }}">
+              <colgroup>
+                <col class="gamma-blower-chart__col-name">
+                <col class="gamma-blower-chart__col-gas">
+                <col class="gamma-blower-chart__col-season">
+                <col span="4" class="gamma-blower-chart__col-hours">
+                <col class="gamma-blower-chart__col-rule">
+                <col class="gamma-blower-chart__col-bylaw">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th scope="col">{{ 'gamma_blower_chart.columns.municipality' | t }}</th>
+                  <th scope="col">{{ 'gamma_blower_chart.columns.gas' | t }}</th>
+                  <th scope="col">{{ 'gamma_blower_chart.columns.season' | t }}</th>
+                  <th scope="col">{{ 'gamma_blower_chart.columns.weekdays' | t }}</th>
+                  <th scope="col">{{ 'gamma_blower_chart.columns.saturday' | t }}</th>
+                  <th scope="col">{{ 'gamma_blower_chart.columns.sunday' | t }}</th>
+                  <th scope="col">{{ 'gamma_blower_chart.columns.holidays' | t }}</th>
+                  <th scope="col">{{ 'gamma_blower_chart.columns.rule' | t }}</th>
+                  <th scope="col">{{ 'gamma_blower_chart.columns.bylaw' | t }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{- table_rows -}}
+              </tbody>
+            </table>
+          </div>
+          <div class="gamma-blower-chart__rows gamma-disclosure-list accordion accordion--caret accordion--dividers">
+            {{- disclosure_rows -}}
+          </div>
+        </section>
+      {%- endfor -%}
+    {%- endcapture -%}
+
+    <div class="gamma-blower-chart__intro">
+      <div class="gamma-fine-print">
+        <p class="gamma-type-label">{{ 'gamma_blower_chart.good_to_know' | t }}</p>
+        {%- if chart.as_of.value != blank -%}
+          {%- assign as_of_seconds = chart.as_of.value | date: '%s' -%}
+          {%- capture as_of -%}
+            {%- render 'gamma-promotion-dates', start: as_of_seconds, mode: 'first' -%}
+          {%- endcapture -%}
+          <p><strong>{{ 'gamma_blower_chart.as_of_html' | t: date: as_of }}</strong></p>
+        {%- endif -%}
+        <p>{{ 'gamma_blower_chart.recheck' | t }}</p>
+        <p>{{ 'gamma_blower_chart.not_legal_advice' | t }}</p>
+        {%- if has_tool_rows -%}
+          <p>{{ 'gamma_blower_chart.power_tools_note' | t }}</p>
+        {%- endif -%}
+      </div>
+
+      <nav class="gamma-blower-chart__jump" aria-label="{{ 'gamma_blower_chart.jump_to' | t }}">
+        <span class="gamma-type-label" aria-hidden="true">{{ 'gamma_blower_chart.jump_to' | t }}</span>
+        <ul>
+          {%- for group in groups -%}
+            {%- assign group_field = group | split: ':' | first -%}
+            {%- assign group_key = group | split: ':' | last -%}
+            {%- if chart[group_field].value != blank -%}
+              <li>
+                {%- assign link_key = 'gamma_blower_chart.groups.' | append: group_key -%}
+                <a href="#{{ section.id }}-{{ group_key }}">{{ link_key | t }}</a>
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      </nav>
+    </div>
+
+    {{ body }}
+    {%- render 'accordion-styles' -%}
+  {%- elsif request.design_mode -%}
+    <p>{{ 'gamma_blower_chart.editor_empty' | t }}</p>
+  {%- endif -%}
+  </div>
+</div>
+
+{% stylesheet %}
+  .gamma-blower-chart__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-3xl);
+  }
+
+  .gamma-blower-chart__intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xl);
+  }
+
+  .gamma-blower-chart__intro .gamma-fine-print p {
+    margin-block: 0 0.5em;
+  }
+
+  .gamma-blower-chart__jump ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap-xs) var(--gap-xl);
+    margin: var(--margin-xs) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .gamma-blower-chart__jump a {
+    display: inline-block;
+    padding-block: var(--padding-2xs);
+    min-block-size: 24px;
+  }
+
+  .gamma-blower-chart__heading {
+    margin-block: 0 var(--margin-md);
+    scroll-margin-block-start: calc(var(--header-height, 0px) + var(--margin-md));
+  }
+
+  .gamma-blower-chart__count {
+    display: block;
+    margin-block-start: 0.25em;
+    color: var(--gamma-color-muted);
+    font-family: var(--font-body--family);
+    font-size: var(--gamma-type-body-size);
+    font-weight: var(--font-body--weight);
+    letter-spacing: normal;
+    text-transform: none;
+  }
+
+  /* Fixed columns keep the three groups' tables aligned with one another. */
+  .gamma-blower-chart table {
+    inline-size: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .gamma-blower-chart__col-name {
+    inline-size: 17%;
+  }
+
+  .gamma-blower-chart__col-gas {
+    inline-size: 14%;
+  }
+
+  .gamma-blower-chart__col-season {
+    inline-size: 13%;
+  }
+
+  .gamma-blower-chart__col-hours {
+    inline-size: 7.5%;
+  }
+
+  .gamma-blower-chart__col-rule {
+    inline-size: 10%;
+  }
+
+  .gamma-blower-chart__col-bylaw {
+    inline-size: 16%;
+  }
+
+  .gamma-blower-chart :is(td, dd) a {
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  .gamma-blower-chart thead th {
+    text-align: start;
+  }
+
+  .gamma-blower-chart tbody th {
+    text-align: start;
+  }
+
+  :is(.gamma-blower-chart__detail, .gamma-blower-chart__fine) {
+    display: block;
+    color: var(--gamma-color-muted);
+  }
+
+  .gamma-blower-chart__note {
+    margin: 0.25em 0 0;
+    color: var(--gamma-color-muted);
+    font-size: var(--gamma-type-body-size);
+    font-weight: var(--font-body--weight);
+  }
+
+  .gamma-blower-chart__facts {
+    display: grid;
+    gap: var(--gap-xs);
+    margin: 0 0 var(--margin-sm);
+    font-size: var(--gamma-type-body-size);
+  }
+
+  .gamma-blower-chart__facts > div {
+    display: grid;
+    grid-template-columns: minmax(7rem, 2fr) 5fr;
+    gap: var(--gap-md);
+  }
+
+  .gamma-blower-chart__facts dt {
+    font-weight: 600;
+  }
+
+  .gamma-blower-chart__facts dd {
+    margin: 0;
+  }
+
+  .gamma-blower-chart__rows {
+    border-block-start: 1px solid var(--gamma-color-rule);
+  }
+
+  @media screen and (min-width: 990px) {
+    .gamma-blower-chart__rows {
+      display: none;
+    }
+  }
+
+  @media screen and (max-width: 989px) {
+    .gamma-blower-chart__table {
+      display: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:gamma_blower_chart.name",
+  "tag": "section",
+  "class": "section-wrapper",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:gamma_blower_chart.info"
+    },
+    {
+      "type": "metaobject",
+      "id": "chart",
+      "label": "t:gamma_blower_chart.chart",
+      "metaobject_type": "blower_bylaw_chart"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 80
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:gamma_blower_chart.name"
+    }
+  ]
+}
+{% endschema %}
