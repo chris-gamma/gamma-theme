@@ -713,5 +713,242 @@
       "success_moderated": "Commentaire publié, en attente de modération",
       "success": "Commentaire publié"
     }
+  },
+  "shopify": {
+    "checkout": {
+      "split_delivery": {
+        "items_moved_to_shipping_toast": "Les articles qui ne peuvent pas être retirés ont été transférés à l’expédition.",
+        "delivery_updated_toast": {
+          "shipping": {
+            "one": "{{count}} article a été transféré à l’expédition.",
+            "other": "{{count}} articles ont été transférés à l’expédition."
+          },
+          "removal": {
+            "one": "{{count}} élément a été supprimé.",
+            "other": "{{count}} éléments ont été supprimés."
+          }
+        },
+        "accessibility": {
+          "status": {
+            "pickup_in_store": "%{items} seront retirés en magasin."
+          }
+        },
+        "separate_pickup_email_notice": "Vous recevrez un courriel séparé lorsque votre commande sera prête pour le retrait.",
+        "inventory_issue_banner": {
+          "pick_them_up_in_store": {
+            "one": "Le récupérer en magasin",
+            "other": "Les récupérer en magasin"
+          }
+        }
+      },
+      "contact": {
+        "email_label": "Adresse courriel",
+        "email_rollup_accessibility_label": "Options de courriel",
+        "email_placeholder": "Adresse courriel"
+      },
+      "marketing": {
+        "accept_marketing_checkbox_label": "Envoyez-moi des nouvelles et des offres par courriel"
+      },
+      "shipping": {
+        "title": "Livraison",
+        "shipping_method_title": "Mode de livraison",
+        "shipping_method_rollup_accessibility_label": "Options de mode de livraison",
+        "waiting_on_rate_notice": "Tarifs de livraison disponibles en cours d’obtention…",
+        "no_rates_for_cart_or_destination_notice": "Aucun mode de livraison n’est disponible pour votre panier ou votre adresse",
+        "no_rates_for_country_notice": "Aucun tarif de livraison trouvé pour cette adresse.",
+        "shipping_information_required_notice": "Les renseignements de livraison sont obligatoires. {{link}}.",
+        "different_shipping_method_summary": "Saisir une adresse de livraison différente pour afficher les modes de livraison disponibles",
+        "invalid_shipping_method_summary": "Saisissez une adresse de livraison valide pour afficher les modes de livraison disponibles",
+        "invalid_shipping_method_summary_selected": "Sélectionnez une adresse de livraison différente pour afficher les modes de livraison disponibles",
+        "method_summary": {
+          "incomplete_address_entered": "Saisissez une adresse de livraison complète pour afficher les modes de livraison disponibles",
+          "incomplete_address_selected": "Sélectionnez une adresse de livraison complète pour afficher les modes de livraison disponibles"
+        },
+        "local_pickup": {
+          "rollup_title": "Point de retrait"
+        },
+        "missing_shipping_address": "Il manque l’adresse de livraison"
+      },
+      "delivery_options": {
+        "shipping_address": "Adresse de livraison",
+        "pickup_store": "Retrait en magasin",
+        "pick_up_from_store": "Retrait en magasin",
+        "pick_up_in_zero_to_two_hours": "Prêt pour le retrait dans 2 heures",
+        "pick_up_in_two_to_four_hours": "Prêt pour le retrait dans 4 heures",
+        "pick_up_immediately": "Prêt pour le retrait maintenant",
+        "pick_up_next_day": "Prêt pour le retrait le jour suivant"
+      },
+      "local_pickup": {
+        "stock_details_modal": {
+          "unavailable_title": "Non disponible pour le retrait",
+          "can_ship_description": {
+            "one": "Cet article est en rupture de stock au point de retrait sélectionné.",
+            "other": "Ces articles sont en rupture de stock au point de retrait sélectionné."
+          },
+          "cannot_ship_description": {
+            "one": "Cet article est en rupture de stock au point de retrait sélectionné et ne peut pas être expédié.",
+            "other": "Ces articles sont en rupture de stock au point de retrait sélectionné et ne peuvent pas être expédiés."
+          }
+        },
+        "stock_details_banner": {
+          "heading": {
+            "one": "%{count} article n’est pas disponible pour le retrait à %{location}",
+            "other": "%{count} articles ne sont pas disponibles pour le retrait à %{location}"
+          },
+          "closest_location": "Le point de retrait le plus proche avec tous les articles en stock se trouve à %{distance}"
+        },
+        "no_stores_found": "Aucun magasin trouvé",
+        "pickup_unavailable_banner_body": {
+          "there_are_no_stores": "Il n’y a pas de magasin près de votre adresse ou vos articles ne sont pas disponibles au retrait."
+        }
+      },
+      "review": {
+        "blocks": {
+          "shipping_method_title": "Mode de livraison",
+          "change_shipping_method_link_label": "Modifier le mode de livraison",
+          "pick_up_in_store_shipping_method_html": "Retrait en magasin · %{location_name}"
+        }
+      },
+      "general": {
+        "continue_to_shipping_method": "Continuer vers la livraison",
+        "choose_shipping_method": "Choisissez un mode de livraison",
+        "submit_order_button_label": "Passer la commande"
+      },
+      "payment": {
+        "payment_method_not_available_for_shipping_address_error": "Le moyen de paiement n'est pas disponible pour l'adresse de livraison sélectionnée. Choisissez un autre moyen de paiement.",
+        "billing_must_match_shipping_notice": "L’adresse de facturation de votre moyen de paiement doit correspondre à l’adresse de livraison.",
+        "same_billing_address_checkbox_label": "Utiliser l’adresse de livraison comme adresse de facturation",
+        "shipping_rate_updated": "Les modes de livraison disponibles ont été mis à jour. Confirmez votre choix avant de procéder au paiement."
+      },
+      "order_summary": {
+        "discount_title": "Réduction",
+        "enter_shipping_address": "Saisir une adresse de livraison",
+        "remove_discount_label": "Retirer la réduction",
+        "free_shipping_discount_label": "Livraison gratuite",
+        "discount_requires_customer_notice": "Saisissez vos renseignements de livraison pour appliquer le code de réduction <strong style=\"text-transform:uppercase\">%{code}</strong>",
+        "shipping_information_does_not_meet_discount_requirements_notice": "Le code de réduction<strong style=\"text-transform:uppercase\"> %{code}</strong> n’est pas disponible pour votre adresse de livraison",
+        "customer_already_used_once_per_customer_discount_notice": "Le code de réduction <strong style=\"text-transform:uppercase\">%{code}</strong> a déjà été utilisé",
+        "shipping_label": "Livraison",
+        "pickup_label": "Retrait en magasin",
+        "no_pickup_location": "Aucun point de retrait n’est disponible.",
+        "pickup_unavailable_banner_title": {
+          "one": "Aucun magasin n’est disponible avec votre article",
+          "other": "Aucun magasin n’est disponible avec vos articles"
+        },
+        "shipping_discount_title": "Réduction sur les frais de livraison",
+        "shipping_policy_link": "Frais de livraison",
+        "estimated_taxes_finalization_tooltip_content": "La taxe et le total définitifs seront confirmés par courriel ou par SMS après avoir passé la commande.",
+        "sale_price": "Prix en rabais",
+        "compare_at_sale": "Rabais (%{sale_amount})",
+        "multiple_shipping_lines_label": "Total de la livraison",
+        "percent_off_shipping": "%{percent} % de réduction sur les frais de livraison",
+        "amount_off_shipping": "%{amount} de réduction sur les frais de livraison",
+        "updated_shipping_method": "Mode de livraison mis à jour : %{shipping_method}"
+      },
+      "shop_policies": {
+        "shipping_policy": "Livraison",
+        "terms_of_sale": "Modalités de vente",
+        "terms_and_policies": "Modalités et politiques"
+      },
+      "field_errors": {
+        "handle_email_invalid": "Entrez une adresse courriel valide",
+        "email_invalid": "Entrez une adresse courriel valide",
+        "email_or_phone_blank": "Saisissez une adresse courriel ou un numéro de téléphone",
+        "email_or_phone_invalid": "Entrez une adresse courriel ou un numéro de téléphone mobile valide",
+        "address_country_not_supported": "Nous n'expédions pas vers ce pays ou cette région. Veuillez saisir une nouvelle adresse de livraison et réessayer.",
+        "delivery_line_detail_changed": "Certains détails de livraison peuvent avoir changé. Vérifiez votre mode de livraison et réessayez.",
+        "email_blank": "Saisissez une adresse courriel",
+        "shipping_method_invalid_phone_number": "Mettez à jour le numéro de téléphone dans votre adresse de livraison pour connaître les modes de livraison disponibles.",
+        "must_use_available_shipping_rate": "Le tarif de livraison doit être sélectionné parmi les tarifs de livraison disponibles."
+      },
+      "thank_you": {
+        "confirmation_email_sent_text": "Un courriel de confirmation a été envoyé à %{email}",
+        "pickup_address_title": "Retrait à",
+        "shipping_address_map_title": "Le plan de Google indique l’emplacement de l’adresse de livraison : %{address}",
+        "shipping_method_title": "Mode de livraison",
+        "gift_card_confirmation_by_email": "Si vous ne l’avez pas reçu, renvoyez le courriel ou contactez-nous.",
+        "thank_you_confirmed_with_email_description": {
+          "single_store": "Vous recevrez prochainement un courriel de confirmation"
+        },
+        "thank_you_confirmed_with_email_and_phone_description": {
+          "single_store": "Vous recevrez prochainement un courriel de confirmation"
+        },
+        "thank_you_confirmed_order_with_email": "Vous recevrez sous peu un courriel de confirmation avec votre numéro de commande.",
+        "thank_you_confirmed_order_with_email_and_phone": "Vous recevrez sous peu un courriel de confirmation avec votre numéro de commande.",
+        "thank_you_confirmed_orders_with_email": "Vous recevrez bientôt des courriels de confirmation distincts comportant vos numéros de commande",
+        "thank_you_confirmed_orders_with_email_and_phone": "Vous recevrez bientôt des courriels de confirmation distincts comportant vos numéros de commande",
+        "thank_you_confirmed_order_with_email_pick_up": "Vous recevrez un courriel lorsque votre commande sera prête pour le retrait.",
+        "thank_you_confirmed_order_with_email_and_phone_pick_up": "Vous recevrez un courriel lorsque votre commande sera prête pour le retrait.",
+        "thank_you_confirmed_order_with_missing": "Contactez-nous par courriel ou par téléphone pour recevoir une confirmation de commande.",
+        "thank_you_confirmed_order_with_missing_payment": "Contactez-nous par courriel ou par téléphone pour recevoir une confirmation de commande.",
+        "thank_you_confirmed_order_with_missing_pick_up": "Contactez-nous par courriel ou par téléphone pour recevoir une confirmation de commande.",
+        "thank_you_payments_app_pending_payment_description_default_with_missing": "Contactez-nous par courriel ou par téléphone pour recevoir une confirmation de commande.",
+        "thank_you_payments_app_pending_payment_description_default_with_missing_payment": "Contactez-nous par courriel ou par téléphone pour recevoir une confirmation de commande.",
+        "thank_you_payments_app_pending_payment_description_default_with_missing_pick_up": "Contactez-nous par courriel ou par téléphone pour recevoir une confirmation de commande.",
+        "thank_you_payments_app_pending_payment_description_default_with_email_and_phone": "Vous recevrez sous peu un courriel de confirmation indiquant votre numéro de commande.",
+        "thank_you_payments_app_pending_payment_description_default_with_email_and_phone_payment": "Vous recevrez sous peu un courriel de confirmation indiquant votre numéro de commande.",
+        "thank_you_payments_app_pending_payment_description_default_with_email_and_phone_pick_up": "Vous recevrez sous peu un courriel de confirmation indiquant votre numéro de commande.",
+        "thank_you_payments_app_pending_payment_description_default_with_email": "Vous recevrez sous peu un courriel de confirmation indiquant votre numéro de commande.",
+        "thank_you_payments_app_pending_payment_description_default_with_email_payment": "Vous recevrez sous peu un courriel de confirmation indiquant votre numéro de commande.",
+        "thank_you_payments_app_pending_payment_description_default_with_email_pick_up": "Vous recevrez sous peu un courriel de confirmation indiquant votre numéro de commande.",
+        "thank_you_payments_app_pending_payment_description_buyer_action_required_with_missing": "Contactez-nous par courriel ou par téléphone pour recevoir une confirmation de commande.",
+        "thank_you_payments_app_pending_payment_description_buyer_action_required_with_missing_payment": "Contactez-nous par courriel ou par téléphone pour recevoir une confirmation de commande.",
+        "thank_you_payments_app_pending_payment_description_buyer_action_required_with_missing_pick_up": "Contactez-nous par courriel ou par téléphone pour recevoir une confirmation de commande.",
+        "thank_you_payments_app_pending_payment_description_buyer_action_required_with_email_and_phone": "Après finalisation de votre paiement, vous recevrez un courriel de confirmation indiquant votre numéro de commande.",
+        "thank_you_payments_app_pending_payment_description_buyer_action_required_with_email_and_phone_payment": "Après finalisation de votre paiement, vous recevrez un courriel de confirmation indiquant votre numéro de commande.",
+        "thank_you_payments_app_pending_payment_description_buyer_action_required_with_email_and_phone_pick_up": "Après finalisation de votre paiement, vous recevrez un courriel de confirmation indiquant votre numéro de commande.",
+        "thank_you_payments_app_pending_payment_description_buyer_action_required_with_email": "Après finalisation de votre paiement, vous recevrez un courriel de confirmation indiquant votre numéro de commande.",
+        "thank_you_payments_app_pending_payment_description_buyer_action_required_with_email_payment": "Après finalisation de votre paiement, vous recevrez un courriel de confirmation indiquant votre numéro de commande.",
+        "thank_you_payments_app_pending_payment_description_buyer_action_required_with_email_pick_up": "Après finalisation de votre paiement, vous recevrez un courriel de confirmation indiquant votre numéro de commande.",
+        "thank_you_payments_app_pending_payment_description_provider_action_required_default": "Vous recevrez un courriel lorsque votre paiement sera confirmé.",
+        "order_status_confirmed_order_with_email": "Vous recevrez un courriel lorsque votre commande sera prête.",
+        "order_status_confirmed_order_with_email_and_phone": "Vous recevrez un courriel lorsque votre commande sera prête.",
+        "order_status_confirmed_order_with_email_pick_up": "Vous recevrez un courriel lorsque votre commande sera prête pour le retrait.",
+        "order_status_confirmed_order_with_phone_pick_up": "Vous recevrez un SMS lorsque votre commande sera prête pour le retrait.",
+        "order_status_confirmed_order_with_email_and_phone_pick_up": "Vous recevrez un courriel et un SMS lorsque votre commande sera prête pour le retrait.",
+        "order_status_payments_app_pending_payment_description_default_with_missing": "Contactez-nous par courriel ou par téléphone pour recevoir une confirmation de commande.",
+        "order_status_payments_app_pending_payment_description_default_with_missing_payment": "Contactez-nous par courriel ou par téléphone pour recevoir une confirmation de commande.",
+        "order_status_payments_app_pending_payment_description_default_with_missing_pick_up": "Contactez-nous par courriel ou par téléphone pour recevoir une confirmation de commande.",
+        "order_status_payments_app_pending_payment_description_default_with_email_and_phone": "Vous recevrez bientôt une confirmation par courriel. Suivez votre commande en utilisant l’application Shop.",
+        "order_status_payments_app_pending_payment_description_default_with_email_and_phone_payment": "Vous recevrez bientôt une confirmation par courriel. Suivez votre commande en utilisant l’application Shop.",
+        "order_status_payments_app_pending_payment_description_default_with_email_and_phone_pick_up": "Vous recevrez bientôt une confirmation par courriel. Suivez votre commande en utilisant l’application Shop.",
+        "order_status_payments_app_pending_payment_description_default_with_email": "Vous recevrez bientôt une confirmation par courriel. Suivez votre commande en utilisant l’application Shop.",
+        "order_status_payments_app_pending_payment_description_default_with_email_payment": "Vous recevrez bientôt une confirmation par courriel. Suivez votre commande en utilisant l’application Shop.",
+        "order_status_payments_app_pending_payment_description_default_with_email_pick_up": "Vous recevrez bientôt une confirmation par courriel. Suivez votre commande en utilisant l’application Shop.",
+        "order_status_payments_app_pending_payment_description_buyer_action_required_with_missing": "Contactez-nous par courriel ou par téléphone pour recevoir une confirmation de commande.",
+        "order_status_payments_app_pending_payment_description_buyer_action_required_with_missing_payment": "Contactez-nous par courriel ou par téléphone pour recevoir une confirmation de commande.",
+        "order_status_payments_app_pending_payment_description_buyer_action_required_with_missing_pick_up": "Contactez-nous par courriel ou par téléphone pour recevoir une confirmation de commande.",
+        "order_status_payments_app_pending_payment_description_buyer_action_required_with_email_and_phone": "Après finalisation de votre paiement, vous recevrez une confirmation par courriel. Suivez votre commande en utilisant l’application Shop.",
+        "order_status_payments_app_pending_payment_description_buyer_action_required_with_email_and_phone_payment": "Après finalisation de votre paiement, vous recevrez une confirmation par courriel. Suivez votre commande en utilisant l’application Shop.",
+        "order_status_payments_app_pending_payment_description_buyer_action_required_with_email_and_phone_pick_up": "Après finalisation de votre paiement, vous recevrez une confirmation par courriel. Suivez votre commande en utilisant l’application Shop.",
+        "order_status_payments_app_pending_payment_description_buyer_action_required_with_email": "Après finalisation de votre paiement, vous recevrez une confirmation par courriel. Suivez votre commande en utilisant l’application Shop.",
+        "order_status_payments_app_pending_payment_description_buyer_action_required_with_email_payment": "Après finalisation de votre paiement, vous recevrez une confirmation par courriel. Suivez votre commande en utilisant l’application Shop.",
+        "order_status_payments_app_pending_payment_description_buyer_action_required_with_email_pick_up": "Après finalisation de votre paiement, vous recevrez une confirmation par courriel. Suivez votre commande en utilisant l’application Shop.",
+        "order_status_payments_app_pending_payment_description_buyer_action_required_with_phone": "Après finalisation de votre paiement, vous recevrez une confirmation par courriel. Suivez votre commande en utilisant l’application Shop.",
+        "order_status_payments_app_pending_payment_description_buyer_action_required_with_phone_payment": "Après finalisation de votre paiement, vous recevrez une confirmation par courriel. Suivez votre commande en utilisant l’application Shop.",
+        "order_status_payments_app_pending_payment_description_buyer_action_required_with_phone_pick_up": "Après finalisation de votre paiement, vous recevrez une confirmation par courriel. Suivez votre commande en utilisant l’application Shop.",
+        "order_status_updates_with_email": "Vous recevrez les mises à jour sur l’expédition et la livraison par courriel.",
+        "order_status_updates_with_email_and_phone": "Vous recevrez les mises à jour sur l’expédition et la livraison par courriel.",
+        "order_status_confirmed_with_installments_payment_confirm": "Vous recevrez sous peu un courriel de confirmation comportant votre numéro de commande et les détails de votre programme de paiement en plusieurs versements.",
+        "login_description": "Vous trouverez le numéro de commande dans le reçu que vous avez reçu par courriel.",
+        "customer_validation_error": "Saisissez un courriel ou un numéro de commande valide.",
+        "pickup_map_marker": {
+          "callout": "Retrait à {{location}}",
+          "directions_link_accessibility_label": "Retrait à {{location}}, obtenir l’itinéraire"
+        },
+        "missing_shipping_address_banner": {
+          "title": "La commande ne comporte pas d’adresse de livraison"
+        },
+        "gift_card_confirmation_by_email_typ": {
+          "one": "Vous recevrez un courriel avec votre carte-cadeau dans quelques minutes.",
+          "other": "Vous recevrez un courriel avec vos cartes-cadeaux dans quelques minutes."
+        },
+        "gift_card_email_title": {
+          "one": "La carte-cadeau a été envoyée par courriel",
+          "other": "Les cartes-cadeaux ont été envoyées par courriel"
+        },
+        "resend_gift_cards_by_email": "Renvoyer le courriel"
+      }
+    }
   }
 }
