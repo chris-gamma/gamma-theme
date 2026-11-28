@@ -1,0 +1,34 @@
+name: Admin changes
+
+# Shopify's GitHub app commits editor and code-editor saves to the live branch. This keeps one issue
+# listing them until a release has reviewed them. It never changes the branch.
+
+on:
+  push:
+    branches:
+      - live
+      - live-pilot
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: admin-changes-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Update the issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LIVE_BRANCH: ${{ github.ref_name }}
+          BEFORE_SHA: ${{ github.event.before }}
+        run: bash .github/scripts/live-edits.sh
