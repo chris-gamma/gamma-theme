@@ -92,29 +92,30 @@
     margin-block-start: 0.25em;
   }
 
-  :is(thead, tr:not(:has(td))) {
+  /* The `table` in these selectors outweighs Horizon's `.rte` table rules, so they don't depend on load order. */
+  table :is(thead, tr:not(:has(td))) {
     background: none;
     font-weight: inherit;
     text-transform: none;
   }
 
-  tr {
+  table :is(thead, tbody, tfoot) > tr {
     border-block-end: 1px solid var(--gamma-color-rule);
   }
 
   /* Long words such as « Professionnel » break inside narrow columns, for example at 200% zoom on a phone. */
-  :is(th, td) {
+  table :is(th, td) {
     padding: var(--padding-sm) var(--padding-md) var(--padding-sm) 0;
     vertical-align: top;
     overflow-wrap: break-word;
     hyphens: auto;
   }
 
-  th {
+  table th {
     font-weight: 600;
   }
 
-  thead th {
+  table thead th {
     color: var(--gamma-color-muted);
   }
 }
