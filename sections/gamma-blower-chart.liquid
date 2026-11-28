@@ -61,6 +61,18 @@
             endfor
           -%}
 
+          {%- liquid
+            assign hours_html = ''
+            for field in hour_fields
+              assign hours_key = field | split: ':' | first
+              capture one_hours
+                render 'gamma-blower-hours', value: entry[hours_key].value
+              endcapture
+              assign hours_html = hours_html | append: one_hours | append: '@@hours@@'
+            endfor
+            assign hours_html = hours_html | split: '@@hours@@'
+          -%}
+
           {%- capture status_html -%}
             {%- if restrictive contains status -%}
               <strong>{{ status_text | escape }}</strong>
@@ -74,16 +86,16 @@
               <p class="gamma-blower-chart__note">{{ 'gamma_blower_chart.confirm' | t }}</p>
             {%- endif -%}
             {%- if entry.hours_note.value != blank -%}
-              <p class="gamma-blower-chart__note">{{ entry.hours_note.value | escape }}</p>
+              <p class="gamma-blower-chart__note">{{ entry.hours_note.value | escape | newline_to_br }}</p>
             {%- endif -%}
             {%- if entry.note.value != blank -%}
-              <p class="gamma-blower-chart__note">{{ entry.note.value | escape }}</p>
+              <p class="gamma-blower-chart__note">{{ entry.note.value | escape | newline_to_br }}</p>
             {%- endif -%}
           {%- endcapture -%}
 
           {%- capture bylaw_html -%}
             {%- if entry.bylaw_url.value != blank -%}
-              <a href="{{ entry.bylaw_url.value }}" target="_blank" rel="noopener">
+              <a href="{{ entry.bylaw_url.value | escape }}" target="_blank" rel="noopener">
                 {{- entry.bylaw.value | escape -}}
                 <span class="visually-hidden"> {{ 'gamma_blower_chart.new_tab' | t }}</span>
               </a>
@@ -98,10 +110,7 @@
 
           {%- capture table_row -%}
             <tr>
-              <th scope="row">
-                {{- entry.name.value | escape -}}
-                {{- notes -}}
-              </th>
+              <th scope="row">{{ entry.name.value | escape }}</th>
               <td>
                 {{- status_html -}}
                 {%- if entry.gas_detail.value != blank -%}
@@ -110,11 +119,13 @@
               </td>
               <td>{{ season_text | escape }}</td>
               {%- for field in hour_fields -%}
-                {%- assign hours_key = field | split: ':' | first -%}
-                <td>{%- render 'gamma-blower-hours', value: entry[hours_key].value -%}</td>
+                <td>{{ hours_html[forloop.index0] }}</td>
               {%- endfor -%}
               <td>{{ rule_text | escape }}</td>
-              <td>{{ bylaw_html }}</td>
+              <td>
+                {{- bylaw_html -}}
+                {{- notes -}}
+              </td>
             </tr>
           {%- endcapture -%}
           {%- assign table_rows = table_rows | append: table_row -%}
@@ -135,11 +146,10 @@
                 <dd>{{ season_text | escape }}</dd>
               </div>
               {%- for field in hour_fields -%}
-                {%- assign hours_key = field | split: ':' | first -%}
                 {%- assign column_key = field | split: ':' | last | prepend: 'gamma_blower_chart.columns.' -%}
                 <div>
                   <dt>{{ column_key | t }}</dt>
-                  <dd>{%- render 'gamma-blower-hours', value: entry[hours_key].value -%}</dd>
+                  <dd>{{ hours_html[forloop.index0] }}</dd>
                 </div>
               {%- endfor -%}
               <div>

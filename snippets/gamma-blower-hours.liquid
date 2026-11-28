@@ -32,7 +32,11 @@
       assign text = word_key | t
     else
       assign ends = piece | split: '-'
-      if ends.size == 2
+      assign readable = false
+      if ends.size == 2 and ends[0].size == 5 and ends[1].size == 5 and ends[0] contains ':' and ends[1] contains ':'
+        assign readable = true
+      endif
+      if readable
         assign formatted = ''
         for boundary in ends
           assign hm = boundary | strip | split: ':'

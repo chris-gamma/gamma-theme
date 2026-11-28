@@ -75,7 +75,7 @@
     "fine": {
       "label_html": "Amende : {{ amount }}",
       "range": "{{ min }} à {{ max }}",
-      "from": "À partir de {{ min }}"
+      "from": "à partir de {{ min }}"
     },
     "confirm": "À confirmer auprès de la municipalité",
     "new_tab": "(nouvel onglet)"

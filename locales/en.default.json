@@ -84,7 +84,7 @@
     "fine": {
       "label_html": "Fine: {{ amount }}",
       "range": "{{ min }} to {{ max }}",
-      "from": "From {{ min }}"
+      "from": "from {{ min }}"
     },
     "confirm": "To be confirmed with the municipality",
     "new_tab": "(opens in a new tab)"
