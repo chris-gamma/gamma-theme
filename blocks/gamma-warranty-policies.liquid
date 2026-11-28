@@ -17,7 +17,7 @@
         {%- assign brand_handle = brand.system.handle -%}
       {%- endfor -%}
       {%- assign name = entry.product_brand_type.value | default: entry.system.handle -%}
-      {{- brand_key -}}|{%- render 'gamma-sort-key', text: name -%}@@{{ brand_handle }}@@{{ forloop.index0 }}##
+      {{- brand_key }} {% render 'gamma-sort-key', text: name %} @@{{ brand_handle }}@@{{ forloop.index0 }}##
     {%- endfor -%}
   {%- endcapture -%}
   {%- assign sort_keys = sort_keys | split: '##' | sort -%}

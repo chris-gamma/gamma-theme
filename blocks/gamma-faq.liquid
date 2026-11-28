@@ -23,7 +23,7 @@
       {%- if entry.position.value != blank -%}
         {%- assign position = entry.position.value | plus: 100000 -%}
       {%- endif -%}
-      {{- rank -}}|{{- position -}}|{%- render 'gamma-sort-key', text: entry.question.value -%}@@{{ rank }}@@{{ forloop.index0 }}##
+      {{- rank -}}|{{- position -}}|{%- render 'gamma-sort-key', text: entry.question.value %} @@{{ rank }}@@{{ forloop.index0 }}##
     {%- endfor -%}
   {%- endcapture -%}
   {%- assign sort_keys = sort_keys | split: '##' | sort -%}

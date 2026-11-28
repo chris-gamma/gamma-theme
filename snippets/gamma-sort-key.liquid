@@ -1,5 +1,7 @@
 {%- doc -%}
-  Outputs text in lower case with French accents removed, for sorting names alphabetically.
+  Outputs text in lower case with French accents removed, for sorting names alphabetically. Spaces become `!` and
+  the separators `|`, `@` and `#` are removed, so a caller can end the key with a space: a name then sorts before
+  longer names it begins (« Batteries » before « Batteries 18 V »).
   @param {string} text - Text to turn into a sort key.
 {%- enddoc -%}
-{{- text | downcase | replace: 'à', 'a' | replace: 'â', 'a' | replace: 'ä', 'a' | replace: 'ç', 'c' | replace: 'é', 'e' | replace: 'è', 'e' | replace: 'ê', 'e' | replace: 'ë', 'e' | replace: 'î', 'i' | replace: 'ï', 'i' | replace: 'ô', 'o' | replace: 'ö', 'o' | replace: 'ù', 'u' | replace: 'û', 'u' | replace: 'ü', 'u' | replace: 'ÿ', 'y' | replace: 'œ', 'oe' | replace: 'æ', 'ae' | replace: '|', ' ' | replace: '@', ' ' | replace: '#', ' ' -}}
+{{- text | downcase | replace: 'à', 'a' | replace: 'â', 'a' | replace: 'ä', 'a' | replace: 'ç', 'c' | replace: 'é', 'e' | replace: 'è', 'e' | replace: 'ê', 'e' | replace: 'ë', 'e' | replace: 'î', 'i' | replace: 'ï', 'i' | replace: 'ô', 'o' | replace: 'ö', 'o' | replace: 'ù', 'u' | replace: 'û', 'u' | replace: 'ü', 'u' | replace: 'ÿ', 'y' | replace: 'œ', 'oe' | replace: 'æ', 'ae' | replace: '|', ' ' | replace: '@', ' ' | replace: '#', ' ' | replace: ' ', '!' -}}
