@@ -1,8 +1,8 @@
 name: Release
 
 # Moves the live branch, and with it the theme Shopify keeps in sync with it, to main.
-# A push to main releases to live only once the LIVE_RELEASES variable is "on" (set at the launch
-# setup). Before that, run it by hand for the pilot branch.
+# Releases to live wait until the LIVE_RELEASES variable is "on" (set at the launch setup).
+# Before that, run it by hand for the pilot branch.
 
 on:
   push:
@@ -31,7 +31,8 @@ jobs:
 
   release:
     needs: checks
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || vars.LIVE_RELEASES == 'on')
+    # Releasing to live, by push or by hand, waits for LIVE_RELEASES; live-pilot can always be released by hand.
+    if: github.ref == 'refs/heads/main' && (vars.LIVE_RELEASES == 'on' || (github.event_name == 'workflow_dispatch' && inputs.live_branch == 'live-pilot'))
     runs-on: ubuntu-latest
     permissions:
       contents: write

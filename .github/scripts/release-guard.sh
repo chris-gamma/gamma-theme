@@ -32,6 +32,12 @@ if ! git fetch --quiet --tags origin "+refs/heads/$live:refs/remotes/origin/$liv
   exit 1
 fi
 live_sha=$(git rev-parse "origin/$live")
+
+git fetch --quiet origin "+refs/heads/main:refs/remotes/origin/main"
+if [ "$(git rev-parse origin/main)" != "$main_sha" ]; then
+  echo "::error::main has moved on since this run started; release the current main instead."
+  exit 1
+fi
 base=$(git merge-base "$main_sha" "$live_sha")
 
 if git merge-base --is-ancestor "$live_sha" "$main_sha"; then
@@ -53,15 +59,20 @@ if [ "$target" != "$live_sha" ]; then
   stop "The newest review tag, $tag, isn't on $live." "$(list "$base..$live_sha")"
 fi
 
-read -r type object < <(gh api "repos/$repo/git/ref/tags/$tag" --jq '.object.type + " " + .object.sha')
+ref=$(gh api "repos/$repo/git/ref/tags/$tag" --jq '.object.type + " " + .object.sha') || stop "GitHub's API didn't return $tag."
+read -r type object <<<"$ref"
 if [ "$type" != tag ]; then
   stop "$tag isn't a signed annotated tag."
 fi
-read -r verified email < <(gh api "repos/$repo/git/tags/$object" --jq '"\(.verification.verified) \(.tagger.email)"')
+# GitHub verifies a signature only when the tagger's address is a verified address of the key's owner.
+signed=$(gh api "repos/$repo/git/tags/$object" --jq '"\(.verification.verified) \(.tagger.email | ascii_downcase)"') \
+  || stop "GitHub's API didn't return the tag object of $tag."
+read -r verified email <<<"$signed"
 if [ "$verified" != true ]; then
   stop "GitHub doesn't verify the signature of $tag."
 fi
-if ! [[ ",${reviewers// /}," == *",$email,"* ]]; then
+reviewers=$(tr '[:upper:]' '[:lower:]' <<<"${reviewers// /}")
+if ! [[ ",$reviewers," == *",$email,"* ]]; then
   stop "$tag wasn't signed by a reviewer listed in LIVE_REVIEWER_EMAILS."
 fi
 
